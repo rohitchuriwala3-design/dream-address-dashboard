@@ -1,0 +1,27 @@
+{
+  "name": "dream-address-dashboard",
+  "version": "2.0.0",
+  "description": "Dream Address Studio - Executive Full-Stack Turnkey Interior Management Dashboard",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "multer": "^1.4.5-lts.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "interior-design",
+    "dashboard",
+    "render",
+    "turnkey-management"
+  ],
+  "author": "Dream Address Studio",
+  "license": "ISC"
+}
