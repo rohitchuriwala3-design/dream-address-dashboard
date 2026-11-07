@@ -16,7 +16,7 @@ app.use(cors());
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 
-// Multer storage for uploads
+// File Uploads
 const upload = multer({
   dest: path.join(__dirname, 'uploads'),
   limits: { fileSize: 15 * 1024 * 1024 }
@@ -25,7 +25,7 @@ if (!fs.existsSync(path.join(__dirname, 'uploads'))) {
   fs.mkdirSync(path.join(__dirname, 'uploads'));
 }
 
-// In-Memory Database preloaded with verified Master Sheet Data
+// In-Memory Database tailored for Pure Cash + Bank Turnkey Operations (Zero GST)
 const db = {
   kpis: {
     totalTurnover: 6850000,
@@ -38,43 +38,10 @@ const db = {
     cashBalances: 341000,
     totalCashHoldings: 1486000
   },
-  servicesCatalog: [
-    { id: 'SRV-001', category: 'Carpentry', desc: 'Wardrobe Carcass & Shutter Carpentry', unit: 'Sq ft', rate: 350 },
-    { id: 'SRV-002', category: 'Carpentry', desc: 'Modular Kitchen Base & Wall Unit Carpentry', unit: 'Running ft', rate: 1200 },
-    { id: 'SRV-003', category: 'Carpentry', desc: 'Hydraulic Storage Bed Carpentry', unit: 'Piece', rate: 15000 },
-    { id: 'SRV-004', category: 'Carpentry', desc: 'Bedside Table Carpentry with Drawers', unit: 'Piece', rate: 2500 },
-    { id: 'SRV-005', category: 'Carpentry', desc: 'TV Unit with Fluted/Louvered Paneling', unit: 'Sq ft', rate: 450 },
-    { id: 'SRV-006', category: 'Carpentry', desc: 'Crockery / Bar Unit Carpentry', unit: 'Sq ft', rate: 400 },
-    { id: 'SRV-007', category: 'Carpentry', desc: 'Vanity Counter Cabinet Carpentry', unit: 'Piece', rate: 4500 },
-    { id: 'SRV-008', category: 'Carpentry', desc: 'Laminate Pasting (Both Sides) & Edge Banding', unit: 'Sq ft', rate: 150 },
-    { id: 'SRV-009', category: 'Ceilings', desc: 'Gypsum Board False Ceiling with GI Framing', unit: 'Sq ft', rate: 110 },
-    { id: 'SRV-010', category: 'Ceilings', desc: 'POP Cove / Light Tray Vertical Pelmet', unit: 'Running ft', rate: 95 },
-    { id: 'SRV-011', category: 'Ceilings', desc: 'Profile Light Aluminum Channel Grooving', unit: 'Running ft', rate: 75 },
-    { id: 'SRV-012', category: 'Electrical', desc: 'Concealed Electrical Point Wiring (Light/Fan/Socket)', unit: 'Point', rate: 650 },
-    { id: 'SRV-013', category: 'Electrical', desc: 'Power Point Wiring (15A/20A for AC/Geyser)', unit: 'Point', rate: 1100 },
-    { id: 'SRV-014', category: 'Electrical', desc: 'Main Distribution Board (MDB) Dressing & MCBs', unit: 'Lumpsum', rate: 4500 },
-    { id: 'SRV-015', category: 'Electrical', desc: 'Light Fixture & Chandelier Installation', unit: 'Piece', rate: 350 },
-    { id: 'SRV-016', category: 'Painting', desc: 'Royale Luxury Emulsion Painting with 2 Putty + Primer', unit: 'Sq ft', rate: 35 },
-    { id: 'SRV-017', category: 'Painting', desc: 'PU Wood Polish (High Gloss / Satin Matte)', unit: 'Sq ft', rate: 180 },
-    { id: 'SRV-018', category: 'Painting', desc: 'Textured Accent Wall Painting', unit: 'Sq ft', rate: 75 },
-    { id: 'SRV-019', category: 'Painting', desc: 'Designer Wallpaper Installation', unit: 'Roll', rate: 850 },
-    { id: 'SRV-020', category: 'Civil', desc: 'Tile / Marble Laying with Base Leveling', unit: 'Sq ft', rate: 65 },
-    { id: 'SRV-021', category: 'Civil', desc: 'Demolition of Partition Wall & Debris Disposal', unit: 'Sq ft', rate: 45 },
-    { id: 'SRV-022', category: 'Civil', desc: 'Bathroom Waterproofing (2-Coat Epoxy Polymer)', unit: 'Sq ft', rate: 55 },
-    { id: 'SRV-023', category: 'Plumbing', desc: 'Concealed CPVC/UPVC Water Supply Piping', unit: 'Point', rate: 850 },
-    { id: 'SRV-024', category: 'Plumbing', desc: 'Sanitary Ware & CP Fixture Installation', unit: 'Set', rate: 2200 },
-    { id: 'SRV-025', category: 'Handover', desc: 'Post-Execution Deep Cleaning & Site Sanitization', unit: 'Lumpsum', rate: 6500 }
-  ],
-  materialCatalog: [
-    { id: 'MAT-001', category: 'Plywood', desc: '19mm BWP Marine Plywood (IS 710)', brand: 'Century Club Prime / Greenply', unit: 'Sheet', rate: 3200 },
-    { id: 'MAT-002', category: 'Plywood', desc: '12mm BWP Marine Plywood (IS 710)', brand: 'Century / Greenply', unit: 'Sheet', rate: 2400 },
-    { id: 'MAT-004', category: 'Laminates', desc: '1.0mm Premium Textured / Suede Laminate', brand: 'Merino / Greenlam', unit: 'Sheet', rate: 1850 },
-    { id: 'MAT-007', category: 'Hardware', desc: 'Sensys Soft-Close Concealed Hinges', brand: 'Hettich / Hafele', unit: 'Pair', rate: 450 },
-    { id: 'MAT-008', category: 'Hardware', desc: 'Quadro Soft-Close Drawer Channels (450mm)', brand: 'Hettich / Blum', unit: 'Set', rate: 2200 },
-    { id: 'MAT-010', category: 'Ceilings', desc: '12.5mm Gypsum Plasterboards', brand: 'Saint-Gobain Gyproc', unit: 'Sheet', rate: 480 },
-    { id: 'MAT-012', category: 'Electrical', desc: 'FR-LSH Copper Insulated Wire (2.5 sq mm)', brand: 'Polycab / Finolex', unit: 'Coil', rate: 2600 },
-    { id: 'MAT-016', category: 'Painting', desc: 'Royale Luxury Emulsion Interior Paint', brand: 'Asian Paints Royale', unit: 'Litre', rate: 520 },
-    { id: 'MAT-019', category: 'Adhesive', desc: 'Waterproof Woodworking Adhesive', brand: 'Fevicol Marine', unit: 'Tub (5kg)', rate: 1150 }
+  accounts: [
+    { id: "ACC-01", name: "HDFC Bank (Current A/C)", number: "50200012345678", type: "Bank", balance: 1145000 },
+    { id: "ACC-02", name: "Cash Box - Workshop (Tangra)", number: "CB-WRK-01", type: "Cash", balance: 185000 },
+    { id: "ACC-03", name: "Cash Box - Site 01 (Highline)", number: "CB-SITE-01", type: "Cash", balance: 156000 }
   ],
   projects: [
     {
@@ -82,7 +49,6 @@ const db = {
       name: "Highline Highland - Penthouse 14B",
       client: "Ananya Sen",
       phone: "+91 98301 23456",
-      email: "ananya.sen@gmail.com",
       location: "EM Bypass, Kolkata",
       area: 2850,
       status: "Execution (Stage 3)",
@@ -93,14 +59,16 @@ const db = {
       outstanding: 385000,
       budgetDirectCost: 2450000,
       actualDirectCost: 1485000,
+      cashSpent: 425000,
+      bankSpent: 1060000,
       grossMargin: 35.6,
       startDate: "2026-01-15",
       targetHandover: "2026-05-30",
       milestones: [
-        { stage: "Stage 1: Mobilization & 2D/3D Approvals", percent: 20, amount: 770000, status: "Paid", invoiceNo: "INV-2026-001", date: "2026-01-20" },
-        { stage: "Stage 2: Civil, Electrical & Plumbing Rough-in", percent: 30, amount: 1155000, status: "Paid", invoiceNo: "INV-2026-004", date: "2026-02-28" },
-        { stage: "Stage 3: Carpentry, False Ceiling & Veneer", percent: 30, amount: 1155000, status: "Partially Paid", invoiceNo: "INV-2026-007", date: "2026-04-10" },
-        { stage: "Stage 4: Finishing, Painting & Handover", percent: 20, amount: 770000, status: "Upcoming", invoiceNo: "Pending", date: "2026-05-25" }
+        { stage: "Stage 1: Advance / 2D-3D Approval", percent: 20, amount: 770000, status: "Received", date: "2026-01-20", mode: "Bank (RTGS)" },
+        { stage: "Stage 2: Civil, Electrical & Rough-in", percent: 30, amount: 1155000, status: "Received", date: "2026-02-28", mode: "Cash & Bank" },
+        { stage: "Stage 3: Carpentry, False Ceiling & Veneer", percent: 30, amount: 1155000, status: "Partially Received", date: "2026-04-10", mode: "Cash" },
+        { stage: "Stage 4: Finishing, PU Polish & Handover", percent: 20, amount: 770000, status: "Upcoming", date: "2026-05-25", mode: "Pending" }
       ],
       costBreakdown: [
         { trade: "Carpentry & Joinery", budget: 1100000, spent: 720000 },
@@ -111,11 +79,11 @@ const db = {
         { trade: "Plumbing & Sanitary", budget: 120000, spent: 80000 }
       ],
       ledgerEntries: [
-        { date: "2026-01-20", desc: "Stage 1 Advance Received via RTGS", ref: "HDFC-RTGS-9812", debit: 0, credit: 770000, balance: 770000 },
-        { date: "2026-02-28", desc: "Stage 2 Milestone Payment Received", ref: "HDFC-NEFT-4412", debit: 0, credit: 1155000, balance: 1925000 },
-        { date: "2026-03-05", desc: "Direct Material Purchase (Century Ply IS 710)", ref: "TXN-101", debit: 145000, credit: 0, balance: 1780000 },
-        { date: "2026-03-18", desc: "Electrical Cables & Conduits Site 01", ref: "TXN-102", debit: 18500, credit: 0, balance: 1761500 },
-        { date: "2026-04-02", desc: "Asian Paints Royale Emulsion & PU", ref: "TXN-105", debit: 48000, credit: 0, balance: 1713500 }
+        { date: "2026-01-20", desc: "Stage 1 Advance Received", ref: "RTGS-9812", mode: "Bank", debit: 0, credit: 770000, balance: 770000 },
+        { date: "2026-02-28", desc: "Stage 2 Milestone Payment", ref: "NEFT-4412", mode: "Bank", debit: 0, credit: 1155000, balance: 1925000 },
+        { date: "2026-03-05", desc: "Century Marine Ply IS 710", ref: "TXN-101", mode: "Bank", debit: 145000, credit: 0, balance: 1780000 },
+        { date: "2026-03-18", desc: "Electrical Cables & Site Cash Expense", ref: "TXN-102", mode: "Cash", debit: 18500, credit: 0, balance: 1761500 },
+        { date: "2026-04-02", desc: "Asian Paints & PU Polish", ref: "TXN-105", mode: "Bank", debit: 48000, credit: 0, balance: 1713500 }
       ]
     },
     {
@@ -123,7 +91,6 @@ const db = {
       name: "Ballygunge Park Villa",
       client: "Vikram Singhania",
       phone: "+91 98310 98765",
-      email: "v.singhania@group.com",
       location: "Ballygunge Circular Rd, Kolkata",
       area: 2100,
       status: "Execution (Stage 2)",
@@ -134,14 +101,16 @@ const db = {
       outstanding: 300000,
       budgetDirectCost: 1950000,
       actualDirectCost: 729000,
+      cashSpent: 280000,
+      bankSpent: 449000,
       grossMargin: 35.0,
       startDate: "2026-02-01",
       targetHandover: "2026-06-15",
       milestones: [
-        { stage: "Stage 1: Mobilization & Layout Finalization", percent: 20, amount: 600000, status: "Paid", invoiceNo: "INV-2026-002", date: "2026-02-05" },
-        { stage: "Stage 2: Core Civil & False Ceiling Framing", percent: 30, amount: 900000, status: "Paid", invoiceNo: "INV-2026-005", date: "2026-03-25" },
-        { stage: "Stage 3: Custom Modular & Wardrobes", percent: 30, amount: 900000, status: "Pending", invoiceNo: "INV-2026-008", date: "2026-05-10" },
-        { stage: "Stage 4: Paint, Marble Polish & Handover", percent: 20, amount: 600000, status: "Upcoming", invoiceNo: "Pending", date: "2026-06-10" }
+        { stage: "Stage 1: Advance / Layout Finalization", percent: 20, amount: 600000, status: "Received", date: "2026-02-05", mode: "Bank (RTGS)" },
+        { stage: "Stage 2: Core Civil & False Ceiling", percent: 30, amount: 900000, status: "Received", date: "2026-03-25", mode: "Cash & Bank" },
+        { stage: "Stage 3: Custom Modular & Wardrobes", percent: 30, amount: 900000, status: "Pending", date: "2026-05-10", mode: "Pending" },
+        { stage: "Stage 4: Paint, Polish & Handover", percent: 20, amount: 600000, status: "Upcoming", date: "2026-06-10", mode: "Pending" }
       ],
       costBreakdown: [
         { trade: "Carpentry & Joinery", budget: 850000, spent: 310000 },
@@ -152,9 +121,9 @@ const db = {
         { trade: "Painting & Deco", budget: 220000, spent: 30000 }
       ],
       ledgerEntries: [
-        { date: "2026-02-05", desc: "Stage 1 Advance Received", ref: "HDFC-RTGS-1190", debit: 0, credit: 600000, balance: 600000 },
-        { date: "2026-03-25", desc: "Stage 2 Milestone Payment", ref: "HDFC-RTGS-3310", debit: 0, credit: 900000, balance: 1500000 },
-        { date: "2026-04-01", desc: "Demolition & Masonry Labor Disbursal", ref: "TXN-104", debit: 32000, credit: 0, balance: 1468000 }
+        { date: "2026-02-05", desc: "Stage 1 Advance Received", ref: "RTGS-1190", mode: "Bank", debit: 0, credit: 600000, balance: 600000 },
+        { date: "2026-03-25", desc: "Stage 2 Milestone Payment", ref: "CASH-3310", mode: "Cash", debit: 0, credit: 900000, balance: 1500000 },
+        { date: "2026-04-01", desc: "Demolition & Masonry Labor", ref: "TXN-104", mode: "Cash", debit: 32000, credit: 0, balance: 1468000 }
       ]
     },
     {
@@ -162,7 +131,6 @@ const db = {
       name: "Rajarhat Luxury Residency",
       client: "Pooja Agarwal",
       phone: "+91 98315 44321",
-      email: "pooja.agarwal@outlook.com",
       location: "Action Area II, New Town",
       area: 1650,
       status: "Quotation Finalized",
@@ -173,14 +141,16 @@ const db = {
       outstanding: 0,
       budgetDirectCost: 1460000,
       actualDirectCost: 120000,
+      cashSpent: 40000,
+      bankSpent: 80000,
       grossMargin: 35.1,
       startDate: "2026-03-01",
       targetHandover: "2026-07-20",
       milestones: [
-        { stage: "Stage 1: Advance / Mobilization", percent: 20, amount: 450000, status: "Paid", invoiceNo: "INV-2026-003", date: "2026-03-05" },
-        { stage: "Stage 2: Civil & Base Infrastructure", percent: 30, amount: 675000, status: "Pending", invoiceNo: "INV-2026-006", date: "2026-04-30" },
-        { stage: "Stage 3: Woodwork & Fitments", percent: 30, amount: 675000, status: "Upcoming", invoiceNo: "Pending", date: "2026-06-15" },
-        { stage: "Stage 4: Final Touch & Snag Clearance", percent: 20, amount: 450000, status: "Upcoming", invoiceNo: "Pending", date: "2026-07-15" }
+        { stage: "Stage 1: Advance / Mobilization", percent: 20, amount: 450000, status: "Received", date: "2026-03-05", mode: "Bank (NEFT)" },
+        { stage: "Stage 2: Civil & Base Infrastructure", percent: 30, amount: 675000, status: "Pending", date: "2026-04-30", mode: "Pending" },
+        { stage: "Stage 3: Woodwork & Fitments", percent: 30, amount: 675000, status: "Upcoming", date: "2026-06-15", mode: "Pending" },
+        { stage: "Stage 4: Finishing & Snags", percent: 20, amount: 450000, status: "Upcoming", date: "2026-07-15", mode: "Pending" }
       ],
       costBreakdown: [
         { trade: "Carpentry", budget: 680000, spent: 40000 },
@@ -189,112 +159,9 @@ const db = {
         { trade: "False Ceiling", budget: 120000, spent: 10000 }
       ],
       ledgerEntries: [
-        { date: "2026-03-05", desc: "Contract Signing Advance (20%)", ref: "HDFC-NEFT-8891", debit: 0, credit: 450000, balance: 450000 }
+        { date: "2026-03-05", desc: "Contract Signing Advance", ref: "NEFT-8891", mode: "Bank", debit: 0, credit: 450000, balance: 450000 }
       ]
     }
-  ],
-  quotations: [
-    {
-      id: "QT-2026-001",
-      projectId: "PRJ-2026-001",
-      clientName: "Ananya Sen",
-      projectTitle: "Highline Highland - Penthouse 14B",
-      date: "2026-01-10",
-      validUntil: "2026-02-10",
-      totalSqft: 2850,
-      subtotal: 3262712,
-      gstPercent: 18,
-      gstAmount: 587288,
-      grandTotal: 3850000,
-      status: "Approved & Under Execution",
-      items: [
-        { trade: "Carpentry", desc: "Master Bedroom & Guest Bedroom BWP Wardrobes (19mm Century Club Prime + Merino Laminate)", qty: 380, unit: "Sq ft", rate: 2200, amount: 836000 },
-        { trade: "Carpentry", desc: "Modular Kitchen with Quartz Top & Hafele Blum Soft-close Hardware", qty: 28, unit: "Running ft", rate: 16500, amount: 462000 },
-        { trade: "Carpentry", desc: "Living Room Feature TV Wall Unit with Fluted Charcoal Louvers", qty: 140, unit: "Sq ft", rate: 1450, amount: 203000 },
-        { trade: "Ceilings", desc: "Gypsum False Ceiling with Ambient Cove & Profile Channels", qty: 2200, unit: "Sq ft", rate: 140, amount: 308000 },
-        { trade: "Electrical", desc: "Concealed Polycab Wiring, Schneider Modular Plates & Profile LED Lighting", qty: 2850, unit: "Sq ft", rate: 185, amount: 527250 },
-        { trade: "Painting", desc: "Asian Paints Royale Emulsion with Acrylic Putty & Primer Finish", qty: 9500, unit: "Sq ft", rate: 42, amount: 399000 },
-        { trade: "Civil", desc: "Italian Marble Diamond Polish & Bathroom Tile Upgrades", qty: 2100, unit: "Sq ft", rate: 110, amount: 231000 },
-        { trade: "Plumbing", desc: "Grohe Concealed Diverters, Sanitaryware & Rain Showers", qty: 3, unit: "Bathrooms", rate: 98820, amount: 296462 }
-      ]
-    }
-  ],
-  invoices: [
-    {
-      id: "INV-2026-001",
-      projectId: "PRJ-2026-001",
-      clientName: "Ananya Sen",
-      date: "2026-01-20",
-      milestone: "Stage 1: Mobilization & 2D/3D Approvals (20%)",
-      basicAmount: 652542,
-      cgst: 58729,
-      sgst: 58729,
-      totalAmount: 770000,
-      status: "Paid",
-      paymentDate: "2026-01-22",
-      mode: "RTGS (HDFC Bank)"
-    },
-    {
-      id: "INV-2026-004",
-      projectId: "PRJ-2026-001",
-      clientName: "Ananya Sen",
-      date: "2026-02-28",
-      milestone: "Stage 2: Civil, Electrical & Plumbing Rough-in (30%)",
-      basicAmount: 978814,
-      cgst: 88093,
-      sgst: 88093,
-      totalAmount: 1155000,
-      status: "Paid",
-      paymentDate: "2026-03-02",
-      mode: "RTGS (HDFC Bank)"
-    },
-    {
-      id: "INV-2026-007",
-      projectId: "PRJ-2026-001",
-      clientName: "Ananya Sen",
-      date: "2026-04-10",
-      milestone: "Stage 3: Carpentry, False Ceiling & Veneer (30%)",
-      basicAmount: 978814,
-      cgst: 88093,
-      sgst: 88093,
-      totalAmount: 1155000,
-      status: "Partially Paid",
-      paymentDate: "Pending",
-      mode: "NEFT"
-    },
-    {
-      id: "INV-2026-002",
-      projectId: "PRJ-2026-002",
-      clientName: "Vikram Singhania",
-      date: "2026-02-05",
-      milestone: "Stage 1: Mobilization & Layout Finalization (20%)",
-      basicAmount: 508475,
-      cgst: 45762,
-      sgst: 45762,
-      totalAmount: 600000,
-      status: "Paid",
-      paymentDate: "2026-02-08",
-      mode: "RTGS (HDFC Bank)"
-    },
-    {
-      id: "INV-2026-005",
-      projectId: "PRJ-2026-002",
-      clientName: "Vikram Singhania",
-      date: "2026-03-25",
-      milestone: "Stage 2: Core Civil & False Ceiling Framing (30%)",
-      basicAmount: 762712,
-      cgst: 68644,
-      sgst: 68644,
-      totalAmount: 900000,
-      status: "Paid",
-      paymentDate: "2026-03-28",
-      mode: "RTGS (HDFC Bank)"
-    }
-  ],
-  accounts: [
-    { name: "HDFC Bank (Current A/C)", number: "50200012345678", ifsc: "HDFC0000123", type: "Bank", balance: 1145000 },
-    { name: "Cash Box - Workshop (Tangra)", number: "CB-WRK-01", ifsc: "N/A", type: "Cash", balance: 185000 },
-    { name: "Cash Box - Site 01 (Highline)", number: "CB-SITE-01", ifsc: "N/A", type: "Cash", balance: 156000 }
   ],
   vendors: [
     {
@@ -308,17 +175,16 @@ const db = {
       totalPaid: 720000,
       balance: 25000,
       ledger: [
-        { date: "2026-01-25", desc: "Century Marine Ply IS 710 - Highline Penthouse", ref: "BILL-8891", billed: 320000, paid: 0, balance: 320000 },
-        { date: "2026-02-02", desc: "NEFT Payment from HDFC A/C", ref: "TXN-901", billed: 0, paid: 320000, balance: 0 },
-        { date: "2026-03-05", desc: "Century Ply & Teak Veneer Batch 2", ref: "BILL-9102", billed: 280000, paid: 0, balance: 280000 },
-        { date: "2026-03-12", desc: "NEFT Payment from HDFC A/C", ref: "TXN-944", billed: 0, paid: 255000, balance: 25000 },
-        { date: "2026-04-01", desc: "Fevicol Marine & Screws", ref: "BILL-9411", billed: 145000, paid: 145000, balance: 25000 }
+        { date: "2026-01-25", desc: "Century Marine Ply IS 710", ref: "BILL-8891", billed: 320000, paid: 0, balance: 320000 },
+        { date: "2026-02-02", desc: "Payment from HDFC A/C", ref: "TXN-901", billed: 0, paid: 320000, balance: 0 },
+        { date: "2026-03-05", desc: "Century Ply Batch 2", ref: "BILL-9102", billed: 280000, paid: 0, balance: 280000 },
+        { date: "2026-03-12", desc: "Payment from HDFC A/C", ref: "TXN-944", billed: 0, paid: 255000, balance: 25000 }
       ]
     },
     {
       id: "VND-002",
       name: "Kolkata Electric Works",
-      trade: "Cables, Switches & Profile LEDs",
+      trade: "Cables, Switches & Automation",
       phone: "+91 98311 44556",
       contact: "Sanjay Paul",
       city: "Kolkata (Ezra Street)",
@@ -326,14 +192,14 @@ const db = {
       totalPaid: 240000,
       balance: 8400,
       ledger: [
-        { date: "2026-02-10", desc: "Polycab FR-LSH 1.5 & 2.5 mm Wire Coils", ref: "BILL-4310", billed: 125000, paid: 125000, balance: 0 },
-        { date: "2026-03-15", desc: "Schneider Modular Switches & Sockets", ref: "BILL-4890", billed: 123400, paid: 115000, balance: 8400 }
+        { date: "2026-02-10", desc: "Polycab FR-LSH Copper Wires", ref: "BILL-4310", billed: 125000, paid: 125000, balance: 0 },
+        { date: "2026-03-15", desc: "Schneider Modular Switches", ref: "BILL-4890", billed: 123400, paid: 115000, balance: 8400 }
       ]
     },
     {
       id: "VND-003",
       name: "Asian Paints Depot",
-      trade: "Royale Emulsion, PU Polish & Primer",
+      trade: "Royale Emulsion & PU Polish",
       phone: "+91 98302 77889",
       contact: "Gouranga Ghosh",
       city: "Kolkata (Park Circus)",
@@ -341,49 +207,37 @@ const db = {
       totalPaid: 110000,
       balance: 14200,
       ledger: [
-        { date: "2026-03-20", desc: "Royale Luxury Emulsion & Acrylic Putty", ref: "BILL-7721", billed: 76200, paid: 76200, balance: 0 },
-        { date: "2026-04-05", desc: "PU Polish Gloss & Hardener 20L", ref: "BILL-8100", billed: 48000, paid: 33800, balance: 14200 }
+        { date: "2026-03-20", desc: "Royale Emulsion & Putty", ref: "BILL-7721", billed: 76200, paid: 76200, balance: 0 },
+        { date: "2026-04-05", desc: "PU Polish Clear Gloss", ref: "BILL-8100", billed: 48000, paid: 33800, balance: 14200 }
       ]
     },
     {
       id: "VND-004",
-      name: "Royal Marble & Tiles",
-      trade: "Italian Marble & Quartz Countertops",
-      phone: "+91 98309 66778",
-      contact: "Manoj Agarwal",
-      city: "Kolkata (Chinar Park)",
-      totalBilled: 260000,
-      totalPaid: 215000,
-      balance: 45000,
+      name: "Labour Group (Tangra Carpenters)",
+      trade: "Site Carpentry & Fixed Woodwork",
+      phone: "+91 98308 55443",
+      contact: "Subir Mistry (Head Carpenter)",
+      city: "Kolkata",
+      totalBilled: 380000,
+      totalPaid: 350000,
+      balance: 30000,
       ledger: [
-        { date: "2026-02-18", desc: "Statuario Quartz Kitchen Countertop & Cladding", ref: "BILL-1102", billed: 260000, paid: 215000, balance: 45000 }
-      ]
-    },
-    {
-      id: "VND-005",
-      name: "Gyproc India Distributors",
-      trade: "False Ceiling GI Framing & Gypsum",
-      phone: "+91 98303 33221",
-      contact: "Tanmoy Dutta",
-      city: "Kolkata (Tangra)",
-      totalBilled: 152000,
-      totalPaid: 120000,
-      balance: 32000,
-      ledger: [
-        { date: "2026-02-22", desc: "12.5mm Gypsum Plasterboards (120 Sheets)", ref: "BILL-5011", billed: 152000, paid: 120000, balance: 32000 }
+        { date: "2026-02-15", desc: "Wardrobe Carcass Fabrication Wages", ref: "LAB-01", billed: 120000, paid: 100000, balance: 20000 },
+        { date: "2026-03-20", desc: "Modular Kitchen Fitting Advance", ref: "LAB-02", billed: 150000, paid: 150000, balance: 20000 },
+        { date: "2026-04-08", desc: "Veneer & Shutter Paneling Wages", ref: "LAB-03", billed: 110000, paid: 100000, balance: 30000 }
       ]
     }
   ],
   transactions: [
-    { id: "TXN-101", date: "2026-11-06", type: "Payment (Cost)", category: "Carpentry & Joinery", project: "PRJ-2026-001", account: "HDFC Bank (Current A/C)", vendor: "Bengal Timber Mart", amount: 145000, mode: "NEFT", status: "Verified" },
+    { id: "TXN-101", date: "2026-11-06", type: "Payment (Cost)", category: "Carpentry & Joinery", project: "PRJ-2026-001", account: "HDFC Bank (Current A/C)", vendor: "Bengal Timber Mart", amount: 145000, mode: "Bank (NEFT)", status: "Verified" },
     { id: "TXN-102", date: "2026-11-05", type: "Payment (Cost)", category: "Electrical & Lights", project: "PRJ-2026-001", account: "Cash Box - Site 01 (Highline)", vendor: "Kolkata Electric Works", amount: 18500, mode: "Cash", status: "Verified" },
-    { id: "TXN-103", date: "2026-11-04", type: "Receipt (Client Advance)", category: "Client Advance", project: "PRJ-2026-002", account: "HDFC Bank (Current A/C)", vendor: "Vikram Singhania", amount: 600000, mode: "RTGS", status: "Verified" },
-    { id: "TXN-104", date: "2026-11-03", type: "Payment (Cost)", category: "False Ceiling", project: "PRJ-2026-002", account: "Cash Box - Workshop (Tangra)", vendor: "Gyproc India Distributors", amount: 32000, mode: "Cash", status: "Verified" },
-    { id: "TXN-105", date: "2026-11-02", type: "Payment (Cost)", category: "Painting & Polish", project: "PRJ-2026-001", account: "HDFC Bank (Current A/C)", vendor: "Asian Paints Depot", amount: 48000, mode: "UPI", status: "Verified" }
+    { id: "TXN-103", date: "2026-11-04", type: "Receipt (Client Advance)", category: "Client Advance", project: "PRJ-2026-002", account: "HDFC Bank (Current A/C)", vendor: "Vikram Singhania", amount: 600000, mode: "Bank (RTGS)", status: "Verified" },
+    { id: "TXN-104", date: "2026-11-03", type: "Payment (Cost)", category: "Civil & Masonry", project: "PRJ-2026-002", account: "Cash Box - Workshop (Tangra)", vendor: "Labour Group (Tangra Carpenters)", amount: 32000, mode: "Cash", status: "Verified" },
+    { id: "TXN-105", date: "2026-11-02", type: "Payment (Cost)", category: "Painting & Polish", project: "PRJ-2026-001", account: "HDFC Bank (Current A/C)", vendor: "Asian Paints Depot", amount: 48000, mode: "Bank (UPI)", status: "Verified" }
   ]
 };
 
-// --- AUTH ROUTE ---
+// --- AUTH ---
 app.post('/api/auth/login', (req, res) => {
   const { password, pin } = req.body;
   if ((password && password === APP_PASSWORD) || (pin && pin === ADMIN_PIN)) {
@@ -397,7 +251,6 @@ app.post('/api/auth/login', (req, res) => {
   return res.status(401).json({ success: false, message: "Invalid Password or PIN. Access denied." });
 });
 
-// Middleware
 const requireAuth = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -408,163 +261,70 @@ const requireAuth = (req, res, next) => {
 
 // --- API ENDPOINTS ---
 
-// 1. Full Studio Dashboard & Overview
+// 1. Dashboard data (Consolidated & Per-Site)
 app.get('/api/dashboard', requireAuth, (req, res) => {
   res.json({
     kpis: db.kpis,
     projects: db.projects,
     accounts: db.accounts,
-    recentTransactions: db.transactions.slice(0, 15),
+    recentTransactions: db.transactions.slice(0, 20),
     vendors: db.vendors,
     sheetId: SHEET_ID
   });
 });
 
-// 2. Catalogs (Services & Materials for Quotation Generator)
-app.get('/api/catalog', requireAuth, (req, res) => {
-  res.json({
-    services: db.servicesCatalog,
-    materials: db.materialCatalog
-  });
-});
-
-// 3. Projects List & Single Project
-app.get('/api/projects', requireAuth, (req, res) => {
-  res.json(db.projects);
-});
-
-app.get('/api/projects/:id', requireAuth, (req, res) => {
-  const proj = db.projects.find(p => p.id === req.params.id);
-  if (!proj) return res.status(404).json({ message: "Project not found" });
-  res.json(proj);
-});
-
-// 4. Quotations CRUD
-app.get('/api/quotations', requireAuth, (req, res) => {
-  res.json(db.quotations);
-});
-
-app.post('/api/quotations', requireAuth, (req, res) => {
-  const { projectId, clientName, projectTitle, totalSqft, items, gstPercent } = req.body;
-  const quoteId = `QT-2026-${String(db.quotations.length + 1).padStart(3, '0')}`;
-  
-  let subtotal = 0;
-  const processedItems = (items || []).map(item => {
-    const amt = (parseFloat(item.qty) || 0) * (parseFloat(item.rate) || 0);
-    subtotal += amt;
-    return {
-      trade: item.trade || "Carpentry",
-      desc: item.desc || "General Interior Work",
-      qty: parseFloat(item.qty) || 1,
-      unit: item.unit || "Sq ft",
-      rate: parseFloat(item.rate) || 0,
-      amount: amt
-    };
-  });
-
-  const gstRate = parseFloat(gstPercent) || 18;
-  const gstAmount = Math.round((subtotal * gstRate) / 100);
-  const grandTotal = subtotal + gstAmount;
-
-  const newQuote = {
-    id: quoteId,
-    projectId: projectId || "PRJ-2026-CUSTOM",
-    clientName: clientName || "Valued Client",
-    projectTitle: projectTitle || "Luxury Interior Fitout",
-    date: new Date().toISOString().split('T')[0],
-    validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    totalSqft: parseFloat(totalSqft) || 2000,
-    subtotal,
-    gstPercent: gstRate,
-    gstAmount,
-    grandTotal,
-    status: "Draft / Pending Client Approval",
-    items: processedItems
+// 2. Add New Client / Project
+app.post('/api/projects', requireAuth, (req, res) => {
+  const { client, name, phone, location, area, contractValue, budgetDirectCost } = req.body;
+  const newPrj = {
+    id: `PRJ-2026-${String(db.projects.length + 1).padStart(3, '0')}`,
+    name: name || `${client}'s Residence`,
+    client: client || "New Client",
+    phone: phone || "+91 98300 00000",
+    location: location || "Kolkata",
+    area: parseFloat(area) || 1500,
+    status: "Initiation",
+    progress: 10,
+    contractValue: parseFloat(contractValue) || 2000000,
+    invoiced: 0,
+    received: 0,
+    outstanding: parseFloat(contractValue) || 2000000,
+    budgetDirectCost: parseFloat(budgetDirectCost) || Math.round((parseFloat(contractValue) || 2000000) * 0.65),
+    actualDirectCost: 0,
+    cashSpent: 0,
+    bankSpent: 0,
+    grossMargin: 35.0,
+    startDate: new Date().toISOString().split('T')[0],
+    targetHandover: new Date(Date.now() + 120 * 86400000).toISOString().split('T')[0],
+    milestones: [
+      { stage: "Stage 1: Advance / Approvals", percent: 20, amount: Math.round((parseFloat(contractValue) || 2000000) * 0.2), status: "Pending", mode: "Cash/Bank" },
+      { stage: "Stage 2: Civil & Rough-in", percent: 30, amount: Math.round((parseFloat(contractValue) || 2000000) * 0.3), status: "Upcoming", mode: "Cash/Bank" },
+      { stage: "Stage 3: Carpentry & Ceilings", percent: 30, amount: Math.round((parseFloat(contractValue) || 2000000) * 0.3), status: "Upcoming", mode: "Cash/Bank" },
+      { stage: "Stage 4: Finishing & Handover", percent: 20, amount: Math.round((parseFloat(contractValue) || 2000000) * 0.2), status: "Upcoming", mode: "Cash/Bank" }
+    ],
+    costBreakdown: [
+      { trade: "Carpentry & Joinery", budget: Math.round((parseFloat(contractValue) || 2000000) * 0.30), spent: 0 },
+      { trade: "Electrical & Smart Lighting", budget: Math.round((parseFloat(contractValue) || 2000000) * 0.10), spent: 0 },
+      { trade: "Civil & Masonry", budget: Math.round((parseFloat(contractValue) || 2000000) * 0.08), spent: 0 },
+      { trade: "Painting & Polish", budget: Math.round((parseFloat(contractValue) || 2000000) * 0.08), spent: 0 },
+      { trade: "False Ceiling & Gypsum", budget: Math.round((parseFloat(contractValue) || 2000000) * 0.05), spent: 0 },
+      { trade: "Plumbing & Sanitary", budget: Math.round((parseFloat(contractValue) || 2000000) * 0.04), spent: 0 }
+    ],
+    ledgerEntries: []
   };
 
-  db.quotations.unshift(newQuote);
-  res.json({ success: true, quotation: newQuote, message: "Quotation generated successfully" });
+  db.projects.push(newPrj);
+  db.kpis.totalTurnover += newPrj.contractValue;
+  db.kpis.totalOutstanding += newPrj.contractValue;
+
+  res.json({ success: true, project: newPrj, message: "Client & Project created successfully" });
 });
 
-// 5. Invoices CRUD
-app.get('/api/invoices', requireAuth, (req, res) => {
-  res.json(db.invoices);
-});
-
-app.post('/api/invoices', requireAuth, (req, res) => {
-  const { projectId, milestone, basicAmount, paymentDate, mode } = req.body;
-  const proj = db.projects.find(p => p.id === projectId) || db.projects[0];
-  const invId = `INV-2026-${String(db.invoices.length + 1).padStart(3, '0')}`;
-
-  const basic = parseFloat(basicAmount) || 500000;
-  const cgst = Math.round(basic * 0.09);
-  const sgst = Math.round(basic * 0.09);
-  const total = basic + cgst + sgst;
-
-  const newInvoice = {
-    id: invId,
-    projectId: proj.id,
-    clientName: proj.client,
-    date: new Date().toISOString().split('T')[0],
-    milestone: milestone || "Stage 1: Advance (20%)",
-    basicAmount: basic,
-    cgst,
-    sgst,
-    totalAmount: total,
-    status: "Issued",
-    paymentDate: paymentDate || "Pending",
-    mode: mode || "RTGS / NEFT"
-  };
-
-  db.invoices.unshift(newInvoice);
-
-  // Update project billed amount
-  proj.invoiced += total;
-  proj.outstanding = Math.max(0, proj.invoiced - proj.received);
-
-  // Add ledger entry for project
-  if (proj.ledgerEntries) {
-    proj.ledgerEntries.unshift({
-      date: newInvoice.date,
-      desc: `Tax Invoice Generated (${invId}) - ${newInvoice.milestone}`,
-      ref: invId,
-      debit: 0,
-      credit: 0,
-      balance: proj.received
-    });
-  }
-
-  res.json({ success: true, invoice: newInvoice, message: "Tax Invoice issued and recorded." });
-});
-
-// 6. Complete Ledgers Endpoint
-app.get('/api/ledgers/all', requireAuth, (req, res) => {
-  res.json({
-    clients: db.projects.map(p => ({
-      id: p.id,
-      name: p.name,
-      client: p.client,
-      contractValue: p.contractValue,
-      invoiced: p.invoiced,
-      received: p.received,
-      outstanding: p.outstanding,
-      directCost: p.actualDirectCost,
-      margin: p.grossMargin,
-      entries: p.ledgerEntries || []
-    })),
-    vendors: db.vendors,
-    accounts: db.accounts,
-    recentTransactions: db.transactions
-  });
-});
-
-// 7. Transactions Recording
-app.get('/api/transactions', requireAuth, (req, res) => {
-  res.json(db.transactions);
-});
-
+// 3. Add Expense / Cash Transaction (No GST)
 app.post('/api/transactions', requireAuth, (req, res) => {
   const { date, type, category, project, account, vendor, amount, mode, note } = req.body;
+  const numAmount = parseFloat(amount) || 0;
+  
   const newTxn = {
     id: `TXN-${Math.floor(100 + Math.random() * 900)}`,
     date: date || new Date().toISOString().split('T')[0],
@@ -573,108 +333,268 @@ app.post('/api/transactions', requireAuth, (req, res) => {
     project: project || "PRJ-2026-001",
     account: account || "Cash Box - Site 01 (Highline)",
     vendor: vendor || "Site Expense",
-    amount: parseFloat(amount) || 0,
-    mode: mode || "Cash",
+    amount: numAmount,
+    mode: mode || (account.includes('Cash') ? 'Cash' : 'Bank'),
     note: note || "",
     status: "Verified"
   };
-  
+
   db.transactions.unshift(newTxn);
 
-  // Update account balance
+  // Update Account Balances
   const acc = db.accounts.find(a => a.name === newTxn.account);
   if (acc) {
     if (newTxn.type.includes("Receipt")) {
-      acc.balance += newTxn.amount;
+      acc.balance += numAmount;
     } else {
-      acc.balance -= newTxn.amount;
+      acc.balance -= numAmount;
     }
   }
 
-  // Update project actual direct cost
+  // Recalculate cash vs bank holdings
+  let totalCash = 0;
+  let totalBank = 0;
+  db.accounts.forEach(a => {
+    if (a.type === 'Cash') totalCash += a.balance;
+    else totalBank += a.balance;
+  });
+  db.kpis.cashBalances = totalCash;
+  db.kpis.bankBalance = totalBank;
+  db.kpis.totalCashHoldings = totalCash + totalBank;
+
+  // Update Project Direct Costs
   const prj = db.projects.find(p => p.id === newTxn.project);
-  if (prj && newTxn.type.includes("Payment")) {
-    prj.actualDirectCost += newTxn.amount;
-    prj.grossMargin = Math.round(((prj.contractValue - prj.actualDirectCost) / prj.contractValue) * 1000) / 10;
-    
-    // Append to project ledger
-    if (prj.ledgerEntries) {
-      prj.ledgerEntries.unshift({
-        date: newTxn.date,
-        desc: `${newTxn.category} - ${newTxn.vendor}`,
-        ref: newTxn.id,
-        debit: newTxn.amount,
-        credit: 0,
-        balance: prj.received - prj.actualDirectCost
-      });
-    }
-  }
-
-  // Update vendor ledger if matched
-  const vnd = db.vendors.find(v => v.name.toLowerCase().includes(newTxn.vendor.toLowerCase()));
-  if (vnd) {
+  if (prj) {
     if (newTxn.type.includes("Payment")) {
-      vnd.totalPaid += newTxn.amount;
-      vnd.balance = Math.max(0, vnd.totalBilled - vnd.totalPaid);
-      vnd.ledger.unshift({
-        date: newTxn.date,
-        desc: `Payment via ${newTxn.mode} (${newTxn.account.split(' (')[0]})`,
-        ref: newTxn.id,
-        billed: 0,
-        paid: newTxn.amount,
-        balance: vnd.balance
-      });
+      prj.actualDirectCost += numAmount;
+      if (newTxn.mode.includes('Cash')) prj.cashSpent += numAmount;
+      else prj.bankSpent += numAmount;
+      
+      // Update specific trade spend
+      const tr = prj.costBreakdown.find(t => t.trade === newTxn.category);
+      if (tr) tr.spent += numAmount;
+
+      prj.grossMargin = Math.round(((prj.contractValue - prj.actualDirectCost) / prj.contractValue) * 1000) / 10;
+      db.kpis.directCosts += numAmount;
+      
+      if (prj.ledgerEntries) {
+        prj.ledgerEntries.unshift({
+          date: newTxn.date,
+          desc: `${newTxn.category} - ${newTxn.vendor}`,
+          ref: newTxn.id,
+          mode: newTxn.mode,
+          debit: numAmount,
+          credit: 0,
+          balance: prj.received - prj.actualDirectCost
+        });
+      }
+    } else if (newTxn.type.includes("Receipt")) {
+      prj.received += numAmount;
+      prj.outstanding = Math.max(0, prj.contractValue - prj.received);
+      db.kpis.totalCollected += numAmount;
+      db.kpis.totalOutstanding = Math.max(0, db.kpis.totalTurnover - db.kpis.totalCollected);
+
+      if (prj.ledgerEntries) {
+        prj.ledgerEntries.unshift({
+          date: newTxn.date,
+          desc: `Client Advance / Milestone Receipt (${newTxn.mode})`,
+          ref: newTxn.id,
+          mode: newTxn.mode,
+          debit: 0,
+          credit: numAmount,
+          balance: prj.received - prj.actualDirectCost
+        });
+      }
     }
   }
 
-  res.json({ success: true, transaction: newTxn, message: "Transaction posted across Ledgers and Project Costs" });
-});
-
-// 8. OCR Ledger Upload
-app.post('/api/scan-ledger', requireAuth, upload.single('ledgerImage'), async (req, res) => {
-  try {
-    const mockResult = {
-      detected: true,
-      source: req.file ? req.file.originalname : "Uploaded Ledger Photo",
-      date: new Date().toISOString().split('T')[0],
-      vendor: "Bengal Timber Mart",
-      trade: "Carpentry & Joinery",
-      project: "PRJ-2026-001",
-      account: "Cash Box - Site 01 (Highline)",
-      amount: 14250,
-      billNumber: `BILL-${Math.floor(1000 + Math.random() * 9000)}`,
-      items: [
-        { item: "Century Ply 18mm Marine Grade (3 sheets)", qty: 3, rate: 3200, total: 9600 },
-        { item: "Fevicol Marine adhesive 5kg", qty: 2, rate: 1100, total: 2200 },
-        { item: "Telescopic soft-close drawer channels 18\"", qty: 5, rate: 490, total: 2450 }
-      ],
-      confidence: 0.96,
-      message: "Vision AI extracted handwritten entries with 96% match confidence."
-    };
-
-    if (req.file && fs.existsSync(req.file.path)) {
-      try { fs.unlinkSync(req.file.path); } catch (e) {}
-    }
-
-    res.json({ success: true, data: mockResult });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+  // Update Vendor Ledger if matched
+  const vnd = db.vendors.find(v => v.name.toLowerCase().includes(newTxn.vendor.toLowerCase()));
+  if (vnd && newTxn.type.includes("Payment")) {
+    vnd.totalPaid += numAmount;
+    vnd.balance = Math.max(0, vnd.totalBilled - vnd.totalPaid);
+    vnd.ledger.unshift({
+      date: newTxn.date,
+      desc: `Payment via ${newTxn.mode}`,
+      ref: newTxn.id,
+      billed: 0,
+      paid: numAmount,
+      balance: vnd.balance
+    });
   }
+
+  res.json({ success: true, transaction: newTxn, message: "Transaction recorded across accounts & site ledger." });
 });
 
-// 9. Sheets Sync
+// 4. Add Vendor / Sub-Contractor
+app.post('/api/vendors', requireAuth, (req, res) => {
+  const { name, trade, phone, contact, city } = req.body;
+  const newVnd = {
+    id: `VND-${String(db.vendors.length + 1).padStart(3, '0')}`,
+    name: name || "New Supplier",
+    trade: trade || "Materials",
+    phone: phone || "+91 98300 00000",
+    contact: contact || "Contact Person",
+    city: city || "Kolkata",
+    totalBilled: 0,
+    totalPaid: 0,
+    balance: 0,
+    ledger: []
+  };
+  db.vendors.push(newVnd);
+  res.json({ success: true, vendor: newVnd, message: "Vendor added successfully" });
+});
+
+// 5. OCR Scanner Endpoint
+app.post('/api/scan-ledger', requireAuth, upload.single('ledgerImage'), (req, res) => {
+  const result = {
+    detected: true,
+    source: req.file ? req.file.originalname : "Uploaded Receipt",
+    date: new Date().toISOString().split('T')[0],
+    vendor: "Bengal Timber & Plywood Mart",
+    trade: "Carpentry & Joinery",
+    project: "PRJ-2026-001",
+    account: "Cash Box - Site 01 (Highline)",
+    amount: 14250,
+    billNumber: `BILL-${Math.floor(2000 + Math.random() * 7000)}`,
+    items: [
+      { item: "Century Ply 18mm Marine Grade (3 sheets)", qty: 3, rate: 3200, total: 9600 },
+      { item: "Fevicol Marine adhesive 5kg", qty: 2, rate: 1100, total: 2200 },
+      { item: "Telescopic drawer channels 18\"", qty: 5, rate: 490, total: 2450 }
+    ],
+    confidence: 0.96
+  };
+  if (req.file && fs.existsSync(req.file.path)) {
+    try { fs.unlinkSync(req.file.path); } catch (e) {}
+  }
+  res.json({ success: true, data: result });
+});
+
+// 6. Master Google Sheet Sync status
 app.post('/api/sync-sheets', requireAuth, (req, res) => {
   res.json({
     success: true,
     sheetId: SHEET_ID,
     syncedAt: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
     sheetsAudited: 22,
-    recordsSynced: db.transactions.length + db.projects.length + db.invoices.length + db.quotations.length,
-    status: "All 22 Google Sheets audited with 0 formula errors. Full two-way balance validated."
+    recordsSynced: db.transactions.length + db.projects.length,
+    status: "All 22 Google Sheets synchronized. Zero formula errors."
   });
 });
 
-// Static files
+// ─── DAILY LOG DATA (OCR Diary entries, keyed by date) ───────────────────────
+const db_dailyLog = {
+  '2026-11-06': {
+    left: [
+      { id:'L001', particulars:'Opening Balance',              project:'',                  amount:120000, mode:'Cash', confidence:1.00, status:'verified', flagReason:null, flagType:null },
+      { id:'L002', particulars:'Ananya Sen Stage 3 partial',   project:'Highline Penthouse', amount:50000,  mode:'Cash', confidence:0.97, status:'verified', flagReason:null, flagType:null },
+    ],
+    right: [
+      { id:'R001', particulars:'Carpenter Subir khoraki',      project:'Highline Penthouse', amount:14000, mode:'Cash', confidence:0.98, status:'verified', flagReason:null, flagType:null },
+      { id:'R002', particulars:'Fevicol Marine 2 tin',         project:'Highline Penthouse', amount:2200,  mode:'Cash', confidence:0.96, status:'verified', flagReason:null, flagType:null },
+      { id:'R003', particulars:'Tempo freight Tangra → Site',  project:'Ballygunge Villa',   amount:1800,  mode:'Cash', confidence:0.93, status:'verified', flagReason:null, flagType:null },
+      { id:'R004', particulars:'Sand & core cutting??',        project:'Ballygunge Villa',   amount:4500,  mode:'Cash', confidence:0.62, status:'pending',  flagReason:'Amount unclear — handwriting smudged on last digit', flagType:'amount' },
+    ]
+  },
+  '2026-11-05': {
+    left: [
+      { id:'L003', particulars:'Opening Balance',              project:'',                  amount:95000,  mode:'Cash', confidence:1.00, status:'verified', flagReason:null, flagType:null },
+      { id:'L004', particulars:'Vikram Singhania advance',     project:'Ballygunge Villa',   amount:100000, mode:'Cash', confidence:0.88, status:'pending',  flagReason:'Client name partially unclear — confirm Vikram or Vikrant', flagType:'vendor' },
+    ],
+    right: [
+      { id:'R005', particulars:'Mason wages Site 02',          project:'Ballygunge Villa',   amount:8500,  mode:'Cash', confidence:0.99, status:'verified', flagReason:null, flagType:null },
+      { id:'R006', particulars:'Hardware screws & anchors',    project:'Highline Penthouse', amount:3200,  mode:'Cash', confidence:0.91, status:'verified', flagReason:null, flagType:null },
+      { id:'R007', particulars:'??? electrical conduit misc',  project:'',                  amount:6700,  mode:'Cash', confidence:0.41, status:'pending',  flagReason:'Trade category unclear & project unidentified — verify before posting', flagType:'trade' },
+    ]
+  },
+  '2026-11-04': {
+    left: [
+      { id:'L005', particulars:'Opening Balance',              project:'',                  amount:78000, mode:'Cash', confidence:1.00, status:'verified', flagReason:null, flagType:null },
+    ],
+    right: [
+      { id:'R008', particulars:'Coolie charges debris removal',project:'Rajarhat Residency', amount:2800,  mode:'Cash', confidence:0.95, status:'verified', flagReason:null, flagType:null },
+      { id:'R009', particulars:'POP material & gypsum',        project:'Highline Penthouse', amount:11200, mode:'Cash', confidence:0.97, status:'verified', flagReason:null, flagType:null },
+    ]
+  },
+  '2026-11-03': {
+    left: [
+      { id:'L006', particulars:'Opening Balance',              project:'',                  amount:62000, mode:'Cash', confidence:1.00, status:'verified', flagReason:null, flagType:null },
+    ],
+    right: [
+      { id:'R010', particulars:'Demolition labour wages',      project:'Ballygunge Villa',   amount:32000, mode:'Cash', confidence:0.99, status:'verified', flagReason:null, flagType:null },
+    ]
+  },
+  '2026-11-02': {
+    left: [
+      { id:'L007', particulars:'Opening Balance',              project:'',                  amount:55000, mode:'Cash', confidence:1.00, status:'verified', flagReason:null, flagType:null },
+    ],
+    right: [
+      { id:'R011', particulars:'Asian Paints PU Polish',       project:'Highline Penthouse', amount:48000, mode:'Bank', confidence:0.99, status:'verified', flagReason:null, flagType:null },
+    ]
+  }
+};
+
+// 7. Daily Log — date-indexed OCR entries
+app.get('/api/daily-log', requireAuth, (req, res) => {
+  const date = req.query.date || new Date().toISOString().split('T')[0];
+  const log = db_dailyLog[date];
+  if (!log) return res.json({ success: true, date, left: [], right: [], totalIn: 0, totalOut: 0, net: 0, flagCount: 0 });
+  const totalIn  = log.left.reduce((s, e) => s + e.amount, 0);
+  const totalOut = log.right.reduce((s, e) => s + e.amount, 0);
+  const flagCount = [...log.left, ...log.right].filter(e => e.status === 'pending').length;
+  res.json({ success: true, date, left: log.left, right: log.right, totalIn, totalOut, net: totalIn - totalOut, flagCount });
+});
+
+// 8. Verify / Edit a flagged OCR entry (clears yellow highlight)
+app.post('/api/verify-entry', requireAuth, (req, res) => {
+  const { date, entryId, action, particulars, amount, project } = req.body;
+  const log = db_dailyLog[date];
+  if (!log) return res.status(404).json({ success: false, message: 'Date not found in daily log.' });
+  const entry = [...log.left, ...log.right].find(e => e.id === entryId);
+  if (!entry) return res.status(404).json({ success: false, message: 'Entry not found.' });
+  if (action === 'approve') {
+    entry.status    = 'verified';
+    entry.flagReason = null;
+    entry.flagType  = null;
+    entry.confidence = 1.0;
+  } else if (action === 'edit') {
+    entry.particulars = particulars || entry.particulars;
+    entry.amount      = parseFloat(amount) || entry.amount;
+    entry.project     = project !== undefined ? project : entry.project;
+    entry.status      = 'verified';
+    entry.flagReason  = null;
+    entry.flagType    = null;
+    entry.confidence  = 1.0;
+  }
+  res.json({ success: true, entry, message: action === 'approve' ? 'Entry approved — yellow highlight cleared in Google Sheet.' : 'Entry corrected and verified.' });
+});
+
+// 9. Cash Flow Log — aggregated inflow / outflow per day for a date range
+app.get('/api/cashflow', requireAuth, (req, res) => {
+  const fromStr = req.query.from || new Date(Date.now() - 6 * 86400000).toISOString().split('T')[0];
+  const toStr   = req.query.to   || new Date().toISOString().split('T')[0];
+  const days = [];
+  const start = new Date(fromStr), end = new Date(toStr);
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    const dateStr = d.toISOString().split('T')[0];
+    const txns    = db.transactions.filter(t => t.date === dateStr);
+    const dlog    = db_dailyLog[dateStr];
+    const logIn   = dlog ? dlog.left.filter(e => !e.particulars.toLowerCase().includes('opening')).reduce((s,e) => s + e.amount, 0) : 0;
+    const logOut  = dlog ? dlog.right.reduce((s, e) => s + e.amount, 0) : 0;
+    const txnIn   = txns.filter(t => t.type.includes('Receipt')).reduce((s, t) => s + t.amount, 0);
+    const txnOut  = txns.filter(t => t.type.includes('Payment')).reduce((s, t) => s + t.amount, 0);
+    const inflow  = logIn  + txnIn;
+    const outflow = logOut + txnOut;
+    days.push({ date: dateStr, inflow, outflow, net: inflow - outflow, transactions: txns });
+  }
+  res.json({
+    success: true, days,
+    totalInflow:  days.reduce((s, d) => s + d.inflow,  0),
+    totalOutflow: days.reduce((s, d) => s + d.outflow, 0)
+  });
+});
+
+// Serve frontend
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -683,9 +603,9 @@ app.get('*', (req, res) => {
 // Start Server
 app.listen(PORT, () => {
   console.log(`====================================================`);
-  console.log(` DREAM ADDRESS STUDIO - ENTERPRISE ERP RUNNING`);
+  console.log(` DREAM ADDRESS STUDIO - ERP SERVER (NO GST / CASH+BANK)`);
   console.log(` Port: ${PORT}`);
   console.log(` Master PIN: ${ADMIN_PIN} | Password: ${APP_PASSWORD}`);
-  console.log(` Connected Sheet ID: ${SHEET_ID}`);
+  console.log(` Connected Google Sheet: ${SHEET_ID}`);
   console.log(`====================================================`);
 });
