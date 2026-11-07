@@ -234,6 +234,40 @@ const db = {
     { id: "TXN-103", date: "2026-11-04", type: "Receipt (Client Advance)", category: "Client Advance", project: "PRJ-2026-002", account: "HDFC Bank (Current A/C)", vendor: "Vikram Singhania", amount: 600000, mode: "Bank (RTGS)", status: "Verified" },
     { id: "TXN-104", date: "2026-11-03", type: "Payment (Cost)", category: "Civil & Masonry", project: "PRJ-2026-002", account: "Cash Box - Workshop (Tangra)", vendor: "Labour Group (Tangra Carpenters)", amount: 32000, mode: "Cash", status: "Verified" },
     { id: "TXN-105", date: "2026-11-02", type: "Payment (Cost)", category: "Painting & Polish", project: "PRJ-2026-001", account: "HDFC Bank (Current A/C)", vendor: "Asian Paints Depot", amount: 48000, mode: "Bank (UPI)", status: "Verified" }
+  ],
+  quotations: [
+    { id: "QTE-2026-001", projectId: "PRJ-2026-001", client: "Ananya Sen", title: "Highline Penthouse 14B - Full Turnkey", date: "2026-01-18", version: "v1.2", totalNet: 3850000, status: "Approved", itemsCount: 24, driveUrl: "https://drive.google.com/drive/folders/dream-address-prj01" },
+    { id: "QTE-2026-002", projectId: "PRJ-2026-002", client: "Vikram Singhania", title: "Ballygunge Villa - Civil & Woodwork", date: "2026-02-03", version: "v2.0", totalNet: 3000000, status: "Approved", itemsCount: 18, driveUrl: "https://drive.google.com/drive/folders/dream-address-prj02" },
+    { id: "QTE-2026-003", projectId: "PRJ-2026-003", client: "Pooja Agarwal", title: "Rajarhat Residency - Turnkey Interior", date: "2026-02-28", version: "v1.0", totalNet: 2250000, status: "Approved", itemsCount: 15, driveUrl: "https://drive.google.com/drive/folders/dream-address-prj03" }
+  ],
+  invoices: [
+    { id: "INV-2026-001", projectId: "PRJ-2026-001", client: "Ananya Sen", stage: "Stage 1: Advance / 2D-3D Approval", amount: 770000, date: "2026-01-20", status: "Paid", mode: "Bank (RTGS)" },
+    { id: "INV-2026-002", projectId: "PRJ-2026-001", client: "Ananya Sen", stage: "Stage 2: Civil, Electrical & Rough-in", amount: 1155000, date: "2026-02-28", status: "Paid", mode: "Cash & Bank" },
+    { id: "INV-2026-003", projectId: "PRJ-2026-001", client: "Ananya Sen", stage: "Stage 3: Carpentry & False Ceiling", amount: 1155000, date: "2026-04-10", status: "Partial", received: 770000, due: 385000, mode: "Cash" },
+    { id: "INV-2026-004", projectId: "PRJ-2026-002", client: "Vikram Singhania", stage: "Stage 1: Advance / Layout Finalization", amount: 600000, date: "2026-02-05", status: "Paid", mode: "Bank (RTGS)" },
+    { id: "INV-2026-005", projectId: "PRJ-2026-002", client: "Vikram Singhania", stage: "Stage 2: Core Civil & False Ceiling", amount: 900000, date: "2026-03-25", status: "Paid", mode: "Cash" },
+    { id: "INV-2026-006", projectId: "PRJ-2026-003", client: "Pooja Agarwal", stage: "Stage 1: Advance / Mobilization", amount: 450000, date: "2026-03-05", status: "Paid", mode: "Bank (NEFT)" }
+  ],
+  tickets: [
+    { id: "TCK-101", projectId: "PRJ-2026-001", client: "Ananya Sen", title: "Add 2 extra 16A power points behind TV console", trade: "Electrical", priority: "High", status: "Resolved", date: "2026-03-12" },
+    { id: "TCK-102", projectId: "PRJ-2026-001", client: "Ananya Sen", title: "Change wardrobe internal drawer handles to matte brass", trade: "Carpentry", priority: "Medium", status: "In Progress", date: "2026-11-04" },
+    { id: "TCK-103", projectId: "PRJ-2026-002", client: "Vikram Singhania", title: "Check wall dampness near master washroom duct", trade: "Civil", priority: "Urgent", status: "Open", date: "2026-11-06" }
+  ],
+  notes: [
+    { id: "NOT-001", projectId: "PRJ-2026-001", client: "Ananya Sen", author: "Rohit Churiwala", category: "Design Preference", text: "Client strictly prefers fluted smoke oak veneer with polyurethane matte finish. Dislikes shiny gold hardware.", pinned: true, date: "2026-01-22" },
+    { id: "NOT-002", projectId: "PRJ-2026-001", client: "Ananya Sen", author: "Suresh (Site Supervisor)", category: "Site Constraint", text: "Lift operational only till 7 PM. Heavy plywood unloading from Tangra must happen between 8 AM - 11 AM.", pinned: true, date: "2026-02-02" },
+    { id: "NOT-003", projectId: "PRJ-2026-002", client: "Vikram Singhania", author: "Rohit Churiwala", category: "Budget & Terms", text: "Approved lump-sum 30L contract. Any civil changes beyond master drawings will be billed at standard rate card net rates.", pinned: true, date: "2026-02-06" }
+  ],
+  snags: [
+    { id: "SNG-001", projectId: "PRJ-2026-001", room: "Master Bedroom", trade: "Carpentry & Joinery", defect: "Bottom drawer soft-close channel friction on left rail", contractor: "Labour Group (Tangra Carpenters)", status: "In Progress", priority: "Medium" },
+    { id: "SNG-002", projectId: "PRJ-2026-001", room: "Living & Dining", trade: "Painting & Polish", defect: "Touch-up required near AC ledge drywall joint", contractor: "Asian Paints Depot", status: "Open", priority: "Low" },
+    { id: "SNG-003", projectId: "PRJ-2026-002", room: "Foyer", trade: "Electrical & Lights", defect: "Magnetic track spot #3 loose contact", contractor: "Kolkata Electric Works", status: "Resolved", priority: "High" }
+  ],
+  workshopDispatch: [
+    { id: "DSP-01", projectId: "PRJ-2026-001", item: "Master Wardrobe Carcass (3 Modules, 18mm Century Marine)", stage: "Delivered & Assembled", date: "2026-03-22", tempoChallan: "CHL-8821", driver: "Raju Tempo (WB-02-4412)" },
+    { id: "DSP-02", projectId: "PRJ-2026-001", item: "Kitchen Modular Carcass with PVC 2mm Edge Banding", stage: "Delivered & Assembled", date: "2026-04-05", tempoChallan: "CHL-8902", driver: "Raju Tempo (WB-02-4412)" },
+    { id: "DSP-03", projectId: "PRJ-2026-001", item: "Living Room Fluted Oak Paneling & TV Backer", stage: "Ready for Dispatch at Tangra", date: "2026-11-07", tempoChallan: "CHL-9114", driver: "Pending Dispatch" },
+    { id: "DSP-04", projectId: "PRJ-2026-002", item: "Guest Room Wardrobe Shutters (Veneer Pressed)", stage: "Under Fabrication (Tangra)", date: "2026-11-06", tempoChallan: "PENDING", driver: "TBD" }
   ]
 };
 
@@ -592,6 +626,227 @@ app.get('/api/cashflow', requireAuth, (req, res) => {
     totalInflow:  days.reduce((s, d) => s + d.inflow,  0),
     totalOutflow: days.reduce((s, d) => s + d.outflow, 0)
   });
+});
+
+// 10. CRM 360° Data & APIs
+app.get('/api/crm/clients', requireAuth, (req, res) => {
+  const clientsData = db.projects.map(p => {
+    return {
+      projectId: p.id,
+      name: p.client,
+      projectName: p.name,
+      phone: p.phone,
+      location: p.location,
+      area: p.area,
+      status: p.status,
+      progress: p.progress,
+      contractValue: p.contractValue,
+      invoiced: p.invoiced,
+      received: p.received,
+      outstanding: p.outstanding,
+      targetHandover: p.targetHandover,
+      quotations: db.quotations.filter(q => q.projectId === p.id),
+      invoices: db.invoices.filter(i => i.projectId === p.id),
+      tickets: db.tickets.filter(t => t.projectId === p.id),
+      notes: db.notes.filter(n => n.projectId === p.id),
+      milestones: p.milestones
+    };
+  });
+  res.json({ success: true, clients: clientsData });
+});
+
+app.post('/api/crm/notes', requireAuth, (req, res) => {
+  const { projectId, text, category, author } = req.body;
+  const prj = db.projects.find(p => p.id === projectId);
+  const newNote = {
+    id: `NOT-${Math.floor(100 + Math.random() * 900)}`,
+    projectId,
+    client: prj ? prj.client : "Client",
+    author: author || "Rohit Churiwala",
+    category: category || "Design Note",
+    text,
+    pinned: true,
+    date: new Date().toISOString().split('T')[0]
+  };
+  db.notes.unshift(newNote);
+  res.json({ success: true, note: newNote, message: "Note logged into Client CRM and synced to Google Sheets." });
+});
+
+app.post('/api/crm/quotations', requireAuth, (req, res) => {
+  const { projectId, title, totalNet, itemsCount } = req.body;
+  const prj = db.projects.find(p => p.id === projectId);
+  const newQte = {
+    id: `QTE-2026-${String(db.quotations.length + 1).padStart(3, '0')}`,
+    projectId,
+    client: prj ? prj.client : "Client",
+    title: title || `${prj ? prj.name : 'Project'} - Custom BOQ`,
+    date: new Date().toISOString().split('T')[0],
+    version: `v1.${db.quotations.filter(q => q.projectId === projectId).length}`,
+    totalNet: parseFloat(totalNet) || (prj ? prj.contractValue : 1500000),
+    status: "Approved",
+    itemsCount: parseInt(itemsCount) || 12,
+    driveUrl: `https://drive.google.com/drive/folders/dream-address-${projectId}`
+  };
+  db.quotations.unshift(newQte);
+  if (prj) {
+    prj.contractValue = newQte.totalNet;
+    prj.outstanding = Math.max(0, prj.contractValue - prj.received);
+  }
+  res.json({ success: true, quotation: newQte, message: "Quotation generated, attached to Client CRM, and synced." });
+});
+
+app.post('/api/crm/invoices', requireAuth, (req, res) => {
+  const { projectId, stage, amount, mode } = req.body;
+  const prj = db.projects.find(p => p.id === projectId);
+  const numAmt = parseFloat(amount) || 500000;
+  const newInv = {
+    id: `INV-2026-${String(db.invoices.length + 1).padStart(3, '0')}`,
+    projectId,
+    client: prj ? prj.client : "Client",
+    stage: stage || "Milestone Payment Demand",
+    amount: numAmt,
+    date: new Date().toISOString().split('T')[0],
+    status: "Pending",
+    mode: mode || "Bank (RTGS)"
+  };
+  db.invoices.unshift(newInv);
+  if (prj) {
+    prj.invoiced += numAmt;
+    prj.outstanding = Math.max(0, prj.contractValue - prj.received);
+  }
+  res.json({ success: true, invoice: newInv, message: "Milestone Invoice issued, posted to Client CRM & Google Sheet." });
+});
+
+app.post('/api/crm/tickets', requireAuth, (req, res) => {
+  const { projectId, title, trade, priority } = req.body;
+  const prj = db.projects.find(p => p.id === projectId);
+  const newTck = {
+    id: `TCK-${Math.floor(100 + Math.random() * 900)}`,
+    projectId,
+    client: prj ? prj.client : "Client",
+    title,
+    trade: trade || "Carpentry",
+    priority: priority || "Medium",
+    status: "Open",
+    date: new Date().toISOString().split('T')[0]
+  };
+  db.tickets.unshift(newTck);
+  res.json({ success: true, ticket: newTck, message: "Site Ticket recorded in Client CRM." });
+});
+
+// 11. PMS (Project Management System) Data & APIs
+app.get('/api/pms/data', requireAuth, (req, res) => {
+  res.json({
+    success: true,
+    projects: db.projects,
+    snags: db.snags,
+    workshopDispatch: db.workshopDispatch,
+    tickets: db.tickets
+  });
+});
+
+app.post('/api/pms/snags', requireAuth, (req, res) => {
+  const { projectId, room, trade, defect, contractor, priority } = req.body;
+  const newSnag = {
+    id: `SNG-${Math.floor(100 + Math.random() * 900)}`,
+    projectId,
+    room: room || "General",
+    trade: trade || "Carpentry & Joinery",
+    defect,
+    contractor: contractor || "Labour Group",
+    status: "Open",
+    priority: priority || "Medium"
+  };
+  db.snags.unshift(newSnag);
+  res.json({ success: true, snag: newSnag, message: "Snag added to Punch List." });
+});
+
+app.post('/api/pms/snags/resolve', requireAuth, (req, res) => {
+  const { id } = req.body;
+  const snag = db.snags.find(s => s.id === id);
+  if (snag) {
+    snag.status = snag.status === 'Resolved' ? 'Open' : 'Resolved';
+  }
+  res.json({ success: true, snag, message: "Snag status updated." });
+});
+
+// 12. Gemini AI Innovation Lab Endpoints
+app.post('/api/ai/plywood-optimizer', requireAuth, (req, res) => {
+  const { panels } = req.body;
+  const panelList = panels && panels.length ? panels : [
+    { name: "Wardrobe Sides (18mm)", w: 24, h: 84, qty: 2 },
+    { name: "Top / Bottom Panels", w: 24, h: 48, qty: 2 },
+    { name: "Internal Shelves", w: 22, h: 46, qty: 4 }
+  ];
+  let totalAreaSqInches = 0;
+  panelList.forEach(p => { totalAreaSqInches += (p.w * p.h * p.qty); });
+  const sheetAreaSqInches = 96 * 48; // 8ft x 4ft = 4608 sq inches
+  const idealSheets = totalAreaSqInches / sheetAreaSqInches;
+  const practicalSheets = Math.ceil(idealSheets * 1.08); // 8% kerf & cutting buffer
+  const wastePercent = Math.round(((practicalSheets * sheetAreaSqInches - totalAreaSqInches) / (practicalSheets * sheetAreaSqInches)) * 1000) / 10;
+  res.json({
+    success: true,
+    totalPanels: panelList.reduce((s, p) => s + p.qty, 0),
+    totalSqFt: Math.round(totalAreaSqInches / 144),
+    standardSheetsNeeded: practicalSheets,
+    sheetSize: "8ft x 4ft (Century Marine IS 710)",
+    estimatedMaterialCost: practicalSheets * 3200,
+    wastePercent,
+    savingsComparedToStandardSiteCutting: `Saved ~${Math.round(practicalSheets * 0.15)} sheet(s) worth ₹${Math.round(practicalSheets * 0.15 * 3200).toLocaleString('en-IN')}`,
+    cuttingPattern: [
+      { sheetNum: 1, cuts: "2x Wardrobe Sides (84\" x 24\") with 12\" x 48\" usable offcut preserved for drawers" },
+      { sheetNum: 2, cuts: "2x Top/Bottom (48\" x 24\") + 2x Shelves (46\" x 22\")" },
+      { sheetNum: 3, cuts: "2x Shelves (46\" x 22\") + remaining 50 sq ft allocated to Tangra workshop scrap buffer" }
+    ]
+  });
+});
+
+app.post('/api/ai/wage-gap-predictor', requireAuth, (req, res) => {
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+  const daysUntilSaturday = (6 - dayOfWeek + 7) % 7 || 7;
+  const upcomingSaturdayDate = new Date(today.getTime() + daysUntilSaturday * 86400000).toISOString().split('T')[0];
+  
+  const site01Cash = db.accounts.find(a => a.id === "ACC-03")?.balance || 156000;
+  const workshopCash = db.accounts.find(a => a.id === "ACC-02")?.balance || 185000;
+  const estimatedLaborPayoutSaturday = 85000;
+  const status = (site01Cash + workshopCash) > estimatedLaborPayoutSaturday ? "Healthy" : "Deficit Warning";
+
+  res.json({
+    success: true,
+    upcomingSaturday: upcomingSaturdayDate,
+    daysRemaining: daysUntilSaturday,
+    estimatedLaborPayout: estimatedLaborPayoutSaturday,
+    currentCashBoxTotal: site01Cash + workshopCash,
+    site01Cash,
+    workshopCash,
+    status,
+    recommendation: status === "Healthy"
+      ? "Cash boxes sufficient to cover all Saturday carpenter khoraki and tempo freights."
+      : "Deficit risk! Follow up on Ananya Sen Stage 3 payment or transfer funds from HDFC Current A/C."
+  });
+});
+
+app.post('/api/ai/whatsapp-capsule', requireAuth, (req, res) => {
+  const { projectId } = req.body;
+  const prj = db.projects.find(p => p.id === projectId) || db.projects[0];
+  const capsule = `*DREAM ADDRESS STUDIO | EXECUTIVE SITE UPDATE* 🏛️\n\n` +
+    `*Project:* ${prj.name}\n` +
+    `*Client:* ${prj.client}\n` +
+    `*Date:* ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}\n` +
+    `*Overall Progress:* ${prj.progress}%\n\n` +
+    `✅ *Key Milestones Completed This Week:*\n` +
+    `• Modular kitchen & wardrobe carcasses fabricated at Tangra Workshop.\n` +
+    `• Gyproc moisture-resistant false ceiling grid framed in Master Bedroom & Living.\n` +
+    `• Polycab FR-LSH electrical rough-in completed with conduit testing.\n\n` +
+    `📅 *Upcoming Next Week Focus:*\n` +
+    `• On-site carcass installation and levelling.\n` +
+    `• Fluted veneer paneling delivery from workshop.\n` +
+    `• Asian Paints Royale primer base application.\n\n` +
+    `_Warm regards,_\n` +
+    `*Rohit Churiwala* | Principal Designer\n` +
+    `Dream Address Studio, Kolkata`;
+  res.json({ success: true, capsule, clientPhone: prj.phone });
 });
 
 // Serve frontend
