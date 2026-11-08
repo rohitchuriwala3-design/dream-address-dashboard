@@ -405,12 +405,46 @@ users: [
     {
       id: "CONV-001",
       projectId: "PRJ-2026-001",
-      type: "WhatsApp",
+      type: "call",
       date: "2026-11-07 16:45",
       author: "Rohit Churiwala",
+      subject: "Hafele Soft-Close Tandem Hardware Selection",
       summary: "Discussed Hafele soft-close tandem boxes vs Blum Aventos for tall pantry unit.",
-      details: "Client agreed to Hafele Anthracite finish. Cost delta of ₹18,500 approved digitally.",
+      title: "Hafele Soft-Close Tandem Hardware Selection",
+      notes: "Client agreed to Hafele Anthracite finish. Cost delta of ₹18,500 approved digitally. Verified carcass dimensions at Tangra Central Workshop.",
+      details: "Client agreed to Hafele Anthracite finish. Cost delta of ₹18,500 approved digitally. Verified carcass dimensions at Tangra Central Workshop.",
+      text: "Client agreed to Hafele Anthracite finish. Cost delta of ₹18,500 approved digitally.",
       actionItem: "Update BOQ specification and confirm delivery from Ezra St hardware store."
+    },
+    {
+      id: "CONV-002",
+      projectId: "PRJ-2026-001",
+      type: "visit",
+      date: "2026-11-06 14:20",
+      author: "Rohit Churiwala",
+      subject: "Site Inspection: Carcass Alignment & False Ceiling Leveling",
+      summary: "Site inspection with Tapas Santra carpentry team at Highline Highland Penthouse 14B.",
+      title: "Site Inspection: Carcass Alignment & False Ceiling Leveling",
+      notes: "Laser level verified for master wardrobe carcass. Living room magnetic track lighting conduit inspected. Workmanship certified 100% snag-free.",
+      details: "Laser level verified for master wardrobe carcass. Living room magnetic track lighting conduit inspected. Workmanship certified 100% snag-free.",
+      text: "Laser level verified for master wardrobe carcass.",
+      actionItem: "Begin smoked oak veneer pressing at Tangra Workshop."
+    },
+    {
+      id: "CONV-003",
+      projectId: "PRJ-2026-001",
+      type: "invoice",
+      date: "2026-11-05 11:30",
+      author: "Rohit Churiwala",
+      subject: "Tax Invoice Raised: INV-2026-021",
+      summary: "Tax Invoice Raised: INV-2026-021",
+      title: "Tax Invoice Raised: INV-2026-021",
+      notes: "Milestone: 1st Mobilization Advance (40%) | Amount: ₹15,40,000 (Paid: ₹15,40,000, Due: ₹0) | Account Credited: HDFC Current A/C (ACC-01)",
+      details: "Milestone: 1st Mobilization Advance (40%) | Amount: ₹15,40,000 (Paid: ₹15,40,000, Due: ₹0) | Account Credited: HDFC Current A/C (ACC-01)",
+      text: "Milestone: 1st Mobilization Advance (40%) | Amount: ₹15,40,000",
+      link: "/api/crm/invoices/INV-2026-021/download",
+      linkText: "Download Tax Invoice INV-2026-021 ↗",
+      actionItem: "Mobilize carpentry materials to site."
     }
   ],
 
@@ -547,7 +581,7 @@ users: [
     {
       id: "CON-001",
       name: "Ananya Sen",
-      accountName: "Ananya Sen Household",
+      accountName: "Ananya Sen Estate",
       accountId: "ACC-CRM-01",
       role: "Principal Client & Decision Maker",
       phone: "+91 91633 17574",
@@ -614,7 +648,7 @@ users: [
   accounts_crm: [
     {
       id: "ACC-CRM-01",
-      name: "Ananya Sen Household",
+      name: "Ananya Sen Estate",
       type: "HNW Residential Turnkey",
       primaryContact: "Ananya Sen",
       phone: "+91 91633 17574",
@@ -659,7 +693,7 @@ users: [
     },
     {
       id: "ACC-CRM-04",
-      name: "Chatterjee Household",
+      name: "Chatterjee Residence & Estate",
       type: "HNW Prospect",
       primaryContact: "Priyanka Chatterjee",
       phone: "+91 98301 23456",
@@ -961,8 +995,8 @@ users: [
 // Daily Diary (Rokad Khata) Log with Dedicated Personal Expense Sub-Category & Notes
 let db_dailyLog = [
   { id: 1, date: "2026-11-07", projectId: "PRJ-2026-001", category: "Site Direct Cost", subCategory: "Hardware & Fittings", description: "Hafele Drawer Channels Ezra St (Direct Cash Outflow)", debit: 18500, credit: 0, accountId: "ACC-06", accountName: "Master Cash Balance", verified: true, yellowHighlighted: false, subDataNote: "Highline 14B kitchen pantry unit" },
-  { id: 2, date: "2026-11-07", projectId: "PERSONAL-EXPENSE", category: "Personal Expense", subCategory: "Household Groceries & Milk", description: "Family Weekly Groceries & Produce (Direct Cash)", debit: 4500, credit: 0, accountId: "ACC-06", accountName: "Master Cash Balance", verified: true, yellowHighlighted: false, subDataNote: "South Kolkata family residence household groceries" },
-  { id: 3, date: "2026-11-07", projectId: "PERSONAL-EXPENSE", category: "Personal Expense", subCategory: "Family Health & Medicine", description: "Apollo Pharmacy Medicine Outlay (Sunita Churiwala A/C)", debit: 2200, credit: 0, accountId: "ACC-04", accountName: "HDFC Bank (Sunita Churiwala)", verified: true, yellowHighlighted: false, subDataNote: "Family monthly health prescription" },
+  { id: 2, date: "2026-11-07", projectId: "PERSONAL-EXPENSE", category: "Personal Expense", subCategory: "Architectural BIM & Cloud Storage", description: "Autodesk Revit & SketchUp Pro Cloud Subscription (Direct Debit)", debit: 4500, credit: 0, accountId: "ACC-01", accountName: "HDFC Bank (Current A/C)", verified: true, yellowHighlighted: false, subDataNote: "Annual studio CAD/BIM workstation seat license" },
+  { id: 3, date: "2026-11-07", projectId: "PERSONAL-EXPENSE", category: "Personal Expense", subCategory: "Workshop Tooling Maintenance", description: "Tangra Workshop Precision Blade Sharpening & Consumables", debit: 2200, credit: 0, accountId: "ACC-06", accountName: "Master Cash Balance", verified: true, yellowHighlighted: false, subDataNote: "Tangra Unit 2 sliding table saw maintenance voucher" },
   { id: 4, date: "2026-11-07", projectId: "PRJ-2026-001", category: "Client Receipt", subCategory: "Milestone Demand", description: "Client Ananya Sen - Stage 3 Cash Milestone Receipt", debit: 0, credit: 150000, accountId: "ACC-06", accountName: "Master Cash Balance", verified: true, yellowHighlighted: false, subDataNote: "Carcass delivery milestone" },
   { id: 5, date: "2026-11-07", projectId: "PRJ-2026-002", category: "Site Direct Cost", subCategory: "Plywood Core", description: "Bengal Timber - 20 Sheets 18mm BWP Ply (HDFC Current)", debit: 46000, credit: 0, accountId: "ACC-01", accountName: "HDFC Bank (Current A/C)", verified: true, yellowHighlighted: false, subDataNote: "Ballygunge bungalow wardrobe fabrication" },
   { id: 6, date: "2026-11-07", projectId: "OPERATIONS", category: "Workshop Overhead", subCategory: "Tea & Daily Snacks", description: "Daily Transport & Site Tea/Snacks (Rokad)", debit: 1200, credit: 0, accountId: "ACC-06", accountName: "Master Cash Balance", verified: true, yellowHighlighted: false, subDataNote: "Tangra workshop daily tea bill" }
@@ -1436,6 +1470,18 @@ app.get('/api/crm/leads/:id', (req, res) => {
 app.put('/api/crm/leads/:id', requireAuth, (req, res) => {
   const lead = db.leads.find(l => l.id === req.params.id);
   if (!lead) return res.status(404).json({ success: false, message: "Lead not found" });
+
+  lead.activities = lead.activities || [];
+  if (req.body.status && req.body.status !== lead.status) {
+    lead.activities.unshift({
+      id: `ACT-${Date.now()}`,
+      type: 'Stage Advance',
+      text: `Lead stage transitioned to "${req.body.status}". Authorized by Rohit Churiwala.`,
+      author: 'Rohit Churiwala',
+      date: 'Just now'
+    });
+  }
+
   Object.assign(lead, req.body);
   res.json({ success: true, lead, message: "Lead updated successfully" });
 });
@@ -1444,10 +1490,15 @@ app.post('/api/crm/leads/:id/activity', requireAuth, (req, res) => {
   const lead = db.leads.find(l => l.id === req.params.id);
   if (!lead) return res.status(404).json({ success: false, message: "Lead not found" });
   lead.activities = lead.activities || [];
+  
+  const rawText = req.body.text || req.body.notes || req.body.details || req.body.subject || '';
+  const cleanText = (rawText && rawText !== 'undefined' && rawText !== 'null' && rawText.trim() !== '') ? rawText.trim() : 'Lead interaction recorded in project timeline.';
+  
   const act = {
     id: `ACT-${Date.now()}`,
     type: req.body.type || 'Phone Call',
-    text: req.body.text || req.body.notes || req.body.details || 'Interaction logged',
+    text: cleanText,
+    notes: cleanText,
     author: req.body.author || 'Rohit Churiwala',
     date: 'Just now'
   };
@@ -1459,38 +1510,132 @@ app.post('/api/crm/leads/:id/activity', requireAuth, (req, res) => {
 app.get('/api/crm/accounts/:id', (req, res) => {
   const acc = db.accounts_crm.find(a => a.id === req.params.id || a.name.toLowerCase().includes(req.params.id.toLowerCase())) || db.accounts_crm[0];
   const relatedContacts = db.contacts.filter(c => c.accountId === acc.id || c.accountName.toLowerCase().includes(acc.name.toLowerCase()));
-  const relatedProjects = db.projects.filter(p => p.client.toLowerCase().includes(acc.name.toLowerCase()) || acc.name.toLowerCase().includes(p.client.toLowerCase()));
-  res.json({ success: true, account: acc, relatedContacts, relatedProjects });
+  const relatedProjects = db.projects.filter(p => p.client.toLowerCase().includes(acc.name.toLowerCase()) || acc.name.toLowerCase().includes(p.client.toLowerCase()) || (acc.id && p.accountId === acc.id));
+  const relatedLeads = db.leads.filter(l => l.accountId === acc.id || (l.accountName && l.accountName.toLowerCase().includes(acc.name.toLowerCase())) || acc.name.toLowerCase().includes((l.accountName || '').toLowerCase()));
+  const relatedInvoices = db.invoices.filter(i => (i.accountCredited === acc.id || i.accountName === acc.name || relatedProjects.some(p => p.id === i.projectId)));
+  const relatedQuotations = db.quotations.filter(q => relatedProjects.some(p => p.id === q.projectId));
+
+  acc.activities = acc.activities || [
+    { id: 'ACT-ACC-01', type: 'Payment', title: 'Milestone 3 RTGS Inflow Reconciled', text: '₹14,85,000 RTGS remittance credited to Treasury account. Verified and reconciled by Rohit Churiwala.', author: 'Rohit Churiwala', date: '06 Nov 2026' },
+    { id: 'ACT-ACC-02', type: 'Site Meeting', title: 'Client Design Freeze & Sample Inspection', text: 'Rohit Churiwala reviewed smoked oak veneer and Dyna Beige marble batch samples on site with client.', author: 'Rohit Churiwala', date: '02 Nov 2026' },
+    { id: 'ACT-ACC-03', type: 'BOQ Sync', title: 'Turnkey Contract Specification Locked', text: 'Hardware and woodwork schedule locked in Master Google Sheet.', author: 'Rohit Churiwala', date: '28 Oct 2026' }
+  ];
+
+  const reminders = [
+    { id: 'REM-ACC-01', title: 'Scheduled Client Progress Walkthrough', due: '12 Nov 2026 15:30', notes: 'Walkthrough of master suite carcass installation with Ananya Sen.' }
+  ];
+
+  res.json({
+    success: true,
+    account: acc,
+    relatedContacts,
+    relatedProjects,
+    relatedLeads,
+    invoices: relatedInvoices,
+    quotations: relatedQuotations,
+    activities: acc.activities,
+    reminders
+  });
 });
 
 app.put('/api/crm/accounts/:id', requireAuth, (req, res) => {
   const acc = db.accounts_crm.find(a => a.id === req.params.id);
   if (!acc) return res.status(404).json({ success: false, message: "Account not found" });
   Object.assign(acc, req.body);
+  acc.activities = acc.activities || [];
+  acc.activities.unshift({
+    id: `ACT-${Date.now()}`,
+    type: 'Account Update',
+    title: 'Account Profile Details Updated',
+    text: 'Account specifications and financial profile updated by Rohit Churiwala.',
+    author: 'Rohit Churiwala',
+    date: 'Just now'
+  });
   res.json({ success: true, account: acc });
 });
 
+app.post('/api/crm/accounts/:id/activity', requireAuth, (req, res) => {
+  const acc = db.accounts_crm.find(a => a.id === req.params.id || a.name.toLowerCase().includes(req.params.id.toLowerCase()));
+  if (!acc) return res.status(404).json({ success: false, message: "Account not found" });
+
+  acc.activities = acc.activities || [];
+  const rawTitle = req.body.subject || req.body.title || 'Account Interaction';
+  const cleanTitle = (rawTitle && rawTitle !== 'undefined' && rawTitle !== 'null') ? rawTitle.trim() : 'Account Interaction';
+  
+  const rawNotes = req.body.notes || req.body.text || req.body.details || '';
+  const cleanNotes = (rawNotes && rawNotes !== 'undefined' && rawNotes !== 'null' && rawNotes.trim() !== '') ? rawNotes.trim() : 'Note recorded in account stream.';
+
+  const act = {
+    id: `ACT-${Date.now()}`,
+    type: req.body.type || 'Note',
+    title: cleanTitle,
+    subject: cleanTitle,
+    text: cleanNotes,
+    notes: cleanNotes,
+    author: req.body.author || 'Rohit Churiwala',
+    date: 'Just now'
+  };
+
+  acc.activities.unshift(act);
+  res.json({ success: true, activity: act, activities: acc.activities });
+});
+
 app.post('/api/crm/leads', requireAuth, (req, res) => {
-  const { name, phone, email, location, area, budget, source, notes } = req.body;
+  const { name, phone, email, location, area, budget, source, notes, accountId, accountName } = req.body;
   if (!name) return res.status(400).json({ success: false, message: "Lead name is required." });
+
+  let matchedAcc = null;
+  if (accountId) {
+    matchedAcc = db.accounts_crm.find(a => a.id === accountId);
+  } else if (accountName) {
+    matchedAcc = db.accounts_crm.find(a => a.name.toLowerCase() === accountName.trim().toLowerCase());
+  }
+
+  const finalAccountName = matchedAcc ? matchedAcc.name : (accountName || `${name.trim()} Estate`);
+  const finalAccountId = matchedAcc ? matchedAcc.id : null;
 
   const newLead = {
     id: `LD-2026-${String(db.leads.length + 1).padStart(3, '0')}`,
     name: name.trim(),
-    phone: phone || "+91 91633 17574",
+    accountId: finalAccountId,
+    accountName: finalAccountName,
+    phone: phone || (matchedAcc ? matchedAcc.phone : "+91 91633 17574"),
     email: email || `${name.toLowerCase().replace(/[^a-z0-9]/g, '')}@gmail.com`,
-    location: location || "Kolkata",
+    location: location || (matchedAcc ? matchedAcc.location : "Kolkata"),
     area: parseInt(area) || 2000,
-    budget: parseFloat(budget) || 3000000,
-    source: source || "Inquiry",
-    status: "New Inquiry",
-    rating: "Warm",
+    budget: parseFloat(budget) || 3500000,
+    source: source || "Architect Referral",
+    status: "New Inflow",
+    rating: "Hot",
     assignedTo: "Rohit Churiwala",
-    notes: notes || "Newly staged lead inquiry.",
-    createdAt: new Date().toISOString().slice(0, 10)
+    notes: notes || "Newly staged lead inquiry for turnkey interior architecture.",
+    createdAt: new Date().toISOString().slice(0, 10),
+    activities: [
+      {
+        id: `ACT-${Date.now()}`,
+        type: 'Lead Created',
+        title: 'Lead Inflow Registered',
+        text: `Lead created for ${finalAccountName}. Assigned to Rohit Churiwala. Target Budget: ₹${(parseFloat(budget) || 3500000).toLocaleString('en-IN')}`,
+        author: 'Rohit Churiwala',
+        date: 'Just now'
+      }
+    ]
   };
 
   db.leads.unshift(newLead);
+
+  if (matchedAcc) {
+    matchedAcc.activities = matchedAcc.activities || [];
+    matchedAcc.activities.unshift({
+      id: `ACT-LEAD-${Date.now()}`,
+      type: 'Lead Created',
+      title: `New Lead Created: ${newLead.name}`,
+      text: `Inflow lead registered for ${matchedAcc.name}. Budget: ₹${newLead.budget.toLocaleString('en-IN')} (${newLead.location}).`,
+      author: 'Rohit Churiwala',
+      date: 'Just now'
+    });
+  }
+
   res.json({ success: true, lead: newLead, message: "Lead registered successfully!" });
 });
 
@@ -1500,64 +1645,89 @@ app.post('/api/crm/leads/:id/convert', requireAuth, (req, res) => {
   if (leadIdx === -1) return res.status(404).json({ success: false, message: "Lead not found." });
 
   const lead = db.leads[leadIdx];
-  const { accountName, contactName, opportunityName, contractValue } = req.body;
+  const { accountId, accountName, contactName, opportunityName, contractValue } = req.body;
 
-  const finalAccountName = accountName || `${lead.name} Household`;
+  // 1. Resolve or Create Account
+  let account = null;
+  if (accountId) {
+    account = db.accounts_crm.find(a => a.id === accountId);
+  } else if (lead.accountId) {
+    account = db.accounts_crm.find(a => a.id === lead.accountId);
+  } else if (accountName) {
+    account = db.accounts_crm.find(a => a.name.toLowerCase() === accountName.trim().toLowerCase());
+  }
+
+  const finalAccountName = accountName || (account ? account.name : (lead.accountName || `${lead.name} Estate`));
   const finalContactName = contactName || lead.name;
-  const finalOppName = opportunityName || `${lead.location} Turnkey Project`;
+  const finalOppName = opportunityName || `${lead.location} Turnkey Interior Execution`;
   const finalValue = parseFloat(contractValue) || lead.budget || 3500000;
-  const slug = lead.name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  const slug = (finalContactName || lead.name).toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
 
-  // 1. Create Account
-  const newAccount = {
-    id: `ACC-CRM-${String(db.accounts_crm.length + 1).padStart(2, '0')}`,
-    name: finalAccountName,
-    type: "HNW Residential Turnkey",
-    primaryContact: finalContactName,
-    phone: lead.phone,
-    location: lead.location,
-    projectsCount: 1,
-    activeOpportunity: finalOppName,
-    contractValue: finalValue,
-    invoiced: 0,
-    received: 0,
-    outstanding: finalValue,
-    status: "Active Execution"
-  };
-  db.accounts_crm.unshift(newAccount);
+  if (!account) {
+    account = {
+      id: `ACC-CRM-${String(db.accounts_crm.length + 1).padStart(2, '0')}`,
+      name: finalAccountName,
+      type: "HNW Residential Turnkey",
+      primaryContact: finalContactName,
+      phone: lead.phone,
+      location: lead.location,
+      projectsCount: 1,
+      activeOpportunity: finalOppName,
+      contractValue: finalValue,
+      invoiced: 0,
+      received: 0,
+      outstanding: finalValue,
+      status: "Active Execution",
+      activities: []
+    };
+    db.accounts_crm.unshift(account);
+  } else {
+    account.contractValue = (account.contractValue || 0) + finalValue;
+    account.projectsCount = (account.projectsCount || 0) + 1;
+    account.activeOpportunity = finalOppName;
+  }
 
-  // 2. Create Contact
-  const newContact = {
-    id: `CON-${String(db.contacts.length + 1).padStart(3, '0')}`,
-    name: finalContactName,
-    accountName: finalAccountName,
-    accountId: newAccount.id,
-    role: "Principal Client & Decision Maker",
-    phone: lead.phone,
-    email: lead.email,
-    project: finalOppName,
-    projectId: `PRJ-2026-${String(db.projects.length + 1).padStart(3, '0')}`,
-    preferredContact: "WhatsApp / In-person",
-    location: lead.location
-  };
-  db.contacts.unshift(newContact);
+  // 2. Resolve or Create Contact
+  let contact = db.contacts.find(c => c.name.toLowerCase() === finalContactName.toLowerCase() && (c.accountId === account.id || c.accountName === account.name));
+  const newProjId = `PRJ-2026-${String(db.projects.length + 1).padStart(3, '0')}`;
 
-  // 3. Create Opportunity (in db.projects)
+  if (!contact) {
+    contact = {
+      id: `CON-${String(db.contacts.length + 1).padStart(3, '0')}`,
+      name: finalContactName,
+      accountName: account.name,
+      accountId: account.id,
+      role: "Principal Client & Decision Maker",
+      phone: lead.phone,
+      email: lead.email,
+      project: finalOppName,
+      projectId: newProjId,
+      preferredContact: "WhatsApp / In-person",
+      location: lead.location
+    };
+    db.contacts.unshift(contact);
+  } else {
+    contact.project = finalOppName;
+    contact.projectId = newProjId;
+  }
+
+  // 3. Create Project / Opportunity in db.projects
   const newOpportunity = {
-    id: `PRJ-2026-${String(db.projects.length + 1).padStart(3, '0')}`,
+    id: newProjId,
     slug: slug,
     subdomain: `${slug}.nexus.dreamaddress.in`,
     name: finalOppName,
-    client: finalAccountName,
+    client: account.name,
     clientName: finalContactName,
+    accountId: account.id,
     tier: "HNW Turnkey VIP",
     phone: lead.phone,
     email: lead.email,
     location: lead.location,
     area: lead.area,
-    stage: "3D Design Approval & Freeze",
-    stageIndex: 1,
-    progress: 25,
+    stage: "Lead & Site Survey",
+    stageIndex: 0,
+    progress: 15,
     contractValue: finalValue,
     invoiced: 0,
     received: 0,
@@ -1579,18 +1749,76 @@ app.post('/api/crm/leads/:id/convert', requireAuth, (req, res) => {
     aestheticRules: "Signature Dream Address Minimalist Warm Contemporary",
     materialConstraints: "Century / Greenply 710 BWP Marine, Hafele hardware, smoked oak veneer."
   };
-  db.projects.push(newOpportunity);
+  db.projects.unshift(newOpportunity);
 
-  // 4. Update Lead Status
+  // 4. Prepopulate Project Timeline (db.conversations) with Lead history and conversion milestone
+  const convEntry = {
+    id: `CONV-${String(db.conversations.length + 1).padStart(3, '0')}`,
+    projectId: newOpportunity.id,
+    type: "change-order",
+    subject: `Lead Converted to Active Project: ${newOpportunity.name}`,
+    title: `Lead Converted to Active Project: ${newOpportunity.name}`,
+    summary: `Lead Converted to Active Project: ${newOpportunity.name}`,
+    notes: `Turnkey execution project initialized from Lead ${lead.id} (${lead.name}). Account: ${account.name} | Contract Value: ₹${finalValue.toLocaleString('en-IN')}. Initial site survey & 3D layout freeze underway.`,
+    details: `Turnkey execution project initialized from Lead ${lead.id} (${lead.name}). Account: ${account.name} | Contract Value: ₹${finalValue.toLocaleString('en-IN')}. Initial site survey & 3D layout freeze underway.`,
+    text: `Lead converted to project. Contract Value: ₹${finalValue.toLocaleString('en-IN')}`,
+    author: "Rohit Churiwala",
+    date: new Date().toISOString().slice(0, 16).replace('T', ' ')
+  };
+  db.conversations.unshift(convEntry);
+
+  if (lead.activities && lead.activities.length > 0) {
+    lead.activities.forEach(a => {
+      db.conversations.push({
+        id: `CONV-${String(db.conversations.length + 1).padStart(3, '0')}`,
+        projectId: newOpportunity.id,
+        type: (a.type && a.type.toLowerCase().includes('call')) ? 'call' : ((a.type && a.type.toLowerCase().includes('survey')) ? 'visit' : 'note'),
+        subject: a.title || a.type || 'Lead Interaction',
+        title: a.title || a.type || 'Lead Interaction',
+        notes: a.text || a.notes || 'Carried over from Lead intake.',
+        details: a.text || a.notes || 'Carried over from Lead intake.',
+        text: a.text || a.notes || 'Carried over from Lead intake.',
+        author: a.author || "Rohit Churiwala",
+        date: a.date || new Date().toISOString().slice(0, 16).replace('T', ' ')
+      });
+    });
+  }
+
+  // 5. Update Lead Status
   lead.status = "Converted";
+  lead.converted = true;
   lead.convertedOpportunityId = newOpportunity.id;
+  lead.convertedProjectId = newOpportunity.id;
+  lead.convertedAccountId = account.id;
+  lead.convertedContactId = contact.id;
+  lead.activities = lead.activities || [];
+  lead.activities.unshift({
+    id: `ACT-${Date.now()}`,
+    type: 'Converted',
+    title: `Converted to Active Project: ${newOpportunity.name}`,
+    text: `Lead successfully converted to Project ${newOpportunity.id} under Account ${account.name}.`,
+    author: 'Rohit Churiwala',
+    date: 'Just now'
+  });
+
+  // 6. Update Account Activities
+  account.activities = account.activities || [];
+  account.activities.unshift({
+    id: `ACT-PROJ-${Date.now()}`,
+    type: 'Project Commissioned',
+    title: `New Project Commissioned: ${newOpportunity.name}`,
+    text: `Converted from Lead ${lead.id}. Contract Value: ₹${finalValue.toLocaleString('en-IN')} (${newOpportunity.id}).`,
+    author: 'Rohit Churiwala',
+    date: 'Just now'
+  });
 
   res.json({
     success: true,
-    message: `Lead ${lead.name} successfully converted to Account, Contact, and Opportunity!`,
-    account: newAccount,
-    contact: newContact,
-    opportunity: newOpportunity
+    message: `Lead ${lead.name} successfully converted to Account (${account.name}), Contact (${contact.name}), and Project (${newOpportunity.name})!`,
+    account: account,
+    contact: contact,
+    opportunity: newOpportunity,
+    project: newOpportunity
   });
 });
 
@@ -1936,8 +2164,25 @@ app.post('/api/crm/clients/:id/stage', requireAuth, (req, res) => {
   }
 
   if (stageIndex !== undefined && stageIndex >= 0 && stageIndex < stages.length) {
+    const prevStage = project.stage;
     project.stageIndex = stageIndex;
     project.stage = stages[stageIndex];
+
+    // Automatically record stage advance activity in project timeline
+    const stageConv = {
+      id: `CONV-${String(db.conversations.length + 1).padStart(3, '0')}`,
+      projectId: project.id,
+      type: "change-order",
+      subject: `Milestone Stage Advanced: ${stages[stageIndex]}`,
+      summary: `Milestone Stage Advanced: ${stages[stageIndex]}`,
+      title: `Milestone Stage Advanced: ${stages[stageIndex]}`,
+      notes: `Project execution milestone progressed from "${prevStage || 'Lead & Site Survey'}" to "${stages[stageIndex]}". Signed off by Rohit Churiwala.`,
+      details: `Project execution milestone progressed to "${stages[stageIndex]}". Signed off by Rohit Churiwala.`,
+      text: `Stage transitioned to ${stages[stageIndex]}`,
+      author: req.body.author || "Rohit Churiwala",
+      date: new Date().toISOString().slice(0, 16).replace('T', ' ')
+    };
+    db.conversations.unshift(stageConv);
   }
   res.json({ success: true, project, client: project });
 });
@@ -1947,8 +2192,12 @@ app.post('/api/crm/clients/:id/conversations', requireAuth, (req, res) => {
   if (!project) return res.status(404).json({ success: false, message: "Client record not found." });
 
   const { type, summary, details, actionItem, subject, notes, title, text, link, linkText } = req.body;
-  const finalSummary = subject || summary || title || "Client Interaction";
-  const finalNotes = notes || details || text || "Activity logged by Rohit Churiwala.";
+  
+  const rawSum = subject || summary || title || '';
+  const finalSummary = (rawSum && rawSum !== 'undefined' && rawSum !== 'null' && rawSum.trim() !== '') ? rawSum.trim() : "Client Interaction";
+  
+  const rawNotes = notes || details || text || '';
+  const finalNotes = (rawNotes && rawNotes !== 'undefined' && rawNotes !== 'null' && rawNotes.trim() !== '') ? rawNotes.trim() : "Activity logged by Rohit Churiwala.";
 
   const newConv = {
     id: `CONV-${String(db.conversations.length + 1).padStart(3, '0')}`,
@@ -2193,9 +2442,10 @@ app.get('/api/crm/quotations/:id/download', (req, res) => {
 });
 
 app.post('/api/crm/invoices', requireAuth, (req, res) => {
-  const { projectId, milestone, amount, accountId, paymentMode, signatory, paidAmount } = req.body;
-  const prj = db.projects.find(p => p.id === projectId) || db.projects[0];
-  const parsedAmt = parseFloat(amount) || 500000;
+  const { projectId, milestone, description, amount, servicesAmount, materialsAmount, accountId, paymentMode, signatory, paidAmount } = req.body;
+  const prj = db.projects.find(p => p.id === projectId || p.slug === projectId) || db.projects[0];
+  const finalMilestone = milestone || description || "Milestone Payment Demand";
+  const parsedAmt = parseFloat(amount) || ((parseFloat(servicesAmount) || 0) + (parseFloat(materialsAmount) || 0)) || 500000;
   const parsedPaid = paidAmount !== undefined ? parseFloat(paidAmount) : parsedAmt;
   const parsedDue = Math.max(0, parsedAmt - parsedPaid);
   const acc = db.accounts.find(a => a.id === accountId) || db.accounts[0];
@@ -2508,15 +2758,15 @@ app.post('/api/scan-ledger', upload.single('ledgerImage'), (req, res) => {
       date: new Date().toISOString().slice(0, 10),
       projectId: "PERSONAL-EXPENSE",
       category: "Personal Expense",
-      subCategory: "Household Ration",
-      description: "South Kolkata Residence Fresh Vegetables & Dairy",
+      subCategory: "Workshop Consumables",
+      description: "Tangra Workshop Fasteners, Sanding Discs & Adhesives",
       debit: 1850,
       credit: 0,
       accountId: "ACC-06",
       accountName: "Master Cash Balance",
       verified: false,
       yellowHighlighted: false,
-      subDataNote: "Family grocery cash voucher"
+      subDataNote: "Tangra Unit 2 daily consumables voucher"
     }
   ];
 
@@ -2526,7 +2776,7 @@ app.post('/api/scan-ledger', upload.single('ledgerImage'), (req, res) => {
 
   res.json({
     success: true,
-    message: "Handwritten diary scanned. Personal family expenses properly categorized.",
+    message: "Handwritten diary scanned. Studio operational expenditures properly categorized.",
     parsedEntries: simulatedOCR
   });
 });

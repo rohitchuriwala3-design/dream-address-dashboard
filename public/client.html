@@ -639,6 +639,53 @@
     </div>
   </main>
 
+  <!-- MODAL: GENERATE CLIENT BOQ QUOTATION -->
+  <div id="modal-quotation" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4">
+    <div class="bg-[#0B1323] border border-cyan-500/40 rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-cyan-600/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-bold">📄</div>
+          <h3 class="text-lg font-bold text-white">Generate BOQ Cost Estimate & Quotation</h3>
+        </div>
+        <button onclick="closeQuotationModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <form onsubmit="submitNewQuotation(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Quotation Scope & Title *</label>
+          <input type="text" id="qtn-title" required placeholder="e.g. Master Penthouse Turnkey Woodwork & PU Polish Scope R02" class="w-full bg-[#0A0F1D] border border-slate-700 rounded p-2 text-white">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Carpentry & Labor (₹) *</label>
+            <input type="number" id="qtn-labor" required placeholder="2200000" class="w-full bg-[#0A0F1D] border border-slate-700 rounded p-2 text-white">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Materials & Hardware (₹) *</label>
+            <input type="number" id="qtn-material" required placeholder="1650000" class="w-full bg-[#0A0F1D] border border-slate-700 rounded p-2 text-white">
+          </div>
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Detailed Technical Scope</label>
+          <textarea id="qtn-scope" rows="3" placeholder="Century Club Prime BWP 710 ply, Smoked Oak natural veneer, Hafele soft-close runners, Dyna Beige marble..." class="w-full bg-[#0A0F1D] border border-slate-700 rounded p-2 text-white"></textarea>
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Authorizing Principal</label>
+          <input type="text" id="qtn-signatory" readonly value="Rohit Churiwala (Managing Director)" class="w-full bg-[#070D18] border border-slate-800 rounded p-2 text-slate-400">
+        </div>
+
+        <div class="p-3 bg-cyan-500/10 border border-cyan-500/30 rounded text-cyan-200 text-[11px] leading-relaxed">
+          ⚡ Synchronizes automatically to Master Google Sheet and appends official BOQ document to the project activity timeline with instant PDF / CSV download links.
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2">
+          <button type="button" onclick="closeQuotationModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded font-semibold">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded shadow">Generate & Log BOQ</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- MODAL: RAISE NEW INVOICE -->
   <div id="modal-invoice" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="sf-card w-full max-w-lg p-6 shadow-2xl space-y-4">
@@ -804,6 +851,13 @@
       }
     }
 
+    function cleanTextValue(val, fallback) {
+      if (val === undefined || val === null) return fallback;
+      const s = String(val).trim();
+      if (s === '' || s === 'undefined' || s === 'null' || s === '[object Object]') return fallback;
+      return s;
+    }
+
     function renderActivitiesTimeline(conversations, reminders) {
       // Upcoming
       const upContainer = document.getElementById('timeline-upcoming');
@@ -818,10 +872,10 @@
           div.innerHTML = `
             <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center font-bold text-[10px]">!</div>
             <div class="flex items-center justify-between">
-              <span class="font-bold text-white">${r.title}</span>
-              <span class="text-slate-500 font-mono text-[10px]">${r.due}</span>
+              <span class="font-bold text-white">${cleanTextValue(r.title, 'Milestone Schedule')}</span>
+              <span class="text-slate-500 font-mono text-[10px]">${cleanTextValue(r.due, 'Upcoming')}</span>
             </div>
-            <div class="text-slate-400 text-[11px]">${r.notes || 'Action required by Rohit Churiwala'}</div>
+            <div class="text-slate-400 text-[11px]">${cleanTextValue(r.notes, 'Action required by Rohit Churiwala')}</div>
           `;
           upContainer.appendChild(div);
         });
@@ -831,7 +885,7 @@
       const pastContainer = document.getElementById('timeline-past');
       pastContainer.innerHTML = '';
 
-      if (conversations.length === 0) {
+      if (!conversations || conversations.length === 0) {
         pastContainer.innerHTML = `
           <div class="timeline-node text-xs space-y-1">
             <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-[10px]">✉</div>
@@ -854,8 +908,11 @@
         else if (c.type === 'invoice') { icon = '💳'; iconBg = 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/40'; }
         else if (c.type === 'quotation') { icon = '📄'; iconBg = 'bg-cyan-600/20 text-cyan-300 border border-cyan-500/40'; }
 
-        const titleText = c.subject || c.title || c.summary || 'Client Interaction';
-        const notesText = c.notes || c.details || c.text || 'Action recorded in project timeline.';
+        const titleText = cleanTextValue(c.subject || c.title || c.summary, (c.type === 'call' ? 'Phone Consultation' : (c.type === 'visit' ? 'Site Inspection' : (c.type === 'invoice' ? 'Tax Invoice Issued' : 'Client Interaction'))));
+        const notesText = cleanTextValue(c.notes || c.details || c.text, 'Interaction recorded in project timeline.');
+        const authorText = cleanTextValue(c.author, 'Rohit Churiwala');
+        const dateText = cleanTextValue(c.date || c.timestamp, 'Recent');
+
         const linkHtml = c.link ? `
           <div class="mt-2">
             <a href="${c.link}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs rounded shadow transition">
@@ -869,11 +926,11 @@
           <div class="absolute left-0 top-1 w-6 h-6 rounded-full ${iconBg} flex items-center justify-center font-bold text-[10px] shadow">${icon}</div>
           <div class="flex items-center justify-between">
             <span class="font-bold text-white">${titleText}</span>
-            <span class="text-slate-500 font-mono text-[10px]">${c.date || c.timestamp || 'Recent'}</span>
+            <span class="text-slate-500 font-mono text-[10px]">${dateText}</span>
           </div>
           <div class="text-slate-400 text-[11px] bg-[#0A0F1D] p-2.5 rounded border border-slate-800 leading-relaxed">${notesText}</div>
           ${linkHtml}
-          <div class="text-[10px] text-slate-500">Logged by: <span class="text-slate-300 font-semibold">${c.author || 'Rohit Churiwala'}</span></div>
+          <div class="text-[10px] text-slate-500">Logged by: <span class="text-slate-300 font-semibold">${authorText}</span></div>
         `;
         pastContainer.appendChild(div);
       });
@@ -890,12 +947,16 @@
         quotes.forEach(q => {
           const div = document.createElement('div');
           div.className = 'p-2.5 bg-[#0A0F1D] rounded border border-slate-800 flex items-center justify-between text-xs';
+          const qAmount = q.amount || q.total || (q.laborCost + q.materialCost) || 3850000;
           div.innerHTML = `
             <div>
-              <div class="font-bold text-sky-400">${q.id || 'DSS-QTN-001'}</div>
+              <div class="font-bold text-sky-400 flex items-center gap-2">
+                <span>${q.id || 'DSS-QTN-001'}</span>
+                <a href="/api/crm/quotations/${q.id}/download" target="_blank" class="text-[10px] text-cyan-400 hover:underline">Download ↗</a>
+              </div>
               <div class="text-[10px] text-slate-400">${q.title || 'Turnkey Woodwork'} • ${q.status || 'Approved'}</div>
             </div>
-            <span class="font-mono font-bold text-emerald-400">₹${q.amount || q.total || '38,50,000'}</span>
+            <span class="font-mono font-bold text-emerald-400">₹${typeof qAmount === 'number' ? qAmount.toLocaleString('en-IN') : qAmount}</span>
           `;
           qBox.appendChild(div);
         });
@@ -916,14 +977,18 @@
         invoices.forEach(inv => {
           const div = document.createElement('div');
           div.className = 'p-2.5 bg-[#0A0F1D] rounded border border-slate-800 space-y-1 text-xs';
+          const invAmt = inv.amount || inv.total || 0;
           div.innerHTML = `
             <div class="flex justify-between font-bold">
-              <span class="text-sky-400">${inv.id}</span>
-              <span class="text-emerald-400 font-mono">₹${inv.amount || inv.total || 0}</span>
+              <span class="text-sky-400 flex items-center gap-1.5">
+                <span>${inv.id}</span>
+                <a href="/api/crm/invoices/${inv.id}/download" target="_blank" class="text-[10px] text-cyan-400 hover:underline">Tax Invoice ↗</a>
+              </span>
+              <span class="text-emerald-400 font-mono">₹${typeof invAmt === 'number' ? invAmt.toLocaleString('en-IN') : invAmt}</span>
             </div>
             <div class="flex justify-between text-[10px] text-slate-400">
               <span>${inv.milestone || 'Milestone Billing'}</span>
-              <span class="${inv.status === 'Paid' ? 'text-emerald-300' : 'text-amber-300'}">${inv.status || 'Pending'}</span>
+              <span class="${inv.status === 'Paid' ? 'text-emerald-300 font-semibold' : 'text-amber-300 font-semibold'}">${inv.status || 'Pending'}</span>
             </div>
           `;
           iBox.appendChild(div);
@@ -971,8 +1036,18 @@
 
     async function submitPublisherActivity(e) {
       e.preventDefault();
-      const subject = document.getElementById('pub-subject').value;
-      const notes = document.getElementById('pub-notes').value;
+      const subject = document.getElementById('pub-subject').value.trim();
+      const notes = document.getElementById('pub-notes').value.trim();
+
+      if (!notes) {
+        alert("Please enter detailed notes for this activity.");
+        return;
+      }
+
+      const defaultSubject = publisherMode === 'call' ? 'Phone Consultation' :
+                             (publisherMode === 'visit' ? 'Site Inspection & Review' :
+                             (publisherMode === 'email' ? 'Client Correspondence' :
+                             (publisherMode === 'task' ? 'Project Task Action' : 'Architectural Note')));
 
       try {
         const res = await fetch(`/api/crm/clients/${encodeURIComponent(clientId)}/conversations`, {
@@ -980,8 +1055,11 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             type: publisherMode,
-            subject: subject,
+            subject: subject || defaultSubject,
+            title: subject || defaultSubject,
             notes: notes,
+            details: notes,
+            text: notes,
             author: 'Rohit Churiwala'
           })
         });
@@ -1024,13 +1102,23 @@
 
     async function submitNewInvoice(e) {
       e.preventDefault();
+      const desc = document.getElementById('inv-desc').value.trim();
+      const services = parseFloat(document.getElementById('inv-service').value) || 0;
+      const materials = parseFloat(document.getElementById('inv-material').value) || 0;
+      const totalAmount = services + materials;
+      const dueDate = document.getElementById('inv-due').value;
+      const signatory = document.getElementById('inv-signatory').value || 'Rohit Churiwala';
+
       const payload = {
         projectId: clientId,
-        description: document.getElementById('inv-desc').value,
-        servicesAmount: parseFloat(document.getElementById('inv-service').value) || 0,
-        materialsAmount: parseFloat(document.getElementById('inv-material').value) || 0,
-        dueDate: document.getElementById('inv-due').value,
-        signatory: document.getElementById('inv-signatory').value
+        milestone: desc || "Milestone Payment Demand",
+        description: desc || "Milestone Payment Demand",
+        amount: totalAmount,
+        servicesAmount: services,
+        materialsAmount: materials,
+        paidAmount: totalAmount,
+        dueDate: dueDate,
+        signatory: signatory
       };
 
       try {
@@ -1043,7 +1131,9 @@
         if (data.success) {
           closeInvoiceModal();
           await loadClientDetail();
-          alert(`Invoice ${data.invoice ? data.invoice.id : ''} raised successfully!`);
+          alert(`Invoice ${data.invoice ? data.invoice.id : ''} raised successfully! Added to project timeline with downloadable tax invoice.`);
+        } else {
+          alert('Failed to raise invoice: ' + (data.message || 'Server error'));
         }
       } catch (err) {
         alert('Failed to raise invoice.');
@@ -1051,7 +1141,47 @@
     }
 
     function openQuotationModal() {
-      alert("Quotation generator opening in workspace mode...");
+      document.getElementById('modal-quotation').classList.remove('hidden');
+    }
+
+    function closeQuotationModal() {
+      document.getElementById('modal-quotation').classList.add('hidden');
+    }
+
+    async function submitNewQuotation(e) {
+      e.preventDefault();
+      const title = document.getElementById('qtn-title').value.trim();
+      const laborCost = parseFloat(document.getElementById('qtn-labor').value) || 0;
+      const materialCost = parseFloat(document.getElementById('qtn-material').value) || 0;
+      const scope = document.getElementById('qtn-scope').value.trim();
+      const signatory = document.getElementById('qtn-signatory').value || 'Rohit Churiwala';
+
+      const payload = {
+        projectId: clientId,
+        title: title || "Turnkey Joinery & Interior Execution BOQ",
+        laborCost: laborCost,
+        materialCost: materialCost,
+        scope: scope,
+        signatory: signatory
+      };
+
+      try {
+        const res = await fetch('/api/crm/quotations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeQuotationModal();
+          await loadClientDetail();
+          alert(`BOQ Quotation ${data.quotation ? data.quotation.id : ''} created successfully! Added to project timeline with 1-click download link.`);
+        } else {
+          alert('Failed to create quotation: ' + (data.message || 'Server error'));
+        }
+      } catch (err) {
+        alert('Failed to generate quotation.');
+      }
     }
 
     function openChangeOrderModal() {

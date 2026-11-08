@@ -623,7 +623,7 @@
             </div>
             <div>
               <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Accounts</div>
-              <h1 class="text-xl font-bold text-white tracking-tight">Client Households & Corporate Accounts</h1>
+              <h1 class="text-xl font-bold text-white tracking-tight">Client Estates & Corporate Accounts</h1>
               <div class="text-xs text-slate-400 mt-0.5">Master accounts holding sites, financial billing history and lifetime metrics</div>
             </div>
           </div>
@@ -950,6 +950,13 @@
       </div>
 
       <form onsubmit="submitNewLead(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Target Account / Client Estate</label>
+          <select id="lead-account-select" onchange="onLeadAccountSelect(this.value)" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+            <option value="">-- Associate with Existing Account (or Auto-create) --</option>
+          </select>
+        </div>
+
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block text-slate-300 font-semibold mb-1">Lead / Client Name *</label>
@@ -1021,7 +1028,7 @@
       <div class="text-xs text-slate-300 leading-relaxed bg-blue-950/40 p-3 rounded border border-blue-900/60">
         Converting this lead will automatically provision:
         <ul class="list-disc pl-5 mt-1 space-y-0.5 text-cyan-300 font-semibold">
-          <li><strong>1 New Account</strong> (Household / Client Entity)</li>
+          <li><strong>1 New Account</strong> (Client Entity / Estate)</li>
           <li><strong>1 New Contact</strong> (Principal Client)</li>
           <li><strong>1 New Opportunity</strong> (Active Deal in Pipeline)</li>
         </ul>
@@ -1132,7 +1139,7 @@
 
       <form onsubmit="submitNewAccount(event)" class="space-y-3 text-xs">
         <div>
-          <label class="block text-slate-300 font-semibold mb-1">Account / Household Name *</label>
+          <label class="block text-slate-300 font-semibold mb-1">Account / Client Estate Name *</label>
           <input type="text" id="account-name" required placeholder="e.g. Singhania Family Trust" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1863,7 +1870,22 @@
       });
     }
 
+    function onLeadAccountSelect(accId) {
+      if (!accId) return;
+      const acc = (accountsData || []).find(a => a.id === accId);
+      if (acc) {
+        if (!document.getElementById('lead-name').value) document.getElementById('lead-name').value = acc.primaryContact || acc.name;
+        if (!document.getElementById('lead-phone').value) document.getElementById('lead-phone').value = acc.phone || '+91 91633 17574';
+        if (!document.getElementById('lead-location').value) document.getElementById('lead-location').value = acc.location || 'Kolkata';
+      }
+    }
+
     function openNewLeadModal() {
+      const select = document.getElementById('lead-account-select');
+      if (select) {
+        select.innerHTML = '<option value="">-- Associate with Existing Account (or Auto-create) --</option>' +
+          (accountsData || []).map(a => `<option value="${a.id}">${a.name} (${a.id}) - ${a.location || 'Kolkata'}</option>`).join('');
+      }
       document.getElementById('modal-lead').classList.remove('hidden');
     }
     function closeNewLeadModal() {
@@ -1872,14 +1894,19 @@
 
     async function submitNewLead(e) {
       e.preventDefault();
+      const accId = document.getElementById('lead-account-select') ? document.getElementById('lead-account-select').value : '';
+      const matchedAcc = (accountsData || []).find(a => a.id === accId);
+
       const payload = {
-        name: document.getElementById('lead-name').value,
-        phone: document.getElementById('lead-phone').value,
-        location: document.getElementById('lead-location').value,
+        accountId: accId || null,
+        accountName: matchedAcc ? matchedAcc.name : null,
+        name: document.getElementById('lead-name').value.trim(),
+        phone: document.getElementById('lead-phone').value.trim(),
+        location: document.getElementById('lead-location').value.trim(),
         area: parseInt(document.getElementById('lead-area').value) || 2000,
         budget: parseFloat(document.getElementById('lead-budget').value) || 3500000,
         source: document.getElementById('lead-source').value,
-        notes: document.getElementById('lead-notes').value
+        notes: document.getElementById('lead-notes').value.trim()
       };
 
       try {
@@ -1906,7 +1933,7 @@
       const lead = leadsData.find(l => l.id === leadId);
       if (!lead) return;
       document.getElementById('conv-lead-id').value = lead.id;
-      document.getElementById('conv-account-name').value = `${lead.name} Household`;
+      document.getElementById('conv-account-name').value = `${lead.name} Estate`;
       document.getElementById('conv-contact-name').value = lead.name;
       document.getElementById('conv-opp-name').value = `${lead.location} Turnkey Interior`;
       document.getElementById('conv-amount').value = lead.budget || 3500000;
@@ -1936,10 +1963,14 @@
         const data = await res.json();
         if (data.success) {
           closeConvertLeadModal();
-          alert(`Success! Lead converted to Account (${data.account.name}), Contact (${data.contact.name}) & Opportunity (${data.opportunity.name})`);
           await Promise.all([loadLeads(), loadClients(), loadContacts(), loadAccounts()]);
           renderHomeDashboard();
           switchNavTab('opportunities');
+
+          const openProj = confirm(`🎉 Success! Lead converted just like Salesforce!\n\n1. Account: ${data.account.name}\n2. Contact: ${data.contact.name}\n3. Active Project: ${data.opportunity.name} (${data.opportunity.id})\n\nClick OK to open the new Project 360 Record now.`);
+          if (openProj) {
+            window.open(`/client?id=${encodeURIComponent(data.opportunity.id)}`, '_blank');
+          }
         } else {
           alert(data.message || 'Error converting lead');
         }
