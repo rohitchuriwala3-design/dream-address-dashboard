@@ -1199,7 +1199,6 @@
       // Quotations
       const qBox = document.getElementById('rel-quotes-container');
       qBox.innerHTML = '';
-      const quotes = data.quotations || [];
       if (quotes.length === 0) {
         qBox.innerHTML = `<div class="p-2.5 bg-[#0A0F1D] rounded text-slate-500 text-xs">DSS-QTN-2026-001 • ₹38,50,000 (Approved)</div>`;
       } else {
@@ -1232,7 +1231,6 @@
       // Invoices
       const iBox = document.getElementById('rel-invoices-container');
       iBox.innerHTML = '';
-      const invoices = data.invoices || [];
       if (invoices.length === 0) {
         iBox.innerHTML = `
           <div class="p-2.5 bg-[#0A0F1D] rounded border border-slate-800 space-y-1 text-xs">
