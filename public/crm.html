@@ -19,11 +19,11 @@
       font-family: 'Playfair Display', serif;
     }
     .sf-header {
-      background-color: #051937;
-      border-bottom: 1px solid #0F2E5C;
+      background-color: #05162E;
+      border-bottom: 1px solid #0F2D54;
     }
     .sf-nav-bar {
-      background-color: #0A1628;
+      background-color: #091526;
       border-bottom: 1px solid #1E293B;
     }
     .sf-tab {
@@ -102,13 +102,15 @@
     ::-webkit-scrollbar-track { background: #070D18; }
     ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
-  <!-- 1. SALESFORCE GLOBAL HEADER (BESPOKE DA MONOGRAM - NO CLOUD LOGO) -->
+  <!-- 1. MODERN TOP GLOBAL HEADER (BEAUTIFUL ARCHITECTURAL EMBLEM - ZERO CLOUD LOGO) -->
   <header class="sf-header px-4 py-2 flex items-center justify-between text-white sticky top-0 z-50">
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-3.5">
       <!-- 9-dot App Launcher Grid -->
       <button onclick="window.location.href='/'" title="Back to MARK IV Executive OS" class="p-1.5 rounded hover:bg-white/10 transition flex flex-col items-center justify-center gap-0.5">
         <div class="grid grid-cols-3 gap-0.5 w-4 h-4">
@@ -118,67 +120,80 @@
         </div>
       </button>
 
-      <!-- Bespoke Dream Address Architectural Monogram (DA) - ZERO CLOUD LOGO -->
-      <div class="flex items-center gap-3 cursor-pointer" onclick="switchNavTab('opportunities')">
+      <!-- BEAUTIFUL MODERN NEXUS 360 CRM ARCHITECTURAL LOGO -->
+      <div class="flex items-center gap-2.5 cursor-pointer" onclick="switchNavTab('home')">
         <div class="relative flex items-center justify-center">
-          <svg class="w-8 h-8 drop-shadow-md" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <polygon points="20,2 37,11 37,29 20,38 3,29 3,11" stroke="url(#goldGradHeader)" stroke-width="2" fill="#071224"/>
-            <polygon points="20,6 33,13 33,27 20,34 7,27 7,13" stroke="#38BDF8" stroke-width="0.75" stroke-dasharray="2 2" fill="none" opacity="0.6"/>
-            <!-- D Monogram -->
-            <path d="M13 13 H19 C22.5 13 24.5 15.2 24.5 18.5 C24.5 21.8 22.5 24 19 24 H13 V13 Z" stroke="url(#goldGradHeader)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-            <!-- A Monogram -->
-            <path d="M21 27 L26.5 13 L32 27 M22.8 23 H30.2" stroke="#38BDF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <svg class="w-9 h-9 drop-shadow-lg" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <linearGradient id="goldGradHeader" x1="0%" y1="0%" x2="100%" y2="100%">
+              <linearGradient id="nexusGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#38BDF8"/>
+                <stop offset="60%" stop-color="#0284C7"/>
+                <stop offset="100%" stop-color="#0F2B48"/>
+              </linearGradient>
+              <linearGradient id="nexusGold" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stop-color="#FDE68A"/>
                 <stop offset="50%" stop-color="#F59E0B"/>
                 <stop offset="100%" stop-color="#B45309"/>
               </linearGradient>
             </defs>
+            <!-- Faceted Outer Hexagonal Shield -->
+            <polygon points="22,2 40,11 40,33 22,42 4,33 4,11" stroke="url(#nexusGold)" stroke-width="1.8" fill="#061224"/>
+            <!-- Inner Isometric Drafting Compass Geometry -->
+            <polygon points="22,7 35,14 35,30 22,37 9,30 9,14" stroke="#38BDF8" stroke-width="0.8" stroke-dasharray="2 2" fill="none" opacity="0.7"/>
+            <!-- 3D Architectural Cube Prisms -->
+            <path d="M22 7 L35 14 L22 22 L9 14 Z" fill="url(#nexusGrad1)" opacity="0.45"/>
+            <path d="M9 14 L22 22 L22 37 L9 30 Z" fill="#0A1E3A" opacity="0.6"/>
+            <path d="M35 14 L22 22 L22 37 L35 30 Z" fill="url(#nexusGrad1)" opacity="0.25"/>
+            <!-- Central Golden Monogram Interlock 'DA' -->
+            <path d="M14 15 H19 C22 15 23.5 16.8 23.5 19.5 C23.5 22.2 22 24 19 24 H14 V15 Z" stroke="url(#nexusGold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M21 27 L26 15 L31 27 M22.5 23.5 H29.5" stroke="#38BDF8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
         <div>
-          <div class="text-sm font-extrabold tracking-tight text-white font-serif leading-none">DREAM ADDRESS</div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-sm font-extrabold tracking-tight text-white font-serif leading-none">DREAM ADDRESS</span>
+            <span class="text-[9px] bg-gradient-to-r from-amber-500 to-amber-400 text-slate-950 font-extrabold px-1.5 py-0.2 rounded font-mono">MARK IV</span>
+          </div>
           <div class="flex items-center gap-1.5 mt-0.5">
-            <span class="text-[9px] text-amber-300 uppercase font-mono tracking-widest font-bold">STUDIO</span>
-            <span class="w-1 h-1 rounded-full bg-cyan-400"></span>
-            <span class="text-[9px] text-cyan-300 font-mono tracking-wider font-semibold">NEXUS 360 CRM</span>
+            <span class="text-[10px] text-cyan-300 font-extrabold uppercase font-mono tracking-wider">NEXUS 360</span>
+            <span class="w-1 h-1 rounded-full bg-amber-400"></span>
+            <span class="text-[9px] text-slate-400 font-mono tracking-wide font-medium">SALESFORCE ARCHITECTURE</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Centered Salesforce Global Search -->
-    <div class="flex-1 max-w-xl mx-8 hidden sm:block">
+    <!-- Centered Global Omnisearch -->
+    <div class="flex-1 max-w-xl mx-8 hidden md:block">
       <div class="relative">
         <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
         </svg>
         <input type="text" id="global-search" oninput="handleGlobalSearch()" placeholder="Search Leads, Contacts, Accounts, Quotes, Invoices..." class="w-full bg-[#081B38] border border-blue-900/60 rounded-full py-1.5 pl-9 pr-8 text-xs text-slate-200 placeholder-slate-400 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition">
-        <kbd class="hidden md:inline-block absolute right-3 top-2 text-[10px] bg-blue-950 px-1.5 py-0.5 rounded text-slate-400 border border-blue-900">Ctrl+K</kbd>
+        <kbd class="hidden lg:inline-block absolute right-3 top-2 text-[10px] bg-blue-950 px-1.5 py-0.5 rounded text-slate-400 border border-blue-900">Ctrl+K</kbd>
       </div>
     </div>
 
     <!-- Right Header Utilities -->
-    <div class="flex items-center gap-3">
-      <!-- Quick Sync Button -->
-      <button onclick="syncGoogleSheets()" id="crm-sync-btn" title="Sync live with 22-tab Master Google Sheet" class="flex items-center gap-1.5 px-3 py-1 bg-cyan-600/30 hover:bg-cyan-600/50 border border-cyan-400/40 rounded-full text-xs font-semibold text-cyan-200 transition">
+    <div class="flex items-center gap-2.5">
+      <!-- Dual-Way Google Sheet Sync Button -->
+      <button onclick="syncGoogleSheets()" id="crm-sync-btn" title="Dual-way synchronize with 22-tab Master Google Sheet" class="flex items-center gap-1.5 px-3 py-1 bg-cyan-600/30 hover:bg-cyan-600/50 border border-cyan-400/40 rounded-full text-xs font-semibold text-cyan-200 transition">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-        <span>Sync Now</span>
+        <span>Dual Sync</span>
       </button>
 
-      <!-- Notifications Bell -->
+      <!-- Action Reminders Bell -->
       <button onclick="toggleRemindersDrawer()" title="Action Reminders" class="relative p-1.5 rounded hover:bg-white/10 text-slate-300 hover:text-white transition">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
         <span id="crm-bell-badge" class="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-rose-500 text-[10px] font-bold flex items-center justify-center text-white">4</span>
       </button>
 
-      <!-- Admin Roles & Permissions Gear -->
-      <button onclick="openAdminUsersModal()" title="Admin User Management & Permissions" class="p-1.5 rounded hover:bg-white/10 text-slate-300 hover:text-white transition">
+      <!-- Admin Permissions Gear -->
+      <button onclick="openAdminUsersModal()" title="Dynamic Admin Permissions" class="p-1.5 rounded hover:bg-white/10 text-slate-300 hover:text-white transition">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
       </button>
 
-      <!-- Profile Avatar (Rohit Churiwala - Super Admin) -->
+      <!-- Profile Avatar -->
       <div class="flex items-center gap-2 pl-2 border-l border-blue-900/60 cursor-pointer" onclick="openAdminUsersModal()">
         <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-500 to-cyan-500 flex items-center justify-center font-bold text-xs text-slate-950 shadow-inner">
           RC
@@ -191,9 +206,13 @@
     </div>
   </header>
 
-  <!-- 2. SALESFORCE OBJECT NAVIGATION TABS (ALL 9 MODULES FULLY FUNCTIONAL) -->
+  <!-- 2. SALESFORCE OBJECT NAVIGATION BAR (10 TABS STARTING WITH HOME) -->
   <nav class="sf-nav-bar px-4 flex items-center justify-between overflow-x-auto no-scrollbar">
     <div class="flex items-center">
+      <div class="sf-tab active" id="tab-home" onclick="switchNavTab('home')">
+        <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+        <span>Home</span>
+      </div>
       <div class="sf-tab" id="tab-leads" onclick="switchNavTab('leads')">
         <span>Leads</span>
         <span class="text-[10px] text-blue-300 bg-blue-950/80 px-1.5 py-0.2 rounded-full font-bold" id="badge-leads-count">4</span>
@@ -206,7 +225,7 @@
         <span>Accounts</span>
         <span class="text-[10px] text-indigo-300 bg-indigo-950/80 px-1.5 py-0.2 rounded-full font-bold" id="badge-accounts-count">4</span>
       </div>
-      <div class="sf-tab active" id="tab-opportunities" onclick="switchNavTab('opportunities')">
+      <div class="sf-tab" id="tab-opportunities" onclick="switchNavTab('opportunities')">
         <span>Opportunities</span>
         <span class="text-[10px] text-cyan-300 bg-cyan-950/80 px-1.5 py-0.2 rounded-full font-bold" id="badge-opps-count">3</span>
       </div>
@@ -233,9 +252,9 @@
 
   <!-- 3. MAIN WORKSPACE WITH SALESFORCE LEFT UTILITY RAIL -->
   <div class="flex-1 flex overflow-hidden">
-    <!-- Salesforce Left Utility Rail (All Icons Connected) -->
+    <!-- Salesforce Left Utility Rail -->
     <aside class="w-12 bg-[#060B14] border-r border-[#1E293B] flex flex-col items-center py-3 gap-3 text-slate-400 shrink-0">
-      <button title="Home Dashboard (MARK IV OS)" onclick="window.location.href='/'" class="p-2 rounded hover:bg-white/5 hover:text-white transition">
+      <button title="Home Dashboard" onclick="switchNavTab('home')" id="rail-home" class="p-2 rounded bg-cyan-500/20 text-cyan-300 transition">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
       </button>
       <button title="Leads" onclick="switchNavTab('leads')" id="rail-leads" class="p-2 rounded hover:bg-white/5 hover:text-white transition">
@@ -247,7 +266,7 @@
       <button title="Accounts" onclick="switchNavTab('accounts')" id="rail-accounts" class="p-2 rounded hover:bg-white/5 hover:text-white transition">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
       </button>
-      <button title="Opportunities" onclick="switchNavTab('opportunities')" id="rail-opportunities" class="p-2 rounded bg-cyan-500/20 text-cyan-300 transition">
+      <button title="Opportunities" onclick="switchNavTab('opportunities')" id="rail-opportunities" class="p-2 rounded hover:bg-white/5 hover:text-white transition">
         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M5 2h14a1 1 0 011 1v3a4 4 0 01-3 3.87V11a5 5 0 01-4 4.9V18h3a1 1 0 110 2H8a1 1 0 110-2h3v-2.1A5 5 0 017 11V9.87A4 4 0 014 6V3a1 1 0 011-1z"/></svg>
       </button>
       <button title="Quotes & BOQ" onclick="switchNavTab('quotes')" id="rail-quotes" class="p-2 rounded hover:bg-white/5 hover:text-white transition">
@@ -271,10 +290,133 @@
     <main class="flex-1 flex flex-col overflow-y-auto">
 
       <!-- ======================================================== -->
+      <!-- MODULE 0: HOME DASHBOARD (SALESFORCE ENTERPRISE COCKPIT) -->
+      <!-- ======================================================== -->
+      <section id="module-home" class="flex-1 flex flex-col p-4 sm:p-6 space-y-6">
+        <!-- Executive Welcome Banner & Google Sheet Sync Status -->
+        <div class="sf-card p-5 bg-gradient-to-r from-[#091526] via-[#0B1E38] to-[#0A1628] border-blue-900/40 flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-xl">
+          <div>
+            <div class="text-[11px] font-bold text-amber-300 uppercase tracking-widest flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Nexus 360 Enterprise Command Center</span>
+            </div>
+            <h1 class="text-2xl font-extrabold text-white tracking-tight mt-1">
+              Welcome, <span class="text-cyan-400">Rohit Churiwala</span>
+            </h1>
+            <p class="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
+              Principal Designer & Managing Director • Dream Address Studio • Bidirectional Google Sheet Synchronized
+            </p>
+          </div>
+
+          <!-- Dual-Way Google Sheet Sync Status Pill & Button -->
+          <div class="flex items-center gap-3 bg-[#06101E] p-3 rounded-xl border border-blue-900/60 shrink-0">
+            <div>
+              <div class="text-[10px] font-bold text-slate-400 uppercase">Master Google Sheet</div>
+              <div class="text-xs font-mono font-bold text-emerald-400 flex items-center gap-1.5 mt-0.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                <span id="home-sync-status-text">22 Tabs Dual-Way Synced</span>
+              </div>
+            </div>
+            <button onclick="syncGoogleSheets()" class="px-3 py-1.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs rounded-lg shadow transition flex items-center gap-1.5">
+              <span>🔄</span> <span>Sync Now</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 Top Financial KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="sf-card p-4 space-y-1 cursor-pointer hover:border-cyan-400 transition" onclick="switchNavTab('opportunities')">
+            <div class="text-[11px] text-slate-400 font-bold uppercase">Active Pipeline Value</div>
+            <div class="text-2xl font-mono font-extrabold text-cyan-400" id="home-kpi-pipeline">₹1,14,00,000</div>
+            <div class="text-[10px] text-slate-400 flex items-center gap-1">
+              <span>3 active luxury sites</span> • <span class="text-cyan-300">View deals →</span>
+            </div>
+          </div>
+          <div class="sf-card p-4 space-y-1 cursor-pointer hover:border-sky-400 transition" onclick="switchNavTab('invoices')">
+            <div class="text-[11px] text-slate-400 font-bold uppercase">Milestone Billed (Total)</div>
+            <div class="text-2xl font-mono font-extrabold text-sky-400" id="home-kpi-invoiced">₹69,10,000</div>
+            <div class="text-[10px] text-slate-400">Stage demands raised</div>
+          </div>
+          <div class="sf-card p-4 space-y-1 cursor-pointer hover:border-emerald-400 transition" onclick="switchNavTab('invoices')">
+            <div class="text-[11px] text-slate-400 font-bold uppercase">Total Collected (Cash/Bank)</div>
+            <div class="text-2xl font-mono font-extrabold text-emerald-400" id="home-kpi-collected">₹61,25,000</div>
+            <div class="text-[10px] text-emerald-400/90 font-semibold">88.6% collection efficiency</div>
+          </div>
+          <div class="sf-card p-4 space-y-1 cursor-pointer hover:border-rose-400 transition" onclick="switchNavTab('invoices')">
+            <div class="text-[11px] text-slate-400 font-bold uppercase">Outstanding Receivables</div>
+            <div class="text-2xl font-mono font-extrabold text-rose-400" id="home-kpi-outstanding">₹7,85,000</div>
+            <div class="text-[10px] text-rose-400/90 font-semibold">WhatsApp demands ready</div>
+          </div>
+        </div>
+
+        <!-- Fast Action Launcher Bar (All Connected to Real Modals) -->
+        <div class="sf-card p-3 bg-[#081222] border-blue-900/40 flex items-center gap-2 overflow-x-auto no-scrollbar">
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider pl-2 pr-2 hidden sm:inline">Quick Actions:</span>
+          <button onclick="openNewLeadModal()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-md shadow transition flex items-center gap-1.5 shrink-0">
+            <span>+ New Lead</span>
+          </button>
+          <button onclick="openNewContactModal()" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-md shadow transition flex items-center gap-1.5 shrink-0">
+            <span>+ New Contact</span>
+          </button>
+          <button onclick="openNewOpportunityModal()" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-md shadow transition flex items-center gap-1.5 shrink-0">
+            <span>+ New Opportunity</span>
+          </button>
+          <button onclick="openNewQuoteModal()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-md shadow transition flex items-center gap-1.5 shrink-0">
+            <span>+ New Quote</span>
+          </button>
+          <button onclick="openNewInvoiceModal()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-md shadow transition flex items-center gap-1.5 shrink-0">
+            <span>+ Raise Bill</span>
+          </button>
+          <button onclick="openNewCalendarModal()" class="px-3 py-1.5 bg-cyan-700 hover:bg-cyan-600 text-white font-bold text-xs rounded-md shadow transition flex items-center gap-1.5 shrink-0">
+            <span>+ Schedule Visit</span>
+          </button>
+        </div>
+
+        <!-- Live Visual Pipeline Chart -->
+        <div class="sf-card p-5 space-y-3">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+            <div>
+              <h3 class="text-xs font-bold text-white uppercase tracking-wider">Turnkey Execution Pipeline Health (₹ By Stage)</h3>
+              <div class="text-[11px] text-slate-400">Real-time valuation across all 6 project stages</div>
+            </div>
+            <span class="text-xs text-cyan-400 font-mono font-bold" id="home-chart-pipeline-sum">Total Pipeline: ₹1,14,00,000</span>
+          </div>
+          <div class="relative w-full" style="height: 220px; min-height: 220px; max-height: 220px;">
+            <canvas id="home-pipeline-chart"></canvas>
+          </div>
+        </div>
+
+        <!-- 2-Column Split: Recent Deals & Operational Reminders -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Recent Active Turnkey Deals -->
+          <div class="sf-card p-4 space-y-3">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+              <h3 class="text-xs font-bold text-white uppercase tracking-wider">Active Turnkey Projects</h3>
+              <button onclick="switchNavTab('opportunities')" class="text-cyan-400 hover:underline text-xs font-semibold">View All →</button>
+            </div>
+            <div id="home-recent-opps" class="space-y-2.5">
+              <!-- Dynamically filled -->
+            </div>
+          </div>
+
+          <!-- Operational Action Reminders -->
+          <div class="sf-card p-4 space-y-3">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+              <h3 class="text-xs font-bold text-white uppercase tracking-wider">Today's Action Reminders</h3>
+              <button onclick="sendPhoneReminders()" class="text-emerald-400 hover:underline text-xs font-bold">📲 Alert Phone</button>
+            </div>
+            <div id="home-reminders-list" class="space-y-2.5">
+              <!-- Dynamically filled -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
       <!-- MODULE 1: OPPORTUNITIES (ACTIVE DEAL PIPELINE) -->
       <!-- ======================================================== -->
-      <section id="module-opportunities" class="flex-1 flex flex-col">
-        <!-- Top Action Bar (Matches Salesforce Screenshot 1) -->
+      <section id="module-opportunities" class="hidden flex-1 flex flex-col">
+        <!-- Top Action Bar -->
         <div class="p-4 sm:p-6 pb-2 border-b border-[#1E293B] bg-[#0A0F1D]/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shadow-lg">
@@ -316,24 +458,9 @@
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
             </button>
 
-            <button onclick="togglePipelineChart()" title="Toggle Pipeline Analytics Chart" id="btn-toggle-chart" class="p-1.5 rounded-md bg-[#0B1120] border border-slate-700/80 text-slate-400 hover:text-cyan-300 transition">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
-            </button>
-
             <button onclick="openNewOpportunityModal()" class="px-3.5 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-md shadow transition flex items-center gap-1.5">
               <span>+ New Opportunity</span>
             </button>
-          </div>
-        </div>
-
-        <!-- Embedded Collapsible Pipeline Chart -->
-        <div id="pipeline-chart-panel" class="hidden p-4 bg-[#080E1B] border-b border-[#1E293B]">
-          <div class="flex items-center justify-between mb-2">
-            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Turnkey Pipeline Value By Stage (₹)</h3>
-            <span class="text-xs text-cyan-400 font-mono font-bold" id="pipeline-total-val">Total Pipeline: ₹1,14,00,000</span>
-          </div>
-          <div class="relative w-full" style="height: 180px; min-height: 180px; max-height: 180px;">
-            <canvas id="crm-pipeline-chart"></canvas>
           </div>
         </div>
 
@@ -426,13 +553,6 @@
           </div>
           <div class="flex items-center gap-2.5 flex-wrap">
             <input type="text" id="leads-search" oninput="renderLeadsTable()" placeholder="Search leads..." class="bg-[#0B1120] border border-slate-700/80 rounded-md py-1.5 px-3 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-400 w-44 transition">
-            <select id="leads-filter-status" onchange="renderLeadsTable()" class="bg-[#0B1120] border border-slate-700/80 rounded-md py-1.5 px-2.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-400">
-              <option value="ALL">All Statuses</option>
-              <option value="New Inquiry">New Inquiry</option>
-              <option value="Site Survey Done">Site Survey Done</option>
-              <option value="Design Freeze / Proposal Sent">Design Freeze</option>
-              <option value="Initial Consultation">Initial Consultation</option>
-            </select>
             <button onclick="openNewLeadModal()" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-md shadow transition">
               + New Lead
             </button>
@@ -652,7 +772,6 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <!-- Price List Table -->
           <div class="lg:col-span-2 sf-card overflow-hidden">
             <div class="p-3 bg-[#080E1B] border-b border-slate-800 flex items-center justify-between">
               <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Standard Specification Items</span>
@@ -674,7 +793,6 @@
             </table>
           </div>
 
-          <!-- Instant Turnkey Sq.Ft Estimator Calculator -->
           <div class="sf-card p-5 space-y-4">
             <div class="flex items-center gap-2 pb-2 border-b border-slate-800">
               <span class="text-lg">📐</span>
@@ -745,7 +863,6 @@
           <div class="text-xs text-slate-400 mt-0.5">Real-time studio health • 35% margin enforcement • Receivables aging breakdown</div>
         </div>
 
-        <!-- 4 Top KPI Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="sf-card p-4 space-y-1">
             <div class="text-[11px] text-slate-400 font-bold uppercase">Active Pipeline Value</div>
@@ -769,7 +886,6 @@
           </div>
         </div>
 
-        <!-- Charts Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div class="sf-card p-5 space-y-3">
             <h3 class="text-xs font-bold text-white uppercase tracking-wider">Revenue Funnel by Construction Stage</h3>
@@ -805,7 +921,7 @@
   <!-- SLIDE-OVER REMINDERS DRAWER -->
   <!-- ======================================================== -->
   <div id="reminders-drawer" class="fixed inset-y-0 right-0 w-full max-w-md bg-[#080E1B] border-l border-[#1E293B] shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
-    <div class="p-4 border-b border-[#1E293B] flex items-center justify-between bg-[#051937]">
+    <div class="p-4 border-b border-[#1E293B] flex items-center justify-between bg-[#05162E]">
       <div class="flex items-center gap-2">
         <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
         <h3 class="text-sm font-bold text-white">Daily Operational Action Reminders</h3>
@@ -813,7 +929,7 @@
       <button onclick="toggleRemindersDrawer()" class="text-slate-400 hover:text-white text-lg">✕</button>
     </div>
     <div id="reminders-list-container" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
-    <div class="p-4 border-t border-[#1E293B] bg-[#0A1628] space-y-2">
+    <div class="p-4 border-t border-[#1E293B] bg-[#091526] space-y-2">
       <button onclick="sendPhoneReminders()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-lg transition flex items-center justify-center gap-2 shadow">
         <span>📲</span> <span>Send All Reminders to Rohit (+91 91633 17574)</span>
       </button>
@@ -821,7 +937,73 @@
   </div>
 
   <!-- ======================================================== -->
-  <!-- MODAL: SALESFORCE 1-CLICK CONVERT LEAD WIZARD -->
+  <!-- MODAL 1: NEW LEAD MODAL -->
+  <!-- ======================================================== -->
+  <div id="modal-lead" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="sf-card w-full max-w-lg p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+        <div>
+          <div class="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Nexus 360 Ingestion</div>
+          <h3 class="text-lg font-bold text-white">Create New Client Lead</h3>
+        </div>
+        <button onclick="closeNewLeadModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <form onsubmit="submitNewLead(event)" class="space-y-3 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Lead / Client Name *</label>
+            <input type="text" id="lead-name" required placeholder="e.g. Smt. Priyanka Chatterjee" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Phone / WhatsApp *</label>
+            <input type="text" id="lead-phone" required placeholder="+91 98301 XXXXX" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Site Location / Address *</label>
+            <input type="text" id="lead-location" required placeholder="e.g. Urbana Tower 3, Anandapur" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Carpet Area (sq ft)</label>
+            <input type="number" id="lead-area" value="2200" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white font-mono">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Estimated Budget (₹) *</label>
+            <input type="number" id="lead-budget" value="3500000" required class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white font-mono">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Inquiry Source</label>
+            <select id="lead-source" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+              <option value="Instagram Campaign">Instagram Campaign</option>
+              <option value="Architect Referral">Architect Referral</option>
+              <option value="Client Referral">Client Referral</option>
+              <option value="Walk-in Lake View Road Studio">Walk-in Lake View Road Studio</option>
+              <option value="Website Ingestion">Website Ingestion</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Client Notes / Scope Requirements</label>
+          <textarea id="lead-notes" rows="2" placeholder="Luxury 4BHK apartment, smoked oak veneer, Italian marble living room..." class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white"></textarea>
+        </div>
+
+        <div class="pt-3 border-t border-slate-700 flex justify-end gap-2">
+          <button type="button" onclick="closeNewLeadModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded shadow">Save Lead</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 2: 1-CLICK CONVERT LEAD WIZARD -->
   <!-- ======================================================== -->
   <div id="modal-convert-lead" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="sf-card w-full max-w-lg p-6 shadow-2xl space-y-4">
@@ -875,7 +1057,286 @@
   </div>
 
   <!-- ======================================================== -->
-  <!-- MODAL: ADMIN USER MANAGEMENT & DYNAMIC PERMISSIONS -->
+  <!-- MODAL 3: NEW CONTACT MODAL -->
+  <!-- ======================================================== -->
+  <div id="modal-contact" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="sf-card w-full max-w-lg p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+        <div>
+          <div class="text-[10px] font-bold text-purple-400 uppercase tracking-wider">Stakeholder Directory</div>
+          <h3 class="text-lg font-bold text-white">Create New Contact</h3>
+        </div>
+        <button onclick="closeNewContactModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <form onsubmit="submitNewContact(event)" class="space-y-3 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Contact Full Name *</label>
+            <input type="text" id="contact-name" required placeholder="e.g. Ar. Sourav Ganguly" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Associated Account *</label>
+            <input type="text" id="contact-account" required placeholder="e.g. Ganguly & Associates PMC" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Role / Designation *</label>
+            <select id="contact-role" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+              <option value="Principal Client">Principal Client</option>
+              <option value="Spouse Co-decision Maker">Spouse Co-decision Maker</option>
+              <option value="Consulting Structural Architect">Consulting Structural Architect</option>
+              <option value="Site Project Manager / PMC">Site Project Manager / PMC</option>
+              <option value="Lead Joinery Ustaad">Lead Joinery Ustaad</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Phone / WhatsApp *</label>
+            <input type="text" id="contact-phone" required placeholder="+91 98311 XXXXX" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Email Address</label>
+            <input type="email" id="contact-email" placeholder="contact@example.com" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Linked Project / Site</label>
+            <input type="text" id="contact-project" placeholder="e.g. Highline Highland" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-700 flex justify-end gap-2">
+          <button type="button" onclick="closeNewContactModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded shadow">Save Contact</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 4: NEW ACCOUNT MODAL -->
+  <!-- ======================================================== -->
+  <div id="modal-account" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="sf-card w-full max-w-lg p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+        <div>
+          <div class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">Client Accounts</div>
+          <h3 class="text-lg font-bold text-white">Create New Account</h3>
+        </div>
+        <button onclick="closeNewAccountModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <form onsubmit="submitNewAccount(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Account / Household Name *</label>
+          <input type="text" id="account-name" required placeholder="e.g. Singhania Family Trust" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Account Type *</label>
+            <select id="account-type" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+              <option value="HNW Residential Turnkey">HNW Residential Turnkey</option>
+              <option value="Corporate / Luxury Estate">Corporate / Luxury Estate</option>
+              <option value="Executive Turnkey">Executive Turnkey</option>
+              <option value="HNW Prospect">HNW Prospect</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Primary Contact Person</label>
+            <input type="text" id="account-contact" placeholder="e.g. Alok Singhania" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Phone *</label>
+            <input type="text" id="account-phone" required placeholder="+91 98300 XXXXX" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Location / City</label>
+            <input type="text" id="account-location" placeholder="e.g. Alipore, Kolkata" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-700 flex justify-end gap-2">
+          <button type="button" onclick="closeNewAccountModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded shadow">Save Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 5: NEW QUOTE MODAL -->
+  <!-- ======================================================== -->
+  <div id="modal-quote" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="sf-card w-full max-w-lg p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+        <div>
+          <div class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">BOQ Engine</div>
+          <h3 class="text-lg font-bold text-white">Create New Turnkey Quotation</h3>
+        </div>
+        <button onclick="closeNewQuoteModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <form onsubmit="submitNewQuote(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Select Opportunity / Project *</label>
+          <select id="quote-project-id" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white font-medium">
+            <!-- Dynamically populated with active projects -->
+          </select>
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Quotation Title *</label>
+          <input type="text" id="quote-title" required placeholder="e.g. Master Penthouse Turnkey Package (Rev 3)" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Labor & Joinery Cost (₹) *</label>
+            <input type="number" id="quote-labor" required placeholder="1400000" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white font-mono">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Materials & Hardware Cost (₹) *</label>
+            <input type="number" id="quote-material" required placeholder="2100000" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white font-mono">
+          </div>
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Revision Code</label>
+          <input type="text" id="quote-rev" value="R01" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white font-mono">
+        </div>
+
+        <div class="pt-3 border-t border-slate-700 flex justify-end gap-2">
+          <button type="button" onclick="closeNewQuoteModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded shadow">Save Quotation</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 6: NEW MILESTONE INVOICE MODAL -->
+  <!-- ======================================================== -->
+  <div id="modal-invoice" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="sf-card w-full max-w-lg p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+        <div>
+          <div class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Dream Address Billing Engine</div>
+          <h3 class="text-lg font-bold text-white">Raise Official Milestone Invoice</h3>
+        </div>
+        <button onclick="closeNewInvoiceModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <form onsubmit="submitNewInvoice(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Select Project *</label>
+          <select id="inv-project-id" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+            <!-- Dynamically populated with active projects -->
+          </select>
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Milestone Description *</label>
+          <input type="text" id="inv-milestone" required placeholder="e.g. Stage 3 - Carcass Assembly & Wardrobes (20%)" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Invoice Amount (₹) *</label>
+            <input type="number" id="inv-amount" required placeholder="770000" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white font-mono">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Paid Amount (₹)</label>
+            <input type="number" id="inv-paid" placeholder="0" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white font-mono">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Credit Bank Account</label>
+            <select id="inv-account-id" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+              <option value="ACC-01">HDFC Bank (Current A/C)</option>
+              <option value="ACC-02">ICICI Bank (Rohit Churiwala)</option>
+              <option value="ACC-06">Master Cash Balance</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Payment Mode</label>
+            <select id="inv-payment-mode" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+              <option value="RTGS / Bank">RTGS / Bank</option>
+              <option value="NEFT">NEFT</option>
+              <option value="Cheque">Cheque</option>
+              <option value="Cash Receipt">Cash Receipt</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-700 flex justify-end gap-2">
+          <button type="button" onclick="closeNewInvoiceModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded shadow">Raise Invoice</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 7: NEW CALENDAR EVENT MODAL -->
+  <!-- ======================================================== -->
+  <div id="modal-calendar" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="sf-card w-full max-w-lg p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+        <div>
+          <div class="text-[10px] font-bold text-cyan-400 uppercase tracking-wider">Site Execution Calendar</div>
+          <h3 class="text-lg font-bold text-white">Schedule Site Visit or Delivery</h3>
+        </div>
+        <button onclick="closeNewCalendarModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <form onsubmit="submitNewCalendar(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Event Title *</label>
+          <input type="text" id="cal-title" required placeholder="e.g. Laser Measurement & Level Survey" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Project / Site Name *</label>
+          <input type="text" id="cal-project" required placeholder="e.g. Urbana Tower 3 (Priyanka Chatterjee)" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Date *</label>
+            <input type="date" id="cal-date" required class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Time *</label>
+            <input type="text" id="cal-time" value="11:00 AM" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Event Type</label>
+            <select id="cal-type" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+              <option value="Site Survey">Site Survey</option>
+              <option value="Client Presentation">Client Presentation</option>
+              <option value="Factory Inspection">Factory Inspection</option>
+              <option value="Joinery Delivery">Joinery Delivery</option>
+              <option value="Client Handover">Client Handover</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Attendees</label>
+            <input type="text" id="cal-attendees" value="Rohit Churiwala, Subhashis Roy" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-700 flex justify-end gap-2">
+          <button type="button" onclick="closeNewCalendarModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded shadow">Schedule Event</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 8: ADMIN USERS & PERMISSIONS -->
   <!-- ======================================================== -->
   <div id="modal-admin-users" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="sf-card w-full max-w-2xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
@@ -883,7 +1344,7 @@
         <div class="flex items-center gap-2.5">
           <div class="w-9 h-9 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-bold">🛡️</div>
           <div>
-            <div class="text-[10px] font-bold text-amber-300 uppercase tracking-wider">Dream Address Studio Security Engine</div>
+            <div class="text-[10px] font-bold text-amber-300 uppercase tracking-wider">Dream Address Security Engine</div>
             <h3 class="text-lg font-bold text-white">Dynamic User Permissions & Admin Access</h3>
           </div>
         </div>
@@ -898,7 +1359,7 @@
         <div class="text-slate-300">As Super Admin, you can assign administrative privileges or customized role permissions to any other team member or partner email below.</div>
       </div>
 
-      <!-- Add New User / Invite Form -->
+      <!-- Add User Form -->
       <form onsubmit="submitNewUser(event)" class="p-4 bg-[#080E1B] rounded-lg border border-slate-800 space-y-3 text-xs">
         <div class="font-bold text-slate-200">Grant Admin or Custom Role to Email</div>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -919,18 +1380,16 @@
         </div>
       </form>
 
-      <!-- Active Users List -->
+      <!-- Users List -->
       <div class="space-y-2">
         <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Active System Users & Granted Privileges</div>
-        <div id="admin-users-list" class="space-y-2">
-          <!-- Dynamically populated from /api/admin/users -->
-        </div>
+        <div id="admin-users-list" class="space-y-2"></div>
       </div>
     </div>
   </div>
 
   <!-- ======================================================== -->
-  <!-- MODAL: NEW OPPORTUNITY -->
+  <!-- MODAL 9: NEW OPPORTUNITY MODAL -->
   <!-- ======================================================== -->
   <div id="modal-opportunity" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="sf-card w-full max-w-xl p-6 shadow-2xl space-y-4">
@@ -946,33 +1405,33 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-slate-300 font-semibold mb-1">Account / Client Name *</label>
-            <input type="text" id="opp-client-name" required placeholder="e.g. Smt. Priyanka Chatterjee" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-cyan-400">
+            <input type="text" id="opp-client-name" required placeholder="e.g. Smt. Priyanka Chatterjee" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
           </div>
           <div>
             <label class="block text-slate-300 font-semibold mb-1">Opportunity / Project Title *</label>
-            <input type="text" id="opp-project-name" required placeholder="e.g. Urbana Tower 3 - Luxury 4BHK" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-cyan-400">
+            <input type="text" id="opp-project-name" required placeholder="e.g. Urbana Tower 3 - Luxury 4BHK" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
           </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label class="block text-slate-300 font-semibold mb-1">Contract Value (₹) *</label>
-            <input type="number" id="opp-amount" required placeholder="3500000" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-cyan-400">
+            <input type="number" id="opp-amount" required placeholder="3500000" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white font-mono">
           </div>
           <div>
             <label class="block text-slate-300 font-semibold mb-1">Carpet Area (sq ft)</label>
-            <input type="number" id="opp-area" placeholder="2200" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-cyan-400">
+            <input type="number" id="opp-area" value="2200" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white font-mono">
           </div>
           <div>
             <label class="block text-slate-300 font-semibold mb-1">Target Handover Date *</label>
-            <input type="date" id="opp-date" required class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-cyan-400">
+            <input type="date" id="opp-date" required class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
           </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-slate-300 font-semibold mb-1">Primary Stage</label>
-            <select id="opp-stage" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-cyan-400">
+            <select id="opp-stage" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
               <option value="Lead & Site Survey">1. Lead & Site Survey</option>
               <option value="3D Design Approval & Freeze" selected>2. 3D Design Approval & Freeze</option>
               <option value="Civil & Demolition">3. Civil & Demolition</option>
@@ -983,18 +1442,18 @@
           </div>
           <div>
             <label class="block text-slate-300 font-semibold mb-1">Site Location / Address</label>
-            <input type="text" id="opp-location" placeholder="e.g. Urbana Complex, Anandapur, Kolkata" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-cyan-400">
+            <input type="text" id="opp-location" placeholder="e.g. Urbana Complex, Anandapur, Kolkata" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
           </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-slate-300 font-semibold mb-1">Client Mobile / WhatsApp</label>
-            <input type="text" id="opp-phone" placeholder="+91 98300 XXXXX" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-cyan-400">
+            <input type="text" id="opp-phone" placeholder="+91 98300 XXXXX" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
           </div>
           <div>
             <label class="block text-slate-300 font-semibold mb-1">Client Email</label>
-            <input type="email" id="opp-email" placeholder="client@example.com" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-cyan-400">
+            <input type="email" id="opp-email" placeholder="client@example.com" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
           </div>
         </div>
 
@@ -1006,6 +1465,7 @@
     </div>
   </div>
 
+  <!-- SCRIPT ENGINE -->
   <script>
     let clientsData = [];
     let leadsData = [];
@@ -1018,31 +1478,43 @@
     let usersData = [];
     let remindersData = [];
     
-    let currentNavTab = 'opportunities';
+    let currentNavTab = 'home';
     let currentView = 'table';
-    let oppChartInstance = null;
+    let homeChartInstance = null;
     let funnelChartInstance = null;
     let agingChartInstance = null;
 
     async function initCRM() {
-      await loadClients();
-      await loadLeads();
-      await loadContacts();
-      await loadAccounts();
-      await loadQuotes();
-      await loadInvoices();
-      await loadRates();
-      await loadCalendar();
-      await loadReminders();
-      await loadAdminUsers();
+      // Set default handover date to 3 months from now
+      const d = new Date();
+      d.setDate(d.getDate() + 90);
+      const dateStr = d.toISOString().slice(0, 10);
+      const oppDateEl = document.getElementById('opp-date');
+      if (oppDateEl) oppDateEl.value = dateStr;
+      const calDateEl = document.getElementById('cal-date');
+      if (calDateEl) calDateEl.value = new Date().toISOString().slice(0, 10);
+
+      await Promise.all([
+        loadClients(),
+        loadLeads(),
+        loadContacts(),
+        loadAccounts(),
+        loadQuotes(),
+        loadInvoices(),
+        loadRates(),
+        loadCalendar(),
+        loadReminders(),
+        loadAdminUsers()
+      ]);
+
+      renderHomeDashboard();
     }
 
     // Nav Tab Switcher
     function switchNavTab(tab) {
       currentNavTab = tab;
+      const modules = ['home', 'leads', 'contacts', 'accounts', 'opportunities', 'quotes', 'invoices', 'rates', 'calendar', 'analytics'];
       
-      // Modules list
-      const modules = ['leads', 'contacts', 'accounts', 'opportunities', 'quotes', 'invoices', 'rates', 'calendar', 'analytics'];
       modules.forEach(m => {
         const el = document.getElementById(`module-${m}`);
         const tabEl = document.getElementById(`tab-${m}`);
@@ -1065,8 +1537,107 @@
         }
       });
 
+      if (tab === 'home') renderHomeDashboard();
       if (tab === 'opportunities') setViewMode(currentView);
       if (tab === 'analytics') initAnalyticsCharts();
+    }
+
+    // HOME DASHBOARD RENDERER
+    function renderHomeDashboard() {
+      const totalPipeline = clientsData.reduce((s, c) => s + (c.contractValue || 0), 0);
+      const totalInvoiced = clientsData.reduce((s, c) => s + (c.invoiced || 0), 0);
+      const totalReceived = clientsData.reduce((s, c) => s + (c.received || 0), 0);
+      const totalOutstanding = clientsData.reduce((s, c) => s + (c.outstanding || 0), 0);
+
+      const f = (n) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n);
+
+      document.getElementById('home-kpi-pipeline').textContent = f(totalPipeline);
+      document.getElementById('home-kpi-invoiced').textContent = f(totalInvoiced);
+      document.getElementById('home-kpi-collected').textContent = f(totalReceived);
+      document.getElementById('home-kpi-outstanding').textContent = f(totalOutstanding);
+      document.getElementById('home-chart-pipeline-sum').textContent = `Total Pipeline: ${f(totalPipeline)}`;
+
+      // Render Recent Opportunities
+      const recentOppsEl = document.getElementById('home-recent-opps');
+      recentOppsEl.innerHTML = '';
+      clientsData.slice(0, 4).forEach(c => {
+        const item = document.createElement('div');
+        item.className = 'p-3 bg-[#081120] border border-slate-800 rounded-lg flex items-center justify-between hover:border-cyan-400 cursor-pointer transition';
+        item.onclick = () => window.open(`/client?id=${encodeURIComponent(c.id)}`, '_blank');
+        item.innerHTML = `
+          <div>
+            <div class="font-bold text-white text-xs hover:text-cyan-300">${c.name}</div>
+            <div class="text-[11px] text-slate-400 mt-0.5">${c.client} • <span class="text-cyan-300 font-mono">${c.stage}</span></div>
+          </div>
+          <div class="text-right">
+            <div class="font-mono font-bold text-emerald-400 text-xs">${f(c.contractValue || 0)}</div>
+            <div class="text-[10px] text-slate-500 font-mono">${c.area || 2000} sq ft</div>
+          </div>
+        `;
+        recentOppsEl.appendChild(item);
+      });
+
+      // Render Recent Reminders
+      const remindersEl = document.getElementById('home-reminders-list');
+      remindersEl.innerHTML = '';
+      remindersData.slice(0, 4).forEach(r => {
+        const item = document.createElement('div');
+        item.className = 'p-3 bg-[#081120] border border-slate-800 rounded-lg flex items-center justify-between text-xs';
+        item.innerHTML = `
+          <div class="flex items-center gap-2">
+            <input type="checkbox" ${r.completed ? 'checked' : ''} onchange="toggleReminder('${r.id}')" class="rounded bg-slate-800 border-slate-700 text-cyan-500">
+            <div>
+              <div class="font-bold ${r.completed ? 'line-through text-slate-500' : 'text-white'}">${r.title}</div>
+              <div class="text-[10px] text-slate-400">${r.clientName} • Due: ${r.due}</div>
+            </div>
+          </div>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${r.priority === 'Urgent' ? 'bg-rose-500/20 text-rose-300' : 'bg-amber-500/20 text-amber-300'}">${r.priority}</span>
+        `;
+        remindersEl.appendChild(item);
+      });
+
+      // Home Pipeline Chart
+      initHomePipelineChart();
+    }
+
+    function initHomePipelineChart() {
+      const ctx = document.getElementById('home-pipeline-chart').getContext('2d');
+      const stageTotals = [0, 0, 0, 0, 0, 0];
+      clientsData.forEach(c => {
+        const idx = c.stageIndex || 0;
+        if (idx >= 0 && idx < 6) stageTotals[idx] += (c.contractValue || 0);
+      });
+
+      if (homeChartInstance) homeChartInstance.destroy();
+
+      homeChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['1. Survey', '2. 3D Freeze', '3. Civil', '4. Joinery', '5. Polish', '6. Handover'],
+          datasets: [{
+            label: 'Stage Valuation (₹)',
+            data: stageTotals,
+            backgroundColor: [
+              'rgba(59, 130, 246, 0.75)',
+              'rgba(168, 85, 247, 0.75)',
+              'rgba(245, 158, 11, 0.75)',
+              'rgba(6, 182, 212, 0.75)',
+              'rgba(236, 72, 153, 0.75)',
+              'rgba(16, 185, 129, 0.75)'
+            ],
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#94A3B8', font: { size: 10 } }, grid: { display: false } },
+            y: { ticks: { color: '#94A3B8', font: { size: 10 } }, grid: { color: '#1E293B' } }
+          }
+        }
+      });
     }
 
     // 1. OPPORTUNITIES
@@ -1078,12 +1649,23 @@
           clientsData = data.clients;
           renderOppsTable(clientsData);
           renderOppsKanban(clientsData);
-          updatePipelineSummary(clientsData);
           document.getElementById('opp-count').textContent = `${clientsData.length} items`;
           document.getElementById('badge-opps-count').textContent = clientsData.length;
+          populateProjectDropdowns();
         }
       } catch (err) {
         console.error("Failed to load opportunities:", err);
+      }
+    }
+
+    function populateProjectDropdowns() {
+      const qSelect = document.getElementById('quote-project-id');
+      const iSelect = document.getElementById('inv-project-id');
+      if (qSelect) {
+        qSelect.innerHTML = clientsData.map(c => `<option value="${c.id}">${c.name} (${c.client})</option>`).join('');
+      }
+      if (iSelect) {
+        iSelect.innerHTML = clientsData.map(c => `<option value="${c.id}">${c.name} (${c.client})</option>`).join('');
       }
     }
 
@@ -1201,63 +1783,6 @@
       }
     }
 
-    function togglePipelineChart() {
-      const panel = document.getElementById('pipeline-chart-panel');
-      panel.classList.toggle('hidden');
-      if (!panel.classList.contains('hidden')) {
-        initOppPipelineChart();
-      }
-    }
-
-    function initOppPipelineChart() {
-      const ctx = document.getElementById('crm-pipeline-chart').getContext('2d');
-      const stageTotals = [0, 0, 0, 0, 0, 0];
-      clientsData.forEach(c => {
-        const idx = c.stageIndex || 0;
-        if (idx >= 0 && idx < 6) stageTotals[idx] += (c.contractValue || 0);
-      });
-
-      if (oppChartInstance) oppChartInstance.destroy();
-
-      oppChartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['1. Survey', '2. 3D Freeze', '3. Civil', '4. Joinery', '5. Polish', '6. Handover'],
-          datasets: [{
-            label: 'Pipeline Value (₹)',
-            data: stageTotals,
-            backgroundColor: [
-              'rgba(59, 130, 246, 0.7)',
-              'rgba(168, 85, 247, 0.7)',
-              'rgba(245, 158, 11, 0.7)',
-              'rgba(6, 182, 212, 0.7)',
-              'rgba(236, 72, 153, 0.7)',
-              'rgba(16, 185, 129, 0.7)'
-            ],
-            borderRadius: 6
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { ticks: { color: '#94A3B8', font: { size: 10 } }, grid: { display: false } },
-            y: { ticks: { color: '#94A3B8', font: { size: 10 } }, grid: { color: '#1E293B' } }
-          }
-        }
-      });
-    }
-
-    function updatePipelineSummary(clients) {
-      const total = clients.reduce((sum, c) => sum + (c.contractValue || 0), 0);
-      const formatted = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(total);
-      const el = document.getElementById('pipeline-total-val');
-      if (el) el.textContent = `Total Pipeline: ${formatted}`;
-      const anaEl = document.getElementById('ana-pipeline-val');
-      if (anaEl) anaEl.textContent = formatted;
-    }
-
     function filterOppsTable() {
       const q = (document.getElementById('opp-list-search').value || '').toLowerCase();
       const filtered = clientsData.filter(c => {
@@ -1280,7 +1805,7 @@
       renderOppsTable(clientsData);
     }
 
-    // 2. LEADS
+    // 2. LEADS & 1-CLICK CONVERT LEAD
     async function loadLeads() {
       try {
         const res = await fetch('/api/crm/leads');
@@ -1297,14 +1822,11 @@
 
     function renderLeadsTable() {
       const q = (document.getElementById('leads-search')?.value || '').toLowerCase();
-      const filter = document.getElementById('leads-filter-status')?.value || 'ALL';
       const tbody = document.getElementById('leads-table-body');
       tbody.innerHTML = '';
 
       const filtered = leadsData.filter(l => {
-        const matchesQ = (l.name || '').toLowerCase().includes(q) || (l.location || '').toLowerCase().includes(q) || (l.source || '').toLowerCase().includes(q);
-        const matchesFilter = filter === 'ALL' || l.status === filter;
-        return matchesQ && matchesFilter;
+        return (l.name || '').toLowerCase().includes(q) || (l.location || '').toLowerCase().includes(q) || (l.source || '').toLowerCase().includes(q);
       });
 
       filtered.forEach(l => {
@@ -1336,6 +1858,45 @@
         `;
         tbody.appendChild(tr);
       });
+    }
+
+    function openNewLeadModal() {
+      document.getElementById('modal-lead').classList.remove('hidden');
+    }
+    function closeNewLeadModal() {
+      document.getElementById('modal-lead').classList.add('hidden');
+    }
+
+    async function submitNewLead(e) {
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById('lead-name').value,
+        phone: document.getElementById('lead-phone').value,
+        location: document.getElementById('lead-location').value,
+        area: parseInt(document.getElementById('lead-area').value) || 2000,
+        budget: parseFloat(document.getElementById('lead-budget').value) || 3500000,
+        source: document.getElementById('lead-source').value,
+        notes: document.getElementById('lead-notes').value
+      };
+
+      try {
+        const res = await fetch('/api/crm/leads', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeNewLeadModal();
+          alert(`Lead for ${payload.name} created!`);
+          await loadLeads();
+          renderHomeDashboard();
+        } else {
+          alert(data.message || 'Error saving lead');
+        }
+      } catch (err) {
+        alert('Server communication error.');
+      }
     }
 
     function openConvertLeadWizard(leadId) {
@@ -1372,11 +1933,9 @@
         const data = await res.json();
         if (data.success) {
           closeConvertLeadModal();
-          alert(data.message);
-          await loadLeads();
-          await loadClients();
-          await loadContacts();
-          await loadAccounts();
+          alert(`Success! Lead converted to Account (${data.account.name}), Contact (${data.contact.name}) & Opportunity (${data.opportunity.name})`);
+          await Promise.all([loadLeads(), loadClients(), loadContacts(), loadAccounts()]);
+          renderHomeDashboard();
           switchNavTab('opportunities');
         } else {
           alert(data.message || 'Error converting lead');
@@ -1443,6 +2002,43 @@
       });
     }
 
+    function openNewContactModal() {
+      document.getElementById('modal-contact').classList.remove('hidden');
+    }
+    function closeNewContactModal() {
+      document.getElementById('modal-contact').classList.add('hidden');
+    }
+
+    async function submitNewContact(e) {
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById('contact-name').value,
+        accountName: document.getElementById('contact-account').value,
+        role: document.getElementById('contact-role').value,
+        phone: document.getElementById('contact-phone').value,
+        email: document.getElementById('contact-email').value,
+        project: document.getElementById('contact-project').value
+      };
+
+      try {
+        const res = await fetch('/api/crm/contacts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeNewContactModal();
+          alert(`Contact ${payload.name} added!`);
+          await loadContacts();
+        } else {
+          alert(data.message || 'Error saving contact');
+        }
+      } catch (err) {
+        alert('Server communication error.');
+      }
+    }
+
     // 4. ACCOUNTS
     async function loadAccounts() {
       try {
@@ -1470,24 +2066,57 @@
       filtered.forEach(a => {
         const tr = document.createElement('tr');
         tr.className = 'sf-table-row';
-        const valFormatted = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(a.contractValue || 0);
-        const billedFormatted = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(a.invoiced || 0);
-        const receivedFormatted = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(a.received || 0);
-        const dueFormatted = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(a.outstanding || 0);
+        const f = (n) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n);
 
         tr.innerHTML = `
           <td class="py-3 px-3 font-bold text-white">${a.name}</td>
           <td class="py-3 px-3 text-slate-400">${a.type}</td>
           <td class="py-3 px-3 text-slate-300">${a.location}</td>
           <td class="py-3 px-3 text-cyan-300 font-medium">${a.activeOpportunity}</td>
-          <td class="py-3 px-3 text-right font-mono font-bold text-white">${valFormatted}</td>
-          <td class="py-3 px-3 text-right font-mono text-sky-400">${billedFormatted}</td>
-          <td class="py-3 px-3 text-right font-mono font-bold text-emerald-400">${receivedFormatted}</td>
-          <td class="py-3 px-3 text-right font-mono text-rose-400">${dueFormatted}</td>
+          <td class="py-3 px-3 text-right font-mono font-bold text-white">${f(a.contractValue || 0)}</td>
+          <td class="py-3 px-3 text-right font-mono text-sky-400">${f(a.invoiced || 0)}</td>
+          <td class="py-3 px-3 text-right font-mono font-bold text-emerald-400">${f(a.received || 0)}</td>
+          <td class="py-3 px-3 text-right font-mono text-rose-400">${f(a.outstanding || 0)}</td>
           <td class="py-3 px-3 text-center"><span class="stage-pill stage-handover">${a.status}</span></td>
         `;
         tbody.appendChild(tr);
       });
+    }
+
+    function openNewAccountModal() {
+      document.getElementById('modal-account').classList.remove('hidden');
+    }
+    function closeNewAccountModal() {
+      document.getElementById('modal-account').classList.add('hidden');
+    }
+
+    async function submitNewAccount(e) {
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById('account-name').value,
+        type: document.getElementById('account-type').value,
+        primaryContact: document.getElementById('account-contact').value,
+        phone: document.getElementById('account-phone').value,
+        location: document.getElementById('account-location').value
+      };
+
+      try {
+        const res = await fetch('/api/crm/accounts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeNewAccountModal();
+          alert(`Account ${payload.name} created!`);
+          await loadAccounts();
+        } else {
+          alert(data.message || 'Error saving account');
+        }
+      } catch (err) {
+        alert('Server communication error.');
+      }
     }
 
     // 5. QUOTATIONS
@@ -1517,9 +2146,7 @@
       filtered.forEach(item => {
         const tr = document.createElement('tr');
         tr.className = 'sf-table-row';
-        const laborFormatted = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(item.laborCost || 0);
-        const matFormatted = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(item.materialCost || 0);
-        const totalFormatted = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(item.total || 0);
+        const f = (n) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n);
 
         tr.innerHTML = `
           <td class="py-3 px-3 font-mono font-bold text-sky-400">${item.id}</td>
@@ -1528,9 +2155,9 @@
             <div class="text-[10px] text-slate-400">${item.client} (${item.projectName})</div>
           </td>
           <td class="py-3 px-3 text-amber-300 font-mono font-semibold">${item.revision || 'R01'}</td>
-          <td class="py-3 px-3 text-right font-mono text-slate-300">${laborFormatted}</td>
-          <td class="py-3 px-3 text-right font-mono text-slate-300">${matFormatted}</td>
-          <td class="py-3 px-3 text-right font-mono font-bold text-emerald-400">${totalFormatted}</td>
+          <td class="py-3 px-3 text-right font-mono text-slate-300">${f(item.laborCost || 0)}</td>
+          <td class="py-3 px-3 text-right font-mono text-slate-300">${f(item.materialCost || 0)}</td>
+          <td class="py-3 px-3 text-right font-mono font-bold text-emerald-400">${f(item.total || 0)}</td>
           <td class="py-3 px-3 text-center">
             ${item.isSynced ? `
               <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">✓ Synced to Opp</span>
@@ -1558,9 +2185,45 @@
           alert(data.message);
           await loadQuotes();
           await loadClients();
+          renderHomeDashboard();
         }
       } catch (err) {
         alert("Failed to sync quotation.");
+      }
+    }
+
+    function openNewQuoteModal() {
+      document.getElementById('modal-quote').classList.remove('hidden');
+    }
+    function closeNewQuoteModal() {
+      document.getElementById('modal-quote').classList.add('hidden');
+    }
+
+    async function submitNewQuote(e) {
+      e.preventDefault();
+      const payload = {
+        projectId: document.getElementById('quote-project-id').value,
+        title: document.getElementById('quote-title').value,
+        laborCost: parseFloat(document.getElementById('quote-labor').value) || 0,
+        materialCost: parseFloat(document.getElementById('quote-material').value) || 0,
+        revision: document.getElementById('quote-rev').value || "R01"
+      };
+      payload.total = payload.laborCost + payload.materialCost;
+
+      try {
+        const res = await fetch('/api/crm/quotations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeNewQuoteModal();
+          alert(data.message);
+          await loadQuotes();
+        }
+      } catch (err) {
+        alert('Server communication error.');
       }
     }
 
@@ -1591,9 +2254,7 @@
       filtered.forEach(i => {
         const tr = document.createElement('tr');
         tr.className = 'sf-table-row';
-        const amtFormatted = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(i.amount || 0);
-        const paidFormatted = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(i.paidAmount || 0);
-        const dueFormatted = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(i.dueAmount || 0);
+        const f = (n) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n);
         const statusClass = i.status === 'Paid' ? 'stage-handover' : (i.status === 'Partially Paid' ? 'stage-civil' : 'stage-freeze');
 
         tr.innerHTML = `
@@ -1603,9 +2264,9 @@
             <div class="text-[10px] text-slate-400">${i.projectName}</div>
           </td>
           <td class="py-3 px-3 text-slate-300">${i.milestone}</td>
-          <td class="py-3 px-3 text-right font-mono font-bold text-white">${amtFormatted}</td>
-          <td class="py-3 px-3 text-right font-mono text-emerald-400 font-semibold">${paidFormatted}</td>
-          <td class="py-3 px-3 text-right font-mono text-rose-400 font-bold">${dueFormatted}</td>
+          <td class="py-3 px-3 text-right font-mono font-bold text-white">${f(i.amount || 0)}</td>
+          <td class="py-3 px-3 text-right font-mono text-emerald-400 font-semibold">${f(i.paidAmount || 0)}</td>
+          <td class="py-3 px-3 text-right font-mono text-rose-400 font-bold">${f(i.dueAmount || 0)}</td>
           <td class="py-3 px-3 text-slate-400 text-[11px]">${i.accountName}</td>
           <td class="py-3 px-3 text-center"><span class="stage-pill ${statusClass}">${i.status}</span></td>
           <td class="py-3 px-3 text-center space-x-1">
@@ -1626,20 +2287,7 @@
     function dispatchInvoiceWhatsApp(invId) {
       const inv = invoicesData.find(i => i.id === invId);
       if (!inv) return;
-      const text = `*DREAM ADDRESS STUDIO | OFFICIAL BILLING DEMAND*
-
-Dear ${inv.client},
-This is a milestone payment notice for *${inv.projectName}*.
-
-• Milestone: *${inv.milestone}*
-• Invoice Ref: *${inv.id}*
-• Total Billed: ₹${(inv.amount || 0).toLocaleString('en-IN')}
-• Balance Due: *₹${(inv.dueAmount || inv.amount).toLocaleString('en-IN')}*
-• Credit Account: *${inv.accountName}*
-
-Kindly process the RTGS/NEFT remittance.
-
-_Rohit Churiwala | Principal Designer (+91 91633 17574)_`;
+      const text = `*DREAM ADDRESS STUDIO | OFFICIAL BILLING DEMAND*\n\nDear ${inv.client},\nThis is a milestone payment notice for *${inv.projectName}*.\n\n• Milestone: *${inv.milestone}*\n• Invoice Ref: *${inv.id}*\n• Total Billed: ₹${(inv.amount || 0).toLocaleString('en-IN')}\n• Balance Due: *₹${(inv.dueAmount || inv.amount).toLocaleString('en-IN')}*\n• Credit Account: *${inv.accountName}*\n\nKindly process the RTGS/NEFT remittance.\n\n_Rohit Churiwala | Principal Designer (+91 91633 17574)_`;
       window.open(`https://api.whatsapp.com/send?phone=919163317574&text=${encodeURIComponent(text)}`, '_blank');
     }
 
@@ -1658,9 +2306,47 @@ _Rohit Churiwala | Principal Designer (+91 91633 17574)_`;
           alert("Payment recorded successfully!");
           await loadInvoices();
           await loadClients();
+          renderHomeDashboard();
         }
       } catch (err) {
         alert("Payment update failed.");
+      }
+    }
+
+    function openNewInvoiceModal() {
+      document.getElementById('modal-invoice').classList.remove('hidden');
+    }
+    function closeNewInvoiceModal() {
+      document.getElementById('modal-invoice').classList.add('hidden');
+    }
+
+    async function submitNewInvoice(e) {
+      e.preventDefault();
+      const payload = {
+        projectId: document.getElementById('inv-project-id').value,
+        milestone: document.getElementById('inv-milestone').value,
+        amount: parseFloat(document.getElementById('inv-amount').value),
+        paidAmount: parseFloat(document.getElementById('inv-paid').value) || 0,
+        accountId: document.getElementById('inv-account-id').value,
+        paymentMode: document.getElementById('inv-payment-mode').value
+      };
+
+      try {
+        const res = await fetch('/api/crm/invoices', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeNewInvoiceModal();
+          alert(`Invoice raised successfully!`);
+          await loadInvoices();
+          await loadClients();
+          renderHomeDashboard();
+        }
+      } catch (err) {
+        alert('Server communication error.');
       }
     }
 
@@ -1720,9 +2406,10 @@ _Rohit Churiwala | Principal Designer (+91 91633 17574)_`;
       const direct = Math.round(total * 0.65);
       const margin = total - direct;
 
-      document.getElementById('calc-result-total').textContent = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(total);
-      document.getElementById('calc-result-direct').textContent = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(direct);
-      document.getElementById('calc-result-margin').textContent = `${new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(margin)} (35.0%)`;
+      const f = (n) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n);
+      document.getElementById('calc-result-total').textContent = f(total);
+      document.getElementById('calc-result-direct').textContent = f(direct);
+      document.getElementById('calc-result-margin').textContent = `${f(margin)} (35.0%)`;
     }
 
     function createOpportunityFromEstimate() {
@@ -1783,9 +2470,43 @@ _Rohit Churiwala | Principal Designer (+91 91633 17574)_`;
       });
     }
 
+    function openNewCalendarModal() {
+      document.getElementById('modal-calendar').classList.remove('hidden');
+    }
+    function closeNewCalendarModal() {
+      document.getElementById('modal-calendar').classList.add('hidden');
+    }
+
+    async function submitNewCalendar(e) {
+      e.preventDefault();
+      const payload = {
+        title: document.getElementById('cal-title').value,
+        project: document.getElementById('cal-project').value,
+        date: document.getElementById('cal-date').value,
+        time: document.getElementById('cal-time').value,
+        type: document.getElementById('cal-type').value,
+        attendees: document.getElementById('cal-attendees').value
+      };
+
+      try {
+        const res = await fetch('/api/crm/calendar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeNewCalendarModal();
+          alert(data.message);
+          await loadCalendar();
+        }
+      } catch (err) {
+        alert('Server communication error.');
+      }
+    }
+
     // 9. ANALYTICS
     function initAnalyticsCharts() {
-      // Funnel chart
       const ctxFunnel = document.getElementById('ana-funnel-chart').getContext('2d');
       if (funnelChartInstance) funnelChartInstance.destroy();
 
@@ -1797,11 +2518,11 @@ _Rohit Churiwala | Principal Designer (+91 91633 17574)_`;
             label: 'Stage Volume (₹)',
             data: [16800000, 14000000, 8300000, 11400000, 2750000],
             backgroundColor: [
-              'rgba(59, 130, 246, 0.7)',
-              'rgba(168, 85, 247, 0.7)',
-              'rgba(245, 158, 11, 0.7)',
-              'rgba(6, 182, 212, 0.7)',
-              'rgba(16, 185, 129, 0.7)'
+              'rgba(59, 130, 246, 0.75)',
+              'rgba(168, 85, 247, 0.75)',
+              'rgba(245, 158, 11, 0.75)',
+              'rgba(6, 182, 212, 0.75)',
+              'rgba(16, 185, 129, 0.75)'
             ],
             borderRadius: 6
           }]
@@ -1817,7 +2538,6 @@ _Rohit Churiwala | Principal Designer (+91 91633 17574)_`;
         }
       });
 
-      // Aging chart
       const ctxAging = document.getElementById('ana-aging-chart').getContext('2d');
       if (agingChartInstance) agingChartInstance.destroy();
 
@@ -1839,7 +2559,7 @@ _Rohit Churiwala | Principal Designer (+91 91633 17574)_`;
       });
     }
 
-    // ADMIN USERS & ROLE PERMISSION ENGINE
+    // ADMIN USERS MODAL
     async function loadAdminUsers() {
       try {
         const res = await fetch('/api/admin/users');
@@ -1920,9 +2640,7 @@ _Rohit Churiwala | Principal Designer (+91 91633 17574)_`;
       try {
         const res = await fetch(`/api/admin/users/${id}`, { method: 'DELETE' });
         const data = await res.json();
-        if (data.success) {
-          await loadAdminUsers();
-        }
+        if (data.success) await loadAdminUsers();
       } catch (err) {
         alert("Failed to delete user.");
       }
@@ -1931,7 +2649,6 @@ _Rohit Churiwala | Principal Designer (+91 91633 17574)_`;
     function openAdminUsersModal() {
       document.getElementById('modal-admin-users').classList.remove('hidden');
     }
-
     function closeAdminUsersModal() {
       document.getElementById('modal-admin-users').classList.add('hidden');
     }
@@ -1991,7 +2708,10 @@ _Rohit Churiwala | Principal Designer (+91 91633 17574)_`;
       try {
         const res = await fetch(`/api/reminders/${id}/toggle`, { method: 'POST' });
         const data = await res.json();
-        if (data.success) await loadReminders();
+        if (data.success) {
+          await loadReminders();
+          renderHomeDashboard();
+        }
       } catch (err) {
         console.error("Toggle reminder error:", err);
       }
@@ -2014,25 +2734,43 @@ _Rohit Churiwala | Principal Designer (+91 91633 17574)_`;
       }
     }
 
+    // DUAL-WAY GOOGLE SHEETS SYNCHRONIZATION
     async function syncGoogleSheets() {
       const btn = document.getElementById('crm-sync-btn');
       const originalText = btn.innerHTML;
-      btn.innerHTML = `<span class="animate-spin">🔄</span> <span>Syncing...</span>`;
+      btn.innerHTML = `<span class="animate-spin">🔄</span> <span>Dual Syncing...</span>`;
       btn.disabled = true;
 
       try {
         const res = await fetch('/api/sync-sheets', { method: 'POST' });
         const data = await res.json();
         if (data.success) {
-          btn.innerHTML = `<span>✓</span> <span>Synced!</span>`;
-          setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2000);
-          await loadClients();
+          btn.innerHTML = `<span>✓</span> <span>Dual Synced!</span>`;
+          const statusText = document.getElementById('home-sync-status-text');
+          if (statusText) statusText.textContent = `Synced ${new Date().toLocaleTimeString()} (22 Tabs Live)`;
+          
+          await Promise.all([
+            loadClients(),
+            loadLeads(),
+            loadContacts(),
+            loadAccounts(),
+            loadQuotes(),
+            loadInvoices(),
+            loadRates(),
+            loadCalendar(),
+            loadReminders()
+          ]);
+          renderHomeDashboard();
+          setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2500);
         }
       } catch (err) {
         btn.innerHTML = `<span>✕</span> <span>Sync Failed</span>`;
-        setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2000);
+        setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2500);
       }
     }
+
+    // Automatically trigger Dual-Way background sync every 5 minutes
+    setInterval(syncGoogleSheets, 5 * 60 * 1000);
 
     // MODAL HANDLERS
     function openNewOpportunityModal() {
@@ -2067,6 +2805,7 @@ _Rohit Churiwala | Principal Designer (+91 91633 17574)_`;
         if (data.success) {
           closeOpportunityModal();
           await loadClients();
+          renderHomeDashboard();
           window.open(`/client?id=${encodeURIComponent(data.client.id)}`, '_blank');
         } else {
           alert(data.message || 'Error saving opportunity');
@@ -2105,6 +2844,9 @@ _Rohit Churiwala | Principal Designer (+91 91633 17574)_`;
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
         document.getElementById('global-search').focus();
+      }
+      if (e.key === 'Escape') {
+        document.querySelectorAll('[id^="modal-"]').forEach(m => m.classList.add('hidden'));
       }
     });
 
