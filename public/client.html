@@ -412,6 +412,34 @@
       <!-- ======================================================== -->
       <div class="lg:col-span-6 space-y-4">
 
+        <!-- CENTER VIEW NAVIGATION TABS -->
+        <div class="sf-card p-2 flex items-center justify-between border-slate-800">
+          <div class="flex items-center gap-1 text-xs font-semibold">
+            <button onclick="setCenterTab('chronicle')" id="center-tab-chronicle" class="px-3.5 py-1.5 rounded-lg bg-sky-600/20 text-sky-300 font-bold border border-sky-500/30 transition flex items-center gap-1.5">
+              <span>📋</span> <span>Activity Chronicle</span>
+            </button>
+            <button onclick="setCenterTab('quotes')" id="center-tab-quotes" class="px-3.5 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition flex items-center gap-1.5">
+              <span>📄</span> <span>Quotations & BOQ Iterations</span>
+              <span id="center-quote-count" class="text-[10px] bg-blue-950 px-1.5 py-0.2 rounded font-bold text-blue-300">2</span>
+            </button>
+            <button onclick="setCenterTab('invoices')" id="center-tab-invoices" class="px-3.5 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition flex items-center gap-1.5">
+              <span>🧾</span> <span>Milestone Invoices & Demands</span>
+              <span id="center-invoice-count" class="text-[10px] bg-amber-950 px-1.5 py-0.2 rounded font-bold text-amber-300">3</span>
+            </button>
+          </div>
+
+          <div class="hidden sm:flex items-center gap-2 text-xs">
+            <button onclick="openQuotationModal()" class="px-2.5 py-1 bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-300 border border-cyan-500/30 rounded font-semibold transition text-[11px]">
+              + New Quote
+            </button>
+            <button onclick="openInvoiceModal()" class="px-2.5 py-1 bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-300 border border-emerald-500/30 rounded font-semibold transition text-[11px]">
+              + Raise Invoice
+            </button>
+          </div>
+        </div>
+
+        <!-- CENTER TAB 1: ACTIVITY CHRONICLE & PUBLISHER CONTAINER -->
+        <div id="center-view-chronicle" class="space-y-4">
         <!-- QUICK ACTIVITY PUBLISHER (MATCHES SCREENSHOT 2 CENTER TOP) -->
         <div class="sf-card p-4 shadow-xl space-y-3">
           <!-- Publisher Tab Bar -->
@@ -494,6 +522,51 @@
               <span id="timeline-month-label">November 2026 (Active History)</span>
             </div>
             <div id="timeline-past" class="space-y-4">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+        </div><!-- END center-view-chronicle -->
+
+        <!-- CENTER TAB 2: QUOTATIONS & BOQ ITERATIONS FULL LEDGER -->
+        <div id="center-view-quotes" class="hidden space-y-4">
+          <div class="sf-card p-4 space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded bg-blue-600 flex items-center justify-center text-white text-xs font-bold">Q</div>
+                <div>
+                  <h3 class="text-sm font-bold text-white">Quotations & BOQ Iterations Ledger</h3>
+                  <div class="text-[11px] text-slate-400">All formal revisions, itemized labor & material schedules, and direct PDF / CSV downloads</div>
+                </div>
+              </div>
+              <button onclick="openQuotationModal()" class="px-3 py-1.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs rounded-md shadow transition">
+                + Create New Quotation Revision
+              </button>
+            </div>
+
+            <div id="center-quotes-full-list" class="space-y-3">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- CENTER TAB 3: MILESTONE INVOICES & DEMANDS FULL LEDGER -->
+        <div id="center-view-invoices" class="hidden space-y-4">
+          <div class="sf-card p-4 space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded bg-emerald-600 flex items-center justify-center text-white text-xs font-bold">₹</div>
+                <div>
+                  <h3 class="text-sm font-bold text-white">Milestone Invoices & Payment Demands</h3>
+                  <div class="text-[11px] text-slate-400">Track stage billing demands, payments cleared, balances due, and printable GST invoices</div>
+                </div>
+              </div>
+              <button onclick="openInvoiceModal()" class="px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-md shadow transition">
+                + Raise Milestone Demand
+              </button>
+            </div>
+
+            <div id="center-invoices-full-list" class="space-y-3">
               <!-- Dynamically populated -->
             </div>
           </div>
@@ -721,7 +794,7 @@
             <label class="block text-slate-300 font-semibold mb-1">Authorized Signatory</label>
             <select id="inv-signatory" class="w-full bg-[#0A0F1D] border border-slate-700 rounded p-2 text-white">
               <option value="Rohit Churiwala">Rohit Churiwala (Principal Designer)</option>
-              <option value="Pradeep Churiwala">Pradeep Churiwala (Director)</option>
+              
             </select>
           </div>
         </div>
@@ -854,7 +927,7 @@
     function cleanTextValue(val, fallback) {
       if (val === undefined || val === null) return fallback;
       const s = String(val).trim();
-      if (s === '' || s === 'undefined' || s === 'null' || s === '[object Object]') return fallback;
+      if (s === '' || s === 'undefined' || s === 'null' || s === '[object Object]' || s.toLowerCase() === 'undefined') return fallback;
       return s;
     }
 
@@ -936,7 +1009,193 @@
       });
     }
 
+
+    let activeCenterTab = 'chronicle';
+
+    function setCenterTab(tab) {
+      activeCenterTab = tab;
+      const chronicleBtn = document.getElementById('center-tab-chronicle');
+      const quotesBtn = document.getElementById('center-tab-quotes');
+      const invoicesBtn = document.getElementById('center-tab-invoices');
+
+      const chronicleView = document.getElementById('center-view-chronicle');
+      const quotesView = document.getElementById('center-view-quotes');
+      const invoicesView = document.getElementById('center-view-invoices');
+
+      const activeClass = 'px-3.5 py-1.5 rounded-lg bg-sky-600/20 text-sky-300 font-bold border border-sky-500/30 transition flex items-center gap-1.5';
+      const inactiveClass = 'px-3.5 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition flex items-center gap-1.5';
+
+      chronicleBtn.className = tab === 'chronicle' ? activeClass : inactiveClass;
+      quotesBtn.className = tab === 'quotes' ? activeClass : inactiveClass;
+      invoicesBtn.className = tab === 'invoices' ? activeClass : inactiveClass;
+
+      if (tab === 'chronicle') {
+        chronicleView.classList.remove('hidden');
+        quotesView.classList.add('hidden');
+        invoicesView.classList.add('hidden');
+      } else if (tab === 'quotes') {
+        chronicleView.classList.add('hidden');
+        quotesView.classList.remove('hidden');
+        invoicesView.classList.add('hidden');
+      } else if (tab === 'invoices') {
+        chronicleView.classList.add('hidden');
+        quotesView.classList.add('hidden');
+        invoicesView.classList.remove('hidden');
+      }
+    }
+
     function renderRelatedLists(data) {
+      const quotes = data.quotations || [];
+      const invoices = data.invoices || [];
+
+      // Update badge counts in center nav tab
+      const qCnt = document.getElementById('center-quote-count');
+      if (qCnt) qCnt.innerText = quotes.length;
+      const iCnt = document.getElementById('center-invoice-count');
+      if (iCnt) iCnt.innerText = invoices.length;
+
+      // 1. RENDER FULL CENTER QUOTES LEDGER
+      const fullQBox = document.getElementById('center-quotes-full-list');
+      if (fullQBox) {
+        if (quotes.length === 0) {
+          fullQBox.innerHTML = `<div class="p-4 bg-[#0A0F1D] rounded-lg text-slate-500 text-xs text-center italic">No quotations logged for this project yet. Click "+ Create New Quotation Revision" above.</div>`;
+        } else {
+          fullQBox.innerHTML = quotes.map(q => {
+            const labor = q.laborCost || 0;
+            const mat = q.materialCost || 0;
+            const total = q.total || (labor + mat) || 0;
+            const isApproved = q.status === 'Approved';
+            const isSuperseded = q.status === 'Superseded';
+            const badgeClass = isApproved ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' :
+                               (isSuperseded ? 'bg-slate-800 text-slate-400 border border-slate-700' : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30');
+
+            return `
+              <div class="sf-card p-4 space-y-3 border-slate-800 hover:border-cyan-500/40 transition">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+                  <div class="flex items-center gap-2.5">
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-blue-500/20 text-blue-300 border border-blue-500/30">${q.revision || 'R01'}</span>
+                    <div>
+                      <h4 class="font-bold text-white text-sm tracking-tight">${q.title}</h4>
+                      <div class="text-[11px] font-mono text-slate-400">${q.id} • Issued: ${q.date || 'Active'}</div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeClass}">${q.status || 'Active'}</span>
+                    <div class="text-right">
+                      <div class="text-[10px] text-slate-400 font-bold uppercase">Total Estimate</div>
+                      <div class="text-base font-black font-mono text-emerald-400">₹${total.toLocaleString('en-IN')}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px] font-mono bg-[#070D18] p-2.5 rounded border border-slate-800/60">
+                  <div>
+                    <span class="text-slate-500 text-[10px] block">CARPENTRY & LABOR</span>
+                    <span class="font-bold text-white">₹${labor.toLocaleString('en-IN')}</span>
+                  </div>
+                  <div>
+                    <span class="text-slate-500 text-[10px] block">MATERIALS & HARDWARE</span>
+                    <span class="font-bold text-cyan-300">₹${mat.toLocaleString('en-IN')}</span>
+                  </div>
+                  <div>
+                    <span class="text-slate-500 text-[10px] block">AUTHORIZING SIGNATORY</span>
+                    <span class="font-bold text-white">Rohit Churiwala</span>
+                  </div>
+                </div>
+
+                <div class="text-[11px] text-slate-400 leading-relaxed">
+                  <strong class="text-slate-300">Technical Scope:</strong> ${q.scope || 'Full turnkey interior woodwork and architectural specification.'}
+                </div>
+
+                <div class="flex items-center justify-between pt-2 border-t border-slate-800/60 text-xs">
+                  <div class="text-[10px] text-slate-500">Master Google Sheet Sync: Verified ✓</div>
+                  <div class="flex items-center gap-2">
+                    <a href="/api/crm/quotations/${q.id}/download" target="_blank" class="px-3 py-1 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded shadow transition flex items-center gap-1.5 text-[11px]">
+                      <span>📄</span> <span>Download Estimate (PDF / Print) ↗</span>
+                    </a>
+                    <a href="/api/crm/quotations/${q.id}/download?format=csv" target="_blank" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded font-semibold transition flex items-center gap-1.5 text-[11px]">
+                      <span>📊</span> <span>Export CSV ↗</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      // 2. RENDER FULL CENTER INVOICES LEDGER
+      const fullIBox = document.getElementById('center-invoices-full-list');
+      if (fullIBox) {
+        if (invoices.length === 0) {
+          fullIBox.innerHTML = `<div class="p-4 bg-[#0A0F1D] rounded-lg text-slate-500 text-xs text-center italic">No milestone invoices raised yet. Click "+ Raise Milestone Demand" above.</div>`;
+        } else {
+          fullIBox.innerHTML = invoices.map(inv => {
+            const amt = inv.amount || inv.total || 0;
+            const paid = inv.paidAmount !== undefined ? inv.paidAmount : (inv.status === 'Paid' ? amt : 0);
+            const due = inv.dueAmount !== undefined ? inv.dueAmount : Math.max(0, amt - paid);
+            const isPaid = inv.status === 'Paid' || due === 0;
+            const isPart = inv.status === 'Partially Paid';
+            const badgeClass = isPaid ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' :
+                               (isPart ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30');
+
+            return `
+              <div class="sf-card p-4 space-y-3 border-slate-800 hover:border-emerald-500/40 transition">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+                  <div class="flex items-center gap-2.5">
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">INV</span>
+                    <div>
+                      <h4 class="font-bold text-white text-sm tracking-tight">${inv.milestone || 'Milestone Payment Demand'}</h4>
+                      <div class="text-[11px] font-mono text-cyan-300 font-semibold">${inv.id} • Issued: ${inv.date || 'Recent'} • Due: ${inv.dueDate || 'Immediate'}</div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeClass}">${inv.status || (due === 0 ? 'Paid' : 'Pending')}</span>
+                    <div class="text-right">
+                      <div class="text-[10px] text-slate-400 font-bold uppercase">Total Invoiced</div>
+                      <div class="text-base font-black font-mono text-white">₹${amt.toLocaleString('en-IN')}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] font-mono bg-[#070D18] p-2.5 rounded border border-slate-800/60">
+                  <div>
+                    <span class="text-slate-500 text-[10px] block">CLEARED / PAID</span>
+                    <span class="font-bold text-emerald-400">₹${paid.toLocaleString('en-IN')}</span>
+                  </div>
+                  <div>
+                    <span class="text-slate-500 text-[10px] block">BALANCE DUE</span>
+                    <span class="font-bold ${due > 0 ? 'text-amber-400' : 'text-slate-500'}">₹${due.toLocaleString('en-IN')}</span>
+                  </div>
+                  <div>
+                    <span class="text-slate-500 text-[10px] block">CREDITED ACCOUNT</span>
+                    <span class="font-bold text-cyan-300">${inv.accountName || inv.accountCredited || 'HDFC Bank Current A/C'}</span>
+                  </div>
+                  <div>
+                    <span class="text-slate-500 text-[10px] block">SIGNATORY</span>
+                    <span class="font-bold text-white">Rohit Churiwala</span>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-2 border-t border-slate-800/60 text-xs">
+                  <div class="text-[10px] text-slate-500">Payment Mode: <strong class="text-slate-300">${inv.paymentMode || 'RTGS / Bank Transfer'}</strong></div>
+                  <div class="flex items-center gap-2">
+                    <a href="/api/crm/invoices/${inv.id}/download" target="_blank" class="px-3 py-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded shadow transition flex items-center gap-1.5 text-[11px]">
+                      <span>🧾</span> <span>Download Tax Invoice (PDF / Print) ↗</span>
+                    </a>
+                    <a href="/api/crm/invoices/${inv.id}/download?format=csv" target="_blank" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded font-semibold transition flex items-center gap-1.5 text-[11px]">
+                      <span>📊</span> <span>Export CSV ↗</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      // 3. RENDER RIGHT COLUMN COMPACT CARDS
+
       // Quotations
       const qBox = document.getElementById('rel-quotes-container');
       qBox.innerHTML = '';
@@ -949,14 +1208,22 @@
           div.className = 'p-2.5 bg-[#0A0F1D] rounded border border-slate-800 flex items-center justify-between text-xs';
           const qAmount = q.amount || q.total || (q.laborCost + q.materialCost) || 3850000;
           div.innerHTML = `
-            <div>
-              <div class="font-bold text-sky-400 flex items-center gap-2">
+            <div class="space-y-0.5">
+              <div class="font-bold text-sky-400 flex items-center gap-1.5">
+                <span class="px-1.5 py-0.2 bg-blue-500/20 text-blue-300 rounded text-[9px] font-mono">${q.revision || 'R01'}</span>
                 <span>${q.id || 'DSS-QTN-001'}</span>
-                <a href="/api/crm/quotations/${q.id}/download" target="_blank" class="text-[10px] text-cyan-400 hover:underline">Download ↗</a>
               </div>
-              <div class="text-[10px] text-slate-400">${q.title || 'Turnkey Woodwork'} • ${q.status || 'Approved'}</div>
+              <div class="text-[10px] text-slate-400 truncate max-w-[140px]">${q.title || 'Turnkey Woodwork'}</div>
+              <div class="flex items-center gap-2 text-[10px]">
+                <a href="/api/crm/quotations/${q.id}/download" target="_blank" class="text-cyan-400 hover:underline font-semibold">PDF ↗</a>
+                <span class="text-slate-600">•</span>
+                <a href="/api/crm/quotations/${q.id}/download?format=csv" target="_blank" class="text-emerald-400 hover:underline font-semibold">CSV ↗</a>
+              </div>
             </div>
-            <span class="font-mono font-bold text-emerald-400">₹${typeof qAmount === 'number' ? qAmount.toLocaleString('en-IN') : qAmount}</span>
+            <div class="text-right">
+              <span class="font-mono font-bold text-emerald-400 block">₹${typeof qAmount === 'number' ? qAmount.toLocaleString('en-IN') : qAmount}</span>
+              <span class="text-[9px] text-slate-500 uppercase font-semibold">${q.status || 'Approved'}</span>
+            </div>
           `;
           qBox.appendChild(div);
         });
@@ -981,14 +1248,19 @@
           div.innerHTML = `
             <div class="flex justify-between font-bold">
               <span class="text-sky-400 flex items-center gap-1.5">
+                <span class="px-1.5 py-0.2 bg-emerald-500/20 text-emerald-300 rounded text-[9px] font-mono">INV</span>
                 <span>${inv.id}</span>
-                <a href="/api/crm/invoices/${inv.id}/download" target="_blank" class="text-[10px] text-cyan-400 hover:underline">Tax Invoice ↗</a>
               </span>
               <span class="text-emerald-400 font-mono">₹${typeof invAmt === 'number' ? invAmt.toLocaleString('en-IN') : invAmt}</span>
             </div>
             <div class="flex justify-between text-[10px] text-slate-400">
-              <span>${inv.milestone || 'Milestone Billing'}</span>
+              <span class="truncate max-w-[150px]">${inv.milestone || 'Milestone Billing'}</span>
               <span class="${inv.status === 'Paid' ? 'text-emerald-300 font-semibold' : 'text-amber-300 font-semibold'}">${inv.status || 'Pending'}</span>
+            </div>
+            <div class="flex items-center justify-end gap-2 text-[10px] pt-0.5 border-t border-slate-800/60">
+              <a href="/api/crm/invoices/${inv.id}/download" target="_blank" class="text-cyan-400 hover:underline font-semibold">Tax Invoice PDF ↗</a>
+              <span class="text-slate-600">•</span>
+              <a href="/api/crm/invoices/${inv.id}/download?format=csv" target="_blank" class="text-emerald-400 hover:underline font-semibold">CSV ↗</a>
             </div>
           `;
           iBox.appendChild(div);

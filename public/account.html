@@ -468,7 +468,7 @@
     function cleanString(val, fallback) {
       if (val === undefined || val === null) return fallback;
       const s = String(val).trim();
-      if (s === '' || s === 'undefined' || s === 'null' || s === '[object Object]') return fallback;
+      if (s === '' || s === 'undefined' || s === 'null' || s === '[object Object]' || s.toLowerCase() === 'undefined') return fallback;
       return s;
     }
 

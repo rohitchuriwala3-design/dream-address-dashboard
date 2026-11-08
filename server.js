@@ -40,8 +40,7 @@ const db = {
     phone: "+91 91633 17574",
     email: "rohitchuriwala3@gmail.com",
     signatories: [
-      { id: "SIG-01", name: "Rohit Churiwala", title: "Principal Designer & Managing Director" },
-      { id: "SIG-02", name: "Pradeep Churiwala", title: "Director" }
+      { id: "SIG-01", name: "Rohit Churiwala", title: "Principal Designer & Managing Director" }
     ]
   },
 
@@ -75,15 +74,15 @@ users: [
     },
     {
       id: "USR-02",
-      name: "Pradeep Churiwala",
-      email: "pradeep.churiwala@gmail.com",
-      role: "Director",
+      name: "Dream Address Studio Architect",
+      email: "studio@dreamaddress.in",
+      role: "Project Manager",
       isPrimaryAdmin: false,
       permissions: {
         crm: true,
         pms: true,
-        treasury: true,
-        billing: true,
+        treasury: false,
+        billing: false,
         diary: true,
         builder: true,
         settings: false,
@@ -150,10 +149,10 @@ users: [
   accounts: [
     {
       id: "ACC-01",
-      name: "HDFC Bank (Current A/C - Dream Address Studio)",
+      name: "HDFC Bank Current A/C (Dream Address Studio)",
       holder: "Dream Address Studio",
       bank: "HDFC Bank",
-      accountType: "Current A/C (Business)",
+      accountType: "Current A/C (Operating)",
       number: "50200088991122",
       balance: 585000,
       monthlyInflow: 1850000,
@@ -163,10 +162,10 @@ users: [
     },
     {
       id: "ACC-02",
-      name: "HDFC Bank (Pradeep Churiwala)",
-      holder: "Pradeep Churiwala",
+      name: "HDFC Bank Operational A/C (Studio Reserve)",
+      holder: "Rohit Churiwala",
       bank: "HDFC Bank",
-      accountType: "Director Account",
+      accountType: "Operational Reserve",
       number: "50100033445566",
       balance: 260000,
       monthlyInflow: 450000,
@@ -176,10 +175,10 @@ users: [
     },
     {
       id: "ACC-03",
-      name: "Bandhan Bank (Pradeep Churiwala)",
-      holder: "Pradeep Churiwala",
+      name: "Bandhan Bank Liquidity A/C (Studio Reserve)",
+      holder: "Rohit Churiwala",
       bank: "Bandhan Bank",
-      accountType: "Director Account",
+      accountType: "Liquidity Reserve",
       number: "10190004455667",
       balance: 180000,
       monthlyInflow: 320000,
@@ -189,10 +188,10 @@ users: [
     },
     {
       id: "ACC-04",
-      name: "HDFC Bank (Sunita Churiwala)",
-      holder: "Sunita Churiwala",
+      name: "HDFC Bank Capital Reserve (Studio Expansion)",
+      holder: "Rohit Churiwala",
       bank: "HDFC Bank",
-      accountType: "Director Account",
+      accountType: "Capital Reserve",
       number: "50100077889900",
       balance: 210000,
       monthlyInflow: 400000,
@@ -202,10 +201,10 @@ users: [
     },
     {
       id: "ACC-05",
-      name: "Bandhan Bank (Sunita Churiwala)",
-      holder: "Sunita Churiwala",
+      name: "Bandhan Bank Escrow & Project Inflows",
+      holder: "Dream Address Studio",
       bank: "Bandhan Bank",
-      accountType: "Director Account",
+      accountType: "Escrow Reserve",
       number: "10190008899001",
       balance: 150000,
       monthlyInflow: 250000,
@@ -215,8 +214,8 @@ users: [
     },
     {
       id: "ACC-06",
-      name: "Master Cash Balance (Direct Cash In-Hand / Vault)",
-      holder: "Rohit Churiwala (Consolidated Vault)",
+      name: "Master Cash Balance (Workshop & Imprest Vault)",
+      holder: "Rohit Churiwala (Studio Vault)",
       bank: "Direct Liquid Cash",
       accountType: "Cash in Hand",
       number: "DIRECT-CASH-LEDGER",
@@ -345,6 +344,114 @@ users: [
     { id: "VND-05", name: "Subhas Marble & Italian Polish", category: "Stone & Grinding", contact: "Subhas Yadav", phone: "+91 98318 22334", location: "Rajarhat Marble Yard, Kolkata", rating: "4.8", terms: "Direct Cash Khoraki", materials: "Statuario, Dyna, Silestone Quartz" }
   ],
 
+  vendorBills: [
+    {
+      id: "VB-2026-001",
+      vendorId: "VND-01",
+      vendorName: "Bengal Timber Traders",
+      category: "Plywood & Timber",
+      billNumber: "BTT/26-27/412",
+      projectId: "PRJ-2026-001",
+      projectName: "Highline Highland - Penthouse 14B",
+      billDate: "2026-10-15",
+      dueDate: "2026-11-05",
+      amount: 380000,
+      paidAmount: 380000,
+      dueAmount: 0,
+      status: "Paid",
+      paidDate: "2026-11-04",
+      paidFromAccount: "ACC-01",
+      accountName: "HDFC Bank Current A/C (Dream Address Studio)",
+      paymentMode: "RTGS",
+      notes: "Century Club Prime BWP 710 19mm sheets for master wardrobes",
+      signatory: "Rohit Churiwala"
+    },
+    {
+      id: "VB-2026-002",
+      vendorId: "VND-02",
+      vendorName: "Ezra Street Hardware Mart",
+      category: "Architectural Hardware",
+      billNumber: "EZ/NV/8821",
+      projectId: "PRJ-2026-001",
+      projectName: "Highline Highland - Penthouse 14B",
+      billDate: "2026-10-22",
+      dueDate: "2026-11-10",
+      amount: 145000,
+      paidAmount: 100000,
+      dueAmount: 45000,
+      status: "Partially Paid",
+      paidDate: "2026-11-01",
+      paidFromAccount: "ACC-01",
+      accountName: "HDFC Bank Current A/C (Dream Address Studio)",
+      paymentMode: "Bank Transfer (IMPS)",
+      notes: "Hafele soft-close tandem runners and concealed hinges",
+      signatory: "Rohit Churiwala"
+    },
+    {
+      id: "VB-2026-003",
+      vendorId: "VND-05",
+      vendorName: "Subhas Marble & Italian Polish",
+      category: "Stone & Grinding",
+      billNumber: "SM/OCT/109",
+      projectId: "PRJ-2026-002",
+      projectName: "Ballygunge Circular Rd - Luxury Bungalow",
+      billDate: "2026-10-25",
+      dueDate: "2026-11-12",
+      amount: 220000,
+      paidAmount: 220000,
+      dueAmount: 0,
+      status: "Paid",
+      paidDate: "2026-11-03",
+      paidFromAccount: "ACC-03",
+      accountName: "Bandhan Bank Liquidity A/C (Studio Reserve)",
+      paymentMode: "Cheque / Clearing",
+      notes: "Dyna Beige Italian marble supply and diamond grinding disc sets",
+      signatory: "Rohit Churiwala"
+    },
+    {
+      id: "VB-2026-004",
+      vendorId: "VND-04",
+      vendorName: "Biswas False Ceiling Contractors",
+      category: "Gypsum False Ceiling",
+      billNumber: "BFC/2026/089",
+      projectId: "PRJ-2026-001",
+      projectName: "Highline Highland - Penthouse 14B",
+      billDate: "2026-11-02",
+      dueDate: "2026-11-15",
+      amount: 95000,
+      paidAmount: 0,
+      dueAmount: 95000,
+      status: "Pending",
+      paidDate: null,
+      paidFromAccount: "",
+      accountName: "",
+      paymentMode: "Pending",
+      notes: "Gyproc plasterboard and perimeter channel fixing in living hall",
+      signatory: "Rohit Churiwala"
+    },
+    {
+      id: "VB-2026-005",
+      vendorId: "VND-03",
+      vendorName: "Kolkata Electrical Syndicate",
+      category: "Electrical & Conduits",
+      billNumber: "KES/26/1104",
+      projectId: "PRJ-2026-003",
+      projectName: "Rajarhat IT Suite - Executive Residence",
+      billDate: "2026-11-04",
+      dueDate: "2026-11-18",
+      amount: 85000,
+      paidAmount: 0,
+      dueAmount: 85000,
+      status: "Pending",
+      paidDate: null,
+      paidFromAccount: "",
+      accountName: "",
+      paymentMode: "Pending",
+      notes: "Polycab FR-LSH concealed copper cabling and distribution box",
+      signatory: "Rohit Churiwala"
+    }
+  ],
+
   // Reminders
   reminders: [
     {
@@ -370,7 +477,7 @@ users: [
       channel: "WhatsApp & In-App",
       completed: false,
       amount: "₹4,20,000",
-      targetAccount: "ACC-03 (Bandhan Pradeep)",
+      targetAccount: "ACC-03 (Bandhan Liquidity Reserve)",
       notes: "Need 1,400 sq.ft Michaelangelo Statuario or Dyna Beige."
     },
     {
@@ -808,6 +915,23 @@ users: [
   ],
 
   quotations: [
+    {
+      id: "QT-2026-080",
+      projectId: "PRJ-2026-001",
+      client: "Ananya Sen",
+      projectName: "Highline Highland - Penthouse 14B",
+      title: "Initial Turnkey Woodwork & Civil Estimate (Rev 1)",
+      laborCost: 1200000,
+      materialCost: 2150000,
+      total: 3350000,
+      date: "2025-12-18",
+      status: "Superseded",
+      isSynced: true,
+      revision: "R01",
+      scope: "Initial estimate prior to Smoked European Oak veneer and Hafele hardware upgrade.",
+      itemsCount: 36,
+      signatory: "Rohit Churiwala"
+    },
     {
       id: "QT-2026-081",
       projectId: "PRJ-2026-001",
@@ -1367,10 +1491,185 @@ app.get('/api/dashboard', (req, res) => {
   });
 });
 
-// Vendors Management API (Fixing Add Vendor Button & Directory)
-app.get('/api/vendors', (req, res) => {
-  res.json({ success: true, vendors: db.vendors });
+// =========================================================================
+// NEXUS 360 VENDORS & PROCUREMENT BILLS MANAGEMENT API
+// =========================================================================
+const getVendorsHandler = (req, res) => {
+  const vendors = db.vendors || [];
+  const bills = db.vendorBills || [];
+  const totalInvoiced = bills.reduce((s, b) => s + (b.amount || 0), 0);
+  const totalDisbursed = bills.reduce((s, b) => s + (b.paidAmount || 0), 0);
+  const totalDue = bills.reduce((s, b) => s + (b.dueAmount || 0), 0);
+
+  const vendorStats = vendors.map(v => {
+    const vBills = bills.filter(b => b.vendorId === v.id || b.vendorName === v.name);
+    const billed = vBills.reduce((s, b) => s + (b.amount || 0), 0);
+    const paid = vBills.reduce((s, b) => s + (b.paidAmount || 0), 0);
+    const due = vBills.reduce((s, b) => s + (b.dueAmount || 0), 0);
+    return { ...v, totalBilled: billed, totalPaid: paid, totalDue: due, billsCount: vBills.length };
+  });
+
+  res.json({
+    success: true,
+    vendors: vendorStats,
+    kpis: {
+      totalVendors: vendors.length,
+      totalInvoiced,
+      totalDisbursed,
+      totalDue,
+      activeBillsCount: bills.filter(b => b.status !== "Paid").length
+    }
+  });
+};
+
+app.get("/api/vendors", getVendorsHandler);
+app.get("/api/crm/vendors", getVendorsHandler);
+
+const createVendorHandler = (req, res) => {
+  const { name, category, contact, phone, location, terms, materials } = req.body;
+  if (!name) return res.status(400).json({ success: false, message: "Vendor name is required." });
+  const newVendor = {
+    id: `VND-${String((db.vendors || []).length + 1).padStart(2, "0")}`,
+    name: name.trim(),
+    category: category || "General Materials & Hardware",
+    contact: contact || "Primary Contact",
+    phone: phone || "+91 98300 00000",
+    location: location || "Kolkata, West Bengal",
+    rating: "5.0",
+    terms: terms || "15 Days Credit",
+    materials: materials || "Architectural Turnkey Supplies"
+  };
+  if (!db.vendors) db.vendors = [];
+  db.vendors.unshift(newVendor);
+  res.json({ success: true, vendor: newVendor, message: `Vendor ${newVendor.name} successfully registered.` });
+};
+
+app.post("/api/vendors", requireAuth, createVendorHandler);
+app.post("/api/crm/vendors", requireAuth, createVendorHandler);
+
+// Vendor Bills Ledger Endpoints
+app.get("/api/crm/vendor-bills", (req, res) => {
+  const { vendorId, projectId, status } = req.query;
+  let list = db.vendorBills || [];
+  if (vendorId) list = list.filter(b => b.vendorId === vendorId);
+  if (projectId) list = list.filter(b => b.projectId === projectId);
+  if (status) list = list.filter(b => b.status === status);
+  res.json({ success: true, bills: list });
 });
+
+app.post("/api/crm/vendor-bills", requireAuth, (req, res) => {
+  const { vendorId, vendorName, billNumber, projectId, amount, dueDate, category, notes, paidAmount, accountId, paymentMode } = req.body;
+  const vendor = (db.vendors || []).find(v => v.id === vendorId || v.name === vendorName) || (db.vendors || [])[0];
+  const project = db.projects.find(p => p.id === projectId) || db.projects[0];
+  const parsedAmt = parseFloat(amount) || 0;
+  const parsedPaid = parseFloat(paidAmount) || 0;
+  const parsedDue = Math.max(0, parsedAmt - parsedPaid);
+  const acc = db.accounts.find(a => a.id === accountId) || db.accounts[0];
+
+  const newBill = {
+    id: `VB-${new Date().getFullYear()}-${String(((db.vendorBills || []).length) + 1).padStart(3, "0")}`,
+    vendorId: vendor.id,
+    vendorName: vendor.name,
+    category: category || vendor.category || "Materials & Procurement",
+    billNumber: billNumber || `BILL-${Date.now().toString().slice(-5)}`,
+    projectId: project.id,
+    projectName: project.name,
+    billDate: new Date().toISOString().slice(0, 10),
+    dueDate: dueDate || new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10),
+    amount: parsedAmt,
+    paidAmount: parsedPaid,
+    dueAmount: parsedDue,
+    status: parsedDue === 0 ? "Paid" : (parsedPaid > 0 ? "Partially Paid" : "Pending"),
+    paidDate: parsedPaid > 0 ? new Date().toISOString().slice(0, 10) : null,
+    paidFromAccount: parsedPaid > 0 ? acc.id : "",
+    accountName: parsedPaid > 0 ? acc.name : "",
+    paymentMode: parsedPaid > 0 ? (paymentMode || "Bank Transfer (RTGS)") : "Pending",
+    notes: notes || "Material procurement bill registered for site execution.",
+    signatory: "Rohit Churiwala"
+  };
+
+  if (!db.vendorBills) db.vendorBills = [];
+  db.vendorBills.unshift(newBill);
+
+  if (parsedPaid > 0) {
+    acc.balance = Math.max(0, acc.balance - parsedPaid);
+    acc.monthlyOutflow = (acc.monthlyOutflow || 0) + parsedPaid;
+    acc.netFlow = (acc.monthlyInflow || 0) - acc.monthlyOutflow;
+    project.actualDirectCost = (project.actualDirectCost || 0) + parsedPaid;
+    project.grossMargin = (project.invoiced || project.contractValue) - project.actualDirectCost;
+  }
+
+  const billConv = {
+    id: `CONV-${String((db.conversations || []).length + 1).padStart(3, "0")}`,
+    projectId: project.id,
+    type: "task",
+    subject: `Vendor Bill Logged: ${newBill.billNumber} (${vendor.name})`,
+    summary: `Vendor Bill Logged: ${newBill.billNumber} (${vendor.name})`,
+    title: `Vendor Bill Logged: ${newBill.billNumber} (${vendor.name})`,
+    notes: `Vendor: ${vendor.name} | Category: ${newBill.category} | Amount: ₹${parsedAmt.toLocaleString("en-IN")} (Paid: ₹${parsedPaid.toLocaleString("en-IN")}, Due: ₹${parsedDue.toLocaleString("en-IN")}) | Due Date: ${newBill.dueDate}`,
+    details: `Vendor: ${vendor.name} | Category: ${newBill.category} | Amount: ₹${parsedAmt.toLocaleString("en-IN")} (Paid: ₹${parsedPaid.toLocaleString("en-IN")}, Due: ₹${parsedDue.toLocaleString("en-IN")}) | Due Date: ${newBill.dueDate}`,
+    text: `Vendor bill for ${vendor.name} logged.`,
+    author: "Rohit Churiwala",
+    date: new Date().toISOString().slice(0, 16).replace("T", " ")
+  };
+  if (!db.conversations) db.conversations = [];
+  db.conversations.unshift(billConv);
+
+  res.json({ success: true, bill: newBill, message: `Vendor bill ${newBill.billNumber} logged successfully.` });
+});
+
+app.post("/api/crm/vendor-bills/:id/pay", requireAuth, (req, res) => {
+  const bill = (db.vendorBills || []).find(b => b.id === req.params.id);
+  if (!bill) return res.status(404).json({ success: false, message: "Vendor bill record not found." });
+
+  const { amount, accountId, paymentMode, reference, notes } = req.body;
+  const payAmt = parseFloat(amount) || bill.dueAmount || 0;
+  if (payAmt <= 0) return res.status(400).json({ success: false, message: "Payment amount must be greater than zero." });
+
+  const acc = db.accounts.find(a => a.id === accountId) || db.accounts[0];
+  const project = db.projects.find(p => p.id === bill.projectId) || db.projects[0];
+
+  bill.paidAmount = (bill.paidAmount || 0) + payAmt;
+  bill.dueAmount = Math.max(0, bill.amount - bill.paidAmount);
+  bill.status = bill.dueAmount === 0 ? "Paid" : "Partially Paid";
+  bill.paidDate = new Date().toISOString().slice(0, 10);
+  bill.paidFromAccount = acc.id;
+  bill.accountName = acc.name;
+  bill.paymentMode = paymentMode || "Bank Transfer (RTGS)";
+  bill.reference = reference || `PAY-${Date.now().toString().slice(-6)}`;
+
+  acc.balance = Math.max(0, acc.balance - payAmt);
+  acc.monthlyOutflow = (acc.monthlyOutflow || 0) + payAmt;
+  acc.netFlow = (acc.monthlyInflow || 0) - acc.monthlyOutflow;
+
+  project.actualDirectCost = (project.actualDirectCost || 0) + payAmt;
+  project.grossMargin = (project.invoiced || project.contractValue) - project.actualDirectCost;
+
+  const payConv = {
+    id: `CONV-${String((db.conversations || []).length + 1).padStart(3, "0")}`,
+    projectId: project.id,
+    type: "meeting",
+    subject: `Vendor Payment Disbursed: ₹${payAmt.toLocaleString("en-IN")} to ${bill.vendorName}`,
+    summary: `Vendor Payment Disbursed: ₹${payAmt.toLocaleString("en-IN")} to ${bill.vendorName}`,
+    title: `Vendor Payment Disbursed: ₹${payAmt.toLocaleString("en-IN")} to ${bill.vendorName}`,
+    notes: `Bill: ${bill.billNumber} | Disbursed: ₹${payAmt.toLocaleString("en-IN")} from ${acc.name} (${acc.id}) via ${bill.paymentMode}. Remaining Due: ₹${bill.dueAmount.toLocaleString("en-IN")}. ${notes || ""}`,
+    details: `Bill: ${bill.billNumber} | Disbursed: ₹${payAmt.toLocaleString("en-IN")} from ${acc.name} (${acc.id}) via ${bill.paymentMode}. Remaining Due: ₹${bill.dueAmount.toLocaleString("en-IN")}. ${notes || ""}`,
+    text: `Vendor payment disbursed for ${bill.vendorName}.`,
+    author: "Rohit Churiwala",
+    date: new Date().toISOString().slice(0, 16).replace("T", " ")
+  };
+  if (!db.conversations) db.conversations = [];
+  db.conversations.unshift(payConv);
+
+  res.json({
+    success: true,
+    bill,
+    updatedAccount: acc,
+    updatedProject: project,
+    message: `Payment of ₹${payAmt.toLocaleString("en-IN")} to ${bill.vendorName} successfully recorded.`
+  });
+});
+
 
 app.post('/api/vendors', requireAuth, (req, res) => {
   const { name, category, contact, phone, location, terms, materials } = req.body;
@@ -1785,8 +2084,9 @@ app.post('/api/crm/leads/:id/convert', requireAuth, (req, res) => {
   }
 
   // 5. Update Lead Status
-  lead.status = "Converted";
-  lead.converted = true;
+    lead.status = "Converted";
+    lead.converted = true;
+    lead.isConverted = true;
   lead.convertedOpportunityId = newOpportunity.id;
   lead.convertedProjectId = newOpportunity.id;
   lead.convertedAccountId = account.id;
@@ -1814,11 +2114,12 @@ app.post('/api/crm/leads/:id/convert', requireAuth, (req, res) => {
 
   res.json({
     success: true,
-    message: `Lead ${lead.name} successfully converted to Account (${account.name}), Contact (${contact.name}), and Project (${newOpportunity.name})!`,
+    lead: lead,
     account: account,
     contact: contact,
     opportunity: newOpportunity,
-    project: newOpportunity
+    project: newOpportunity,
+    message: `Lead ${lead.name} successfully converted to Account (${account.name}), Contact (${contact.name}), and Project (${newOpportunity.name})!`
   });
 });
 
@@ -2255,6 +2556,8 @@ app.post('/api/crm/quotations', requireAuth, (req, res) => {
   const material = parseFloat(req.body.materialCost) || 0;
   const total = parseFloat(req.body.total) || (labor + material) || 3500000;
 
+  const projectQuotes = db.quotations.filter(q => q.projectId === prj.id);
+  const autoRev = `R0${projectQuotes.length + 1}`;
   const newQ = {
     id: `QT-${new Date().getFullYear()}-${String(db.quotations.length + 81).padStart(3, '0')}`,
     projectId: prj.id,
@@ -2264,7 +2567,7 @@ app.post('/api/crm/quotations', requireAuth, (req, res) => {
     laborCost: labor || Math.round(total * 0.38),
     materialCost: material || Math.round(total * 0.62),
     total: total,
-    revision: revision || "R01",
+    revision: revision || autoRev,
     date: new Date().toISOString().slice(0, 10),
     status: "Draft Proposal",
     isSynced: false,
@@ -2719,7 +3022,7 @@ app.post('/api/daily-log', requireAuth, (req, res) => {
     date: date || new Date().toISOString().slice(0, 10),
     projectId: isPersonal ? "PERSONAL-EXPENSE" : finalProj,
     category: isPersonal ? 'Personal Expense' : (category || 'Site Direct Cost'),
-    subCategory: subCategory || (isPersonal ? "Household & Family" : "Labour Khoraki"),
+    subCategory: subCategory || (isPersonal ? "Studio Overhead & Utilities" : "Labour Khoraki"),
     description: finalDesc,
     debit: finalDebit,
     credit: finalCredit,

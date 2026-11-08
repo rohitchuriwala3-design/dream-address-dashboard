@@ -237,6 +237,10 @@
         <span>Invoices & Billing</span>
         <span class="text-[10px] text-amber-300 bg-amber-950/80 px-1.5 py-0.2 rounded-full font-bold" id="badge-invoices-count">6</span>
       </div>
+      <div class="sf-tab" id="tab-vendors" onclick="switchNavTab('vendors')">
+        <span>Vendors & Bills</span>
+        <span class="text-[10px] text-amber-300 bg-amber-950/80 px-1.5 py-0.2 rounded-full font-bold" id="badge-vendors-count">5</span>
+      </div>
       <div class="sf-tab" id="tab-rates" onclick="switchNavTab('rates')">Rate Card</div>
       <div class="sf-tab" id="tab-calendar" onclick="switchNavTab('calendar')">Site Calendar</div>
       <div class="sf-tab" id="tab-analytics" onclick="switchNavTab('analytics')">Analytics</div>
@@ -274,6 +278,9 @@
       </button>
       <button title="Invoices & Billing" onclick="switchNavTab('invoices')" id="rail-invoices" class="p-2 rounded hover:bg-white/5 hover:text-white transition">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z"></path></svg>
+      </button>
+      <button title="Vendors & Accounts Payable" onclick="switchNavTab('vendors')" id="rail-vendors" class="p-2 rounded hover:bg-white/5 hover:text-white transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
       </button>
       <button title="Rate Card" onclick="switchNavTab('rates')" id="rail-rates" class="p-2 rounded hover:bg-white/5 hover:text-white transition">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
@@ -748,6 +755,108 @@
                 <!-- Dynamically loaded -->
               </tbody>
             </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- MODULE: VENDORS & PROCUREMENT BILLS (ACCOUNTS PAYABLE) -->
+      <!-- ======================================================== -->
+      <section id="module-vendors" class="hidden flex-1 flex flex-col p-4 sm:p-6 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800 gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-cyan-600/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-bold text-lg shadow-lg">
+              🏗️
+            </div>
+            <div>
+              <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Nexus 360 Procurement</div>
+              <h1 class="text-xl font-bold text-white tracking-tight">Kolkata Trade Vendors & Accounts Payable Ledger</h1>
+              <div class="text-xs text-slate-400 mt-0.5">Track procurement bills, vendor payment terms, treasury disbursements, and outstanding dues.</div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <button onclick="openNewVendorBillModal()" class="px-3.5 py-1.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs rounded-md shadow transition flex items-center gap-1.5">
+              <span>+</span> <span>New Vendor Bill</span>
+            </button>
+            <button onclick="openNewVendorModal()" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs rounded-md transition flex items-center gap-1.5">
+              <span>+</span> <span>Register Trade Vendor</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 TOP KPI CARDS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="sf-card p-4 space-y-1">
+            <div class="text-slate-400 text-xs font-semibold">Total Invoiced Bills</div>
+            <div class="text-2xl font-bold font-mono text-white" id="vkpi-invoiced">₹0</div>
+            <div class="text-[10px] text-slate-500 font-medium">Across active procurement orders</div>
+          </div>
+          <div class="sf-card p-4 space-y-1">
+            <div class="text-slate-400 text-xs font-semibold">Total Disbursed / Paid</div>
+            <div class="text-2xl font-bold font-mono text-emerald-400" id="vkpi-disbursed">₹0</div>
+            <div class="text-[10px] text-emerald-500 font-medium">Cleared via RTGS & Bank Transfers</div>
+          </div>
+          <div class="sf-card p-4 space-y-1">
+            <div class="text-slate-400 text-xs font-semibold">Outstanding Dues</div>
+            <div class="text-2xl font-bold font-mono text-amber-400" id="vkpi-due">₹0</div>
+            <div class="text-[10px] text-amber-400/80 font-medium" id="vkpi-due-sub">Active payable obligations</div>
+          </div>
+          <div class="sf-card p-4 space-y-1">
+            <div class="text-slate-400 text-xs font-semibold">Verified Kolkata Vendors</div>
+            <div class="text-2xl font-bold font-mono text-cyan-400" id="vkpi-count">5</div>
+            <div class="text-[10px] text-slate-500 font-medium">Timber, Hardware, Marble, Gyproc, Paint</div>
+          </div>
+        </div>
+
+        <!-- VENDOR VIEWS SUB-NAV TABS -->
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <div class="flex items-center gap-2 text-xs font-semibold">
+            <button onclick="setVendorViewTab('bills')" id="vtab-bills" class="px-3 py-1.5 rounded-lg bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30 transition">
+              📋 Bills & Payment Ledger
+            </button>
+            <button onclick="setVendorViewTab('directory')" id="vtab-directory" class="px-3 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition">
+              🏬 Trade Vendors Directory
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <input type="text" id="vendor-search" oninput="filterVendorView()" placeholder="Filter bills or vendors..." class="bg-[#0B1120] border border-slate-700/80 rounded-md py-1 px-3 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-400 w-48 transition">
+          </div>
+        </div>
+
+        <!-- VIEW 1: BILLS & PAYMENT LEDGER TABLE -->
+        <div id="vview-bills" class="space-y-4">
+          <div class="sf-card overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr class="sf-table-header text-slate-400 font-bold uppercase tracking-wider text-[11px]">
+                    <th class="py-3 px-3">Bill ID / Invoice</th>
+                    <th class="py-3 px-3">Vendor</th>
+                    <th class="py-3 px-3">Category</th>
+                    <th class="py-3 px-3">Allocated Project</th>
+                    <th class="py-3 px-3">Bill Date</th>
+                    <th class="py-3 px-3">Due Date</th>
+                    <th class="py-3 px-3 text-right">Bill Total (₹)</th>
+                    <th class="py-3 px-3 text-right">Paid (₹)</th>
+                    <th class="py-3 px-3 text-right">Due (₹)</th>
+                    <th class="py-3 px-3 text-center">Status</th>
+                    <th class="py-3 px-3 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="vendor-bills-table-body" class="divide-y divide-slate-800">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 2: TRADE VENDORS DIRECTORY GRID -->
+        <div id="vview-directory" class="hidden">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="vendors-directory-grid">
+            <!-- Dynamically populated -->
           </div>
         </div>
       </section>
@@ -1472,6 +1581,203 @@
     </div>
   </div>
 
+  <!-- MODAL: NEW VENDOR BILL -->
+  <div id="modal-new-vendor-bill" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="sf-card w-full max-w-lg p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-700">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-cyan-600/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-bold">🧾</div>
+          <h3 class="text-lg font-bold text-white">Log Vendor Procurement Bill</h3>
+        </div>
+        <button onclick="closeNewVendorBillModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <form onsubmit="submitNewVendorBill(event)" class="space-y-3 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Select Vendor *</label>
+            <select id="vbill-vendor-select" required class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Target Project *</label>
+            <select id="vbill-project-select" required class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Vendor Bill / Challan No *</label>
+            <input type="text" id="vbill-number" required placeholder="e.g. BTT/26-27/450" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Bill Amount (₹) *</label>
+            <input type="number" id="vbill-amount" required placeholder="185000" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white font-mono">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Payment Due Date</label>
+            <input type="date" id="vbill-due-date" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Procurement Category</label>
+            <select id="vbill-category" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+              <option value="Plywood & Timber">Plywood & Timber</option>
+              <option value="Architectural Hardware">Architectural Hardware</option>
+              <option value="Stone & Grinding">Stone & Grinding (Marble/Granite)</option>
+              <option value="Gypsum False Ceiling">Gypsum False Ceiling</option>
+              <option value="Electrical & Conduits">Electrical & Conduits</option>
+              <option value="PU Coatings & Polish">PU Coatings & Polish</option>
+              <option value="Glass & Mirrors">Glass & Mirrors</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Material Description & Scope Notes</label>
+          <textarea id="vbill-notes" rows="2" placeholder="Century Club Prime 19mm sheets, 8x4 size for Highline Penthouse 14B master walk-in wardrobe..." class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white"></textarea>
+        </div>
+
+        <div class="p-3 bg-cyan-500/10 border border-cyan-500/30 rounded text-cyan-200 text-[11px] leading-relaxed">
+          ⚡ Logging this bill automatically appends it to project direct expenditure, updates studio accounts payable, and records an activity on the project chronicle.
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2">
+          <button type="button" onclick="closeNewVendorBillModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded font-semibold">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded shadow">Save Vendor Bill</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: PAY VENDOR BILL -->
+  <div id="modal-pay-vendor-bill" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="sf-card w-full max-w-md p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-700">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-emerald-600/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-bold">💳</div>
+          <h3 class="text-lg font-bold text-white">Disburse Vendor Payment</h3>
+        </div>
+        <button onclick="closePayVendorBillModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <div class="p-3 bg-[#080E1B] rounded border border-slate-800 space-y-1 text-xs">
+        <div class="flex justify-between"><span class="text-slate-400">Vendor:</span><span class="font-bold text-white" id="pay-vendor-name">-</span></div>
+        <div class="flex justify-between"><span class="text-slate-400">Bill Ref:</span><span class="font-mono text-cyan-300" id="pay-bill-ref">-</span></div>
+        <div class="flex justify-between"><span class="text-slate-400">Total Bill Amount:</span><span class="font-mono text-white" id="pay-bill-total">-</span></div>
+        <div class="flex justify-between border-t border-slate-800 pt-1"><span class="text-amber-400 font-semibold">Outstanding Due:</span><span class="font-mono font-bold text-amber-400" id="pay-bill-due">-</span></div>
+      </div>
+
+      <form onsubmit="submitPayVendorBill(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="pay-bill-id">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Disbursement Amount (₹) *</label>
+          <input type="number" id="pay-amount" required class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white font-mono text-sm font-bold">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Payment Mode</label>
+            <select id="pay-mode" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+              <option value="Bank Transfer (RTGS)">Bank Transfer (RTGS)</option>
+              <option value="Bank Transfer (IMPS)">Bank Transfer (IMPS)</option>
+              <option value="Cheque / Clearing">Cheque / Clearing</option>
+              <option value="Direct Cash Khoraki">Direct Cash Khoraki</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Disbursement Treasury Account *</label>
+            <select id="pay-account-select" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+              <option value="ACC-01">HDFC Bank Current A/C (Operating)</option>
+              <option value="ACC-02">HDFC Bank Operational A/C</option>
+              <option value="ACC-03">Bandhan Bank Liquidity A/C</option>
+              <option value="ACC-06">Master Cash Balance (Direct Cash)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Payment Reference / UTR / Cheque No</label>
+          <input type="text" id="pay-reference" placeholder="e.g. UTR-HDFC99882201" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white font-mono">
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2">
+          <button type="button" onclick="closePayVendorBillModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded font-semibold">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded shadow">Confirm Disbursement</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: REGISTER NEW TRADE VENDOR -->
+  <div id="modal-new-vendor" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="sf-card w-full max-w-md p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-700">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-cyan-600/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-bold">🏬</div>
+          <h3 class="text-lg font-bold text-white">Register Verified Trade Vendor</h3>
+        </div>
+        <button onclick="closeNewVendorModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <form onsubmit="submitNewVendor(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Vendor Enterprise Name *</label>
+          <input type="text" id="vreg-name" required placeholder="e.g. Bengal Timber Traders" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Trade Category *</label>
+            <select id="vreg-category" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+              <option value="Plywood & Timber">Plywood & Timber</option>
+              <option value="Architectural Hardware">Architectural Hardware</option>
+              <option value="Stone & Grinding">Stone & Grinding</option>
+              <option value="Gypsum False Ceiling">Gypsum False Ceiling</option>
+              <option value="Electrical & Conduits">Electrical & Conduits</option>
+              <option value="PU Coatings & Polish">PU Coatings & Polish</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Contact Person</label>
+            <input type="text" id="vreg-contact" placeholder="e.g. Goutam Ghosh" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Phone / WhatsApp *</label>
+            <input type="text" id="vreg-phone" required placeholder="+91 98300 XXXXX" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Location / Market</label>
+            <input type="text" id="vreg-location" placeholder="e.g. Nimtala Ghat, Kolkata" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Materials Supplied / Brands</label>
+          <input type="text" id="vreg-materials" placeholder="e.g. Century Club Prime BWP 710, Greenply" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Agreed Payment Terms</label>
+          <input type="text" id="vreg-terms" placeholder="e.g. 15 Days Credit / Bank Transfer" class="w-full bg-[#080E1B] border border-slate-700 rounded p-2 text-white">
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2">
+          <button type="button" onclick="closeNewVendorModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded font-semibold">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded shadow">Register Vendor</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- SCRIPT ENGINE -->
   <script>
     let clientsData = [];
@@ -1484,6 +1790,10 @@
     let calendarEventsData = [];
     let usersData = [];
     let remindersData = [];
+    let vendorsData = [];
+    let vendorBillsData = [];
+    let vendorKpis = {};
+    let currentVendorTab = 'bills';
     
     let currentNavTab = 'home';
     let currentView = 'table';
@@ -1511,7 +1821,8 @@
         loadRates(),
         loadCalendar(),
         loadReminders(),
-        loadAdminUsers()
+        loadAdminUsers(),
+        loadVendors()
       ]);
 
       renderHomeDashboard();
@@ -1520,7 +1831,7 @@
     // Nav Tab Switcher
     function switchNavTab(tab) {
       currentNavTab = tab;
-      const modules = ['home', 'leads', 'contacts', 'accounts', 'opportunities', 'quotes', 'invoices', 'rates', 'calendar', 'analytics'];
+      const modules = ['home', 'leads', 'contacts', 'accounts', 'opportunities', 'quotes', 'invoices', 'vendors', 'rates', 'calendar', 'analytics'];
       
       modules.forEach(m => {
         const el = document.getElementById(`module-${m}`);
@@ -1546,6 +1857,7 @@
 
       if (tab === 'home') renderHomeDashboard();
       if (tab === 'opportunities') setViewMode(currentView);
+      if (tab === 'vendors') renderVendorsModule();
       if (tab === 'analytics') initAnalyticsCharts();
     }
 
@@ -2847,6 +3159,406 @@
           window.open(`/client?id=${encodeURIComponent(data.client.id)}`, '_blank');
         } else {
           alert(data.message || 'Error saving opportunity');
+        }
+      } catch (err) {
+        alert('Server communication error.');
+      }
+    }
+
+
+    // =========================================================================
+    // VENDOR & ACCOUNTS PAYABLE MANAGEMENT ENGINE
+    // =========================================================================
+    async function loadVendors() {
+      try {
+        const [resV, resB] = await Promise.all([
+          fetch('/api/crm/vendors'),
+          fetch('/api/crm/vendor-bills')
+        ]);
+        const dataV = await resV.json();
+        const dataB = await resB.json();
+
+        if (dataV.success) {
+          vendorsData = dataV.vendors || [];
+          vendorKpis = dataV.kpis || {};
+          const badge = document.getElementById('badge-vendors-count');
+          if (badge) badge.innerText = vendorsData.length;
+        }
+
+        if (dataB.success) {
+          vendorBillsData = dataB.bills || [];
+        }
+      } catch (err) {
+        console.error("Failed to load vendors data:", err);
+      }
+    }
+
+    function setVendorViewTab(tab) {
+      currentVendorTab = tab;
+      const billsBtn = document.getElementById('vtab-bills');
+      const dirBtn = document.getElementById('vtab-directory');
+      const billsView = document.getElementById('vview-bills');
+      const dirView = document.getElementById('vview-directory');
+
+      if (tab === 'bills') {
+        billsBtn.className = 'px-3 py-1.5 rounded-lg bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30 transition';
+        dirBtn.className = 'px-3 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition';
+        billsView.classList.remove('hidden');
+        dirView.classList.add('hidden');
+        renderVendorBillsTable();
+      } else {
+        dirBtn.className = 'px-3 py-1.5 rounded-lg bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30 transition';
+        billsBtn.className = 'px-3 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition';
+        dirView.classList.remove('hidden');
+        billsView.classList.add('hidden');
+        renderVendorsDirectory();
+      }
+    }
+
+    function renderVendorsModule() {
+      const f = (n) => '₹' + (n || 0).toLocaleString('en-IN');
+
+      const totalInvoiced = vendorBillsData.reduce((s, b) => s + (b.amount || 0), 0);
+      const totalDisbursed = vendorBillsData.reduce((s, b) => s + (b.paidAmount || 0), 0);
+      const totalDue = vendorBillsData.reduce((s, b) => s + (b.dueAmount || 0), 0);
+
+      const invEl = document.getElementById('vkpi-invoiced');
+      const disEl = document.getElementById('vkpi-disbursed');
+      const dueEl = document.getElementById('vkpi-due');
+      const cntEl = document.getElementById('vkpi-count');
+
+      if (invEl) invEl.innerText = f(totalInvoiced);
+      if (disEl) disEl.innerText = f(totalDisbursed);
+      if (dueEl) dueEl.innerText = f(totalDue);
+      if (cntEl) cntEl.innerText = vendorsData.length;
+
+      const dueSub = document.getElementById('vkpi-due-sub');
+      const pendingCount = vendorBillsData.filter(b => b.status !== 'Paid').length;
+      if (dueSub) dueSub.innerText = `${pendingCount} bills pending clearance`;
+
+      if (currentVendorTab === 'bills') {
+        renderVendorBillsTable();
+      } else {
+        renderVendorsDirectory();
+      }
+    }
+
+    function renderVendorBillsTable(list) {
+      const bills = list || vendorBillsData;
+      const tbody = document.getElementById('vendor-bills-table-body');
+      if (!tbody) return;
+
+      if (bills.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="11" class="py-8 text-center text-slate-500 italic">No vendor bills recorded in ledger. Click "+ New Vendor Bill" to register an order.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = bills.map(b => {
+        const isPaid = b.status === 'Paid';
+        const isPart = b.status === 'Partially Paid';
+        const badgeClass = isPaid ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' :
+                           (isPart ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' :
+                                     'bg-rose-500/20 text-rose-300 border border-rose-500/30');
+
+        return `
+          <tr class="sf-table-row">
+            <td class="py-3 px-3">
+              <div class="font-bold text-white">${b.id}</div>
+              <div class="text-[10px] font-mono text-cyan-400 font-semibold">${b.billNumber}</div>
+            </td>
+            <td class="py-3 px-3">
+              <div class="font-bold text-sky-400">${b.vendorName}</div>
+              <div class="text-[10px] text-slate-400">${b.vendorId || ''}</div>
+            </td>
+            <td class="py-3 px-3">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">${b.category}</span>
+            </td>
+            <td class="py-3 px-3">
+              <div class="font-semibold text-slate-200">${b.projectName || b.projectId}</div>
+              <div class="text-[10px] text-slate-400 font-mono">${b.projectId}</div>
+            </td>
+            <td class="py-3 px-3 font-mono text-slate-400">${b.billDate}</td>
+            <td class="py-3 px-3 font-mono ${!isPaid ? 'text-amber-400 font-semibold' : 'text-slate-400'}">${b.dueDate}</td>
+            <td class="py-3 px-3 text-right font-mono font-bold text-white">₹${(b.amount || 0).toLocaleString('en-IN')}</td>
+            <td class="py-3 px-3 text-right font-mono text-emerald-400 font-bold">₹${(b.paidAmount || 0).toLocaleString('en-IN')}</td>
+            <td class="py-3 px-3 text-right font-mono ${b.dueAmount > 0 ? 'text-rose-400 font-bold' : 'text-slate-500'}">₹${(b.dueAmount || 0).toLocaleString('en-IN')}</td>
+            <td class="py-3 px-3 text-center">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${badgeClass}">
+                ${b.status}
+              </span>
+            </td>
+            <td class="py-3 px-3 text-center">
+              ${b.dueAmount > 0 ? `
+                <button onclick="openPayVendorBillModal('${b.id}')" class="px-2.5 py-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-[11px] rounded shadow transition flex items-center justify-center gap-1 mx-auto">
+                  <span>💳</span> <span>Pay Bill</span>
+                </button>
+              ` : `
+                <span class="text-[10px] text-emerald-400 font-bold flex items-center justify-center gap-1">
+                  <span>✓</span> <span>Cleared (${b.paymentMode ? b.paymentMode.split(' ')[0] : 'RTGS'})</span>
+                </span>
+              `}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderVendorsDirectory(list) {
+      const vendors = list || vendorsData;
+      const grid = document.getElementById('vendors-directory-grid');
+      if (!grid) return;
+
+      if (vendors.length === 0) {
+        grid.innerHTML = `<div class="col-span-3 py-8 text-center text-slate-500 italic">No vendors found. Click "+ Register Trade Vendor" to add one.</div>`;
+        return;
+      }
+
+      grid.innerHTML = vendors.map(v => {
+        const cleanPhone = (v.phone || '').replace(/[^0-9]/g, '');
+        const waLink = `https://wa.me/${cleanPhone}?text=${encodeURIComponent('Hello ' + (v.contact || v.name) + ', Rohit Churiwala from Dream Address Studio regarding material orders.')}`;
+
+        return `
+          <div class="sf-card p-5 space-y-3.5 hover:border-cyan-500/40 transition">
+            <div class="flex items-start justify-between">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">${v.category}</span>
+                <h3 class="text-base font-bold text-white mt-1.5">${v.name}</h3>
+                <div class="text-[11px] text-slate-400">📍 ${v.location || 'Kolkata, WB'}</div>
+              </div>
+              <div class="flex items-center gap-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded text-xs font-bold">
+                ★ <span>${v.rating || '5.0'}</span>
+              </div>
+            </div>
+
+            <div class="p-3 bg-[#080E1B] rounded border border-slate-800 space-y-1.5 text-xs">
+              <div class="flex justify-between">
+                <span class="text-slate-400">Contact:</span>
+                <span class="font-semibold text-white">${v.contact}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-400">Phone:</span>
+                <span class="font-mono text-cyan-300">${v.phone}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-400">Terms:</span>
+                <span class="text-slate-300">${v.terms}</span>
+              </div>
+              <div class="text-[11px] text-slate-400 pt-1 border-t border-slate-800/80">
+                <strong class="text-slate-300">Materials:</strong> ${v.materials || 'Interior Supplies'}
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 text-center text-[10px] font-mono p-2 bg-[#060B14] rounded border border-slate-800/60">
+              <div>
+                <div class="text-slate-500">BILLED</div>
+                <div class="font-bold text-white mt-0.5">₹${((v.totalBilled || 0) / 1000).toFixed(0)}k</div>
+              </div>
+              <div>
+                <div class="text-slate-500">PAID</div>
+                <div class="font-bold text-emerald-400 mt-0.5">₹${((v.totalPaid || 0) / 1000).toFixed(0)}k</div>
+              </div>
+              <div>
+                <div class="text-slate-500">DUE</div>
+                <div class="font-bold ${(v.totalDue || 0) > 0 ? 'text-amber-400' : 'text-slate-400'} mt-0.5">₹${((v.totalDue || 0) / 1000).toFixed(0)}k</div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 pt-1">
+              <a href="${waLink}" target="_blank" class="flex-1 py-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded text-center text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+                <span>💬</span> <span>WhatsApp Vendor</span>
+              </a>
+              <button onclick="openNewVendorBillFor('${v.id}')" class="py-1.5 px-3 bg-white/5 hover:bg-white/10 text-cyan-300 hover:text-white border border-white/10 rounded text-xs font-semibold transition">
+                + Bill
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterVendorView() {
+      const q = (document.getElementById('vendor-search').value || '').toLowerCase().trim();
+      if (!q) {
+        if (currentVendorTab === 'bills') renderVendorBillsTable();
+        else renderVendorsDirectory();
+        return;
+      }
+
+      if (currentVendorTab === 'bills') {
+        const filtered = vendorBillsData.filter(b => 
+          (b.billNumber && b.billNumber.toLowerCase().includes(q)) ||
+          (b.vendorName && b.vendorName.toLowerCase().includes(q)) ||
+          (b.projectName && b.projectName.toLowerCase().includes(q)) ||
+          (b.category && b.category.toLowerCase().includes(q)) ||
+          (b.status && b.status.toLowerCase().includes(q))
+        );
+        renderVendorBillsTable(filtered);
+      } else {
+        const filtered = vendorsData.filter(v => 
+          (v.name && v.name.toLowerCase().includes(q)) ||
+          (v.category && v.category.toLowerCase().includes(q)) ||
+          (v.contact && v.contact.toLowerCase().includes(q)) ||
+          (v.location && v.location.toLowerCase().includes(q)) ||
+          (v.materials && v.materials.toLowerCase().includes(q))
+        );
+        renderVendorsDirectory(filtered);
+      }
+    }
+
+    function openNewVendorBillModal() {
+      const vSel = document.getElementById('vbill-vendor-select');
+      const pSel = document.getElementById('vbill-project-select');
+
+      if (vSel) {
+        vSel.innerHTML = vendorsData.map(v => `<option value="${v.id}">${v.name} (${v.category})</option>`).join('');
+      }
+
+      if (pSel) {
+        pSel.innerHTML = clientsData.map(p => `<option value="${p.id}">${p.client} — ${p.name}</option>`).join('');
+      }
+
+      const dueEl = document.getElementById('vbill-due-date');
+      if (dueEl) {
+        const d = new Date();
+        d.setDate(d.getDate() + 14);
+        dueEl.value = d.toISOString().slice(0, 10);
+      }
+
+      document.getElementById('modal-new-vendor-bill').classList.remove('hidden');
+    }
+
+    function openNewVendorBillFor(vendorId) {
+      openNewVendorBillModal();
+      const vSel = document.getElementById('vbill-vendor-select');
+      if (vSel) vSel.value = vendorId;
+    }
+
+    function closeNewVendorBillModal() {
+      document.getElementById('modal-new-vendor-bill').classList.add('hidden');
+    }
+
+    async function submitNewVendorBill(e) {
+      e.preventDefault();
+      const vendorId = document.getElementById('vbill-vendor-select').value;
+      const projectId = document.getElementById('vbill-project-select').value;
+      const billNumber = document.getElementById('vbill-number').value.trim();
+      const amount = parseFloat(document.getElementById('vbill-amount').value) || 0;
+      const dueDate = document.getElementById('vbill-due-date').value;
+      const category = document.getElementById('vbill-category').value;
+      const notes = document.getElementById('vbill-notes').value.trim();
+
+      const payload = {
+        vendorId,
+        projectId,
+        billNumber,
+        amount,
+        dueDate,
+        category,
+        notes
+      };
+
+      try {
+        const res = await fetch('/api/crm/vendor-bills', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeNewVendorBillModal();
+          await loadVendors();
+          await loadClients();
+          renderVendorsModule();
+          alert(`Vendor bill ${billNumber} logged successfully and attached to project financials.`);
+        } else {
+          alert('Failed to log bill: ' + (data.message || 'Error'));
+        }
+      } catch (err) {
+        alert('Server communication error.');
+      }
+    }
+
+    function openPayVendorBillModal(billId) {
+      const bill = vendorBillsData.find(b => b.id === billId);
+      if (!bill) return;
+
+      document.getElementById('pay-bill-id').value = bill.id;
+      document.getElementById('pay-vendor-name').innerText = bill.vendorName;
+      document.getElementById('pay-bill-ref').innerText = `${bill.id} (${bill.billNumber})`;
+      document.getElementById('pay-bill-total').innerText = '₹' + (bill.amount || 0).toLocaleString('en-IN');
+      document.getElementById('pay-bill-due').innerText = '₹' + (bill.dueAmount || 0).toLocaleString('en-IN');
+      document.getElementById('pay-amount').value = bill.dueAmount;
+
+      document.getElementById('modal-pay-vendor-bill').classList.remove('hidden');
+    }
+
+    function closePayVendorBillModal() {
+      document.getElementById('modal-pay-vendor-bill').classList.add('hidden');
+    }
+
+    async function submitPayVendorBill(e) {
+      e.preventDefault();
+      const billId = document.getElementById('pay-bill-id').value;
+      const amount = parseFloat(document.getElementById('pay-amount').value) || 0;
+      const paymentMode = document.getElementById('pay-mode').value;
+      const accountId = document.getElementById('pay-account-select').value;
+      const reference = document.getElementById('pay-reference').value.trim();
+
+      try {
+        const res = await fetch(`/api/crm/vendor-bills/${encodeURIComponent(billId)}/pay`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount, paymentMode, accountId, reference })
+        });
+        const data = await res.json();
+        if (data.success) {
+          closePayVendorBillModal();
+          await loadVendors();
+          await loadClients();
+          renderVendorsModule();
+          alert(data.message || `Payment of ₹${amount.toLocaleString('en-IN')} disbursed successfully!`);
+        } else {
+          alert('Payment failed: ' + (data.message || 'Error'));
+        }
+      } catch (err) {
+        alert('Server communication error.');
+      }
+    }
+
+    function openNewVendorModal() {
+      document.getElementById('modal-new-vendor').classList.remove('hidden');
+    }
+
+    function closeNewVendorModal() {
+      document.getElementById('modal-new-vendor').classList.add('hidden');
+    }
+
+    async function submitNewVendor(e) {
+      e.preventDefault();
+      const name = document.getElementById('vreg-name').value.trim();
+      const category = document.getElementById('vreg-category').value;
+      const contact = document.getElementById('vreg-contact').value.trim();
+      const phone = document.getElementById('vreg-phone').value.trim();
+      const location = document.getElementById('vreg-location').value.trim();
+      const materials = document.getElementById('vreg-materials').value.trim();
+      const terms = document.getElementById('vreg-terms').value.trim();
+
+      const payload = { name, category, contact, phone, location, materials, terms };
+
+      try {
+        const res = await fetch('/api/crm/vendors', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeNewVendorModal();
+          await loadVendors();
+          renderVendorsModule();
+          alert(`Trade vendor ${name} registered successfully.`);
+        } else {
+          alert('Failed to register vendor: ' + (data.message || 'Error'));
         }
       } catch (err) {
         alert('Server communication error.');

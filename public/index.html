@@ -73,6 +73,7 @@
           body: JSON.stringify({ email })
         });
         const data = await res.json();
+        AppState.dashboardData = data;
         if (data.success) {
           document.getElementById('otp-hint-badge').classList.remove('hidden');
           document.getElementById('otp-demo-code').textContent = data.demoOtp || '202601';
@@ -1192,20 +1193,18 @@
               </h3>
               <span class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[10px] font-bold">Dream Address Studio</span>
             </div>
-            <p class="text-xs text-slate-400 mb-4">Select the primary authorized signatory to appear on client quotations, formal proposals, and tax invoices:</p>
-            <div class="grid grid-cols-2 gap-3 mb-4">
-              <button id="sig-btn-rohit" onclick="saveSignatorySetting('Rohit Churiwala')" class="p-4 rounded-xl border border-cyan-500/50 bg-cyan-500/15 text-left transition hover:border-cyan-400">
-                <div class="font-bold text-white text-sm">Rohit Churiwala</div>
-                <div class="text-[11px] text-cyan-300">Principal Designer & MD</div>
-                <div class="mt-2 text-[10px] font-mono text-slate-400">Signature: Digital Key Verified</div>
-              </button>
-              <button id="sig-btn-pradeep" onclick="saveSignatorySetting('Pradeep Churiwala')" class="p-4 rounded-xl border border-white/10 bg-white/5 text-left transition hover:border-white/20">
-                <div class="font-bold text-white text-sm">Pradeep Churiwala</div>
-                <div class="text-[11px] text-slate-400">Authorized Signatory</div>
-                <div class="mt-2 text-[10px] font-mono text-slate-400">Signature: Physical Seal / Key</div>
-              </button>
+            <p class="text-xs text-slate-400 mb-4">Official sole authorized executive signatory for all client quotations, BOQ schedules, and tax invoices:</p>
+            <div class="p-4 rounded-xl border border-cyan-500/50 bg-cyan-500/15 text-left transition mb-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="font-bold text-white text-sm">Rohit Churiwala</div>
+                  <div class="text-[11px] text-cyan-300 font-semibold">Principal Designer & Managing Director</div>
+                </div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Sole Authorized Signatory</span>
+              </div>
+              <div class="mt-2 text-[10px] font-mono text-slate-400">Signature: Cryptographic Digital Verification Active</div>
             </div>
-            <div class="text-[11px] text-slate-500 italic">Note: Dream Address Studio identity is strictly enforced. Dual signatory toggle applies across all PDF exports.</div>
+            <div class="text-[11px] text-slate-500 italic">Dream Address Studio executive identity is strictly enforced across all documents and PDF exports.</div>
           </div>
 
           <!-- Card 2: Liquidity Safety Threshold & Alert Engine -->
@@ -1410,7 +1409,7 @@
           <div>
             <div class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-1">boq.dreamaddress.in</div>
             <h1 class="text-2xl font-bold text-white">BOQ & Quotation Studio</h1>
-            <p class="text-xs text-slate-400">Turnkey material specs, zero-GST pricing, and dual signatory support (Rohit Churiwala & Pradeep Churiwala).</p>
+            <p class="text-xs text-slate-400">Turnkey architectural specifications, itemized BOQ schedules, and executive authorization by Rohit Churiwala.</p>
           </div>
           <button onclick="openNewQuotationModal()" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-semibold">+ Create New Quote</button>
         </div>
@@ -1440,7 +1439,7 @@
           <div>
             <div class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-1">billing.dreamaddress.in</div>
             <h1 class="text-2xl font-bold text-white">Milestone Billing & Payment Demands</h1>
-            <p class="text-xs text-slate-400">Zero-GST milestone demands credited to specific HDFC/Bandhan bank accounts or Master Cash Balance.</p>
+            <p class="text-xs text-slate-400">Official milestone billing demands credited directly to Studio Treasury accounts.</p>
           </div>
           <button onclick="openRaiseInvoiceModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold">+ Raise Milestone Invoice</button>
         </div>
@@ -1517,6 +1516,25 @@
           </button>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="treasury-accounts-grid"></div>
+
+        <!-- TREASURY LIQUIDITY RESERVE SUMMARY -->
+        <div class="mt-8 pt-6 border-t border-white/10 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          <div class="p-4 rounded-xl bg-[#090F1E] border border-white/5 space-y-1">
+            <div class="text-[10px] text-slate-400 uppercase font-bold">Total Liquid Reserves</div>
+            <div class="text-xl font-black font-mono text-cyan-400" id="treasury-total-liquid">₹24,85,000</div>
+            <div class="text-[10px] text-slate-500">Across 5 Bank Accounts + 1 Master Cash Balance</div>
+          </div>
+          <div class="p-4 rounded-xl bg-[#090F1E] border border-white/5 space-y-1">
+            <div class="text-[10px] text-slate-400 uppercase font-bold">Primary Operational Account</div>
+            <div class="text-sm font-bold text-white">HDFC Bank Current A/C (ACC-01)</div>
+            <div class="text-[10px] text-emerald-400 font-semibold">100% Tax Inflow & Vendor RTGS Clearance</div>
+          </div>
+          <div class="p-4 rounded-xl bg-[#090F1E] border border-white/5 space-y-1">
+            <div class="text-[10px] text-slate-400 uppercase font-bold">Signatory Authorization</div>
+            <div class="text-sm font-bold text-white">Rohit Churiwala (MD)</div>
+            <div class="text-[10px] text-cyan-300 font-semibold">Sole Authorized Banking Signatory</div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -2047,7 +2065,7 @@
           <label class="block text-slate-300 font-semibold mb-1">Authorized Document Signatory</label>
           <select id="inv-signatory-select" class="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:border-cyan-400">
             <option value="Rohit Churiwala">Rohit Churiwala (Principal Designer & MD)</option>
-            <option value="Pradeep Churiwala">Pradeep Churiwala (Authorized Signatory)</option>
+            
           </select>
         </div>
       </div>
@@ -2090,7 +2108,7 @@
             <label class="block text-slate-300 font-semibold mb-1">Authorized Signatory</label>
             <select id="quote-signatory-select" class="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:border-cyan-400">
               <option value="Rohit Churiwala">Rohit Churiwala (Principal Designer & MD)</option>
-              <option value="Pradeep Churiwala">Pradeep Churiwala (Authorized Signatory)</option>
+              
             </select>
           </div>
         </div>
@@ -2192,10 +2210,12 @@
           <div>
             <label class="block text-slate-300 font-medium mb-1">Account Debited</label>
             <select id="pe-account-select" class="w-full bg-[#111827] border border-white/15 rounded-xl px-3 py-2 text-white">
-              <option value="ACC-06">Master Cash Balance</option>
-              <option value="ACC-04">HDFC Bank (Sunita Churiwala)</option>
-              <option value="ACC-02">HDFC Bank (Pradeep Churiwala)</option>
-              <option value="ACC-01">HDFC Bank (Current A/C)</option>
+              <option value="ACC-01">HDFC Bank Current A/C (Operating)</option>
+              <option value="ACC-02">HDFC Bank Operational A/C (Studio Reserve)</option>
+              <option value="ACC-03">Bandhan Bank Liquidity A/C</option>
+              <option value="ACC-04">HDFC Bank Capital Reserve</option>
+              <option value="ACC-05">Bandhan Bank Escrow Reserve</option>
+              <option value="ACC-06">Master Cash Balance (Studio Vault)</option>
             </select>
           </div>
         </div>
@@ -2605,7 +2625,7 @@
               { label: 'Actual Elapsed (Days)', data: [28, 18, 22, 14], backgroundColor: '#10B981' }
             ];
           } else if (d.metric === 'accountBalances') {
-            labels = ['HDFC Current', 'HDFC Pradeep', 'Bandhan Pradeep', 'HDFC Sunita', 'Bandhan Sunita', 'Master Cash'];
+            labels = ['HDFC Current', 'HDFC Operational', 'Bandhan Liquidity', 'HDFC Capital', 'Bandhan Escrow', 'Master Cash'];
             datasets = [{
               label: 'Liquid Holdings (₹)',
               data: [585000, 260000, 180000, 210000, 150000, 341000],
@@ -2660,6 +2680,16 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
       AppState.currentPortal = portalId;
+      if (portalId === 'treasury') {
+        const accs = AppState.accounts || (AppState.dashboardData && AppState.dashboardData.accounts);
+        if (accs && accs.length > 0) {
+          renderTreasuryAccounts(accs);
+        } else {
+          loadDashboardData().then(() => {
+            if (AppState.accounts) renderTreasuryAccounts(AppState.accounts);
+          });
+        }
+      }
       document.querySelectorAll('.portal-view').forEach(el => el.classList.add('hidden'));
       document.querySelectorAll('.nav-btn').forEach(el => {
         el.classList.remove('bg-white/10', 'text-white');
@@ -2721,6 +2751,7 @@
         renderThresholdAlerts(data.thresholdAlerts);
         renderHomeReminders(data.pendingReminders);
         renderHomeAccounts(data.accounts);
+        renderTreasuryAccounts(data.accounts);
         renderProjectCashFlows(data.projectCashFlows);
 
         setTimeout(() => {
@@ -2833,6 +2864,78 @@ _Dispatched by Rohit Churiwala._`;
       } catch (err) {
         console.error(err);
       }
+    }
+
+    function renderTreasuryAccounts(accounts) {
+      const container = document.getElementById('treasury-accounts-grid');
+      if (!container) return;
+
+      if (accounts && accounts.length > 0) {
+        const totalLiquid = accounts.reduce((s, a) => s + (a.balance || 0), 0);
+        const totalEl = document.getElementById('treasury-total-liquid');
+        if (totalEl) totalEl.innerText = '₹' + totalLiquid.toLocaleString('en-IN');
+      }
+
+      if (!accounts || accounts.length === 0) {
+        container.innerHTML = `<div class="col-span-3 p-6 text-center text-xs text-slate-500 glass-panel rounded-xl">No active treasury accounts configured.</div>`;
+        return;
+      }
+
+      container.innerHTML = accounts.map(a => {
+        const isLow = a.balance < 50000;
+        const isCash = a.accountType && a.accountType.includes('Cash');
+        const icon = isCash ? '💵' : '🏛️';
+        const iconBg = isCash ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40';
+
+        return `
+          <div class="glass-panel p-5 rounded-2xl border ${isLow ? 'border-rose-500/50 bg-rose-950/20 shadow-lg shadow-rose-950/30' : 'border-white/10 bg-[#0E1424] hover:border-cyan-500/40'} transition space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl ${iconBg} flex items-center justify-center font-bold text-sm shadow">
+                  ${icon}
+                </div>
+                <div>
+                  <div class="font-bold text-white text-xs tracking-tight">${a.name}</div>
+                  <div class="text-[10px] text-slate-400 font-mono">${a.id} • ${a.accountType || 'Liquid Account'}</div>
+                </div>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isLow ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'}">
+                ${isLow ? '⚠️ Low Balance' : '✓ Active & Healthy'}
+              </span>
+            </div>
+
+            <div class="pt-2 border-t border-white/5">
+              <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Liquid Balance</div>
+              <div class="text-2xl font-black font-mono text-white mt-0.5 tracking-tight">₹${a.balance.toLocaleString('en-IN')}</div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-[11px] pt-1 font-mono">
+              <div class="p-2 bg-[#060B16] rounded-lg border border-white/5">
+                <div class="text-[9px] text-slate-400 uppercase">Monthly Inflow</div>
+                <div class="font-bold text-emerald-400 mt-0.5">+₹${(a.monthlyInflow || 0).toLocaleString('en-IN')}</div>
+              </div>
+              <div class="p-2 bg-[#060B16] rounded-lg border border-white/5">
+                <div class="text-[9px] text-slate-400 uppercase">Monthly Outflow</div>
+                <div class="font-bold text-rose-400 mt-0.5">-₹${(a.monthlyOutflow || 0).toLocaleString('en-IN')}</div>
+              </div>
+            </div>
+
+            <div class="text-[10px] text-slate-400 pt-2 border-t border-white/5 flex items-center justify-between">
+              <span>A/C: <span class="font-mono text-slate-300">${a.number || 'Direct Cash'}</span></span>
+              <span>Signatory: <strong class="text-white">Rohit Churiwala</strong></span>
+            </div>
+
+            <div class="pt-2 flex items-center justify-between gap-2">
+              <button onclick="openFundTransferModal('${a.id}')" class="flex-1 py-1.5 bg-white/5 hover:bg-white/10 text-cyan-300 hover:text-white rounded-lg text-xs font-semibold border border-white/10 transition flex items-center justify-center gap-1">
+                <span>⇄</span> <span>Transfer</span>
+              </button>
+              <button onclick="alert('Account Statement for ${a.name} synchronized with Master Google Sheet.')" class="py-1.5 px-3 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white rounded-lg text-xs font-semibold border border-white/10 transition">
+                Statement
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
     function renderHomeAccounts(accounts) {
@@ -3415,16 +3518,8 @@ _Regards, Rohit Churiwala (Principal Designer)_`;
         });
         const data = await res.json();
         if (data.success) {
-          const btnRohit = document.getElementById('sig-btn-rohit');
-          const btnPradeep = document.getElementById('sig-btn-pradeep');
-          if (name === 'Rohit Churiwala') {
-            btnRohit.className = 'p-4 rounded-xl border border-cyan-500/50 bg-cyan-500/15 text-left transition hover:border-cyan-400';
-            btnPradeep.className = 'p-4 rounded-xl border border-white/10 bg-white/5 text-left transition hover:border-white/20';
-          } else {
-            btnPradeep.className = 'p-4 rounded-xl border border-cyan-500/50 bg-cyan-500/15 text-left transition hover:border-cyan-400';
-            btnRohit.className = 'p-4 rounded-xl border border-white/10 bg-white/5 text-left transition hover:border-white/20';
-          }
-          alert(`Official document signatory updated to: ${name} (Dream Address Studio)`);
+        if (data.success) {
+          alert('Official document signatory locked to: Rohit Churiwala (Dream Address Studio)');
         }
       } catch (err) {
         alert("Failed to update signatory.");
@@ -3625,7 +3720,7 @@ _Regards, Rohit Churiwala (Principal Designer)_`;
       ];
 
       if (metric === 'accountBalances') {
-        labels = ['HDFC Current', 'HDFC Pradeep', 'Bandhan Pradeep', 'HDFC Sunita', 'Bandhan Sunita', 'Master Cash'];
+        labels = ['HDFC Current', 'HDFC Operational', 'Bandhan Liquidity', 'HDFC Capital', 'Bandhan Escrow', 'Master Cash'];
         datasets = [{
           label: 'Liquid Holdings (₹)',
           data: [585000, 260000, 180000, 210000, 150000, 341000],
@@ -3708,7 +3803,7 @@ _Regards, Rohit Churiwala (Principal Designer)_`;
         window.chartInstances['pinnedAccounts'] = new Chart(ctxAcc, {
           type: 'doughnut',
           data: {
-            labels: ['HDFC Current', 'HDFC Pradeep', 'Bandhan Pradeep', 'HDFC Sunita', 'Bandhan Sunita', 'Master Cash'],
+            labels: ['HDFC Current', 'HDFC Operational', 'Bandhan Liquidity', 'HDFC Capital', 'Bandhan Escrow', 'Master Cash'],
             datasets: [{
               data: [585000, 260000, 180000, 210000, 150000, 341000],
               backgroundColor: ['#06B6D4', '#38BDF8', '#6366F1', '#A855F7', '#EC4899', '#10B981']
