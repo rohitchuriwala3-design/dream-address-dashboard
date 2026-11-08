@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account 360 Record | Nexus 360 CRM</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #030816;
+      color: #E2E8F0;
+    }
+    .sf-header {
+      background-color: #05162E;
+      border-bottom: 1px solid #0F2D54;
+    }
+    .sf-card {
+      background-color: #0B1323;
+      border: 1px solid #1E293B;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- 1. HEADER -->
+  <header class="sf-header px-4 py-2 flex items-center justify-between text-white sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <button onclick="window.location.href='/crm'" title="Return to Nexus 360 CRM" class="p-1.5 rounded hover:bg-white/10 transition flex items-center gap-2 text-cyan-400 font-bold text-xs">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        <span>CRM Workspace</span>
+      </button>
+
+      <div class="h-4 w-px bg-white/20"></div>
+
+      <!-- Modern Faceted Architectural Logo -->
+      <div class="flex items-center gap-2">
+        <svg class="w-7 h-7 drop-shadow" viewBox="0 0 44 44" fill="none">
+          <defs>
+            <linearGradient id="accGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#38BDF8"/>
+              <stop offset="100%" stop-color="#0284C7"/>
+            </linearGradient>
+            <linearGradient id="accGold" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FDE68A"/>
+              <stop offset="100%" stop-color="#F59E0B"/>
+            </linearGradient>
+          </defs>
+          <polygon points="22,2 40,11 40,33 22,42 4,33 4,11" stroke="url(#accGold)" stroke-width="2" fill="#0A1628"/>
+          <path d="M14 28V16L22 12L30 16V28" stroke="url(#accGrad)" stroke-width="2" fill="none"/>
+        </svg>
+        <span class="font-extrabold text-sm tracking-tight text-white font-mono">NEXUS 360</span>
+        <span class="text-[10px] text-indigo-300 bg-indigo-950/80 px-2 py-0.5 rounded-full border border-indigo-800 font-bold uppercase">Account 360</span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button onclick="window.location.href='/'" class="text-xs text-slate-300 hover:text-white px-2.5 py-1 rounded bg-white/5 border border-white/10 transition">Mark IV OS</button>
+      <button onclick="openNewOppModal()" class="px-3.5 py-1 bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs rounded shadow transition flex items-center gap-1.5">
+        <span>+ New Opportunity</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 2. RECORD HIGHLIGHTS PANEL -->
+  <div class="bg-[#070F1E] border-b border-blue-900/30 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="flex items-start gap-4">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-600 flex items-center justify-center text-white shadow-lg shrink-0">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest" id="acc-id-pill">ACCOUNT RECORD</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-950 text-indigo-300 border border-indigo-800" id="acc-type-pill">HNW Residential Turnkey</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">Verified Client</span>
+          </div>
+          <h1 class="text-2xl font-black text-white mt-1" id="acc-name-heading">Loading Account...</h1>
+          <div class="text-xs text-slate-300 flex items-center gap-4 mt-1 font-medium">
+            <span id="acc-location-display">📍 Location</span>
+            <span class="text-slate-600">•</span>
+            <span>Primary Contact: <strong class="text-white" id="acc-contact-display">-</strong></span>
+            <span class="text-slate-600">•</span>
+            <span class="text-cyan-400 font-mono font-bold" id="acc-phone-display">+91 00000 00000</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Financial Metrics Pill Group -->
+      <div class="grid grid-cols-3 gap-3 bg-[#06101E] p-3 rounded-xl border border-blue-900/60 shrink-0">
+        <div>
+          <div class="text-[10px] font-bold text-slate-400 uppercase">Total Portfolio</div>
+          <div class="text-sm font-mono font-extrabold text-cyan-400 mt-0.5" id="acc-val-display">₹0</div>
+        </div>
+        <div>
+          <div class="text-[10px] font-bold text-slate-400 uppercase">Received</div>
+          <div class="text-sm font-mono font-extrabold text-emerald-400 mt-0.5" id="acc-received-display">₹0</div>
+        </div>
+        <div>
+          <div class="text-[10px] font-bold text-slate-400 uppercase">Outstanding Due</div>
+          <div class="text-sm font-mono font-extrabold text-amber-400 mt-0.5" id="acc-due-display">₹0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. WORKSPACE (3 COLUMNS) -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- LEFT COLUMN: ACCOUNT PROFILE (4 COLS) -->
+    <div class="lg:col-span-4 space-y-5">
+      <div class="sf-card p-4 space-y-4">
+        <h2 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2 border-b border-white/10 pb-2">
+          <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
+          <span>Account Information</span>
+        </h2>
+
+        <div class="space-y-3 text-xs">
+          <div>
+            <div class="text-[10px] text-slate-400 font-bold uppercase">Account Name</div>
+            <div class="text-slate-200 font-bold mt-0.5" id="field-acc-name">-</div>
+          </div>
+          <div>
+            <div class="text-[10px] text-slate-400 font-bold uppercase">Account Type</div>
+            <div class="text-slate-200 mt-0.5" id="field-acc-type">HNW Residential Turnkey</div>
+          </div>
+          <div>
+            <div class="text-[10px] text-slate-400 font-bold uppercase">Primary Decision Maker</div>
+            <div class="text-cyan-300 font-semibold mt-0.5" id="field-primary-contact">-</div>
+          </div>
+          <div>
+            <div class="text-[10px] text-slate-400 font-bold uppercase">Direct Phone</div>
+            <div class="text-slate-200 font-mono mt-0.5" id="field-phone">+91 00000 00000</div>
+          </div>
+          <div>
+            <div class="text-[10px] text-slate-400 font-bold uppercase">Property Location</div>
+            <div class="text-slate-200 mt-0.5" id="field-location">Kolkata</div>
+          </div>
+          <div>
+            <div class="text-[10px] text-slate-400 font-bold uppercase">Supervising Principal</div>
+            <div class="text-white font-semibold mt-0.5">Rohit Churiwala (MD, Dream Address Studio)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Financial Health & Receivables Summary -->
+      <div class="sf-card p-4 space-y-3">
+        <h3 class="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+          <span>📊</span> <span>Billing & Collection Status</span>
+        </h3>
+        <div class="space-y-2 text-xs">
+          <div class="flex justify-between">
+            <span class="text-slate-400">Collection Rate</span>
+            <span class="text-emerald-400 font-mono font-bold" id="acc-collection-pct">85%</span>
+          </div>
+          <div class="w-full bg-slate-800 rounded-full h-1.5">
+            <div id="acc-progress-bar" class="bg-gradient-to-r from-cyan-500 to-emerald-400 h-1.5 rounded-full" style="width: 85%"></div>
+          </div>
+          <div class="p-2.5 bg-[#060B14] rounded border border-white/5 flex items-center justify-between mt-2">
+            <span class="text-slate-400">Payment Health:</span>
+            <span class="text-emerald-400 font-bold text-[11px]">Healthy Cash Flow</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MIDDLE COLUMN: PROJECTS / OPPORTUNITIES & ACTIVITY (5 COLS) -->
+    <div class="lg:col-span-5 space-y-5">
+      <!-- Related Opportunities / Projects -->
+      <div class="sf-card p-4 space-y-3">
+        <div class="flex items-center justify-between border-b border-white/10 pb-2">
+          <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+            <span>🏛️</span> <span>Active Projects & Opportunities</span>
+          </h3>
+          <button onclick="openNewOppModal()" class="text-[11px] text-cyan-400 hover:underline">+ New Project</button>
+        </div>
+        <div class="space-y-2.5" id="acc-projects-list">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- Activity Timeline -->
+      <div class="sf-card p-4 space-y-3">
+        <div class="flex items-center justify-between border-b border-white/10 pb-2">
+          <h3 class="text-xs font-bold text-white uppercase tracking-wider">Account Activity Stream</h3>
+          <button onclick="openLogCall()" class="text-[11px] text-cyan-400 hover:underline">Log Entry</button>
+        </div>
+        <div class="space-y-3" id="acc-activity-list">
+          <!-- Activity stream -->
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: RELATED CONTACTS & BILLING (3 COLS) -->
+    <div class="lg:col-span-3 space-y-5">
+      <!-- Related Contacts -->
+      <div class="sf-card p-4 space-y-3">
+        <div class="flex items-center justify-between border-b border-white/10 pb-2">
+          <h3 class="text-xs font-bold text-white uppercase tracking-wider">Related Contacts</h3>
+          <button onclick="openNewContactModal()" class="text-[11px] text-cyan-400 hover:underline">+ Add</button>
+        </div>
+        <div class="space-y-2 text-xs" id="acc-contacts-list">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="sf-card p-4 space-y-2">
+        <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-2">Account Actions</h3>
+        <button onclick="dispatchWhatsApp()" class="w-full py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded font-bold text-xs transition flex items-center justify-center gap-1.5">
+          <span>💬</span> <span>WhatsApp Primary Contact</span>
+        </button>
+        <button onclick="openNewInvoiceModal()" class="w-full py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded font-bold text-xs transition shadow flex items-center justify-center gap-1.5">
+          <span>💳</span> <span>Raise Milestone Invoice</span>
+        </button>
+        <button onclick="downloadAccountStatement()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded font-bold text-xs border border-white/10 transition flex items-center justify-center gap-1.5">
+          <span>📄</span> <span>Download Account Statement</span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let currentAccount = null;
+    let allClients = [];
+    let allContacts = [];
+
+    async function loadAccountRecord() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const accId = urlParams.get('id') || 'ACC-CRM-01';
+
+      try {
+        const [accRes, cliRes, conRes] = await Promise.all([
+          fetch('/api/crm/accounts'),
+          fetch('/api/crm/clients'),
+          fetch('/api/crm/contacts')
+        ]);
+        const accData = await accRes.json();
+        const cliData = await cliRes.json();
+        const conData = await conRes.json();
+
+        allClients = cliData.clients || [];
+        allContacts = conData.contacts || [];
+
+        const accounts = accData.accounts || [];
+        currentAccount = accounts.find(a => a.id === accId || a.name.toLowerCase().includes(accId.toLowerCase())) || accounts[0];
+        renderAccount();
+      } catch (err) {
+        console.error("Error loading account:", err);
+      }
+    }
+
+    function renderAccount() {
+      if (!currentAccount) return;
+      const f = (n) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n);
+
+      document.getElementById('acc-id-pill').textContent = currentAccount.id;
+      document.getElementById('acc-name-heading').textContent = currentAccount.name;
+      document.getElementById('acc-type-pill').textContent = currentAccount.type || 'HNW Residential Turnkey';
+      document.getElementById('acc-location-display').textContent = `📍 ${currentAccount.location || 'Kolkata'}`;
+      document.getElementById('acc-contact-display').textContent = currentAccount.primaryContact || currentAccount.name;
+      document.getElementById('acc-phone-display').textContent = currentAccount.phone || '+91 91633 17574';
+
+      document.getElementById('field-acc-name').textContent = currentAccount.name;
+      document.getElementById('field-acc-type').textContent = currentAccount.type || 'HNW Residential Turnkey';
+      document.getElementById('field-primary-contact').textContent = currentAccount.primaryContact || currentAccount.name;
+      document.getElementById('field-phone').textContent = currentAccount.phone || '+91 91633 17574';
+      document.getElementById('field-location').textContent = currentAccount.location || 'Kolkata';
+
+      // Financials
+      const val = currentAccount.totalSpend || 3850000;
+      const invoiced = currentAccount.lifetimeInvoiced || val;
+      const received = currentAccount.lifetimeReceived || Math.round(val * 0.85);
+      const due = Math.max(0, val - received);
+
+      document.getElementById('acc-val-display').textContent = f(val);
+      document.getElementById('acc-received-display').textContent = f(received);
+      document.getElementById('acc-due-display').textContent = f(due);
+
+      const pct = Math.round((received / val) * 100);
+      document.getElementById('acc-collection-pct').textContent = `${pct}%`;
+      document.getElementById('acc-progress-bar').style.width = `${pct}%`;
+
+      // Projects
+      renderProjectsList();
+
+      // Contacts
+      renderContactsList();
+
+      // Activity
+      renderActivityList();
+    }
+
+    function renderProjectsList() {
+      const list = document.getElementById('acc-projects-list');
+      list.innerHTML = '';
+      const f = (n) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n);
+
+      // Match clients by account name or ID
+      const projects = allClients.filter(c => c.client.toLowerCase().includes(currentAccount.name.toLowerCase()) || currentAccount.name.toLowerCase().includes(c.client.toLowerCase()));
+      const displayProjects = projects.length > 0 ? projects : allClients.slice(0, 2);
+
+      displayProjects.forEach(p => {
+        const item = document.createElement('div');
+        item.className = 'p-3 bg-[#060B14] border border-white/5 rounded-lg flex items-center justify-between hover:border-cyan-500 cursor-pointer transition';
+        item.onclick = () => window.open(`/client?id=${encodeURIComponent(p.id)}`, '_blank');
+        item.innerHTML = `
+          <div>
+            <div class="font-bold text-white flex items-center gap-2">
+              <span>${p.name}</span>
+              <span class="text-[9px] px-1.5 py-0.2 rounded bg-cyan-950 text-cyan-300 border border-cyan-800">${p.stage}</span>
+            </div>
+            <div class="text-[10px] text-slate-400 font-mono mt-0.5">${p.location} • Handover: ${p.targetHandover}</div>
+          </div>
+          <div class="text-right">
+            <div class="font-mono font-bold text-emerald-400 text-xs">${f(p.contractValue)}</div>
+            <div class="text-[10px] text-cyan-400 font-semibold hover:underline">Open 360 →</div>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    function renderContactsList() {
+      const list = document.getElementById('acc-contacts-list');
+      list.innerHTML = '';
+      const contacts = allContacts.filter(c => c.accountName.toLowerCase().includes(currentAccount.name.toLowerCase()) || currentAccount.name.toLowerCase().includes(c.accountName.toLowerCase()));
+      const displayContacts = contacts.length > 0 ? contacts : [
+        { name: currentAccount.primaryContact || currentAccount.name, role: 'Principal Client', phone: currentAccount.phone || '+91 91633 17574' }
+      ];
+
+      displayContacts.forEach(c => {
+        const item = document.createElement('div');
+        item.className = 'p-2.5 bg-[#060B14] border border-white/5 rounded flex items-center justify-between';
+        item.innerHTML = `
+          <div>
+            <div class="font-bold text-white">${c.name}</div>
+            <div class="text-[10px] text-slate-400">${c.role} • <span class="font-mono text-cyan-300">${c.phone}</span></div>
+          </div>
+          <button onclick="window.open('https://api.whatsapp.com/send?phone=919163317574', '_blank')" class="text-xs p-1 rounded hover:bg-emerald-500/20 text-emerald-400">💬</button>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    function renderActivityList() {
+      const list = document.getElementById('acc-activity-list');
+      list.innerHTML = '';
+
+      const activities = [
+        { title: 'Milestone 3 Disbursement Received', date: '06 Nov 2026', type: 'Payment', desc: '₹14.85 L RTGS credited to HDFC Current Account.' },
+        { title: 'Client Site Inspection Completed', date: '02 Nov 2026', type: 'Site Meeting', desc: 'Rohit Churiwala verified veneer matching in master bedroom with client.' },
+        { title: 'Quotation R02 Approved & Locked', date: '28 Oct 2026', type: 'BOQ Sync', desc: 'Hafele kitchen fittings and Italian marble polish scope frozen.' }
+      ];
+
+      activities.forEach(a => {
+        const item = document.createElement('div');
+        item.className = 'p-3 bg-[#060B14] border border-white/5 rounded-lg text-xs space-y-1';
+        item.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-cyan-300">${a.title}</span>
+            <span class="text-[10px] text-slate-500 font-mono">${a.date}</span>
+          </div>
+          <p class="text-slate-300 text-[11px] leading-relaxed">${a.desc}</p>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    function dispatchWhatsApp() {
+      if (!currentAccount) return;
+      const phone = (currentAccount.phone || '919163317574').replace(/[^0-9]/g, '');
+      const msg = `Hello ${currentAccount.primaryContact || currentAccount.name}, this is Rohit Churiwala from Dream Address Studio following up regarding your account and turnkey interior milestones.`;
+      window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    function downloadAccountStatement() {
+      alert(`Account Statement for "${currentAccount.name}" generated!\nTotal Portfolio: ₹${(currentAccount.totalSpend || 3850000).toLocaleString('en-IN')}\nStatus: Verified Client`);
+    }
+
+    function openNewOppModal() {
+      window.location.href = `/crm#new-opportunity`;
+    }
+
+    function openNewContactModal() {
+      window.location.href = `/crm#new-contact`;
+    }
+
+    function openNewInvoiceModal() {
+      window.location.href = `/crm#new-invoice`;
+    }
+
+    function openLogCall() {
+      const note = prompt("Enter account update or note:");
+      if (note) {
+        alert("Account log saved.");
+      }
+    }
+
+    window.onload = loadAccountRecord;
+  </script>
+</body>
+</html>

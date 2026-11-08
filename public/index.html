@@ -884,10 +884,10 @@
               <span class="font-black tracking-tight text-white text-sm sm:text-base">MARK IV OS</span>
               <span class="text-[9px] sm:text-[10px] uppercase font-bold tracking-widest px-1.5 py-0.5 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded">Dream Address</span>
             </div>
-            <div class="hidden sm:flex text-[11px] text-slate-400 items-center gap-1 font-medium">
-              <span>Studio Interior ERP</span>
-              <span class="text-slate-600">|</span>
-              <span class="text-indigo-400 font-semibold">Nexus 360 Ecosystem</span>
+            <div class="hidden sm:flex text-[11px] text-slate-400 items-center gap-1 font-medium whitespace-nowrap">
+              <span>Studio ERP</span>
+              <span class="text-slate-600">•</span>
+              <span class="text-cyan-400 font-semibold">Nexus 360 Ecosystem</span>
             </div>
           </div>
         </a>
@@ -1065,6 +1065,11 @@
               <canvas id="chart-pinned-accounts"></canvas>
             </div>
           </div>
+        </div>
+
+        <!-- DYNAMIC CUSTOM PINNED COCKPIT CHARTS GRID -->
+        <div id="pinned-custom-charts-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+          <!-- Dynamically populated from /api/custom-dashboards -->
         </div>
       </div>
     </section>
@@ -2526,16 +2531,16 @@
     }
 
     async function saveCustomDashboard() {
-      const title = document.getElementById('builder-title')?.value || "Executive Studio Analytics";
-      const metric = document.getElementById('builder-metric')?.value || "revenueVsCost";
-      const chartType = document.getElementById('builder-type')?.value || "bar";
-      const grouping = document.getElementById('builder-grouping')?.value || "project";
+      const title = document.getElementById('builder-title-input')?.value || "Bespoke Studio Performance Analysis";
+      const metric = document.getElementById('builder-metric-select')?.value || "revenueVsCost";
+      const chartType = document.getElementById('builder-chart-type')?.value || "bar";
+      const grouping = "project";
 
       try {
         const res = await fetch('/api/custom-dashboards', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title, metric, chartType, grouping })
+          body: JSON.stringify({ title, metric, chartType, grouping, pinnedToHome: true })
         });
         const data = await res.json();
         if (data.success) {
@@ -2548,6 +2553,87 @@
       } catch (err) {
         alert("Server error saving chart.");
       }
+    }
+
+    async function renderCustomCockpitCharts(dashboards) {
+      const container = document.getElementById('pinned-custom-charts-grid');
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (!dashboards || dashboards.length === 0) {
+        try {
+          const res = await fetch('/api/custom-dashboards');
+          const dData = await res.json();
+          dashboards = dData.dashboards || [];
+        } catch (e) {
+          dashboards = [];
+        }
+      }
+
+      dashboards.forEach((d, idx) => {
+        const card = document.createElement('div');
+        card.className = 'p-4 rounded-xl bg-[#0B1120] border border-cyan-500/20 shadow-lg';
+        const canvasId = `chart-custom-pinned-${idx}`;
+        card.innerHTML = `
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+              <span>${d.title}</span>
+            </h3>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 font-mono border border-cyan-800">Custom Pinned</span>
+          </div>
+          <div class="relative w-full" style="height: 220px; min-height: 220px; max-height: 220px; overflow: hidden;">
+            <canvas id="${canvasId}"></canvas>
+          </div>
+        `;
+        container.appendChild(card);
+
+        setTimeout(() => {
+          const cvs = document.getElementById(canvasId);
+          if (!cvs) return;
+          let labels = ['Highline 14B', 'Ballygunge', 'Rajarhat IT'];
+          let datasets = [
+            { label: 'Turnover (₹)', data: [3850000, 4800000, 2750000], backgroundColor: '#06B6D4' },
+            { label: 'Direct Cost (₹)', data: [1485000, 1195000, 1540000], backgroundColor: '#EF4444' }
+          ];
+
+          if (d.metric === 'slaPenalties') {
+            labels = ['Tangra Carpentry', 'Veneer Polish Team', 'Civil & Demolition', 'Apex HVAC Works'];
+            datasets = [
+              { label: 'Target SLA (Days)', data: [30, 20, 25, 15], backgroundColor: '#38BDF8' },
+              { label: 'Actual Elapsed (Days)', data: [28, 18, 22, 14], backgroundColor: '#10B981' }
+            ];
+          } else if (d.metric === 'accountBalances') {
+            labels = ['HDFC Current', 'HDFC Pradeep', 'Bandhan Pradeep', 'HDFC Sunita', 'Bandhan Sunita', 'Master Cash'];
+            datasets = [{
+              label: 'Liquid Holdings (₹)',
+              data: [585000, 260000, 180000, 210000, 150000, 341000],
+              backgroundColor: ['#06B6D4', '#38BDF8', '#6366F1', '#A855F7', '#EC4899', '#10B981']
+            }];
+          } else if (d.metric === 'projectCashFlow') {
+            labels = ['Highline 14B', 'Ballygunge', 'Rajarhat IT'];
+            datasets = [{
+              label: 'Net Surplus (₹)',
+              data: [2365000, 3605000, 1210000],
+              backgroundColor: ['#10B981', '#06B6D4', '#6366F1']
+            }];
+          }
+
+          new Chart(cvs, {
+            type: d.chartType || 'bar',
+            data: { labels, datasets },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { labels: { color: '#94A3B8', font: { size: 10 } } } },
+              scales: ['pie', 'doughnut'].includes(d.chartType) ? {} : {
+                x: { ticks: { color: '#94A3B8' }, grid: { display: false } },
+                y: { ticks: { color: '#94A3B8' }, grid: { color: '#1E293B' } }
+              }
+            }
+          });
+        }, 50);
+      });
     }
 
     function switchPortal(portalId) {
@@ -2601,6 +2687,12 @@
       const newPath = portalId === 'dashboard' ? '/' : (portalId === 'nexus' ? `/client/${AppState.currentClientId}` : `/${portalId}`);
       window.history.pushState({}, '', newPath);
 
+      if (portalId === 'dashboard') {
+        setTimeout(() => {
+          initPinnedCharts();
+          renderCustomCockpitCharts();
+        }, 50);
+      }
       if (portalId === 'builder') setTimeout(updateBuilderPreview, 50);
       if (portalId === 'admin') {
         loadAdminUsers();
@@ -2629,6 +2721,11 @@
         renderHomeReminders(data.pendingReminders);
         renderHomeAccounts(data.accounts);
         renderProjectCashFlows(data.projectCashFlows);
+
+        setTimeout(() => {
+          initPinnedCharts();
+          renderCustomCockpitCharts(data.dashboards);
+        }, 100);
       } catch (err) {
         console.error(err);
       }
@@ -3516,7 +3613,9 @@ _Regards, Rohit Churiwala (Principal Designer)_`;
       const canvas = document.getElementById('builder-preview-chart');
       if (!canvas) return;
 
-      if (builderChartInstance) builderChartInstance.destroy();
+      if (builderChartInstance) {
+        builderChartInstance.destroy();
+      }
 
       let labels = ['Highline 14B', 'Ballygunge', 'Rajarhat IT'];
       let datasets = [
@@ -3527,9 +3626,29 @@ _Regards, Rohit Churiwala (Principal Designer)_`;
       if (metric === 'accountBalances') {
         labels = ['HDFC Current', 'HDFC Pradeep', 'Bandhan Pradeep', 'HDFC Sunita', 'Bandhan Sunita', 'Master Cash'];
         datasets = [{
-          label: 'Balance (₹)',
+          label: 'Liquid Holdings (₹)',
           data: [585000, 260000, 180000, 210000, 150000, 341000],
           backgroundColor: ['#06B6D4', '#38BDF8', '#6366F1', '#A855F7', '#EC4899', '#10B981']
+        }];
+      } else if (metric === 'slaPenalties') {
+        labels = ['Tangra Carpentry', 'Veneer Polish Team', 'Civil & Demolition', 'Apex HVAC Works'];
+        datasets = [
+          { label: 'Target SLA (Days)', data: [30, 20, 25, 15], backgroundColor: '#38BDF8' },
+          { label: 'Actual Elapsed (Days)', data: [28, 18, 22, 14], backgroundColor: '#10B981' }
+        ];
+      } else if (metric === 'projectCashFlow') {
+        labels = ['Highline Penthouse 14B', 'Ballygunge Duplex', 'Rajarhat IT Suite'];
+        datasets = [{
+          label: 'Net Project Cash Surplus (₹)',
+          data: [2365000, 3605000, 1210000],
+          backgroundColor: ['#10B981', '#06B6D4', '#6366F1']
+        }];
+      } else if (metric === 'carpenterAllocation') {
+        labels = ['Tangra Unit 1', 'Tangra Unit 2', 'Highline Site', 'Ballygunge Site'];
+        datasets = [{
+          label: 'Active Joiners & Carpenters',
+          data: [6, 8, 5, 7],
+          backgroundColor: ['#F59E0B', '#EC4899', '#38BDF8', '#10B981']
         }];
       }
 

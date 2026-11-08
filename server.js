@@ -1421,6 +1421,55 @@ app.get('/api/crm/leads', (req, res) => {
   res.json({ success: true, leads: db.leads });
 });
 
+// Single Lead GET, PUT, Activity Endpoints
+app.get('/api/crm/leads/:id', (req, res) => {
+  const lead = db.leads.find(l => l.id === req.params.id);
+  if (!lead) return res.status(404).json({ success: false, message: "Lead not found" });
+  lead.activities = lead.activities || [
+    { type: 'Phone Call', text: 'Initial intake consultation with Rohit Churiwala. Client confirmed turnkey execution interest.', date: 'Today, 11:30 AM' },
+    { type: 'Site Survey', text: 'Initial floor plans and ceiling structural constraints logged.', date: 'Yesterday, 3:15 PM' },
+    { type: 'WhatsApp', text: 'Sent Dream Address Studio design portfolio & signature material catalog.', date: '04 Nov 2026' }
+  ];
+  res.json({ success: true, lead });
+});
+
+app.put('/api/crm/leads/:id', requireAuth, (req, res) => {
+  const lead = db.leads.find(l => l.id === req.params.id);
+  if (!lead) return res.status(404).json({ success: false, message: "Lead not found" });
+  Object.assign(lead, req.body);
+  res.json({ success: true, lead, message: "Lead updated successfully" });
+});
+
+app.post('/api/crm/leads/:id/activity', requireAuth, (req, res) => {
+  const lead = db.leads.find(l => l.id === req.params.id);
+  if (!lead) return res.status(404).json({ success: false, message: "Lead not found" });
+  lead.activities = lead.activities || [];
+  const act = {
+    id: `ACT-${Date.now()}`,
+    type: req.body.type || 'Phone Call',
+    text: req.body.text || req.body.notes || req.body.details || 'Interaction logged',
+    author: req.body.author || 'Rohit Churiwala',
+    date: 'Just now'
+  };
+  lead.activities.unshift(act);
+  res.json({ success: true, activity: act, activities: lead.activities });
+});
+
+// Single Account GET, PUT, Activity Endpoints
+app.get('/api/crm/accounts/:id', (req, res) => {
+  const acc = db.accounts_crm.find(a => a.id === req.params.id || a.name.toLowerCase().includes(req.params.id.toLowerCase())) || db.accounts_crm[0];
+  const relatedContacts = db.contacts.filter(c => c.accountId === acc.id || c.accountName.toLowerCase().includes(acc.name.toLowerCase()));
+  const relatedProjects = db.projects.filter(p => p.client.toLowerCase().includes(acc.name.toLowerCase()) || acc.name.toLowerCase().includes(p.client.toLowerCase()));
+  res.json({ success: true, account: acc, relatedContacts, relatedProjects });
+});
+
+app.put('/api/crm/accounts/:id', requireAuth, (req, res) => {
+  const acc = db.accounts_crm.find(a => a.id === req.params.id);
+  if (!acc) return res.status(404).json({ success: false, message: "Account not found" });
+  Object.assign(acc, req.body);
+  res.json({ success: true, account: acc });
+});
+
 app.post('/api/crm/leads', requireAuth, (req, res) => {
   const { name, phone, email, location, area, budget, source, notes } = req.body;
   if (!name) return res.status(400).json({ success: false, message: "Lead name is required." });
@@ -1897,15 +1946,24 @@ app.post('/api/crm/clients/:id/conversations', requireAuth, (req, res) => {
   const project = db.projects.find(p => p.id === req.params.id || p.slug === req.params.id);
   if (!project) return res.status(404).json({ success: false, message: "Client record not found." });
 
-  const { type, summary, details, actionItem } = req.body;
+  const { type, summary, details, actionItem, subject, notes, title, text, link, linkText } = req.body;
+  const finalSummary = subject || summary || title || "Client Interaction";
+  const finalNotes = notes || details || text || "Activity logged by Rohit Churiwala.";
+
   const newConv = {
     id: `CONV-${String(db.conversations.length + 1).padStart(3, '0')}`,
     projectId: project.id,
-    type: type || "WhatsApp",
+    type: type || "call",
     date: new Date().toISOString().slice(0, 16).replace('T', ' '),
-    author: "Rohit Churiwala",
-    summary: summary || "Client Discussion",
-    details: details || "",
+    author: req.body.author || "Rohit Churiwala",
+    subject: finalSummary,
+    summary: finalSummary,
+    title: finalSummary,
+    notes: finalNotes,
+    details: finalNotes,
+    text: finalNotes,
+    link: link || "",
+    linkText: linkText || "",
     actionItem: actionItem || ""
   };
   db.conversations.unshift(newConv);
@@ -1967,7 +2025,171 @@ app.post('/api/crm/quotations', requireAuth, (req, res) => {
   };
 
   db.quotations.unshift(newQ);
+
+  // Automatically prepend quotation activity to project history with download link
+  const qConv = {
+    id: `CONV-${String(db.conversations.length + 1).padStart(3, '0')}`,
+    projectId: prj.id,
+    type: "quotation",
+    subject: `BOQ Quotation Issued: ${newQ.id} (${newQ.revision})`,
+    summary: `BOQ Quotation Issued: ${newQ.id} (${newQ.revision})`,
+    title: `BOQ Quotation Issued: ${newQ.id} (${newQ.revision})`,
+    notes: `${newQ.title} | Total BOQ: ₹${newQ.total.toLocaleString('en-IN')} (Labor: ₹${newQ.laborCost.toLocaleString('en-IN')}, Material: ₹${newQ.materialCost.toLocaleString('en-IN')}) | Scope: ${newQ.scope}`,
+    details: `${newQ.title} | Total BOQ: ₹${newQ.total.toLocaleString('en-IN')} (Labor: ₹${newQ.laborCost.toLocaleString('en-IN')}, Material: ₹${newQ.materialCost.toLocaleString('en-IN')}) | Scope: ${newQ.scope}`,
+    text: `${newQ.title} | Total BOQ: ₹${newQ.total.toLocaleString('en-IN')}`,
+    link: `/api/crm/quotations/${newQ.id}/download`,
+    linkText: `Download ${newQ.id} BOQ Estimate ↗`,
+    author: signatory || "Rohit Churiwala",
+    date: new Date().toISOString().slice(0, 16).replace('T', ' ')
+  };
+  db.conversations.unshift(qConv);
+
   res.json({ success: true, quotation: newQ, message: `Quotation ${newQ.id} created successfully!` });
+});
+
+// Direct Download BOQ Endpoint (Printable HTML + CSV)
+app.get('/api/crm/quotations/:id/download', (req, res) => {
+  const quote = db.quotations.find(q => q.id === req.params.id) || db.quotations[0];
+  const project = db.projects.find(p => p.id === quote.projectId) || db.projects[0];
+  
+  if (req.query.format === 'csv') {
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${quote.id}_BOQ.csv"`);
+    const csv = `Quotation ID,Client,Project,Title,Revision,Labor Cost,Material Cost,Total,Status,Date\n${quote.id},"${quote.client}","${quote.projectName}","${quote.title}",${quote.revision},${quote.laborCost},${quote.materialCost},${quote.total},"${quote.status}",${quote.date}`;
+    return res.send(csv);
+  }
+
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Bill of Quantities (BOQ) - ${quote.id} | Dream Address Studio</title>
+  <style>
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #1e293b; margin: 40px; line-height: 1.5; }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0284c7; padding-bottom: 20px; margin-bottom: 30px; }
+    .logo-text { font-size: 24px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px; }
+    .logo-sub { font-size: 11px; font-weight: 600; color: #0284c7; text-transform: uppercase; letter-spacing: 1.5px; }
+    .doc-title { font-size: 20px; font-weight: 700; color: #0284c7; text-align: right; }
+    .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; font-size: 13px; }
+    .meta-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 13px; }
+    th { background: #0f172a; color: #ffffff; text-align: left; padding: 10px 12px; font-weight: 600; }
+    td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; }
+    .text-right { text-align: right; }
+    .total-row { font-weight: 800; font-size: 15px; background: #f0fdf4; border-top: 2px solid #0f172a; }
+    .sign-section { display: flex; justify-content: space-between; margin-top: 60px; padding-top: 20px; border-top: 1px dashed #cbd5e1; font-size: 12px; }
+    .print-btn { background: #0284c7; color: white; border: none; padding: 10px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-bottom: 20px; }
+    @media print { .no-print { display: none; } body { margin: 0; } }
+  </style>
+</head>
+<body>
+  <div class="no-print" style="display: flex; gap: 10px;">
+    <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+    <a href="/api/crm/quotations/${quote.id}/download?format=csv" class="print-btn" style="background: #10b981; text-decoration: none; display: inline-block;">📥 Export CSV</a>
+  </div>
+
+  <div class="header">
+    <div>
+      <div class="logo-text">DREAM ADDRESS STUDIO</div>
+      <div class="logo-sub">Architecture • Turnkey Interiors • Kolkata</div>
+      <div style="font-size: 11px; color: #64748b; margin-top: 4px;">Registered Studio: 14B Highline Estate, Kolkata 700105</div>
+      <div style="font-size: 11px; color: #64748b;">Managing Director: Rohit Churiwala (+91 91633 17574)</div>
+    </div>
+    <div>
+      <div class="doc-title">TURNKEY BOQ ESTIMATE</div>
+      <div style="font-size: 12px; color: #64748b; text-align: right; margin-top: 4px;">Quote ID: <strong>${quote.id}</strong></div>
+      <div style="font-size: 12px; color: #64748b; text-align: right;">Revision: <strong>${quote.revision || 'R01'}</strong></div>
+      <div style="font-size: 12px; color: #64748b; text-align: right;">Date: <strong>${quote.date}</strong></div>
+    </div>
+  </div>
+
+  <div class="meta-grid">
+    <div class="meta-box">
+      <strong style="color: #0284c7;">CLIENT & PROJECT DETAILS</strong><br>
+      <strong>Client:</strong> ${quote.client}<br>
+      <strong>Project:</strong> ${quote.projectName}<br>
+      <strong>Scope:</strong> ${quote.scope}<br>
+      <strong>Carpet Area:</strong> ${project.area || 2000} sq ft
+    </div>
+    <div class="meta-box">
+      <strong style="color: #0284c7;">MATERIAL CONSTRAINTS & SPECIFICATIONS</strong><br>
+      <strong>Joinery:</strong> Century / Greenply 710 BWP Marine Plywood<br>
+      <strong>Hardware:</strong> Häfele soft-close hinges & tandem drawers<br>
+      <strong>Finishes:</strong> Smoked European Oak Veneer with ICA PU Polish<br>
+      <strong>Civil / Flooring:</strong> Imported Italian Statuario Marble
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Item #</th>
+        <th>Trade / Category</th>
+        <th>Detailed Architectural Scope</th>
+        <th class="text-right">Labor (₹)</th>
+        <th class="text-right">Material (₹)</th>
+        <th class="text-right">Total (₹)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td><strong>Carpentry & Millwork</strong></td>
+        <td>Modular carcass, kitchen cabinetry, master wardrobes, veneer panelling</td>
+        <td class="text-right">${(Math.round(quote.laborCost * 0.55)).toLocaleString('en-IN')}</td>
+        <td class="text-right">${(Math.round(quote.materialCost * 0.58)).toLocaleString('en-IN')}</td>
+        <td class="text-right">${(Math.round(quote.total * 0.57)).toLocaleString('en-IN')}</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td><strong>Civil, Demolition & Marble</strong></td>
+        <td>Sub-base levelling, Italian marble dry lay, diamond mirror polish</td>
+        <td class="text-right">${(Math.round(quote.laborCost * 0.22)).toLocaleString('en-IN')}</td>
+        <td class="text-right">${(Math.round(quote.materialCost * 0.20)).toLocaleString('en-IN')}</td>
+        <td class="text-right">${(Math.round(quote.total * 0.21)).toLocaleString('en-IN')}</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td><strong>Electrical & Smart Automation</strong></td>
+        <td>Finolex FRLS wiring, Schneider switches, architectural magnetic tracks</td>
+        <td class="text-right">${(Math.round(quote.laborCost * 0.12)).toLocaleString('en-IN')}</td>
+        <td class="text-right">${(Math.round(quote.materialCost * 0.12)).toLocaleString('en-IN')}</td>
+        <td class="text-right">${(Math.round(quote.total * 0.12)).toLocaleString('en-IN')}</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td><strong>Painting, PU & Polishing</strong></td>
+        <td>Asian Paints Royale Aspire, ICA Polyurethane clear coat on veneer</td>
+        <td class="text-right">${(Math.round(quote.laborCost * 0.11)).toLocaleString('en-IN')}</td>
+        <td class="text-right">${(Math.round(quote.materialCost * 0.10)).toLocaleString('en-IN')}</td>
+        <td class="text-right">${(Math.round(quote.total * 0.10)).toLocaleString('en-IN')}</td>
+      </tr>
+      <tr class="total-row">
+        <td colspan="3">GRAND TOTAL (Turnkey Lump-sum)</td>
+        <td class="text-right">₹${quote.laborCost.toLocaleString('en-IN')}</td>
+        <td class="text-right">₹${quote.materialCost.toLocaleString('en-IN')}</td>
+        <td class="text-right">₹${quote.total.toLocaleString('en-IN')}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="sign-section">
+    <div>
+      <strong>Terms & Conditions:</strong><br>
+      • 40% Advance on BOQ Freeze, 40% on Carcass Erection, 20% on Handover.<br>
+      • 100% Zero-Defect Handover Guarantee by Dream Address Studio.<br>
+      • Validity: 30 Days from date of issue.
+    </div>
+    <div style="text-align: right;">
+      <div style="height: 40px;"></div>
+      <strong>Rohit Churiwala</strong><br>
+      <span style="color: #64748b;">Principal Designer & Managing Director</span><br>
+      <em>Dream Address Studio</em>
+    </div>
+  </div>
+</body>
+</html>`;
+  res.send(html);
 });
 
 app.post('/api/crm/invoices', requireAuth, (req, res) => {
@@ -2009,7 +2231,165 @@ app.post('/api/crm/invoices', requireAuth, (req, res) => {
   prj.invoiced += parsedAmt;
   prj.outstanding = Math.max(0, prj.contractValue - prj.received);
 
+  // Automatically prepend invoice activity to project history with download link
+  const invConv = {
+    id: `CONV-${String(db.conversations.length + 1).padStart(3, '0')}`,
+    projectId: prj.id,
+    type: "invoice",
+    subject: `Tax Invoice Raised: ${newInv.id}`,
+    summary: `Tax Invoice Raised: ${newInv.id}`,
+    title: `Tax Invoice Raised: ${newInv.id}`,
+    notes: `Milestone: ${newInv.milestone} | Amount: ₹${parsedAmt.toLocaleString('en-IN')} (Paid: ₹${parsedPaid.toLocaleString('en-IN')}, Due: ₹${parsedDue.toLocaleString('en-IN')}) | Account Credited: ${acc.name} (${acc.id})`,
+    details: `Milestone: ${newInv.milestone} | Amount: ₹${parsedAmt.toLocaleString('en-IN')} (Paid: ₹${parsedPaid.toLocaleString('en-IN')}, Due: ₹${parsedDue.toLocaleString('en-IN')}) | Account Credited: ${acc.name} (${acc.id})`,
+    text: `Milestone: ${newInv.milestone} | Amount: ₹${parsedAmt.toLocaleString('en-IN')}`,
+    link: `/api/crm/invoices/${newInv.id}/download`,
+    linkText: `Download Tax Invoice ${newInv.id} ↗`,
+    author: signatory || "Rohit Churiwala",
+    date: new Date().toISOString().slice(0, 16).replace('T', ' ')
+  };
+  db.conversations.unshift(invConv);
+
   res.json({ success: true, invoice: newInv, updatedAccount: acc, updatedProject: prj });
+});
+
+// Direct Download GST Tax Invoice Endpoint (Printable HTML + CSV)
+app.get('/api/crm/invoices/:id/download', (req, res) => {
+  const inv = db.invoices.find(i => i.id === req.params.id) || db.invoices[0];
+  const project = db.projects.find(p => p.id === inv.projectId) || db.projects[0];
+
+  if (req.query.format === 'csv') {
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${inv.id}_TaxInvoice.csv"`);
+    const csv = `Invoice ID,Client,Project,Milestone,Amount,Paid Amount,Due Amount,Status,Date,Account\n${inv.id},"${inv.client}","${inv.projectName}","${inv.milestone}",${inv.amount},${inv.paidAmount},${inv.dueAmount},"${inv.status}",${inv.date},"${inv.accountName}"`;
+    return res.send(csv);
+  }
+
+  const taxable = Math.round(inv.amount / 1.18);
+  const gst = inv.amount - taxable;
+  const cgst = Math.round(gst / 2);
+  const sgst = gst - cgst;
+
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>GST Tax Invoice - ${inv.id} | Dream Address Studio</title>
+  <style>
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #1e293b; margin: 40px; line-height: 1.5; }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0284c7; padding-bottom: 20px; margin-bottom: 30px; }
+    .logo-text { font-size: 24px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px; }
+    .logo-sub { font-size: 11px; font-weight: 600; color: #0284c7; text-transform: uppercase; letter-spacing: 1.5px; }
+    .doc-title { font-size: 20px; font-weight: 700; color: #0284c7; text-align: right; }
+    .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; font-size: 13px; }
+    .meta-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 13px; }
+    th { background: #0f172a; color: #ffffff; text-align: left; padding: 10px 12px; font-weight: 600; }
+    td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; }
+    .text-right { text-align: right; }
+    .total-row { font-weight: 800; font-size: 15px; background: #f0fdf4; border-top: 2px solid #0f172a; }
+    .status-badge { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 11px; font-weight: 800; text-transform: uppercase; }
+    .status-paid { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .status-pending { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+    .sign-section { display: flex; justify-content: space-between; margin-top: 60px; padding-top: 20px; border-top: 1px dashed #cbd5e1; font-size: 12px; }
+    .print-btn { background: #0284c7; color: white; border: none; padding: 10px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-bottom: 20px; }
+    @media print { .no-print { display: none; } body { margin: 0; } }
+  </style>
+</head>
+<body>
+  <div class="no-print" style="display: flex; gap: 10px;">
+    <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+    <a href="/api/crm/invoices/${inv.id}/download?format=csv" class="print-btn" style="background: #10b981; text-decoration: none; display: inline-block;">📥 Export CSV</a>
+  </div>
+
+  <div class="header">
+    <div>
+      <div class="logo-text">DREAM ADDRESS STUDIO</div>
+      <div class="logo-sub">Architecture • Turnkey Interiors • Luxury Living</div>
+      <div style="font-size: 11px; color: #64748b; margin-top: 4px;">GSTIN: <strong>19AAACD1234E1Z5</strong> | State: West Bengal (19)</div>
+      <div style="font-size: 11px; color: #64748b;">Managing Director: Rohit Churiwala (+91 91633 17574)</div>
+    </div>
+    <div>
+      <div class="doc-title">TAX INVOICE / DEMAND NOTE</div>
+      <div style="font-size: 12px; color: #64748b; text-align: right; margin-top: 4px;">Invoice #: <strong>${inv.id}</strong></div>
+      <div style="font-size: 12px; color: #64748b; text-align: right;">Date: <strong>${inv.date}</strong></div>
+      <div style="text-align: right; margin-top: 6px;">
+        <span class="status-badge ${inv.status === 'Paid' ? 'status-paid' : 'status-pending'}">${inv.status}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="meta-grid">
+    <div class="meta-box">
+      <strong style="color: #0284c7;">BILLED TO (CLIENT)</strong><br>
+      <strong>Client:</strong> ${inv.client}<br>
+      <strong>Project:</strong> ${inv.projectName}<br>
+      <strong>Site Address:</strong> ${project.location || 'Kolkata, West Bengal'}
+    </div>
+    <div class="meta-box">
+      <strong style="color: #0284c7;">PAYMENT & SETTLEMENT DETAILS</strong><br>
+      <strong>Account Credited:</strong> ${inv.accountName} (${inv.accountCredited})<br>
+      <strong>Payment Mode:</strong> ${inv.paymentMode || 'RTGS / Bank Transfer'}<br>
+      <strong>Transaction Ref:</strong> ${inv.reference || 'DIRECT-RTGS'}
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Milestone / Description</th>
+        <th>HSN / SAC</th>
+        <th class="text-right">Taxable Value (₹)</th>
+        <th class="text-right">CGST (9%)</th>
+        <th class="text-right">SGST (9%)</th>
+        <th class="text-right">Total Amount (₹)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>
+          <strong>${inv.milestone}</strong><br>
+          <span style="font-size: 11px; color: #64748b;">Turnkey architectural execution milestone disbursement for ${inv.projectName}</span>
+        </td>
+        <td>995471</td>
+        <td class="text-right">₹${taxable.toLocaleString('en-IN')}</td>
+        <td class="text-right">₹${cgst.toLocaleString('en-IN')}</td>
+        <td class="text-right">₹${sgst.toLocaleString('en-IN')}</td>
+        <td class="text-right"><strong>₹${inv.amount.toLocaleString('en-IN')}</strong></td>
+      </tr>
+      <tr class="total-row">
+        <td colspan="6">TOTAL INVOICE VALUE</td>
+        <td class="text-right">₹${inv.amount.toLocaleString('en-IN')}</td>
+      </tr>
+      <tr>
+        <td colspan="6" style="color: #166534; font-weight: bold;">Amount Paid / Received to Date</td>
+        <td class="text-right" style="color: #166534; font-weight: bold;">₹${inv.paidAmount.toLocaleString('en-IN')}</td>
+      </tr>
+      <tr style="background: #fffbeb; font-weight: bold;">
+        <td colspan="6" style="color: #b45309;">Outstanding Balance Due</td>
+        <td class="text-right" style="color: #b45309;">₹${inv.dueAmount.toLocaleString('en-IN')}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="sign-section">
+    <div>
+      <strong>Bank Wire Credentials:</strong><br>
+      Beneficiary: Dream Address Studio<br>
+      Bank: HDFC Bank, Stephen House Branch, Kolkata<br>
+      Account No: 50200088991122 | IFSC: HDFC0000008
+    </div>
+    <div style="text-align: right;">
+      <div style="height: 40px;"></div>
+      <strong>Rohit Churiwala</strong><br>
+      <span style="color: #64748b;">Managing Director & Authorized Signatory</span><br>
+      <em>Dream Address Studio</em>
+    </div>
+  </div>
+</body>
+</html>`;
+  res.send(html);
 });
 
 // Treasury & Transfer APIs
@@ -2257,6 +2637,14 @@ app.get(['/crm', '/nexus-360'], (req, res) => {
 
 app.get(['/client', '/client/:id', '/crm/client/:id'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'client.html'));
+});
+
+app.get(['/lead', '/lead/:id', '/crm/lead/:id'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'lead.html'));
+});
+
+app.get(['/account', '/account/:id', '/crm/account/:id'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'account.html'));
 });
 
 // HTML5 Fallback Routing

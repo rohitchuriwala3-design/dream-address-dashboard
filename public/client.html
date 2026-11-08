@@ -846,19 +846,33 @@
         const div = document.createElement('div');
         div.className = 'timeline-node text-xs space-y-1.5';
 
-        let icon = '✉';
+        let icon = '💬';
         let iconBg = 'bg-blue-500/20 text-blue-400 border border-blue-500/40';
         if (c.type === 'call') { icon = '📞'; iconBg = 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'; }
-        else if (c.type === 'meeting' || c.type === 'visit') { icon = '📅'; iconBg = 'bg-purple-500/20 text-purple-400 border border-purple-500/40'; }
+        else if (c.type === 'meeting' || c.type === 'visit') { icon = '🤝'; iconBg = 'bg-purple-500/20 text-purple-400 border border-purple-500/40'; }
         else if (c.type === 'change-order') { icon = '⚡'; iconBg = 'bg-amber-500/20 text-amber-400 border border-amber-500/40'; }
+        else if (c.type === 'invoice') { icon = '💳'; iconBg = 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/40'; }
+        else if (c.type === 'quotation') { icon = '📄'; iconBg = 'bg-cyan-600/20 text-cyan-300 border border-cyan-500/40'; }
+
+        const titleText = c.subject || c.title || c.summary || 'Client Interaction';
+        const notesText = c.notes || c.details || c.text || 'Action recorded in project timeline.';
+        const linkHtml = c.link ? `
+          <div class="mt-2">
+            <a href="${c.link}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs rounded shadow transition">
+              <span>📄</span>
+              <span>${c.linkText || 'Download Document ↗'}</span>
+            </a>
+          </div>
+        ` : '';
 
         div.innerHTML = `
           <div class="absolute left-0 top-1 w-6 h-6 rounded-full ${iconBg} flex items-center justify-center font-bold text-[10px] shadow">${icon}</div>
           <div class="flex items-center justify-between">
-            <span class="font-bold text-white">${c.subject || c.title || 'Client Interaction'}</span>
+            <span class="font-bold text-white">${titleText}</span>
             <span class="text-slate-500 font-mono text-[10px]">${c.date || c.timestamp || 'Recent'}</span>
           </div>
-          <div class="text-slate-400 text-[11px] bg-[#0A0F1D] p-2 rounded border border-slate-800 leading-relaxed">${c.notes || c.details || c.text}</div>
+          <div class="text-slate-400 text-[11px] bg-[#0A0F1D] p-2.5 rounded border border-slate-800 leading-relaxed">${notesText}</div>
+          ${linkHtml}
           <div class="text-[10px] text-slate-500">Logged by: <span class="text-slate-300 font-semibold">${c.author || 'Rohit Churiwala'}</span></div>
         `;
         pastContainer.appendChild(div);
