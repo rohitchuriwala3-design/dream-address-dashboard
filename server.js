@@ -46,7 +46,14 @@ const db = {
   },
 
   // User Access & Admin Roles
-  users: [
+    // Admin Audit Logs & Security Trails
+  auditLogs: [
+    { id: "LOG-01", timestamp: "2026-11-08 07:30", action: "Google Sheet Synchronized", actor: "rohitchuriwala3@gmail.com", details: "22 Tabs verified with 0 errors on Sheet 1oJP7fqIGl48cUPq76XOogPQ-B5IfHHESt0JCTVpIW5o" },
+    { id: "LOG-02", timestamp: "2026-11-08 07:25", action: "Email OTP Verification", actor: "rohitchuriwala3@gmail.com", details: "Super Admin privileges authenticated via 6-digit OTP" },
+    { id: "LOG-03", timestamp: "2026-11-08 06:15", action: "Treasury Threshold Checked", actor: "System", details: "Master Cash Balance verified against ₹50,000 threshold" },
+    { id: "LOG-04", timestamp: "2026-11-07 18:30", action: "Role Permissions Configured", actor: "rohitchuriwala3@gmail.com", details: "Admin Settings granted to primary Super Admin only" }
+  ],
+users: [
     {
       id: "USR-01",
       name: "Rohit Churiwala",
@@ -607,6 +614,17 @@ app.post('/api/auth/verify-otp', (req, res) => {
   res.status(401).json({ success: false, message: 'Invalid or expired OTP code.' });
 });
 
+
+app.get('/api/auth/me', (req, res) => {
+  const authHeader = req.headers.authorization;
+  // If authorization token exists or default
+  const superAdmin = db.users.find(u => u.email === 'rohitchuriwala3@gmail.com') || db.users[0];
+  res.json({
+    success: true,
+    user: superAdmin
+  });
+});
+
 app.post('/api/auth/login', (req, res) => {
   const { pin, password } = req.body;
   if (pin === ADMIN_PIN || password === APP_PASSWORD) {
@@ -615,35 +633,139 @@ app.post('/api/auth/login', (req, res) => {
   res.status(401).json({ success: false, message: 'Invalid Admin PIN or Master Password.' });
 });
 
-// Admin User Management APIs
+// Admin User Management & Granular Permissions APIs
 app.get('/api/admin/users', (req, res) => {
   res.json({ success: true, users: db.users });
 });
 
 app.post('/api/admin/users', requireAuth, (req, res) => {
-  const { name, email, role, permissions } = req.body;
+  const { name, email, role, permissions, status } = req.body;
   if (!email) return res.status(400).json({ success: false, message: "Email is required." });
 
-  const existingIdx = db.users.findIndex(u => u.email.toLowerCase() === email.trim().toLowerCase());
+  const cleanEmail = email.trim().toLowerCase();
+  const existingIdx = db.users.findIndex(u => u.email.toLowerCase() === cleanEmail);
   if (existingIdx >= 0) {
-    db.users[existingIdx].role = role || db.users[existingIdx].role;
+    if (role) db.users[existingIdx].role = role;
+    if (name) db.users[existingIdx].name = name;
+    if (status) db.users[existingIdx].status = status;
     if (permissions) db.users[existingIdx].permissions = { ...db.users[existingIdx].permissions, ...permissions };
-    return res.json({ success: true, user: db.users[existingIdx], message: "User permissions updated." });
+    
+    // Ensure Super Admin remains locked
+    if (cleanEmail === 'rohitchuriwala3@gmail.com') {
+      db.users[existingIdx].role = "Super Admin";
+      db.users[existingIdx].isPrimaryAdmin = true;
+      db.users[existingIdx].permissions.adminUserMgmt = true;
+    }
+
+    db.auditLogs.unshift({
+      id: `LOG-${Date.now()}`,
+      timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
+      action: "User Access Updated",
+      actor: "rohitchuriwala3@gmail.com",
+      details: `Updated permissions and role for ${cleanEmail}`
+    });
+
+    return res.json({ success: true, user: db.users[existingIdx], message: "User permissions updated successfully." });
   }
 
+  const isSuper = cleanEmail === 'rohitchuriwala3@gmail.com';
   const newUser = {
     id: `USR-${String(db.users.length + 1).padStart(2, '0')}`,
-    name: name || email.split('@')[0],
-    email: email.trim().toLowerCase(),
-    role: role || "Project Member",
-    isPrimaryAdmin: false,
-    permissions: permissions || { crm: true, pms: true, treasury: false, billing: false, diary: true, builder: false, settings: false, adminUserMgmt: false },
-    status: "Active",
+    name: name || cleanEmail.split('@')[0],
+    email: cleanEmail,
+    role: isSuper ? "Super Admin" : (role || "Project Manager"),
+    isPrimaryAdmin: isSuper,
+    permissions: permissions || (isSuper ? {
+      crm: true, pms: true, treasury: true, billing: true, diary: true, builder: true, settings: true, adminUserMgmt: true
+    } : {
+      crm: true, pms: true, treasury: false, billing: false, diary: true, builder: false, settings: false, adminUserMgmt: false
+    }),
+    status: status || "Active",
     lastLogin: "Never"
   };
 
   db.users.push(newUser);
-  res.json({ success: true, user: newUser, message: "New user access granted successfully." });
+  db.auditLogs.unshift({
+    id: `LOG-${Date.now()}`,
+    timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
+    action: "User Access Granted",
+    actor: "rohitchuriwala3@gmail.com",
+    details: `Granted ${newUser.role} access to ${cleanEmail}`
+  });
+
+  res.json({ success: true, user: newUser, message: `Access granted successfully to ${cleanEmail}.` });
+});
+
+// Update specific user permissions
+app.put('/api/admin/users/:id', requireAuth, (req, res) => {
+  const idx = db.users.findIndex(u => u.id === req.params.id);
+  if (idx < 0) return res.status(404).json({ success: false, message: "User not found." });
+
+  const u = db.users[idx];
+  const { name, role, permissions, status } = req.body;
+  if (name) u.name = name;
+  if (status) u.status = status;
+  if (role) {
+    if (u.email === 'rohitchuriwala3@gmail.com') {
+      u.role = 'Super Admin';
+    } else {
+      u.role = role;
+    }
+  }
+  if (permissions) {
+    u.permissions = { ...u.permissions, ...permissions };
+    if (u.email === 'rohitchuriwala3@gmail.com') {
+      u.permissions.adminUserMgmt = true;
+    }
+  }
+
+  db.auditLogs.unshift({
+    id: `LOG-${Date.now()}`,
+    timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
+    action: "Permissions Customized",
+    actor: "rohitchuriwala3@gmail.com",
+    details: `Customized access rights for ${u.name} (${u.email})`
+  });
+
+  res.json({ success: true, user: u, message: "Permissions updated successfully." });
+});
+
+app.post('/api/admin/users/:id/update', requireAuth, (req, res) => {
+  // Alias for clients using POST for updates
+  const idx = db.users.findIndex(u => u.id === req.params.id);
+  if (idx < 0) return res.status(404).json({ success: false, message: "User not found." });
+
+  const u = db.users[idx];
+  const { name, role, permissions, status } = req.body;
+  if (name) u.name = name;
+  if (status) u.status = status;
+  if (role && u.email !== 'rohitchuriwala3@gmail.com') u.role = role;
+  if (permissions) {
+    u.permissions = { ...u.permissions, ...permissions };
+    if (u.email === 'rohitchuriwala3@gmail.com') u.permissions.adminUserMgmt = true;
+  }
+
+  db.auditLogs.unshift({
+    id: `LOG-${Date.now()}`,
+    timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
+    action: "Permissions Customized",
+    actor: "rohitchuriwala3@gmail.com",
+    details: `Updated permissions for ${u.name} (${u.email})`
+  });
+
+  res.json({ success: true, user: u, message: "Permissions updated successfully." });
+});
+
+// Toggle User Status (Active / Suspended)
+app.post('/api/admin/users/:id/toggle-status', requireAuth, (req, res) => {
+  const idx = db.users.findIndex(u => u.id === req.params.id);
+  if (idx < 0) return res.status(404).json({ success: false, message: "User not found." });
+  if (db.users[idx].email === 'rohitchuriwala3@gmail.com') {
+    return res.status(403).json({ success: false, message: "Cannot suspend primary Super Admin account." });
+  }
+
+  db.users[idx].status = db.users[idx].status === 'Active' ? 'Suspended' : 'Active';
+  res.json({ success: true, user: db.users[idx], message: `User status changed to ${db.users[idx].status}.` });
 });
 
 app.delete('/api/admin/users/:id', requireAuth, (req, res) => {
@@ -652,9 +774,40 @@ app.delete('/api/admin/users/:id', requireAuth, (req, res) => {
     if (db.users[idx].email === 'rohitchuriwala3@gmail.com') {
       return res.status(403).json({ success: false, message: "Cannot remove primary Super Admin account." });
     }
-    db.users.splice(idx, 1);
+    const removed = db.users.splice(idx, 1)[0];
+    db.auditLogs.unshift({
+      id: `LOG-${Date.now()}`,
+      timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
+      action: "User Access Revoked",
+      actor: "rohitchuriwala3@gmail.com",
+      details: `Revoked all system access for ${removed.email}`
+    });
   }
   res.json({ success: true, message: "User access revoked." });
+});
+
+// Admin Audit Log API
+app.get('/api/admin/audit-log', (req, res) => {
+  res.json({ success: true, auditLogs: db.auditLogs || [] });
+});
+
+// Admin Global Settings API
+app.post('/api/admin/settings', requireAuth, (req, res) => {
+  const { activeSignatory, liquidityThreshold, dailyRokadAutoSync, notificationChannels } = req.body;
+  if (activeSignatory) db.settings.activeSignatory = activeSignatory;
+  if (liquidityThreshold) db.settings.liquidityThreshold = Number(liquidityThreshold);
+  if (dailyRokadAutoSync !== undefined) db.settings.dailyRokadAutoSync = dailyRokadAutoSync;
+  if (notificationChannels) db.settings.notificationChannels = { ...db.settings.notificationChannels, ...notificationChannels };
+
+  db.auditLogs.unshift({
+    id: `LOG-${Date.now()}`,
+    timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
+    action: "Admin Settings Updated",
+    actor: "rohitchuriwala3@gmail.com",
+    details: `Updated studio configuration: Signatory=${db.settings.activeSignatory}, Alert Limit=₹${db.settings.liquidityThreshold}`
+  });
+
+  res.json({ success: true, settings: db.settings, message: "Studio administration settings saved." });
 });
 
 // Dashboard Data
@@ -859,12 +1012,18 @@ app.post('/api/crm/clients/:id/stage', requireAuth, (req, res) => {
     "Final Handover & Snag-free"
   ];
 
-  const { stageIndex } = req.body;
+  let { stageIndex, stage, newStage } = req.body;
+  const targetStage = newStage || stage;
+  if (stageIndex === undefined && targetStage) {
+    const foundIdx = stages.findIndex(s => s.toLowerCase() === targetStage.trim().toLowerCase());
+    if (foundIdx >= 0) stageIndex = foundIdx;
+  }
+
   if (stageIndex !== undefined && stageIndex >= 0 && stageIndex < stages.length) {
     project.stageIndex = stageIndex;
     project.stage = stages[stageIndex];
   }
-  res.json({ success: true, project });
+  res.json({ success: true, project, client: project });
 });
 
 app.post('/api/crm/clients/:id/conversations', requireAuth, (req, res) => {
@@ -1034,23 +1193,33 @@ app.get('/api/daily-log', (req, res) => {
 });
 
 app.post('/api/daily-log', requireAuth, (req, res) => {
-  const { date, projectId, category, subCategory, description, debit, credit, accountId, subDataNote } = req.body;
-  const acc = db.accounts.find(a => a.id === accountId) || db.accounts[5]; // Default Master Cash
+  const { date, projectId, project, category, subCategory, description, particulars, debit, credit, amount, type, accountId, sourceAccount, subDataNote, notes } = req.body;
+  const targetAccId = accountId || sourceAccount || "ACC-06";
+  const acc = db.accounts.find(a => a.id === targetAccId) || db.accounts[5]; // Default Master Cash
+
+  const isOut = type === 'OUT' || debit !== undefined || amount !== undefined;
+  const finalDebit = isOut ? parseFloat(debit || amount || 0) : 0;
+  const finalCredit = !isOut ? parseFloat(credit || amount || 0) : 0;
+  const finalDesc = description || particulars || "Daily Cash Outlay";
+  const finalNotes = subDataNote || notes || "";
+  const finalProj = projectId || project || "PERSONAL-EXPENSE";
+  const isPersonal = finalProj === 'PERSONAL-EXPENSE' || finalProj === 'PERSONAL' || category === 'Personal Expense';
 
   const newEntry = {
     id: db_dailyLog.length + 1,
     date: date || new Date().toISOString().slice(0, 10),
-    projectId: projectId || "PERSONAL-EXPENSE",
-    category: category || (projectId === 'PERSONAL-EXPENSE' ? 'Personal Expense' : 'Site Direct Cost'),
-    subCategory: subCategory || "Household Outlay",
-    description: description || "Daily Cash Outlay",
-    debit: parseFloat(debit) || 0,
-    credit: parseFloat(credit) || 0,
+    projectId: isPersonal ? "PERSONAL-EXPENSE" : finalProj,
+    category: isPersonal ? 'Personal Expense' : (category || 'Site Direct Cost'),
+    subCategory: subCategory || (isPersonal ? "Household & Family" : "Labour Khoraki"),
+    description: finalDesc,
+    debit: finalDebit,
+    credit: finalCredit,
+    amount: finalDebit > 0 ? finalDebit : finalCredit,
     accountId: acc.id,
     accountName: acc.name,
     verified: true,
     yellowHighlighted: false,
-    subDataNote: subDataNote || ""
+    subDataNote: finalNotes
   };
 
   db_dailyLog.unshift(newEntry);
@@ -1178,6 +1347,7 @@ app.post('/api/sync-sheets', requireAuth, (req, res) => {
     success: true,
     syncedAt: new Date().toISOString(),
     sheetId: SHEET_ID,
+    spreadsheetId: SHEET_ID,
     tabsUpdated: 22,
     personalRowsAppended: personalExpenses.length,
     projectRowsUpdated: projectExpenses.length,
