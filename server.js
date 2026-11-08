@@ -963,6 +963,54 @@ app.post('/api/reminders/send-to-phone', requireAuth, (req, res) => {
 });
 
 // Nexus 360 Client APIs
+
+app.post('/api/crm/clients', requireAuth, (req, res) => {
+  const { name, clientName, projectName, tier, phone, email, location, area, contractValue, stage } = req.body;
+  const finalClient = clientName || name || "New Turnkey Client";
+  const finalProject = projectName || `${finalClient} Turnkey Residence`;
+  const slug = finalClient.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  const val = parseFloat(contractValue) || 2500000;
+
+  const newPrj = {
+    id: `PRJ-2026-${String(db.projects.length + 1).padStart(3, '0')}`,
+    slug: slug,
+    subdomain: `${slug}.nexus.dreamaddress.in`,
+    name: finalProject,
+    client: finalClient,
+    tier: tier || "HNW Turnkey VIP",
+    phone: phone || "+91 98301 23456",
+    email: email || `${slug}@gmail.com`,
+    location: location || "Kolkata",
+    area: parseFloat(area) || 1800,
+    stage: stage || "Lead & Site Survey",
+    stageIndex: 0,
+    progress: 10,
+    contractValue: val,
+    invoiced: 0,
+    received: 0,
+    outstanding: val,
+    budgetDirectCost: Math.round(val * 0.65),
+    actualDirectCost: 0,
+    cashInflow: 0,
+    bankInflow: 0,
+    cashOutflow: 0,
+    bankOutflow: 0,
+    projectNetCashFlow: 0,
+    cashFlowStatus: "Healthy Inflow",
+    grossMargin: 35.0,
+    startDate: new Date().toISOString().slice(0, 10),
+    targetHandover: new Date(Date.now() + 90 * 86400000).toISOString().slice(0, 10),
+    daysToHandover: 90,
+    supervisor: "Amit Ganguly (+91 98312 88776)",
+    leadCarpenter: "Jahangir Mistri (Tangra Unit 2)",
+    aestheticRules: "Signature Dream Address Minimalist Warm Contemporary",
+    materialConstraints: "Century / Greenply 710 BWP Marine, Hafele hardware, smoked oak veneer."
+  };
+
+  db.projects.push(newPrj);
+  res.json({ success: true, client: newPrj, project: newPrj, message: `New client ${finalClient} enrolled in Nexus 360!` });
+});
+
 app.get('/api/crm/clients', (req, res) => {
   res.json({ success: true, clients: db.projects });
 });
@@ -1184,7 +1232,7 @@ app.post('/api/treasury/transfer', requireAuth, (req, res) => {
     subDataNote: description || "Director treasury movement"
   });
 
-  res.json({ success: true, fromAcc, toAcc });
+  res.json({ success: true, message: `Transferred ₹${amt.toLocaleString('en-IN')} from ${fromAcc.name} to ${toAcc.name}`, fromAcc, toAcc });
 });
 
 // Daily Diary (Rokad Khata) APIs
