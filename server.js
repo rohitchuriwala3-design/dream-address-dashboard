@@ -476,6 +476,296 @@ users: [
     { id: "INV-03", item: "Fevicol Marine Waterproof Adhesive", location: "Tangra Central Workshop", currentStock: 4, bufferThreshold: 10, unit: "Buckets (50kg)", supplier: "Ezra Street Hardware Mart", supplierPhone: "+919830544332", status: "Critical Shortage", whatsappPO: "Dispatch 8 buckets Fevicol Marine 50kg to Tangra." }
   ],
 
+  
+  // ==========================================================================
+  // NEXUS 360 SALESFORCE LIGHTNING CRM DATA OBJECTS
+  // ==========================================================================
+  leads: [
+    {
+      id: "LD-2026-001",
+      name: "Smt. Priyanka Chatterjee",
+      phone: "+91 98301 23456",
+      email: "priyanka.c@gmail.com",
+      location: "Urbana Tower 3, Anandapur, Kolkata",
+      area: 2200,
+      budget: 3500000,
+      source: "Instagram Campaign",
+      status: "Site Survey Done",
+      rating: "Hot",
+      assignedTo: "Rohit Churiwala",
+      notes: "4BHK luxury apartment. Wants minimalist warm contemporary with smoked oak veneer and Italian marble in living room.",
+      createdAt: "2026-11-04"
+    },
+    {
+      id: "LD-2026-002",
+      name: "Mr. Alok Bagaria",
+      phone: "+91 98302 34567",
+      email: "alok.bagaria@bagariagroup.com",
+      location: "South City Garden, Prince Anwar Shah Rd",
+      area: 3100,
+      budget: 4500000,
+      source: "Architect Referral (Ar. Sourav Ganguly)",
+      status: "Design Freeze / Proposal Sent",
+      rating: "Warm",
+      assignedTo: "Rohit Churiwala",
+      notes: "Full turnkey duplex. Requires bespoke Tangra modular wardrobes, acoustic home theatre ceiling, and Hafele fittings.",
+      createdAt: "2026-11-05"
+    },
+    {
+      id: "LD-2026-003",
+      name: "Dr. Niladri Sengupta",
+      phone: "+91 98303 45678",
+      email: "dr.sengupta@fortis.com",
+      location: "Queens Park, Ballygunge, Kolkata",
+      area: 3800,
+      budget: 6000000,
+      source: "Client Referral (Ananya Sen)",
+      status: "Initial Consultation",
+      rating: "Hot",
+      assignedTo: "Rohit Churiwala",
+      notes: "Heritage bungalow modernization. Preserving teak beams while modernizing kitchen and master suite.",
+      createdAt: "2026-11-06"
+    },
+    {
+      id: "LD-2026-004",
+      name: "Debashis Banerjee",
+      phone: "+91 98304 56789",
+      email: "dbanerjee@tcs.com",
+      location: "Silver Spring, Science City Bypass",
+      area: 1750,
+      budget: 2800000,
+      source: "Walk-in Lake View Road Studio",
+      status: "New Inquiry",
+      rating: "Cold",
+      assignedTo: "Rohit Churiwala",
+      notes: "3BHK apartment. Exploring turnkey contracting for March 2027 delivery.",
+      createdAt: "2026-11-07"
+    }
+  ],
+
+  contacts: [
+    {
+      id: "CON-001",
+      name: "Ananya Sen",
+      accountName: "Ananya Sen Household",
+      accountId: "ACC-CRM-01",
+      role: "Principal Client & Decision Maker",
+      phone: "+91 91633 17574",
+      email: "ananya.sen@gmail.com",
+      project: "Highline Highland - Penthouse 14B",
+      projectId: "PRJ-2026-001",
+      preferredContact: "WhatsApp / In-person",
+      location: "EM Bypass, Kolkata"
+    },
+    {
+      id: "CON-002",
+      name: "Vikram Roy",
+      accountName: "Roy Holdings Pvt Ltd",
+      accountId: "ACC-CRM-02",
+      role: "Managing Director / Owner",
+      phone: "+91 98305 67890",
+      email: "vikram.roy@royholdings.in",
+      project: "Ballygunge Circular Rd - Luxury Bungalow",
+      projectId: "PRJ-2026-002",
+      preferredContact: "Phone Call / Weekend visits",
+      location: "Ballygunge, Kolkata"
+    },
+    {
+      id: "CON-003",
+      name: "Dr. S. Mukherjee",
+      accountName: "Dr. Mukherjee Residence",
+      accountId: "ACC-CRM-03",
+      role: "Owner / Senior Physician",
+      phone: "+91 98309 11223",
+      email: "dr.smukherjee@apollo.org",
+      project: "Rajarhat IT Suite - Executive Residence",
+      projectId: "PRJ-2026-003",
+      preferredContact: "Email & WhatsApp",
+      location: "Action Area II, Rajarhat"
+    },
+    {
+      id: "CON-004",
+      name: "Ar. Sourav Ganguly",
+      accountName: "Ganguly & Associates PMC",
+      accountId: "ACC-CRM-05",
+      role: "Consulting Structural Architect",
+      phone: "+91 98311 99887",
+      email: "sourav@gadesign.in",
+      project: "Highline Highland & South City",
+      projectId: "PRJ-2026-001",
+      preferredContact: "Phone Call",
+      location: "Lake Road, Kolkata"
+    },
+    {
+      id: "CON-005",
+      name: "Mustaq Ustaad",
+      accountName: "Tangra Carpentry Crew",
+      accountId: "ACC-CRM-06",
+      role: "Lead Joinery Ustaad",
+      phone: "+91 98308 11223",
+      email: "mustaq.tangra@gmail.com",
+      project: "Tangra Central Workshop",
+      projectId: "WORKSHOP-01",
+      preferredContact: "Direct Mobile / WhatsApp",
+      location: "Tangra Industrial Area, Kolkata"
+    }
+  ],
+
+  accounts_crm: [
+    {
+      id: "ACC-CRM-01",
+      name: "Ananya Sen Household",
+      type: "HNW Residential Turnkey",
+      primaryContact: "Ananya Sen",
+      phone: "+91 91633 17574",
+      location: "EM Bypass, Kolkata",
+      projectsCount: 1,
+      activeOpportunity: "Highline Highland - Penthouse 14B",
+      contractValue: 3850000,
+      invoiced: 2310000,
+      received: 1925000,
+      outstanding: 385000,
+      status: "Active Execution"
+    },
+    {
+      id: "ACC-CRM-02",
+      name: "Roy Holdings Pvt Ltd",
+      type: "Corporate / Luxury Estate",
+      primaryContact: "Vikram Roy",
+      phone: "+91 98305 67890",
+      location: "Ballygunge, Kolkata",
+      projectsCount: 1,
+      activeOpportunity: "Ballygunge Circular Rd - Luxury Bungalow",
+      contractValue: 4800000,
+      invoiced: 2400000,
+      received: 2000000,
+      outstanding: 400000,
+      status: "Active Execution"
+    },
+    {
+      id: "ACC-CRM-03",
+      name: "Dr. Mukherjee Residence",
+      type: "Executive Turnkey",
+      primaryContact: "Dr. S. Mukherjee",
+      phone: "+91 98309 11223",
+      location: "Rajarhat, Kolkata",
+      projectsCount: 1,
+      activeOpportunity: "Rajarhat IT Suite - Executive Residence",
+      contractValue: 2750000,
+      invoiced: 2200000,
+      received: 2200000,
+      outstanding: 0,
+      status: "Final Handover Phase"
+    },
+    {
+      id: "ACC-CRM-04",
+      name: "Chatterjee Household",
+      type: "HNW Prospect",
+      primaryContact: "Priyanka Chatterjee",
+      phone: "+91 98301 23456",
+      location: "Anandapur, Kolkata",
+      projectsCount: 0,
+      activeOpportunity: "Urbana Tower 3 (Under Proposal)",
+      contractValue: 3500000,
+      invoiced: 0,
+      received: 0,
+      outstanding: 3500000,
+      status: "Lead Stage"
+    }
+  ],
+
+  rateCards: [
+    {
+      category: "Carpentry & Joinery",
+      items: [
+        { code: "CARP-01", name: "18mm BWP Marine Wardrobe Carcass (Hafele Soft-Close)", unit: "sq.ft", rate: 1450, spec: "Century Club Prime / Greenply 710 BWP, 0.8mm off-white liner, Hafele hinges" },
+        { code: "CARP-02", name: "Smoked Oak / Walnut Natural Veneer with PU Polish", unit: "sq.ft", rate: 480, spec: "Natural timber veneer pressed on 18mm ply, Sirca high-clarity PU finish" },
+        { code: "CARP-03", name: "Fluted Charcoal Louver Wall Panelling", unit: "sq.ft", rate: 650, spec: "Solid hardwood core flutes with PU matte charcoal spray finish" },
+        { code: "CARP-04", name: "Modular Kitchen Base & Wall Units (710 Marine + Acrylic)", unit: "sq.ft", rate: 2200, spec: "BWP Marine ply carcass, Blum Tandembox drawers, anti-fingerprint acrylic shutters" },
+        { code: "CARP-05", name: "King Size Hydraulic Bed with Fluted Headboard", unit: "each", rate: 85000, spec: "Heavy-duty hydraulic lift pump, BWP ply framing, upholstered velvet/leatherette panel" }
+      ]
+    },
+    {
+      category: "Civil & Masonry",
+      items: [
+        { code: "CIV-01", name: "Brickwork Demolition & Debris Disposal", unit: "sq.ft", rate: 45, spec: "Careful manual breaking, bagging, and nighttime carting away from high-rise" },
+        { code: "CIV-02", name: "1:4 Cement Sand Plaster with Dr. Fixit Waterproofing", unit: "sq.ft", rate: 75, spec: "Line and level plastering over brick surface with bond coat" },
+        { code: "CIV-03", name: "Italian Statuario / Michaelangelo Marble Laying & Polish", unit: "sq.ft", rate: 280, spec: "White cement bed, brass joint divider, 7-stage diamond disc mirror polish" },
+        { code: "CIV-04", name: "Large Format Glazed Vitrified Tile (1200x1800mm) Laying", unit: "sq.ft", rate: 85, spec: "Laticrete tile adhesive, leveling spacers, epoxy grout filling" }
+      ]
+    },
+    {
+      category: "False Ceiling & Painting",
+      items: [
+        { code: "POP-01", name: "Gyproc Moisture-Resistant Gypsum Ceiling with Perimeter Cove", unit: "sq.ft", rate: 125, spec: "G.I. perimeter channel framework, 12.5mm Saint-Gobain board, hidden LED cove" },
+        { code: "POP-02", name: "Asian Paints Royale Luxury Emulsion (3 Coats + Acrylic Putty)", unit: "sq.ft", rate: 55, spec: "Two coats Birla White putty, primer coat, 3 coats Royale luxury emulsion" },
+        { code: "POP-03", name: "Sirca / ICA Italian PU Clear Matt / Gloss Polish", unit: "sq.ft", rate: 160, spec: "Multi-coat spray applied polyester sealer and polyurethane topcoat" }
+      ]
+    },
+    {
+      category: "Electrical & Automation",
+      items: [
+        { code: "ELEC-01", name: "Concealed Finolex FR Cable + Legrand Arteor Switch Point", unit: "point", rate: 950, spec: "Concealed PVC conduit, 1.5/2.5 sq.mm FR multi-strand copper wire, modular plate" },
+        { code: "ELEC-02", name: "Magnetic Recessed Architectural Profile Track", unit: "rft", rate: 450, spec: "Slimline black aluminum track with 48V low-voltage magnetic strip & fixtures" }
+      ]
+    }
+  ],
+
+  calendarEvents: [
+    {
+      id: "EV-001",
+      title: "Site Laser Measurement & Level Survey",
+      project: "Urbana Tower 3 (Priyanka Chatterjee)",
+      projectId: "PRJ-2026-004",
+      date: "2026-11-10",
+      time: "11:00 AM",
+      type: "Site Survey",
+      attendees: "Rohit Churiwala, Subhashis Roy",
+      location: "Tower 3, Flat 2102, Urbana, Anandapur",
+      status: "Confirmed",
+      whatsappAlertSent: true
+    },
+    {
+      id: "EV-002",
+      title: "3D Walkthrough & Material Palette Approval",
+      project: "Highline Penthouse 14B (Ananya Sen)",
+      projectId: "PRJ-2026-001",
+      date: "2026-11-11",
+      time: "04:00 PM",
+      type: "Client Presentation",
+      attendees: "Rohit Churiwala, Ananya Sen",
+      location: "Dream Address Studio, Lake View Road",
+      status: "Scheduled",
+      whatsappAlertSent: true
+    },
+    {
+      id: "EV-003",
+      title: "Hafele Hardware Batch Delivery Inspection",
+      project: "Tangra Central Workshop",
+      projectId: "WORKSHOP-01",
+      date: "2026-11-12",
+      time: "10:30 AM",
+      type: "Factory Inspection",
+      attendees: "Mustaq Ustaad, Amit Ganguly",
+      location: "Tangra Workshop Unit 2",
+      status: "Pending Delivery",
+      whatsappAlertSent: false
+    },
+    {
+      id: "EV-004",
+      title: "Final Handover & Snag-free Walkthrough",
+      project: "Rajarhat IT Suite (Dr. S. Mukherjee)",
+      projectId: "PRJ-2026-003",
+      date: "2026-11-14",
+      time: "02:00 PM",
+      type: "Client Handover",
+      attendees: "Rohit Churiwala, Dr. Mukherjee",
+      location: "Action Area II, Rajarhat",
+      status: "Scheduled",
+      whatsappAlertSent: true
+    }
+  ],
+
   carpenterLeveling: [
     { site: "Tangra Central Workshop", activeCarpenters: 8, requiredCarpenters: 10, variance: -2, leadUstaad: "Mustaq Ustaad", status: "Understaffed", action: "Shift 2 carpenters from Highline after carcass assembly." },
     { site: "Highline Highland 14B (EM Bypass)", activeCarpenters: 6, requiredCarpenters: 4, variance: +2, leadUstaad: "Jahangir Mistri", status: "Surplus (Demobilizing)", action: "Reassign 2 men to Tangra Workshop on Monday." },
@@ -488,12 +778,68 @@ users: [
       id: "QT-2026-081",
       projectId: "PRJ-2026-001",
       client: "Ananya Sen",
+      projectName: "Highline Highland - Penthouse 14B",
       title: "Master Penthouse Turnkey Package (Rev 2)",
+      laborCost: 1420000,
+      materialCost: 2430000,
       total: 3850000,
       date: "2026-01-12",
       status: "Approved",
+      isSynced: true,
+      revision: "R02",
       scope: "Full Turnkey: Civil, False Ceiling, Modular Joinery, Italian Flooring, Electrical, Designer Lighting, PU Polish",
       itemsCount: 42,
+      signatory: "Rohit Churiwala"
+    },
+    {
+      id: "QT-2026-082",
+      projectId: "PRJ-2026-002",
+      client: "Vikram Roy",
+      projectName: "Ballygunge Circular Rd - Luxury Bungalow",
+      title: "Heritage Bungalow Complete Modernization (Rev 1)",
+      laborCost: 1850000,
+      materialCost: 2950000,
+      total: 4800000,
+      date: "2026-01-28",
+      status: "Approved",
+      isSynced: true,
+      revision: "R01",
+      scope: "Structural alterations, luxury teak woodwork, kitchen extension, master bedroom walk-in closet",
+      itemsCount: 56,
+      signatory: "Rohit Churiwala"
+    },
+    {
+      id: "QT-2026-083",
+      projectId: "PRJ-2026-003",
+      client: "Dr. S. Mukherjee",
+      projectName: "Rajarhat IT Suite - Executive Residence",
+      title: "Executive Residence Turnkey Fitout (Rev 1)",
+      laborCost: 980000,
+      materialCost: 1770000,
+      total: 2750000,
+      date: "2026-02-05",
+      status: "Approved",
+      isSynced: true,
+      revision: "R01",
+      scope: "Modular kitchen, false ceiling cove, bedroom wardrobes, library console, Asian Paints Royale",
+      itemsCount: 28,
+      signatory: "Rohit Churiwala"
+    },
+    {
+      id: "QT-2026-084",
+      projectId: "PRJ-2026-004",
+      client: "Priyanka Chatterjee",
+      projectName: "Urbana Tower 3 - Luxury 4BHK",
+      title: "Urbana Turnkey Proposal (Draft R01)",
+      laborCost: 1250000,
+      materialCost: 2250000,
+      total: 3500000,
+      date: "2026-11-05",
+      status: "Draft Proposal",
+      isSynced: false,
+      revision: "R01",
+      scope: "Initial Turnkey Estimate: Civil alterations, Italian marble, modular joinery, false ceiling",
+      itemsCount: 34,
       signatory: "Rohit Churiwala"
     }
   ],
@@ -503,14 +849,102 @@ users: [
       id: "INV-2026-019",
       projectId: "PRJ-2026-001",
       client: "Ananya Sen",
+      projectName: "Highline Highland - Penthouse 14B",
       milestone: "Stage 1 - Mobilization & Design Freeze (20%)",
       amount: 770000,
+      paidAmount: 770000,
+      dueAmount: 0,
       date: "2026-01-20",
       status: "Paid",
       accountCredited: "ACC-01",
       accountName: "HDFC Bank (Current A/C)",
       paymentMode: "RTGS / Bank",
       reference: "HDFC9901827635",
+      signatory: "Rohit Churiwala"
+    },
+    {
+      id: "INV-2026-020",
+      projectId: "PRJ-2026-001",
+      client: "Ananya Sen",
+      projectName: "Highline Highland - Penthouse 14B",
+      milestone: "Stage 2 - Civil Demolition & Electrical Conduit (20%)",
+      amount: 770000,
+      paidAmount: 770000,
+      dueAmount: 0,
+      date: "2026-02-15",
+      status: "Paid",
+      accountCredited: "ACC-01",
+      accountName: "HDFC Bank (Current A/C)",
+      paymentMode: "NEFT",
+      reference: "HDFC9902341120",
+      signatory: "Rohit Churiwala"
+    },
+    {
+      id: "INV-2026-021",
+      projectId: "PRJ-2026-001",
+      client: "Ananya Sen",
+      projectName: "Highline Highland - Penthouse 14B",
+      milestone: "Stage 3 - Carcass Assembly & Wardrobes (20%)",
+      amount: 770000,
+      paidAmount: 385000,
+      dueAmount: 385000,
+      date: "2026-10-28",
+      status: "Partially Paid",
+      accountCredited: "ACC-01",
+      accountName: "HDFC Bank (Current A/C)",
+      paymentMode: "Bank Transfer",
+      reference: "HDFC9908761234",
+      signatory: "Rohit Churiwala"
+    },
+    {
+      id: "INV-2026-022",
+      projectId: "PRJ-2026-002",
+      client: "Vikram Roy",
+      projectName: "Ballygunge Circular Rd - Luxury Bungalow",
+      milestone: "Stage 1 - Mobilization & Site Setup (25%)",
+      amount: 1200000,
+      paidAmount: 1200000,
+      dueAmount: 0,
+      date: "2026-02-10",
+      status: "Paid",
+      accountCredited: "ACC-02",
+      accountName: "ICICI Bank (Rohit Churiwala)",
+      paymentMode: "RTGS",
+      reference: "ICIC8812990011",
+      signatory: "Rohit Churiwala"
+    },
+    {
+      id: "INV-2026-023",
+      projectId: "PRJ-2026-002",
+      client: "Vikram Roy",
+      projectName: "Ballygunge Circular Rd - Luxury Bungalow",
+      milestone: "Stage 2 - Marble Laying & Wall Framing (25%)",
+      amount: 1200000,
+      paidAmount: 800000,
+      dueAmount: 400000,
+      date: "2026-10-15",
+      status: "Partially Paid",
+      accountCredited: "ACC-02",
+      accountName: "ICICI Bank (Rohit Churiwala)",
+      paymentMode: "Cheque",
+      reference: "CHQ-445512",
+      signatory: "Rohit Churiwala"
+    },
+    {
+      id: "INV-2026-024",
+      projectId: "PRJ-2026-003",
+      client: "Dr. S. Mukherjee",
+      projectName: "Rajarhat IT Suite - Executive Residence",
+      milestone: "Final Milestone - 100% Handover Settlement",
+      amount: 2750000,
+      paidAmount: 2750000,
+      dueAmount: 0,
+      date: "2026-09-30",
+      status: "Paid",
+      accountCredited: "ACC-01",
+      accountName: "HDFC Bank (Current A/C)",
+      paymentMode: "RTGS",
+      reference: "HDFC9906654321",
       signatory: "Rohit Churiwala"
     }
   ],
@@ -976,6 +1410,326 @@ app.post('/api/reminders/send-to-phone', requireAuth, (req, res) => {
 });
 
 // Nexus 360 Client APIs
+
+
+// ============================================================================
+// FULL SALESFORCE LIGHTNING CRM API ENDPOINTS (9 OBJECT MODULES)
+// ============================================================================
+
+// 1. LEADS & 1-CLICK CONVERSION WIZARD
+app.get('/api/crm/leads', (req, res) => {
+  res.json({ success: true, leads: db.leads });
+});
+
+app.post('/api/crm/leads', requireAuth, (req, res) => {
+  const { name, phone, email, location, area, budget, source, notes } = req.body;
+  if (!name) return res.status(400).json({ success: false, message: "Lead name is required." });
+
+  const newLead = {
+    id: `LD-2026-${String(db.leads.length + 1).padStart(3, '0')}`,
+    name: name.trim(),
+    phone: phone || "+91 91633 17574",
+    email: email || `${name.toLowerCase().replace(/[^a-z0-9]/g, '')}@gmail.com`,
+    location: location || "Kolkata",
+    area: parseInt(area) || 2000,
+    budget: parseFloat(budget) || 3000000,
+    source: source || "Inquiry",
+    status: "New Inquiry",
+    rating: "Warm",
+    assignedTo: "Rohit Churiwala",
+    notes: notes || "Newly staged lead inquiry.",
+    createdAt: new Date().toISOString().slice(0, 10)
+  };
+
+  db.leads.unshift(newLead);
+  res.json({ success: true, lead: newLead, message: "Lead registered successfully!" });
+});
+
+// Salesforce 1-Click Lead Conversion Engine
+app.post('/api/crm/leads/:id/convert', requireAuth, (req, res) => {
+  const leadIdx = db.leads.findIndex(l => l.id === req.params.id);
+  if (leadIdx === -1) return res.status(404).json({ success: false, message: "Lead not found." });
+
+  const lead = db.leads[leadIdx];
+  const { accountName, contactName, opportunityName, contractValue } = req.body;
+
+  const finalAccountName = accountName || `${lead.name} Household`;
+  const finalContactName = contactName || lead.name;
+  const finalOppName = opportunityName || `${lead.location} Turnkey Project`;
+  const finalValue = parseFloat(contractValue) || lead.budget || 3500000;
+  const slug = lead.name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+
+  // 1. Create Account
+  const newAccount = {
+    id: `ACC-CRM-${String(db.accounts_crm.length + 1).padStart(2, '0')}`,
+    name: finalAccountName,
+    type: "HNW Residential Turnkey",
+    primaryContact: finalContactName,
+    phone: lead.phone,
+    location: lead.location,
+    projectsCount: 1,
+    activeOpportunity: finalOppName,
+    contractValue: finalValue,
+    invoiced: 0,
+    received: 0,
+    outstanding: finalValue,
+    status: "Active Execution"
+  };
+  db.accounts_crm.unshift(newAccount);
+
+  // 2. Create Contact
+  const newContact = {
+    id: `CON-${String(db.contacts.length + 1).padStart(3, '0')}`,
+    name: finalContactName,
+    accountName: finalAccountName,
+    accountId: newAccount.id,
+    role: "Principal Client & Decision Maker",
+    phone: lead.phone,
+    email: lead.email,
+    project: finalOppName,
+    projectId: `PRJ-2026-${String(db.projects.length + 1).padStart(3, '0')}`,
+    preferredContact: "WhatsApp / In-person",
+    location: lead.location
+  };
+  db.contacts.unshift(newContact);
+
+  // 3. Create Opportunity (in db.projects)
+  const newOpportunity = {
+    id: `PRJ-2026-${String(db.projects.length + 1).padStart(3, '0')}`,
+    slug: slug,
+    subdomain: `${slug}.nexus.dreamaddress.in`,
+    name: finalOppName,
+    client: finalAccountName,
+    clientName: finalContactName,
+    tier: "HNW Turnkey VIP",
+    phone: lead.phone,
+    email: lead.email,
+    location: lead.location,
+    area: lead.area,
+    stage: "3D Design Approval & Freeze",
+    stageIndex: 1,
+    progress: 25,
+    contractValue: finalValue,
+    invoiced: 0,
+    received: 0,
+    outstanding: finalValue,
+    budgetDirectCost: Math.round(finalValue * 0.65),
+    actualDirectCost: 0,
+    cashInflow: 0,
+    bankInflow: 0,
+    cashOutflow: 0,
+    bankOutflow: 0,
+    projectNetCashFlow: 0,
+    cashFlowStatus: "Healthy Inflow",
+    grossMargin: 35.0,
+    startDate: new Date().toISOString().slice(0, 10),
+    targetHandover: new Date(Date.now() + 100 * 86400000).toISOString().slice(0, 10),
+    daysToHandover: 100,
+    supervisor: "Amit Ganguly (+91 98312 88776)",
+    leadCarpenter: "Jahangir Mistri (Tangra Unit 2)",
+    aestheticRules: "Signature Dream Address Minimalist Warm Contemporary",
+    materialConstraints: "Century / Greenply 710 BWP Marine, Hafele hardware, smoked oak veneer."
+  };
+  db.projects.push(newOpportunity);
+
+  // 4. Update Lead Status
+  lead.status = "Converted";
+  lead.convertedOpportunityId = newOpportunity.id;
+
+  res.json({
+    success: true,
+    message: `Lead ${lead.name} successfully converted to Account, Contact, and Opportunity!`,
+    account: newAccount,
+    contact: newContact,
+    opportunity: newOpportunity
+  });
+});
+
+// 2. CONTACTS DIRECTORY
+app.get('/api/crm/contacts', (req, res) => {
+  res.json({ success: true, contacts: db.contacts });
+});
+
+app.post('/api/crm/contacts', requireAuth, (req, res) => {
+  const { name, accountName, role, phone, email, project } = req.body;
+  if (!name) return res.status(400).json({ success: false, message: "Contact name is required." });
+
+  const newContact = {
+    id: `CON-${String(db.contacts.length + 1).padStart(3, '0')}`,
+    name: name.trim(),
+    accountName: accountName || "Individual Client",
+    accountId: "ACC-CRM-01",
+    role: role || "Co-decision Maker",
+    phone: phone || "+91 91633 17574",
+    email: email || `${name.toLowerCase().replace(/[^a-z0-9]/g, '')}@gmail.com`,
+    project: project || "Turnkey Project",
+    preferredContact: "WhatsApp",
+    location: "Kolkata"
+  };
+  db.contacts.unshift(newContact);
+  res.json({ success: true, contact: newContact });
+});
+
+// 3. ACCOUNTS DIRECTORY
+app.get('/api/crm/accounts', (req, res) => {
+  res.json({ success: true, accounts: db.accounts_crm });
+});
+
+app.post('/api/crm/accounts', requireAuth, (req, res) => {
+  const { name, type, primaryContact, phone, location } = req.body;
+  if (!name) return res.status(400).json({ success: false, message: "Account name is required." });
+
+  const newAccount = {
+    id: `ACC-CRM-${String(db.accounts_crm.length + 1).padStart(2, '0')}`,
+    name: name.trim(),
+    type: type || "HNW Residential Turnkey",
+    primaryContact: primaryContact || name,
+    phone: phone || "+91 91633 17574",
+    location: location || "Kolkata",
+    projectsCount: 0,
+    activeOpportunity: "Under Qualification",
+    contractValue: 0,
+    invoiced: 0,
+    received: 0,
+    outstanding: 0,
+    status: "Active"
+  };
+  db.accounts_crm.unshift(newAccount);
+  res.json({ success: true, account: newAccount });
+});
+
+// 4. QUOTATIONS & BOQ WITH SALESFORCE QUOTE-SYNCING
+app.get('/api/crm/quotations', (req, res) => {
+  res.json({ success: true, quotations: db.quotations });
+});
+
+app.post('/api/crm/quotations/:id/sync', requireAuth, (req, res) => {
+  const qtn = db.quotations.find(q => q.id === req.params.id);
+  if (!qtn) return res.status(404).json({ success: false, message: "Quotation not found." });
+
+  // Unsync others for this project
+  db.quotations.forEach(q => {
+    if (q.projectId === qtn.projectId) q.isSynced = false;
+  });
+  qtn.isSynced = true;
+  qtn.status = "Approved (Synced)";
+
+  // Overwrite Opportunity Amount with synced quote total
+  const prj = db.projects.find(p => p.id === qtn.projectId);
+  if (prj) {
+    prj.contractValue = qtn.total;
+    prj.outstanding = prj.contractValue - prj.received;
+    prj.budgetDirectCost = Math.round(prj.contractValue * 0.65);
+  }
+
+  res.json({
+    success: true,
+    quotation: qtn,
+    opportunity: prj,
+    message: `Quote ${qtn.id} successfully synced with Opportunity! Total set to ₹${qtn.total.toLocaleString('en-IN')}`
+  });
+});
+
+// 5. INVOICES & BILLING
+app.get('/api/crm/invoices', (req, res) => {
+  res.json({ success: true, invoices: db.invoices });
+});
+
+app.post('/api/crm/invoices/:id/pay', requireAuth, (req, res) => {
+  const inv = db.invoices.find(i => i.id === req.params.id);
+  if (!inv) return res.status(404).json({ success: false, message: "Invoice not found." });
+
+  const amountToPay = parseFloat(req.body.amount) || inv.dueAmount || inv.amount;
+  inv.paidAmount = (inv.paidAmount || 0) + amountToPay;
+  inv.dueAmount = Math.max(0, inv.amount - inv.paidAmount);
+  inv.status = inv.dueAmount === 0 ? "Paid" : "Partially Paid";
+
+  // Credit bank balance
+  const acc = db.accounts.find(a => a.id === inv.accountCredited) || db.accounts[0];
+  acc.balance += amountToPay;
+  acc.monthlyInflow += amountToPay;
+  acc.netFlow = acc.monthlyInflow - acc.monthlyOutflow;
+
+  // Update project
+  const prj = db.projects.find(p => p.id === inv.projectId);
+  if (prj) {
+    prj.received += amountToPay;
+    prj.outstanding = Math.max(0, prj.contractValue - prj.received);
+    if (acc.accountType === 'Cash in Hand') prj.cashInflow += amountToPay;
+    else prj.bankInflow += amountToPay;
+    prj.projectNetCashFlow = (prj.cashInflow + prj.bankInflow) - (prj.cashOutflow + prj.bankOutflow);
+  }
+
+  res.json({ success: true, invoice: inv, project: prj, account: acc });
+});
+
+// 6. RATE CARD & PRICE BOOKS
+app.get('/api/crm/rate-card', (req, res) => {
+  res.json({ success: true, rateCards: db.rateCards });
+});
+
+// 7. SITE CALENDAR EVENTS
+app.get('/api/crm/calendar', (req, res) => {
+  res.json({ success: true, events: db.calendarEvents });
+});
+
+app.post('/api/crm/calendar', requireAuth, (req, res) => {
+  const { title, project, date, time, type, attendees, location } = req.body;
+  if (!title) return res.status(400).json({ success: false, message: "Event title is required." });
+
+  const newEv = {
+    id: `EV-${String(db.calendarEvents.length + 1).padStart(3, '0')}`,
+    title: title.trim(),
+    project: project || "Highline Penthouse 14B",
+    projectId: "PRJ-2026-001",
+    date: date || new Date().toISOString().slice(0, 10),
+    time: time || "11:00 AM",
+    type: type || "Site Visit",
+    attendees: attendees || "Rohit Churiwala",
+    location: location || "Kolkata Site",
+    status: "Scheduled",
+    whatsappAlertSent: false
+  };
+  db.calendarEvents.unshift(newEv);
+  res.json({ success: true, event: newEv, message: "Site event scheduled!" });
+});
+
+// 8. CRM 360 AGGREGATED ANALYTICS
+app.get('/api/crm/analytics', (req, res) => {
+  const totalPipeline = db.projects.reduce((sum, p) => sum + (p.contractValue || 0), 0);
+  const totalInvoiced = db.projects.reduce((sum, p) => sum + (p.invoiced || 0), 0);
+  const totalReceived = db.projects.reduce((sum, p) => sum + (p.received || 0), 0);
+  const totalOutstanding = db.projects.reduce((sum, p) => sum + (p.outstanding || 0), 0);
+  const avgMargin = 35.2;
+
+  res.json({
+    success: true,
+    pipeline: {
+      totalPipeline,
+      totalInvoiced,
+      totalReceived,
+      totalOutstanding,
+      avgMargin,
+      leadsCount: db.leads.length,
+      activeProjectsCount: db.projects.length,
+      contactsCount: db.contacts.length,
+      accountsCount: db.accounts_crm.length
+    },
+    funnel: [
+      { stage: "Leads Ingestion", count: db.leads.length, value: 16800000 },
+      { stage: "Survey & Site Feasibility", count: 3, value: 14000000 },
+      { stage: "3D Design Approval & Freeze", count: 2, value: 8300000 },
+      { stage: "Joinery & Active Execution", count: 3, value: 11400000 },
+      { stage: "Snag-Free Handover Completed", count: 1, value: 2750000 }
+    ],
+    agingReceivables: {
+      current0To30: 385000,
+      overdue31To60: 400000,
+      overdue61Plus: 0,
+      totalReceivables: 785000
+    }
+  });
+});
 
 app.post('/api/crm/clients', requireAuth, (req, res) => {
   const { name, clientName, projectName, tier, phone, email, location, area, contractValue, stage } = req.body;

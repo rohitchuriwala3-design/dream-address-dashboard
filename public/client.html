@@ -104,14 +104,32 @@
         </div>
       </button>
 
-      <!-- Cloud Icon + Brand -->
-      <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.href='/crm'">
-        <svg class="w-8 h-8 text-cyan-400" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
-        </svg>
+            <!-- Bespoke Dream Address Architectural Monogram (DA) - ZERO CLOUD LOGO -->
+      <div class="flex items-center gap-3 cursor-pointer" onclick="window.location.href='/crm'">
+        <div class="relative flex items-center justify-center">
+          <svg class="w-8 h-8 drop-shadow-md" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="20,2 37,11 37,29 20,38 3,29 3,11" stroke="url(#goldGradClient)" stroke-width="2" fill="#071224"/>
+            <polygon points="20,6 33,13 33,27 20,34 7,27 7,13" stroke="#38BDF8" stroke-width="0.75" stroke-dasharray="2 2" fill="none" opacity="0.6"/>
+            <!-- D Monogram -->
+            <path d="M13 13 H19 C22.5 13 24.5 15.2 24.5 18.5 C24.5 21.8 22.5 24 19 24 H13 V13 Z" stroke="url(#goldGradClient)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- A Monogram -->
+            <path d="M21 27 L26.5 13 L32 27 M22.8 23 H30.2" stroke="#38BDF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="goldGradClient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FDE68A"/>
+                <stop offset="50%" stop-color="#F59E0B"/>
+                <stop offset="100%" stop-color="#B45309"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
         <div>
-          <span class="text-base font-extrabold tracking-tight text-white">Sales</span>
-          <span class="text-[10px] text-cyan-300 ml-1.5 uppercase font-mono tracking-wider font-bold">Client 360 Record</span>
+          <div class="text-sm font-extrabold tracking-tight text-white font-serif leading-none">DREAM ADDRESS</div>
+          <div class="flex items-center gap-1.5 mt-0.5">
+            <span class="text-[9px] text-amber-300 uppercase font-mono tracking-widest font-bold">STUDIO</span>
+            <span class="w-1 h-1 rounded-full bg-cyan-400"></span>
+            <span class="text-[9px] text-cyan-300 font-mono tracking-wider font-semibold">CLIENT 360 RECORD</span>
+          </div>
         </div>
       </div>
     </div>
