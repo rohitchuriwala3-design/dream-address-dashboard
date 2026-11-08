@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nexus 360 CRM | Dream Address Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0B1120;
+      color: #E2E8F0;
+    }
+    .sf-header {
+      background-color: #032D60;
+      border-bottom: 1px solid #1E3A8A;
+    }
+    .sf-nav-bar {
+      background-color: #0B172E;
+      border-bottom: 1px solid #1E293B;
+    }
+    .sf-tab {
+      color: #94A3B8;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 16px;
+      border-bottom: 3px solid transparent;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+    .sf-tab:hover {
+      color: #FFFFFF;
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+    .sf-tab.active {
+      color: #38BDF8;
+      border-bottom-color: #0284C7;
+      background-color: rgba(2, 132, 199, 0.1);
+    }
+    .sf-card {
+      background-color: #0F172A;
+      border: 1px solid #1E293B;
+      border-radius: 8px;
+    }
+    .sf-table-header {
+      background-color: #0A0F1D;
+      border-bottom: 1px solid #1E293B;
+    }
+    .sf-table-row {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      transition: background-color 0.15s ease;
+    }
+    .sf-table-row:hover {
+      background-color: rgba(56, 189, 248, 0.04);
+    }
+    .stage-pill {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .stage-survey { background: rgba(59, 130, 246, 0.2); color: #60A5FA; border: 1px solid rgba(59, 130, 246, 0.3); }
+    .stage-freeze { background: rgba(168, 85, 247, 0.2); color: #C084FC; border: 1px solid rgba(168, 85, 247, 0.3); }
+    .stage-civil { background: rgba(245, 158, 11, 0.2); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .stage-carcass { background: rgba(6, 182, 212, 0.2); color: #22D3EE; border: 1px solid rgba(6, 182, 212, 0.3); }
+    .stage-veneer { background: rgba(236, 72, 153, 0.2); color: #F472B6; border: 1px solid rgba(236, 72, 153, 0.3); }
+    .stage-handover { background: rgba(16, 185, 129, 0.2); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .kanban-col {
+      min-width: 280px;
+      background-color: #0A0F1D;
+      border: 1px solid #1E293B;
+      border-radius: 8px;
+    }
+    .kanban-card {
+      background-color: #0F172A;
+      border: 1px solid #1E293B;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .kanban-card:hover {
+      border-color: #38BDF8;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0B1120; }
+    ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- 1. SALESFORCE GLOBAL BLUE HEADER -->
+  <header class="sf-header px-4 py-2 flex items-center justify-between text-white sticky top-0 z-50">
+    <div class="flex items-center gap-4">
+      <!-- 9-dot App Launcher Grid -->
+      <button onclick="window.location.href='/'" title="Back to MARK IV Executive OS" class="p-1.5 rounded hover:bg-white/10 transition flex flex-col items-center justify-center gap-0.5">
+        <div class="grid grid-cols-3 gap-0.5 w-4 h-4">
+          <div class="w-1 h-1 bg-white rounded-sm"></div><div class="w-1 h-1 bg-white rounded-sm"></div><div class="w-1 h-1 bg-white rounded-sm"></div>
+          <div class="w-1 h-1 bg-white rounded-sm"></div><div class="w-1 h-1 bg-white rounded-sm"></div><div class="w-1 h-1 bg-white rounded-sm"></div>
+          <div class="w-1 h-1 bg-white rounded-sm"></div><div class="w-1 h-1 bg-white rounded-sm"></div><div class="w-1 h-1 bg-white rounded-sm"></div>
+        </div>
+      </button>
+
+      <!-- Salesforce Cloud Icon + App Name -->
+      <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.reload()">
+        <svg class="w-8 h-8 text-cyan-400" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
+        </svg>
+        <div>
+          <span class="text-base font-extrabold tracking-tight text-white">Sales</span>
+          <span class="text-[10px] text-cyan-300 ml-1.5 uppercase font-mono tracking-wider font-bold">Nexus 360 CRM</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Centered Salesforce Global Search -->
+    <div class="flex-1 max-w-xl mx-8 hidden sm:block">
+      <div class="relative">
+        <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+        <input type="text" id="global-search" oninput="filterTable()" placeholder="Search Leads, Clients, Quotations, Invoices..." class="w-full bg-[#081B38] border border-blue-900/60 rounded-full py-1.5 pl-9 pr-8 text-xs text-slate-200 placeholder-slate-400 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition">
+        <kbd class="hidden md:inline-block absolute right-3 top-2 text-[10px] bg-blue-950 px-1.5 py-0.5 rounded text-slate-400 border border-blue-900">Ctrl+K</kbd>
+      </div>
+    </div>
+
+    <!-- Right Header Utilities -->
+    <div class="flex items-center gap-3">
+      <!-- Quick Sync Button -->
+      <button onclick="syncGoogleSheets()" id="crm-sync-btn" title="Sync live with 22-tab Master Google Sheet" class="flex items-center gap-1.5 px-3 py-1 bg-cyan-600/30 hover:bg-cyan-600/50 border border-cyan-400/40 rounded-full text-xs font-semibold text-cyan-200 transition">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+        <span>Sync Now</span>
+      </button>
+
+      <!-- Favorites / Plus -->
+      <button onclick="openNewOpportunityModal()" title="New Opportunity" class="p-1.5 rounded hover:bg-white/10 text-slate-300 hover:text-white transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+      </button>
+
+      <!-- Notifications -->
+      <button onclick="toggleRemindersDrawer()" title="Action Reminders" class="relative p-1.5 rounded hover:bg-white/10 text-slate-300 hover:text-white transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+        <span id="crm-bell-badge" class="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-rose-500 text-[10px] font-bold flex items-center justify-center text-white">4</span>
+      </button>
+
+      <!-- Setup Gear -->
+      <button onclick="window.location.href='/?tab=settings'" title="Admin Settings" class="p-1.5 rounded hover:bg-white/10 text-slate-300 hover:text-white transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+      </button>
+
+      <!-- Profile Avatar -->
+      <div class="flex items-center gap-2 pl-2 border-l border-blue-900/60 cursor-pointer" onclick="toggleUserMenu()">
+        <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-bold text-xs text-white shadow-inner">
+          RC
+        </div>
+        <div class="hidden lg:block text-left">
+          <div class="text-xs font-bold text-white leading-none">Rohit Churiwala</div>
+          <div class="text-[10px] text-cyan-300 font-semibold leading-none mt-1">Super Admin</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. SALESFORCE OBJECT NAVIGATION TABS -->
+  <nav class="sf-nav-bar px-4 flex items-center justify-between overflow-x-auto no-scrollbar">
+    <div class="flex items-center">
+      <div class="sf-tab" onclick="switchNavTab('leads')">Leads</div>
+      <div class="sf-tab" onclick="switchNavTab('contacts')">Contacts</div>
+      <div class="sf-tab" onclick="switchNavTab('accounts')">Accounts</div>
+      <div class="sf-tab active" id="tab-opps" onclick="switchNavTab('opportunities')">
+        <span>Opportunities</span>
+        <span class="ml-1 text-[10px] text-cyan-400 bg-cyan-900/40 px-1.5 py-0.2 rounded-full font-bold">3</span>
+      </div>
+      <div class="sf-tab" onclick="switchNavTab('quotes')">Quotes / BOQ</div>
+      <div class="sf-tab" onclick="switchNavTab('invoices')">Invoices & Billing</div>
+      <div class="sf-tab" onclick="switchNavTab('rates')">Rate Card</div>
+      <div class="sf-tab" onclick="switchNavTab('calendar')">Site Calendar</div>
+      <div class="sf-tab" onclick="switchNavTab('analytics')">Analytics</div>
+    </div>
+    
+    <div class="flex items-center gap-2 py-1 text-xs text-slate-400">
+      <span class="hidden sm:inline font-mono text-[11px] text-cyan-300">crm.dreamaddress.in</span>
+      <button onclick="window.location.href='/'" class="px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition text-xs font-semibold">
+        ← Back to MARK IV OS
+      </button>
+    </div>
+  </nav>
+
+  <!-- 3. MAIN WORKSPACE AREA WITH SALESFORCE LEFT RAIL -->
+  <div class="flex-1 flex overflow-hidden">
+    <!-- Salesforce Left Utility Rail (Collapsible) -->
+    <aside class="w-12 bg-[#0A0F1D] border-r border-[#1E293B] flex flex-col items-center py-3 gap-4 text-slate-400 shrink-0">
+      <button title="Home" onclick="window.location.href='/'" class="p-2 rounded hover:bg-white/5 hover:text-white transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+      </button>
+      <button title="Contacts" class="p-2 rounded hover:bg-white/5 hover:text-white transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+      </button>
+      <button title="Accounts" class="p-2 rounded hover:bg-white/5 hover:text-white transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+      </button>
+      <button title="Opportunities / Sales (Active)" class="p-2 rounded bg-cyan-500/20 text-cyan-300 transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+      </button>
+      <button title="Invoices & Billing" class="p-2 rounded hover:bg-white/5 hover:text-white transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z"></path></svg>
+      </button>
+      <button title="Reports & Analytics" class="p-2 rounded hover:bg-white/5 hover:text-white transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+      </button>
+    </aside>
+
+    <!-- Main Content Area: All Opportunities (Matches Screenshot 1) -->
+    <main class="flex-1 flex flex-col overflow-y-auto">
+      <!-- Top Action Bar -->
+      <div class="p-4 sm:p-6 pb-2 border-b border-[#1E293B] bg-[#0A0F1D]/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <!-- Title & List View Dropdown -->
+        <div class="flex items-center gap-3">
+          <!-- Orange Opportunity Trophy Icon -->
+          <div class="w-10 h-10 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shadow-lg">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M5 2h14a1 1 0 011 1v3a4 4 0 01-3 3.87V11a5 5 0 01-4 4.9V18h3a1 1 0 110 2H8a1 1 0 110-2h3v-2.1A5 5 0 017 11V9.87A4 4 0 014 6V3a1 1 0 011-1zm1 4a2 2 0 001.99 2h.01V4H6v2zm12 0V4h-3v4h.01A2 2 0 0018 6z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Opportunities</div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-xl font-bold text-white tracking-tight flex items-center gap-1 cursor-pointer hover:text-cyan-300 transition">
+                <span>All Opportunities</span>
+                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              </h1>
+              <span class="p-1 text-slate-400 hover:text-white cursor-pointer" title="List View Controls">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              </span>
+            </div>
+            <div class="text-xs text-slate-400 mt-0.5">
+              <span id="opp-count">3 items</span> • Sorted by Opportunity Name • Filtered by All Active Luxury Sites • Updated just now
+            </div>
+          </div>
+        </div>
+
+        <!-- Controls & Action Buttons -->
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <!-- Search this list input -->
+          <div class="relative">
+            <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            <input type="text" id="list-search" oninput="filterTable()" placeholder="Search this list..." class="bg-[#0B1120] border border-slate-700/80 rounded-md py-1.5 pl-8 pr-3 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-400 w-44 transition">
+          </div>
+
+          <!-- Display Switcher (Table / Kanban) -->
+          <div class="flex items-center bg-[#0B1120] border border-slate-700/80 rounded-md p-0.5">
+            <button onclick="setViewMode('table')" id="btn-view-table" title="Table View" class="p-1 rounded bg-cyan-600/30 text-cyan-300">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+            </button>
+            <button onclick="setViewMode('kanban')" id="btn-view-kanban" title="Kanban Pipeline View" class="p-1 rounded text-slate-400 hover:text-white">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path></svg>
+            </button>
+          </div>
+
+          <!-- Refresh -->
+          <button onclick="loadClients()" title="Refresh List" class="p-1.5 rounded-md bg-[#0B1120] border border-slate-700/80 text-slate-400 hover:text-white transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          </button>
+
+          <!-- Toggle Chart -->
+          <button onclick="togglePipelineChart()" title="Toggle Pipeline Analytics Chart" id="btn-toggle-chart" class="p-1.5 rounded-md bg-[#0B1120] border border-slate-700/80 text-slate-400 hover:text-cyan-300 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
+          </button>
+
+          <!-- Primary Actions -->
+          <button onclick="openNewOpportunityModal()" class="px-3.5 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-md shadow transition flex items-center gap-1.5">
+            <span>New</span>
+          </button>
+          <button onclick="assignLeadLabel()" class="px-3 py-1.5 bg-[#0B1120] hover:bg-white/5 border border-slate-700/80 text-slate-300 hover:text-white font-semibold text-xs rounded-md transition hidden sm:inline-block">
+            Assign Label
+          </button>
+        </div>
+      </div>
+
+      <!-- COLLAPSIBLE PIPELINE CHART PANEL -->
+      <div id="pipeline-chart-panel" class="hidden p-4 bg-[#0A0F1D] border-b border-[#1E293B]">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Opportunity Pipeline By Stage (₹ Value)</h3>
+          <span class="text-xs text-cyan-400 font-mono font-bold" id="pipeline-total-val">Total Pipeline: ₹99,00,000</span>
+        </div>
+        <div class="relative w-full" style="height: 180px; min-height: 180px; max-height: 180px;">
+          <canvas id="crm-pipeline-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- VIEW 1: DATA TABLE (MATCHES SCREENSHOT 1) -->
+      <div id="view-table" class="flex-1 overflow-x-auto p-4 sm:p-6">
+        <div class="sf-card overflow-hidden">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="sf-table-header text-slate-400 font-bold uppercase tracking-wider text-[11px]">
+                <th class="py-3 px-3 w-8 text-center"><input type="checkbox" class="rounded bg-slate-800 border-slate-700"></th>
+                <th class="py-3 px-3 cursor-pointer hover:text-white transition" onclick="sortTable('name')">
+                  <div class="flex items-center gap-1">
+                    <span>Opportunity Name</span>
+                    <span class="text-cyan-400">↑</span>
+                  </div>
+                </th>
+                <th class="py-3 px-3 cursor-pointer hover:text-white transition" onclick="sortTable('client')">Account Name</th>
+                <th class="py-3 px-3 cursor-pointer hover:text-white transition text-right" onclick="sortTable('amount')">Amount</th>
+                <th class="py-3 px-3 cursor-pointer hover:text-white transition" onclick="sortTable('closeDate')">Target Handover</th>
+                <th class="py-3 px-3 cursor-pointer hover:text-white transition" onclick="sortTable('stage')">Stage</th>
+                <th class="py-3 px-3">Opportunity Owner Alias</th>
+                <th class="py-3 px-3 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="opp-table-body" class="divide-y divide-slate-800">
+              <!-- Dynamically populated from /api/crm/clients -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- VIEW 2: KANBAN BOARD VIEW -->
+      <div id="view-kanban" class="hidden flex-1 overflow-x-auto p-4 sm:p-6">
+        <div class="flex gap-4 min-h-[600px] pb-4">
+          <!-- Stage 1 -->
+          <div class="kanban-col p-3 flex flex-col">
+            <div class="flex items-center justify-between pb-2 mb-3 border-b border-blue-900/40">
+              <div class="text-xs font-bold text-blue-400 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+                <span>1. Lead & Site Survey</span>
+              </div>
+              <span id="kcount-0" class="text-[10px] bg-blue-950 text-blue-300 px-1.5 py-0.5 rounded font-bold">0</span>
+            </div>
+            <div id="kcol-0" class="flex-1 space-y-3"></div>
+          </div>
+
+          <!-- Stage 2 -->
+          <div class="kanban-col p-3 flex flex-col">
+            <div class="flex items-center justify-between pb-2 mb-3 border-b border-purple-900/40">
+              <div class="text-xs font-bold text-purple-400 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-purple-400"></span>
+                <span>2. 3D Design Freeze</span>
+              </div>
+              <span id="kcount-1" class="text-[10px] bg-purple-950 text-purple-300 px-1.5 py-0.5 rounded font-bold">1</span>
+            </div>
+            <div id="kcol-1" class="flex-1 space-y-3"></div>
+          </div>
+
+          <!-- Stage 3 -->
+          <div class="kanban-col p-3 flex flex-col">
+            <div class="flex items-center justify-between pb-2 mb-3 border-b border-amber-900/40">
+              <div class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                <span>3. Civil & Demolition</span>
+              </div>
+              <span id="kcount-2" class="text-[10px] bg-amber-950 text-amber-300 px-1.5 py-0.5 rounded font-bold">1</span>
+            </div>
+            <div id="kcol-2" class="flex-1 space-y-3"></div>
+          </div>
+
+          <!-- Stage 4 -->
+          <div class="kanban-col p-3 flex flex-col">
+            <div class="flex items-center justify-between pb-2 mb-3 border-b border-cyan-900/40">
+              <div class="text-xs font-bold text-cyan-400 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                <span>4. Joinery & Carcass</span>
+              </div>
+              <span id="kcount-3" class="text-[10px] bg-cyan-950 text-cyan-300 px-1.5 py-0.5 rounded font-bold">1</span>
+            </div>
+            <div id="kcol-3" class="flex-1 space-y-3"></div>
+          </div>
+
+          <!-- Stage 5 -->
+          <div class="kanban-col p-3 flex flex-col">
+            <div class="flex items-center justify-between pb-2 mb-3 border-b border-pink-900/40">
+              <div class="text-xs font-bold text-pink-400 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-pink-400"></span>
+                <span>5. Veneer & Polish</span>
+              </div>
+              <span id="kcount-4" class="text-[10px] bg-pink-950 text-pink-300 px-1.5 py-0.5 rounded font-bold">0</span>
+            </div>
+            <div id="kcol-4" class="flex-1 space-y-3"></div>
+          </div>
+
+          <!-- Stage 6 -->
+          <div class="kanban-col p-3 flex flex-col">
+            <div class="flex items-center justify-between pb-2 mb-3 border-b border-emerald-900/40">
+              <div class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span>6. Snag-Free Handover</span>
+              </div>
+              <span id="kcount-5" class="text-[10px] bg-emerald-950 text-emerald-300 px-1.5 py-0.5 rounded font-bold">0</span>
+            </div>
+            <div id="kcol-5" class="flex-1 space-y-3"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM DOCK: TO DO LIST (MATCHES SCREENSHOT 1 BOTTOM) -->
+      <div class="bg-[#0A0F1D] border-t border-[#1E293B] px-4 py-2 flex items-center justify-between text-xs">
+        <button onclick="toggleRemindersDrawer()" class="flex items-center gap-2 text-slate-300 hover:text-white font-bold transition">
+          <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+          <span>To Do List</span>
+          <span class="text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/30 px-1.5 py-0.2 rounded-full">4 Pending</span>
+        </button>
+        <div class="flex items-center gap-4 text-slate-500 text-[11px]">
+          <span>Dream Address Studio • Principal Signatory: Rohit Churiwala</span>
+          <span>WhatsApp Alerts: +91 91633 17574</span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- SLIDE-OVER REMINDERS DRAWER -->
+  <div id="reminders-drawer" class="fixed inset-y-0 right-0 w-full max-w-md bg-[#0A0F1D] border-l border-[#1E293B] shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+    <div class="p-4 border-b border-[#1E293B] flex items-center justify-between bg-[#0B1120]">
+      <div class="flex items-center gap-2">
+        <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+        <h3 class="text-sm font-bold text-white">Daily Operational Action Reminders</h3>
+      </div>
+      <button onclick="toggleRemindersDrawer()" class="text-slate-400 hover:text-white text-lg">✕</button>
+    </div>
+
+    <!-- Reminders List -->
+    <div id="reminders-list-container" class="flex-1 overflow-y-auto p-4 space-y-3">
+      <!-- Dynamically filled -->
+    </div>
+
+    <!-- Drawer Footer Actions -->
+    <div class="p-4 border-t border-[#1E293B] bg-[#0B1120] space-y-2">
+      <button onclick="sendPhoneReminders()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-lg transition flex items-center justify-center gap-2 shadow">
+        <span>📲</span> <span>Send All Reminders to Rohit (+91 91633 17574)</span>
+      </button>
+      <button onclick="openNewReminderModal()" class="w-full py-2 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white font-semibold text-xs rounded-lg border border-slate-700 transition">
+        + Add New Action Reminder
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: NEW OPPORTUNITY / CLIENT -->
+  <div id="modal-opportunity" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="sf-card w-full max-w-xl p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+        <div>
+          <div class="text-[10px] font-bold text-cyan-400 uppercase tracking-wider">Nexus 360 Opportunity Engine</div>
+          <h3 class="text-lg font-bold text-white">Create New Client Opportunity</h3>
+        </div>
+        <button onclick="closeOpportunityModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <form id="form-new-opp" onsubmit="submitNewOpportunity(event)" class="space-y-4 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Client / Account Name *</label>
+            <input type="text" id="opp-client-name" required placeholder="e.g. Smt. Priyanka Chatterjee" class="w-full bg-[#0A0F1D] border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-cyan-400">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Opportunity / Project Title *</label>
+            <input type="text" id="opp-project-name" required placeholder="e.g. Urbana Tower 3 - Luxury 4BHK" class="w-full bg-[#0A0F1D] border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-cyan-400">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Contract Value (₹) *</label>
+            <input type="number" id="opp-amount" required placeholder="3500000" class="w-full bg-[#0A0F1D] border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-cyan-400">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Carpet Area (sq ft)</label>
+            <input type="number" id="opp-area" placeholder="2200" class="w-full bg-[#0A0F1D] border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-cyan-400">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Target Handover Date *</label>
+            <input type="date" id="opp-date" required class="w-full bg-[#0A0F1D] border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-cyan-400">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Primary Stage</label>
+            <select id="opp-stage" class="w-full bg-[#0A0F1D] border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-cyan-400">
+              <option value="Lead & Site Survey">1. Lead & Site Survey</option>
+              <option value="3D Design Approval & Freeze">2. 3D Design Approval & Freeze</option>
+              <option value="Civil & Demolition">3. Civil & Demolition</option>
+              <option value="Joinery & Carcass Installation">4. Joinery & Carcass Installation</option>
+              <option value="Veneer & PU Polish">5. Veneer & PU Polish</option>
+              <option value="Final Handover & Snag-free">6. Final Handover & Snag-free</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Site Location / Address</label>
+            <input type="text" id="opp-location" placeholder="e.g. Urbana Complex, Anandapur, Kolkata" class="w-full bg-[#0A0F1D] border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-cyan-400">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Client Mobile / WhatsApp</label>
+            <input type="text" id="opp-phone" placeholder="+91 98300 XXXXX" class="w-full bg-[#0A0F1D] border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-cyan-400">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Client Email</label>
+            <input type="email" id="opp-email" placeholder="client@example.com" class="w-full bg-[#0A0F1D] border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-cyan-400">
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-700 flex justify-end gap-2">
+          <button type="button" onclick="closeOpportunityModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded shadow">Save Opportunity</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let clientsData = [];
+    let remindersData = [];
+    let currentView = 'table';
+    let chartInstance = null;
+
+    const STAGES = [
+      "Lead & Site Survey",
+      "3D Design Approval & Freeze",
+      "Civil & Demolition",
+      "Joinery & Carcass Installation",
+      "Veneer & PU Polish",
+      "Final Handover & Snag-free"
+    ];
+
+    async function initCRM() {
+      await loadClients();
+      await loadReminders();
+    }
+
+    async function loadClients() {
+      try {
+        const res = await fetch('/api/crm/clients');
+        const data = await res.json();
+        if (data.success && data.clients) {
+          clientsData = data.clients;
+          renderTable(clientsData);
+          renderKanban(clientsData);
+          updatePipelineSummary(clientsData);
+          document.getElementById('opp-count').textContent = `${clientsData.length} items`;
+        }
+      } catch (err) {
+        console.error("Failed to load clients:", err);
+      }
+    }
+
+    function renderTable(clients) {
+      const tbody = document.getElementById('opp-table-body');
+      tbody.innerHTML = '';
+
+      clients.forEach((c, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = 'sf-table-row';
+        
+        let stageClass = 'stage-survey';
+        if (c.stage.includes('3D')) stageClass = 'stage-freeze';
+        else if (c.stage.includes('Civil')) stageClass = 'stage-civil';
+        else if (c.stage.includes('Joinery') || c.stage.includes('Carcass')) stageClass = 'stage-carcass';
+        else if (c.stage.includes('Veneer') || c.stage.includes('Polish')) stageClass = 'stage-veneer';
+        else if (c.stage.includes('Handover')) stageClass = 'stage-handover';
+
+        const amountFormatted = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(c.contractValue || 0);
+        const closeDate = c.targetHandover || '15 Dec 2026';
+
+        tr.innerHTML = `
+          <td class="py-3 px-3 text-center"><input type="checkbox" class="rounded bg-slate-800 border-slate-700"></td>
+          <td class="py-3 px-3 font-semibold">
+            <a href="/client?id=${encodeURIComponent(c.id)}" target="_blank" class="text-sky-400 hover:text-sky-300 hover:underline flex items-center gap-1.5 font-bold">
+              <span>${c.name || c.projectName}</span>
+              <svg class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+            </a>
+            <div class="text-[10px] text-slate-500 font-mono">${c.id} • ${c.area ? c.area + ' sq ft' : 'Turnkey'}</div>
+          </td>
+          <td class="py-3 px-3 text-slate-200">
+            <div class="font-medium">${c.client || c.clientName}</div>
+            <div class="text-[10px] text-slate-500">${c.location || 'Kolkata'}</div>
+          </td>
+          <td class="py-3 px-3 text-right font-mono font-bold text-emerald-400">${amountFormatted}</td>
+          <td class="py-3 px-3 text-slate-300 font-mono">${closeDate}</td>
+          <td class="py-3 px-3">
+            <span class="stage-pill ${stageClass}">${c.stage}</span>
+          </td>
+          <td class="py-3 px-3 text-slate-400 flex items-center gap-1.5">
+            <span class="w-5 h-5 rounded-full bg-cyan-600/40 text-cyan-300 text-[10px] font-bold flex items-center justify-center">RC</span>
+            <span>Rohit C.</span>
+          </td>
+          <td class="py-3 px-3 text-center">
+            <div class="relative inline-block text-left">
+              <a href="/client?id=${encodeURIComponent(c.id)}" target="_blank" class="px-2.5 py-1 bg-white/5 hover:bg-white/10 text-cyan-300 hover:text-white rounded text-[11px] font-semibold border border-slate-700 transition">
+                View 360 →
+              </a>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderKanban(clients) {
+      for (let i = 0; i < 6; i++) {
+        const col = document.getElementById(`kcol-${i}`);
+        if (col) col.innerHTML = '';
+      }
+
+      const stageCounts = [0, 0, 0, 0, 0, 0];
+
+      clients.forEach(c => {
+        let idx = c.stageIndex || 0;
+        if (idx < 0 || idx > 5) idx = 0;
+        stageCounts[idx]++;
+
+        const col = document.getElementById(`kcol-${idx}`);
+        if (!col) return;
+
+        const card = document.createElement('div');
+        card.className = 'kanban-card p-3 space-y-2';
+        card.onclick = () => window.open(`/client?id=${encodeURIComponent(c.id)}`, '_blank');
+
+        const amountFormatted = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(c.contractValue || 0);
+
+        card.innerHTML = `
+          <div class="flex items-start justify-between">
+            <div class="font-bold text-white text-xs hover:text-cyan-300 transition line-clamp-1">${c.name || c.projectName}</div>
+            <span class="text-[10px] text-cyan-400 font-mono">${c.progress || 50}%</span>
+          </div>
+          <div class="text-[11px] text-slate-400 font-medium">${c.client || c.clientName}</div>
+          <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+            <div class="bg-gradient-to-r from-cyan-500 to-blue-500 h-1.5" style="width: ${c.progress || 50}%"></div>
+          </div>
+          <div class="flex items-center justify-between pt-1 border-t border-slate-800/80 text-[10px]">
+            <span class="font-mono font-bold text-emerald-400">${amountFormatted}</span>
+            <span class="text-slate-500">${c.area || 2000} sq ft</span>
+          </div>
+        `;
+        col.appendChild(card);
+      });
+
+      for (let i = 0; i < 6; i++) {
+        const badge = document.getElementById(`kcount-${i}`);
+        if (badge) badge.textContent = stageCounts[i];
+      }
+    }
+
+    function setViewMode(mode) {
+      currentView = mode;
+      const vTable = document.getElementById('view-table');
+      const vKanban = document.getElementById('view-kanban');
+      const bTable = document.getElementById('btn-view-table');
+      const bKanban = document.getElementById('btn-view-kanban');
+
+      if (mode === 'table') {
+        vTable.classList.remove('hidden');
+        vKanban.classList.add('hidden');
+        bTable.className = 'p-1 rounded bg-cyan-600/30 text-cyan-300';
+        bKanban.className = 'p-1 rounded text-slate-400 hover:text-white';
+      } else {
+        vTable.classList.add('hidden');
+        vKanban.classList.remove('hidden');
+        bKanban.className = 'p-1 rounded bg-cyan-600/30 text-cyan-300';
+        bTable.className = 'p-1 rounded text-slate-400 hover:text-white';
+      }
+    }
+
+    function togglePipelineChart() {
+      const panel = document.getElementById('pipeline-chart-panel');
+      panel.classList.toggle('hidden');
+      if (!panel.classList.contains('hidden') && !chartInstance) {
+        initPipelineChart();
+      }
+    }
+
+    function initPipelineChart() {
+      const ctx = document.getElementById('crm-pipeline-chart').getContext('2d');
+      const stageTotals = [0, 0, 0, 0, 0, 0];
+      clientsData.forEach(c => {
+        const idx = c.stageIndex || 0;
+        if (idx >= 0 && idx < 6) stageTotals[idx] += (c.contractValue || 0);
+      });
+
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['1. Survey', '2. 3D Freeze', '3. Civil', '4. Joinery', '5. Polish', '6. Handover'],
+          datasets: [{
+            label: 'Pipeline Value (₹)',
+            data: stageTotals,
+            backgroundColor: [
+              'rgba(59, 130, 246, 0.7)',
+              'rgba(168, 85, 247, 0.7)',
+              'rgba(245, 158, 11, 0.7)',
+              'rgba(6, 182, 212, 0.7)',
+              'rgba(236, 72, 153, 0.7)',
+              'rgba(16, 185, 129, 0.7)'
+            ],
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: { ticks: { color: '#94A3B8', font: { size: 10 } }, grid: { display: false } },
+            y: { ticks: { color: '#94A3B8', font: { size: 10 } }, grid: { color: '#1E293B' } }
+          }
+        }
+      });
+    }
+
+    function updatePipelineSummary(clients) {
+      const total = clients.reduce((sum, c) => sum + (c.contractValue || 0), 0);
+      const formatted = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(total);
+      const el = document.getElementById('pipeline-total-val');
+      if (el) el.textContent = `Total Pipeline: ${formatted}`;
+    }
+
+    function filterTable() {
+      const q = (document.getElementById('list-search').value || document.getElementById('global-search').value || '').toLowerCase();
+      const filtered = clientsData.filter(c => {
+        return (c.name || '').toLowerCase().includes(q) ||
+               (c.client || '').toLowerCase().includes(q) ||
+               (c.location || '').toLowerCase().includes(q) ||
+               (c.stage || '').toLowerCase().includes(q);
+      });
+      renderTable(filtered);
+    }
+
+    function sortTable(key) {
+      clientsData.sort((a, b) => {
+        if (key === 'name') return (a.name || '').localeCompare(b.name || '');
+        if (key === 'client') return (a.client || '').localeCompare(b.client || '');
+        if (key === 'amount') return (b.contractValue || 0) - (a.contractValue || 0);
+        if (key === 'stage') return (a.stageIndex || 0) - (b.stageIndex || 0);
+        return 0;
+      });
+      renderTable(clientsData);
+    }
+
+    // Reminders & Drawer
+    async function loadReminders() {
+      try {
+        const res = await fetch('/api/reminders');
+        const data = await res.json();
+        if (data.success && data.reminders) {
+          remindersData = data.reminders;
+          renderRemindersList(remindersData);
+          const badge = document.getElementById('crm-bell-badge');
+          if (badge) badge.textContent = remindersData.filter(r => !r.completed).length;
+        }
+      } catch (err) {
+        console.error("Failed to load reminders:", err);
+      }
+    }
+
+    function renderRemindersList(reminders) {
+      const container = document.getElementById('reminders-list-container');
+      container.innerHTML = '';
+
+      if (reminders.length === 0) {
+        container.innerHTML = `<div class="p-6 text-center text-slate-500 text-xs">No pending action reminders.</div>`;
+        return;
+      }
+
+      reminders.forEach(r => {
+        const card = document.createElement('div');
+        const prioColor = r.priority === 'Urgent' ? 'border-rose-500/40 bg-rose-500/10 text-rose-300' : (r.priority === 'High' ? 'border-amber-500/40 bg-amber-500/10 text-amber-300' : 'border-blue-500/40 bg-blue-500/10 text-blue-300');
+        
+        card.className = `p-3.5 rounded-xl bg-[#0F172A] border ${r.completed ? 'opacity-50 border-slate-800' : 'border-slate-800 hover:border-slate-700'} space-y-2 text-xs transition`;
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex items-start gap-2">
+              <input type="checkbox" ${r.completed ? 'checked' : ''} onchange="toggleReminder('${r.id}')" class="mt-1 rounded bg-slate-800 border-slate-700 text-cyan-500 cursor-pointer">
+              <div>
+                <div class="font-bold ${r.completed ? 'line-through text-slate-500' : 'text-white'}">${r.title}</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">${r.clientName} (${r.projectId})</div>
+              </div>
+            </div>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${prioColor}">${r.priority}</span>
+          </div>
+          ${r.notes ? `<div class="text-[11px] text-slate-400 bg-black/20 p-2 rounded">${r.notes}</div>` : ''}
+          <div class="flex items-center justify-between text-[11px] pt-1 text-slate-500">
+            <span>Due: ${r.due}</span>
+            <span class="font-mono text-cyan-300 font-semibold">${r.amount || '-'}</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    async function toggleReminder(id) {
+      try {
+        const res = await fetch(`/api/reminders/${id}/toggle`, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          await loadReminders();
+        }
+      } catch (err) {
+        console.error("Toggle reminder error:", err);
+      }
+    }
+
+    function toggleRemindersDrawer() {
+      const drawer = document.getElementById('reminders-drawer');
+      drawer.classList.toggle('translate-x-full');
+    }
+
+    async function sendPhoneReminders() {
+      try {
+        const res = await fetch('/api/reminders/send-to-phone', { method: 'POST' });
+        const data = await res.json();
+        if (data.success && data.whatsappUrl) {
+          window.open(data.whatsappUrl, '_blank');
+        }
+      } catch (err) {
+        alert("Failed to trigger WhatsApp dispatch.");
+      }
+    }
+
+    async function syncGoogleSheets() {
+      const btn = document.getElementById('crm-sync-btn');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = `<span class="animate-spin">🔄</span> <span>Syncing...</span>`;
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/sync-sheets', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          btn.innerHTML = `<span>✓</span> <span>Synced!</span>`;
+          setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2000);
+          await loadClients();
+        }
+      } catch (err) {
+        btn.innerHTML = `<span>✕</span> <span>Sync Failed</span>`;
+        setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2000);
+      }
+    }
+
+    // Modal Handlers
+    function openNewOpportunityModal() {
+      document.getElementById('modal-opportunity').classList.remove('hidden');
+    }
+
+    function closeOpportunityModal() {
+      document.getElementById('modal-opportunity').classList.add('hidden');
+    }
+
+    async function submitNewOpportunity(e) {
+      e.preventDefault();
+      const payload = {
+        clientName: document.getElementById('opp-client-name').value,
+        projectName: document.getElementById('opp-project-name').value,
+        contractValue: parseFloat(document.getElementById('opp-amount').value),
+        area: parseInt(document.getElementById('opp-area').value) || 2000,
+        targetHandover: document.getElementById('opp-date').value,
+        stage: document.getElementById('opp-stage').value,
+        location: document.getElementById('opp-location').value,
+        phone: document.getElementById('opp-phone').value,
+        email: document.getElementById('opp-email').value,
+        tier: "HNW Turnkey VIP"
+      };
+
+      try {
+        const res = await fetch('/api/crm/clients', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeOpportunityModal();
+          await loadClients();
+          // Open newly created client in new tab
+          window.open(`/client?id=${encodeURIComponent(data.client.id)}`, '_blank');
+        } else {
+          alert(data.message || 'Error saving opportunity');
+        }
+      } catch (err) {
+        alert('Server communication error.');
+      }
+    }
+
+    function assignLeadLabel() {
+      const label = prompt("Assign label to selected opportunities:", "VIP HNW High-Priority");
+      if (label) alert(`Assigned label: "${label}"`);
+    }
+
+    function switchNavTab(tab) {
+      if (tab === 'opportunities') setViewMode('table');
+      else alert(`Navigating to ${tab.toUpperCase()} module...`);
+    }
+
+    function toggleUserMenu() {
+      if (confirm("Logged in as Rohit Churiwala (Super Admin). Log out?")) {
+        localStorage.removeItem('da_auth_token');
+        localStorage.removeItem('da_auth_user');
+        window.location.href = '/';
+      }
+    }
+
+    window.onload = initCRM;
+  </script>
+</body>
+</html>

@@ -37,7 +37,7 @@ const db = {
   company: {
     name: "Dream Address Studio",
     address: "Kolkata, West Bengal",
-    phone: "+91 98301 23456",
+    phone: "+91 91633 17574",
     email: "rohitchuriwala3@gmail.com",
     signatories: [
       { id: "SIG-01", name: "Rohit Churiwala", title: "Principal Designer & Managing Director" },
@@ -118,7 +118,7 @@ users: [
     crmName: "Nexus 360",
     firmName: "Dream Address Studio",
     principalDesigner: "Rohit Churiwala",
-    phone: "+91 98301 23456",
+    phone: "+91 91633 17574",
     email: "rohitchuriwala3@gmail.com",
     liquidityThreshold: 50000,
     saturdayWageTarget: 185000,
@@ -236,7 +236,7 @@ users: [
       name: "Highline Highland - Penthouse 14B",
       client: "Ananya Sen",
       tier: "HNW Turnkey VIP",
-      phone: "+91 98301 23456",
+      phone: "+91 91633 17574",
       email: "ananya.sen@gmail.com",
       location: "EM Bypass, Kolkata",
       area: 2850,
@@ -617,10 +617,23 @@ app.post('/api/auth/verify-otp', (req, res) => {
 
 app.get('/api/auth/me', (req, res) => {
   const authHeader = req.headers.authorization;
-  // If authorization token exists or default
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({
+      success: false,
+      authenticated: false,
+      message: 'Unauthenticated. Please log in with Email OTP or Master PIN.'
+    });
+  }
+  const token = authHeader.split(' ')[1];
+  if (!token || token === 'null' || token === 'undefined') {
+    return res.status(401).json({ success: false, authenticated: false, message: 'Invalid session token' });
+  }
+
+  // Return Super Admin user
   const superAdmin = db.users.find(u => u.email === 'rohitchuriwala3@gmail.com') || db.users[0];
   res.json({
     success: true,
+    authenticated: true,
     user: superAdmin
   });
 });
@@ -958,7 +971,7 @@ app.post('/api/reminders/send-to-phone', requireAuth, (req, res) => {
   });
 
   text += `_Rohit Churiwala | Dream Address Management Tool MARK IV OS_`;
-  const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+  const whatsappUrl = `https://api.whatsapp.com/send?phone=919163317574&text=${encodeURIComponent(text)}`;
   res.json({ success: true, whatsappUrl, messageText: text, count: pending.length });
 });
 
@@ -978,7 +991,7 @@ app.post('/api/crm/clients', requireAuth, (req, res) => {
     name: finalProject,
     client: finalClient,
     tier: tier || "HNW Turnkey VIP",
-    phone: phone || "+91 98301 23456",
+    phone: phone || "+91 91633 17574",
     email: email || `${slug}@gmail.com`,
     location: location || "Kolkata",
     area: parseFloat(area) || 1800,
@@ -1401,6 +1414,15 @@ app.post('/api/sync-sheets', requireAuth, (req, res) => {
     projectRowsUpdated: projectExpenses.length,
     status: `All 22 Google Sheet tabs synchronized. ${personalExpenses.length} personal family expense rows appended with sub-category data and notes to the dedicated Personal Expenses tab.`
   });
+});
+
+// Dedicated Routes for Standalone Subdomain / Applications
+app.get(['/crm', '/nexus-360'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'crm.html'));
+});
+
+app.get(['/client', '/client/:id', '/crm/client/:id'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'client.html'));
 });
 
 // HTML5 Fallback Routing

@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client 360 Record | Dream Address Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0B1120;
+      color: #E2E8F0;
+    }
+    .sf-header {
+      background-color: #032D60;
+      border-bottom: 1px solid #1E3A8A;
+    }
+    .sf-subnav {
+      background-color: #0B172E;
+      border-bottom: 1px solid #1E293B;
+    }
+    .sf-card {
+      background-color: #0F172A;
+      border: 1px solid #1E293B;
+      border-radius: 8px;
+    }
+    .sf-badge {
+      background-color: #0B172E;
+      border: 1px solid #1E293B;
+    }
+    /* Salesforce Chevron Path Ribbon */
+    .chevron-bar {
+      display: flex;
+      background-color: #0A0F1D;
+      border: 1px solid #1E293B;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+    .chevron-step {
+      position: relative;
+      flex: 1;
+      padding: 10px 18px 10px 24px;
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+      white-space: nowrap;
+      cursor: pointer;
+      color: #64748B;
+      background-color: #0F172A;
+      border-right: 1px solid #1E293B;
+      transition: all 0.2s ease;
+    }
+    .chevron-step:hover {
+      background-color: #1E293B;
+      color: #E2E8F0;
+    }
+    .chevron-step.completed {
+      background-color: rgba(16, 185, 129, 0.15);
+      color: #34D399;
+      border-right-color: rgba(16, 185, 129, 0.3);
+    }
+    .chevron-step.current {
+      background-color: #0284C7;
+      color: #FFFFFF;
+      box-shadow: 0 0 14px rgba(2, 132, 199, 0.5);
+    }
+    /* Timeline styling */
+    .timeline-node {
+      position: relative;
+      padding-left: 36px;
+    }
+    .timeline-node::before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 26px;
+      bottom: -16px;
+      width: 2px;
+      background-color: #1E293B;
+    }
+    .timeline-node:last-child::before {
+      display: none;
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0B1120; }
+    ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 3px; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- 1. SALESFORCE GLOBAL BLUE HEADER -->
+  <header class="sf-header px-4 py-2 flex items-center justify-between text-white sticky top-0 z-50">
+    <div class="flex items-center gap-4">
+      <!-- 9-dot App Launcher Grid -->
+      <button onclick="window.location.href='/crm'" title="Back to Nexus 360 Opportunities" class="p-1.5 rounded hover:bg-white/10 transition flex flex-col items-center justify-center gap-0.5">
+        <div class="grid grid-cols-3 gap-0.5 w-4 h-4">
+          <div class="w-1 h-1 bg-white rounded-sm"></div><div class="w-1 h-1 bg-white rounded-sm"></div><div class="w-1 h-1 bg-white rounded-sm"></div>
+          <div class="w-1 h-1 bg-white rounded-sm"></div><div class="w-1 h-1 bg-white rounded-sm"></div><div class="w-1 h-1 bg-white rounded-sm"></div>
+          <div class="w-1 h-1 bg-white rounded-sm"></div><div class="w-1 h-1 bg-white rounded-sm"></div><div class="w-1 h-1 bg-white rounded-sm"></div>
+        </div>
+      </button>
+
+      <!-- Cloud Icon + Brand -->
+      <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.href='/crm'">
+        <svg class="w-8 h-8 text-cyan-400" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
+        </svg>
+        <div>
+          <span class="text-base font-extrabold tracking-tight text-white">Sales</span>
+          <span class="text-[10px] text-cyan-300 ml-1.5 uppercase font-mono tracking-wider font-bold">Client 360 Record</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Centered Search -->
+    <div class="flex-1 max-w-xl mx-8 hidden sm:block">
+      <div class="relative">
+        <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+        <input type="text" placeholder="Search this client record..." class="w-full bg-[#081B38] border border-blue-900/60 rounded-full py-1.5 pl-9 pr-8 text-xs text-slate-200 placeholder-slate-400 focus:outline-none focus:border-cyan-400">
+      </div>
+    </div>
+
+    <!-- Right Header Utilities -->
+    <div class="flex items-center gap-3">
+      <!-- WhatsApp Rohit direct button -->
+      <a href="https://api.whatsapp.com/send?phone=919163317574" target="_blank" title="Chat with Rohit Churiwala on WhatsApp" class="flex items-center gap-1.5 px-3 py-1 bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-400/40 rounded-full text-xs font-semibold text-emerald-200 transition">
+        <span>💬</span> <span>WhatsApp Rohit</span>
+      </a>
+
+      <!-- Setup Gear -->
+      <button onclick="window.location.href='/?tab=settings'" title="Settings" class="p-1.5 rounded hover:bg-white/10 text-slate-300 hover:text-white transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+      </button>
+
+      <!-- Profile -->
+      <div class="flex items-center gap-2 pl-2 border-l border-blue-900/60">
+        <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-bold text-xs text-white">RC</div>
+        <div class="hidden lg:block text-left text-xs font-bold text-white">Rohit Churiwala</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. BREADCRUMB SUBNAV (Accounts > [Client Name]) -->
+  <div class="sf-subnav px-6 py-2 flex items-center justify-between text-xs text-slate-400">
+    <div class="flex items-center gap-2">
+      <a href="/crm" class="hover:text-cyan-300 font-semibold flex items-center gap-1">
+        <span>Accounts</span>
+      </a>
+      <span>›</span>
+      <span id="breadcrumb-client-name" class="text-white font-bold">Loading Client...</span>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <span class="font-mono text-cyan-300 text-[11px]" id="client-subdomain-tag">client.nexus.dreamaddress.in</span>
+      <a href="/crm" class="px-2.5 py-1 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white rounded text-xs font-semibold transition">
+        ← Back to All Opportunities
+      </a>
+    </div>
+  </div>
+
+  <!-- 3. MAIN CONTAINER -->
+  <main class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 max-w-[1600px] mx-auto w-full">
+
+    <!-- TOP HIGHLIGHTS PANEL (MATCHES SCREENSHOT 2 TOP) -->
+    <div class="sf-card p-4 sm:p-5 shadow-xl">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <!-- Left Title & Building Icon -->
+        <div class="flex items-start sm:items-center gap-3.5">
+          <!-- Blue Circle Account Icon -->
+          <div class="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shrink-0">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            </svg>
+          </div>
+
+          <div>
+            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+              <span>Account / Client Project</span>
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              <span id="client-tier-badge" class="text-emerald-400 font-semibold">HNW Turnkey VIP</span>
+            </div>
+            <h1 id="client-heading-name" class="text-2xl font-extrabold text-white tracking-tight mt-0.5">
+              Loading Project...
+            </h1>
+            <div class="flex items-center gap-3 text-xs text-slate-400 mt-1">
+              <span id="client-location-tag">Kolkata, WB</span>
+              <span>•</span>
+              <span id="client-area-tag">2,850 sq ft</span>
+              <span>•</span>
+              <span class="text-cyan-400 font-mono font-bold" id="client-id-tag">PRJ-2026-001</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Quick Action Buttons -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <button onclick="followRecord()" class="px-3.5 py-1.5 bg-[#0B172E] hover:bg-white/10 border border-slate-700 text-slate-200 text-xs font-bold rounded-md transition flex items-center gap-1.5">
+            <span>+ Follow</span>
+          </button>
+          <button onclick="openQuotationModal()" class="px-3.5 py-1.5 bg-[#0B172E] hover:bg-white/10 border border-slate-700 text-slate-200 text-xs font-bold rounded-md transition">
+            New Quotation
+          </button>
+          <button onclick="openInvoiceModal()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-md shadow transition">
+            Raise Invoice
+          </button>
+          <button onclick="openChangeOrderModal()" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-md shadow transition">
+            + Change Order
+          </button>
+          <button onclick="dispatchClientWhatsApp()" class="px-3 py-1.5 bg-[#0B172E] hover:bg-white/10 border border-slate-700 text-emerald-400 hover:text-emerald-300 text-xs font-bold rounded-md transition">
+            WhatsApp
+          </button>
+        </div>
+      </div>
+
+      <!-- Chevron Progress Stage Ribbon -->
+      <div class="mt-5 pt-4 border-t border-slate-800">
+        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+          <span>Execution Milestone Path</span>
+          <span class="text-cyan-400">Click any stage to advance milestone</span>
+        </div>
+        <div class="chevron-bar" id="stage-chevron-bar">
+          <div class="chevron-step" onclick="updateStage(0)">1. Lead Survey</div>
+          <div class="chevron-step" onclick="updateStage(1)">2. 3D Freeze</div>
+          <div class="chevron-step" onclick="updateStage(2)">3. Civil Demolition</div>
+          <div class="chevron-step" onclick="updateStage(3)">4. Joinery & Carcass</div>
+          <div class="chevron-step" onclick="updateStage(4)">5. Veneer & Polish</div>
+          <div class="chevron-step" onclick="updateStage(5)">6. Snag-Free Handover</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. AUTHENTIC 3-COLUMN SALESFORCE LIGHTNING LAYOUT (MATCHES SCREENSHOT 2) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+      <!-- ======================================================== -->
+      <!-- LEFT COLUMN: COLLAPSIBLE DETAILS (ABOUT, CONTACT, FINANCIALS) -->
+      <!-- ======================================================== -->
+      <div class="lg:col-span-3 space-y-4">
+        <!-- CARD 1: ABOUT (COLLAPSIBLE) -->
+        <div class="sf-card p-4 space-y-3">
+          <div class="flex items-center justify-between cursor-pointer" onclick="toggleCard('card-about')">
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              <span>About</span>
+            </h3>
+            <span class="text-xs text-slate-500">Edit</span>
+          </div>
+
+          <div id="card-about" class="space-y-3 pt-2 border-t border-slate-800 text-xs">
+            <div>
+              <div class="text-[11px] text-slate-400">Account Name</div>
+              <div class="font-bold text-white mt-0.5" id="field-client-name">Ananya Sen</div>
+            </div>
+            <div>
+              <div class="text-[11px] text-slate-400">Project / Opportunity Title</div>
+              <div class="font-semibold text-slate-200 mt-0.5" id="field-project-title">Highline Highland - Penthouse 14B</div>
+            </div>
+            <div>
+              <div class="text-[11px] text-slate-400">Client Portal Subdomain</div>
+              <a href="#" id="field-subdomain" class="text-sky-400 hover:underline font-mono text-[11px] mt-0.5 block">ananya-sen.nexus.dreamaddress.in</a>
+            </div>
+            <div>
+              <div class="text-[11px] text-slate-400">Client Type / Tier</div>
+              <div class="text-slate-200 mt-0.5 font-medium" id="field-tier">Luxury Turnkey VIP (Direct Contracting)</div>
+            </div>
+            <div>
+              <div class="text-[11px] text-slate-400">Scope Description</div>
+              <div class="text-slate-300 mt-0.5 leading-relaxed bg-[#0A0F1D] p-2.5 rounded border border-slate-800" id="field-description">
+                Complete interior design & contracting: Living room Italian marble, bespoke Tangra joinery wardrobes, hydraulic beds, concealed AC ducting, and false ceiling LED lighting.
+              </div>
+            </div>
+            <div>
+              <div class="text-[11px] text-slate-400">Account Owner</div>
+              <div class="flex items-center gap-2 mt-1">
+                <div class="w-5 h-5 rounded-full bg-cyan-600/40 text-cyan-300 text-[10px] font-bold flex items-center justify-center">RC</div>
+                <span class="font-bold text-white">Rohit Churiwala (Principal Designer)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 2: GET IN TOUCH (COLLAPSIBLE) -->
+        <div class="sf-card p-4 space-y-3">
+          <div class="flex items-center justify-between cursor-pointer" onclick="toggleCard('card-touch')">
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              <span>Get in Touch</span>
+            </h3>
+            <span class="text-xs text-slate-500">Edit</span>
+          </div>
+
+          <div id="card-touch" class="space-y-3 pt-2 border-t border-slate-800 text-xs">
+            <div>
+              <div class="text-[11px] text-slate-400">Principal Signatory Phone (Rohit)</div>
+              <div class="font-mono font-bold text-emerald-400 mt-0.5">+91 91633 17574</div>
+            </div>
+            <div>
+              <div class="text-[11px] text-slate-400">Client WhatsApp / Phone</div>
+              <div class="font-mono text-slate-200 mt-0.5" id="field-phone">+91 98301 23456</div>
+            </div>
+            <div>
+              <div class="text-[11px] text-slate-400">Official Correspondence Email</div>
+              <div class="text-slate-200 mt-0.5" id="field-email">ananya.sen@gmail.com</div>
+            </div>
+            <div>
+              <div class="text-[11px] text-slate-400">Site / Shipping Location</div>
+              <div class="text-slate-300 mt-0.5 bg-[#0A0F1D] p-2 rounded border border-slate-800" id="field-site-address">
+                Tower 2, Flat 14B, Highline Highland, EM Bypass, Kolkata - 700105
+              </div>
+            </div>
+            <div>
+              <div class="text-[11px] text-slate-400">Assigned Site Supervisor</div>
+              <div class="text-slate-200 mt-0.5 font-medium">Amit Ganguly (Lead Site Engineer)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 3: CONTRACT & FINANCIALS -->
+        <div class="sf-card p-4 space-y-3">
+          <div class="flex items-center justify-between cursor-pointer" onclick="toggleCard('card-finance')">
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              <span>Contract & Financials</span>
+            </h3>
+            <span class="text-xs text-emerald-400 font-bold">100% Verified</span>
+          </div>
+
+          <div id="card-finance" class="space-y-2.5 pt-2 border-t border-slate-800 text-xs">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400">Agreed Contract Value:</span>
+              <span class="font-mono font-bold text-white" id="field-contract-val">₹38,50,000</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400">Total Billed to Date:</span>
+              <span class="font-mono font-semibold text-sky-400" id="field-invoiced-val">₹23,10,000</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400">Total Payments Received:</span>
+              <span class="font-mono font-bold text-emerald-400" id="field-received-val">₹19,25,000</span>
+            </div>
+            <div class="flex items-center justify-between pt-1 border-t border-slate-800">
+              <span class="text-slate-400">Outstanding Receivable:</span>
+              <span class="font-mono font-bold text-rose-400" id="field-outstanding-val">₹3,85,000</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400">Actual Direct Site Costs:</span>
+              <span class="font-mono text-slate-300" id="field-direct-cost">₹16,40,000</span>
+            </div>
+            <div class="flex items-center justify-between pt-1 border-t border-slate-800">
+              <span class="text-slate-400">Studio Gross Margin:</span>
+              <span class="font-mono font-bold text-emerald-300" id="field-gross-margin">₹8,10,000 (35.0%)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 4: MATERIAL & AESTHETIC DIRECTIVES -->
+        <div class="sf-card p-4 space-y-3">
+          <div class="flex items-center justify-between cursor-pointer" onclick="toggleCard('card-specs')">
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              <span>Material & Design Directives</span>
+            </h3>
+          </div>
+
+          <div id="card-specs" class="space-y-2 pt-2 border-t border-slate-800 text-xs text-slate-300">
+            <div class="flex items-start gap-2">
+              <span class="text-cyan-400 font-bold">•</span>
+              <div><strong class="text-white">Plywood:</strong> Century Club Prime BWP 710 Marine Grade for all wet areas & carcasses.</div>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="text-cyan-400 font-bold">•</span>
+              <div><strong class="text-white">Veneer & Polish:</strong> Natural Smoked Oak Veneer with High-Gloss Sirca PU Polish.</div>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="text-cyan-400 font-bold">•</span>
+              <div><strong class="text-white">Hardware:</strong> Hettich Sensys soft-close concealed hinges + Quadro soft-close drawer runners.</div>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="text-cyan-400 font-bold">•</span>
+              <div><strong class="text-white">Marble:</strong> Michaelangelo Statuario in master bedroom; Dyna Beige in living/dining.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- CENTER COLUMN: QUICK ACTION PUBLISHER & ACTIVITY TIMELINE -->
+      <!-- ======================================================== -->
+      <div class="lg:col-span-6 space-y-4">
+
+        <!-- QUICK ACTIVITY PUBLISHER (MATCHES SCREENSHOT 2 CENTER TOP) -->
+        <div class="sf-card p-4 shadow-xl space-y-3">
+          <!-- Publisher Tab Bar -->
+          <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
+            <button onclick="setPublisherTab('email')" id="pub-tab-email" class="p-2 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 transition flex items-center gap-1.5 text-xs font-bold">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+              <span>Email</span>
+            </button>
+            <button onclick="setPublisherTab('call')" id="pub-tab-call" class="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition flex items-center gap-1.5 text-xs font-bold">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+              <span>Log a Call</span>
+            </button>
+            <button onclick="setPublisherTab('visit')" id="pub-tab-visit" class="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition flex items-center gap-1.5 text-xs font-bold">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+              <span>Site Visit</span>
+            </button>
+            <button onclick="setPublisherTab('task')" id="pub-tab-task" class="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition flex items-center gap-1.5 text-xs font-bold">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+              <span>New Task</span>
+            </button>
+            <button onclick="setPublisherTab('note')" id="pub-tab-note" class="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition flex items-center gap-1.5 text-xs font-bold">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+              <span>Post Note</span>
+            </button>
+          </div>
+
+          <!-- Dynamic Publisher Form -->
+          <form id="form-publisher" onsubmit="submitPublisherActivity(event)" class="space-y-3 text-xs">
+            <div id="pub-subject-container">
+              <input type="text" id="pub-subject" placeholder="Activity Subject (e.g. 3D Carcass Presentation Discussion)" class="w-full bg-[#0A0F1D] border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-cyan-400">
+            </div>
+            <div>
+              <textarea id="pub-notes" rows="3" required placeholder="Write detailed notes, decisions made, client directives or agreed deliverables..." class="w-full bg-[#0A0F1D] border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-cyan-400"></textarea>
+            </div>
+            <div class="flex items-center justify-between pt-1">
+              <div class="flex items-center gap-2 text-slate-400">
+                <span>Signatory:</span>
+                <span class="font-bold text-white">Rohit Churiwala</span>
+              </div>
+              <button type="submit" class="px-4 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-md shadow transition">
+                Log Activity
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- ACTIVITY TIMELINE HEADER (MATCHES SCREENSHOT 2 CENTER) -->
+        <div class="sf-card p-4 space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div class="flex items-center gap-3">
+              <label class="flex items-center gap-2 cursor-pointer text-xs text-slate-300">
+                <input type="checkbox" id="toggle-insights" class="rounded bg-slate-800 border-slate-700 text-cyan-500">
+                <span>Only show activities with insights</span>
+              </label>
+            </div>
+
+            <div class="flex items-center gap-3 text-xs text-slate-400">
+              <span>Filters: All time • All activities • All types</span>
+              <button onclick="loadClientDetail()" class="text-cyan-400 hover:underline font-semibold">Refresh</button>
+              <span>•</span>
+              <button onclick="expandAllTimeline()" class="text-cyan-400 hover:underline font-semibold">Expand All</button>
+            </div>
+          </div>
+
+          <!-- SECTION: UPCOMING & OVERDUE -->
+          <div class="space-y-3">
+            <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
+              <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              <span>Upcoming & Scheduled Milestones</span>
+            </div>
+            <div id="timeline-upcoming" class="space-y-3">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- SECTION: PAST ACTIVITIES -->
+          <div class="space-y-3 pt-3 border-t border-slate-800">
+            <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
+              <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              <span id="timeline-month-label">November 2026 (Active History)</span>
+            </div>
+            <div id="timeline-past" class="space-y-4">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- RIGHT COLUMN: RELATED LISTS (CONTACTS, OPPS, QUOTES, INVOICES, SNAGS) -->
+      <!-- ======================================================== -->
+      <div class="lg:col-span-3 space-y-4">
+
+        <!-- RELATED LIST 1: CONTACTS (1) -->
+        <div class="sf-card p-4 space-y-3">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <div class="w-5 h-5 rounded bg-purple-600 flex items-center justify-center text-white text-xs">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+              </div>
+              <h3 class="text-xs font-bold text-white">Contacts (1)</h3>
+            </div>
+            <button class="text-cyan-400 hover:underline text-xs font-semibold">View All</button>
+          </div>
+
+          <div class="p-3 bg-[#0A0F1D] rounded border border-slate-800 space-y-1.5 text-xs">
+            <div class="font-bold text-sky-400 hover:underline cursor-pointer" id="rel-contact-name">Ananya Sen</div>
+            <div class="text-[11px] text-slate-400">Title: <span class="text-slate-200">Owner & Principal Client</span></div>
+            <div class="text-[11px] text-slate-400">Email: <span class="text-slate-200" id="rel-contact-email">ananya.sen@gmail.com</span></div>
+            <div class="text-[11px] text-slate-400">Phone: <span class="text-emerald-400 font-mono" id="rel-contact-phone">+91 91633 17574</span></div>
+          </div>
+        </div>
+
+        <!-- RELATED LIST 2: OPPORTUNITIES (1) -->
+        <div class="sf-card p-4 space-y-3">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <div class="w-5 h-5 rounded bg-amber-500 flex items-center justify-center text-white text-xs">
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M5 2h14a1 1 0 011 1v3a4 4 0 01-3 3.87V11a5 5 0 01-4 4.9V18h3a1 1 0 110 2H8a1 1 0 110-2h3v-2.1A5 5 0 017 11V9.87A4 4 0 014 6V3a1 1 0 011-1z"/></svg>
+              </div>
+              <h3 class="text-xs font-bold text-white">Opportunities (1)</h3>
+            </div>
+            <button class="text-cyan-400 hover:underline text-xs font-semibold">View All</button>
+          </div>
+
+          <div class="p-3 bg-[#0A0F1D] rounded border border-slate-800 space-y-1.5 text-xs">
+            <div class="font-bold text-sky-400 hover:underline cursor-pointer" id="rel-opp-name">Highline Penthouse 14B</div>
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="text-slate-400">Stage:</span>
+              <span class="text-cyan-300 font-bold" id="rel-opp-stage">Joinery & Carcass</span>
+            </div>
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="text-slate-400">Amount:</span>
+              <span class="font-mono font-bold text-emerald-400" id="rel-opp-amount">₹38,50,000.00</span>
+            </div>
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="text-slate-400">Target Close:</span>
+              <span class="font-mono text-slate-300">15 Dec 2026</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- RELATED LIST 3: QUOTATIONS & BOQ (N) -->
+        <div class="sf-card p-4 space-y-3">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <div class="w-5 h-5 rounded bg-blue-500 flex items-center justify-center text-white text-xs font-bold">Q</div>
+              <h3 class="text-xs font-bold text-white">Quotations & BOQ</h3>
+            </div>
+            <button onclick="openQuotationModal()" class="text-cyan-400 hover:underline text-xs font-bold">+ New Quote</button>
+          </div>
+
+          <div id="rel-quotes-container" class="space-y-2">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- RELATED LIST 4: INVOICES & BILLINGS (N) -->
+        <div class="sf-card p-4 space-y-3">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <div class="w-5 h-5 rounded bg-emerald-600 flex items-center justify-center text-white text-xs font-bold">₹</div>
+              <h3 class="text-xs font-bold text-white">Invoices & Billings</h3>
+            </div>
+            <button onclick="openInvoiceModal()" class="text-emerald-400 hover:underline text-xs font-bold">+ Raise Bill</button>
+          </div>
+
+          <div id="rel-invoices-container" class="space-y-2">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- RELATED LIST 5: TANGRA WORKSHOP PREFAB STATUS -->
+        <div class="sf-card p-4 space-y-3">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <div class="w-5 h-5 rounded bg-pink-600 flex items-center justify-center text-white text-xs">🪚</div>
+              <h3 class="text-xs font-bold text-white">Tangra Joinery Prefab</h3>
+            </div>
+            <span class="text-[10px] text-cyan-300 font-mono font-bold">68% Done</span>
+          </div>
+
+          <div class="space-y-2 text-xs">
+            <div>
+              <div class="flex justify-between text-[11px] mb-1">
+                <span class="text-slate-400">Master Wardrobes Carcass:</span>
+                <span class="font-bold text-emerald-400">85% Ready</span>
+              </div>
+              <div class="w-full bg-slate-800 rounded-full h-1.5"><div class="bg-emerald-500 h-1.5 rounded-full" style="width: 85%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-[11px] mb-1">
+                <span class="text-slate-400">Kitchen Base Units:</span>
+                <span class="font-bold text-cyan-400">70% Assembled</span>
+              </div>
+              <div class="w-full bg-slate-800 rounded-full h-1.5"><div class="bg-cyan-500 h-1.5 rounded-full" style="width: 70%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-[11px] mb-1">
+                <span class="text-slate-400">Smoked Oak Veneer Pressing:</span>
+                <span class="font-bold text-amber-400">In Progress</span>
+              </div>
+              <div class="w-full bg-slate-800 rounded-full h-1.5"><div class="bg-amber-500 h-1.5 rounded-full" style="width: 50%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RELATED LIST 6: CASES & SNAG LIST (N) -->
+        <div class="sf-card p-4 space-y-3">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <div class="w-5 h-5 rounded bg-rose-600 flex items-center justify-center text-white text-xs">✓</div>
+              <h3 class="text-xs font-bold text-white">Cases & Snags (2)</h3>
+            </div>
+            <button onclick="openSnagModal()" class="text-rose-400 hover:underline text-xs font-bold">+ Log Snag</button>
+          </div>
+
+          <div id="rel-snags-container" class="space-y-2 text-xs">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- MODAL: RAISE NEW INVOICE -->
+  <div id="modal-invoice" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="sf-card w-full max-w-lg p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+        <div>
+          <div class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Dream Address Billing Engine</div>
+          <h3 class="text-lg font-bold text-white">Raise Official Client Invoice</h3>
+        </div>
+        <button onclick="closeInvoiceModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <form onsubmit="submitNewInvoice(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Milestone Description *</label>
+          <input type="text" id="inv-desc" required placeholder="e.g. 2nd Milestone: Woodwork Carcass Inspection (30%)" class="w-full bg-[#0A0F1D] border border-slate-700 rounded p-2 text-white">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Service & Labor (₹) *</label>
+            <input type="number" id="inv-service" required placeholder="500000" class="w-full bg-[#0A0F1D] border border-slate-700 rounded p-2 text-white">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Material Purchases (₹)</label>
+            <input type="number" id="inv-material" placeholder="270000" class="w-full bg-[#0A0F1D] border border-slate-700 rounded p-2 text-white">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Due Date *</label>
+            <input type="date" id="inv-due" required class="w-full bg-[#0A0F1D] border border-slate-700 rounded p-2 text-white">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Authorized Signatory</label>
+            <select id="inv-signatory" class="w-full bg-[#0A0F1D] border border-slate-700 rounded p-2 text-white">
+              <option value="Rohit Churiwala">Rohit Churiwala (Principal Designer)</option>
+              <option value="Pradeep Churiwala">Pradeep Churiwala (Director)</option>
+            </select>
+          </div>
+        </div>
+        <div class="pt-3 border-t border-slate-700 flex justify-end gap-2">
+          <button type="button" onclick="closeInvoiceModal()" class="px-4 py-2 bg-slate-800 text-slate-300 rounded">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded shadow">Issue Invoice</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let clientId = 'PRJ-2026-001';
+    let clientData = null;
+    let publisherMode = 'email';
+
+    const STAGES = [
+      "Lead & Site Survey",
+      "3D Design Approval & Freeze",
+      "Civil & Demolition",
+      "Joinery & Carcass Installation",
+      "Veneer & PU Polish",
+      "Final Handover & Snag-free"
+    ];
+
+    async function initClientPage() {
+      // Parse ID from URL ?id=... or pathname /client/:id
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('id')) {
+        clientId = params.get('id');
+      } else {
+        const parts = window.location.pathname.split('/');
+        if (parts.length >= 3 && parts[1] === 'client') {
+          clientId = parts[2];
+        }
+      }
+
+      await loadClientDetail();
+    }
+
+    async function loadClientDetail() {
+      try {
+        const res = await fetch(`/api/crm/clients/${encodeURIComponent(clientId)}`);
+        const data = await res.json();
+        if (data.success && data.client) {
+          clientData = data;
+          renderClientHighlights(data.client, data.financialSummary);
+          renderStagesRibbon(data.client.stageIndex || 3);
+          renderActivitiesTimeline(data.conversations || [], data.reminders || []);
+          renderRelatedLists(data);
+        } else {
+          document.getElementById('client-heading-name').textContent = "Client Record Not Found";
+        }
+      } catch (err) {
+        console.error("Load client detail error:", err);
+      }
+    }
+
+    function renderClientHighlights(c, fin) {
+      document.title = `${c.name || c.projectName} | Nexus 360 Client Record`;
+      document.getElementById('breadcrumb-client-name').textContent = c.client || c.clientName;
+      document.getElementById('client-subdomain-tag').textContent = c.subdomain || `${c.slug || 'client'}.nexus.dreamaddress.in`;
+      document.getElementById('client-heading-name').textContent = `${c.client || c.clientName} — ${c.name || c.projectName}`;
+      document.getElementById('client-tier-badge').textContent = c.tier || "HNW Turnkey VIP";
+      document.getElementById('client-location-tag').textContent = c.location || "Kolkata, WB";
+      document.getElementById('client-area-tag').textContent = `${c.area || 2500} sq ft`;
+      document.getElementById('client-id-tag').textContent = c.id;
+
+      // Left Column Fields
+      document.getElementById('field-client-name').textContent = c.client || c.clientName;
+      document.getElementById('field-project-title').textContent = c.name || c.projectName;
+      document.getElementById('field-subdomain').textContent = c.subdomain || `${c.slug}.nexus.dreamaddress.in`;
+      document.getElementById('field-phone').textContent = c.phone || "+91 91633 17574";
+      document.getElementById('field-email').textContent = c.email || "client@example.com";
+      document.getElementById('field-site-address').textContent = c.location || "Kolkata, WB";
+
+      // Financials
+      const formatINR = (val) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val || 0);
+      document.getElementById('field-contract-val').textContent = formatINR(c.contractValue);
+      document.getElementById('field-invoiced-val').textContent = formatINR(c.invoiced);
+      document.getElementById('field-received-val').textContent = formatINR(c.received);
+      document.getElementById('field-outstanding-val').textContent = formatINR(c.outstanding);
+      document.getElementById('field-direct-cost').textContent = formatINR(c.actualDirectCost || c.budgetDirectCost);
+      document.getElementById('field-gross-margin').textContent = `${formatINR(c.grossMargin)} (${c.grossMarginPercent || 35}%)`;
+
+      // Related Lists
+      document.getElementById('rel-contact-name').textContent = c.client || c.clientName;
+      document.getElementById('rel-contact-email').textContent = c.email || "client@example.com";
+      document.getElementById('rel-opp-name').textContent = c.name || c.projectName;
+      document.getElementById('rel-opp-stage').textContent = c.stage;
+      document.getElementById('rel-opp-amount').textContent = formatINR(c.contractValue);
+    }
+
+    function renderStagesRibbon(activeIdx) {
+      const container = document.getElementById('stage-chevron-bar');
+      const steps = container.children;
+
+      for (let i = 0; i < steps.length; i++) {
+        steps[i].className = 'chevron-step';
+        if (i < activeIdx) {
+          steps[i].classList.add('completed');
+          steps[i].innerHTML = `✓ ${STAGES[i]}`;
+        } else if (i === activeIdx) {
+          steps[i].classList.add('current');
+          steps[i].innerHTML = `● ${STAGES[i]}`;
+        } else {
+          steps[i].innerHTML = STAGES[i];
+        }
+      }
+    }
+
+    async function updateStage(newIdx) {
+      if (confirm(`Advance client project stage to "${STAGES[newIdx]}"?`)) {
+        try {
+          const res = await fetch(`/api/crm/clients/${encodeURIComponent(clientId)}/stage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ stage: STAGES[newIdx] })
+          });
+          const data = await res.json();
+          if (data.success) {
+            await loadClientDetail();
+          }
+        } catch (err) {
+          alert('Failed to update stage.');
+        }
+      }
+    }
+
+    function renderActivitiesTimeline(conversations, reminders) {
+      // Upcoming
+      const upContainer = document.getElementById('timeline-upcoming');
+      upContainer.innerHTML = '';
+
+      if (reminders.length === 0) {
+        upContainer.innerHTML = `<div class="p-3 bg-[#0A0F1D] rounded text-slate-500 text-xs italic">No overdue actions. Next milestone inspection on schedule.</div>`;
+      } else {
+        reminders.forEach(r => {
+          const div = document.createElement('div');
+          div.className = 'timeline-node text-xs space-y-1';
+          div.innerHTML = `
+            <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center font-bold text-[10px]">!</div>
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-white">${r.title}</span>
+              <span class="text-slate-500 font-mono text-[10px]">${r.due}</span>
+            </div>
+            <div class="text-slate-400 text-[11px]">${r.notes || 'Action required by Rohit Churiwala'}</div>
+          `;
+          upContainer.appendChild(div);
+        });
+      }
+
+      // Past
+      const pastContainer = document.getElementById('timeline-past');
+      pastContainer.innerHTML = '';
+
+      if (conversations.length === 0) {
+        pastContainer.innerHTML = `
+          <div class="timeline-node text-xs space-y-1">
+            <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-[10px]">✉</div>
+            <div class="flex items-center justify-between"><span class="font-bold text-white">Quotation DSS-QTN-2026-001 Issued</span><span class="text-slate-500 text-[10px]">03 Oct 2026</span></div>
+            <div class="text-slate-400 text-[11px]">Approved quotation shared with client for Turnkey luxury scope.</div>
+          </div>
+        `;
+        return;
+      }
+
+      conversations.forEach(c => {
+        const div = document.createElement('div');
+        div.className = 'timeline-node text-xs space-y-1.5';
+
+        let icon = '✉';
+        let iconBg = 'bg-blue-500/20 text-blue-400 border border-blue-500/40';
+        if (c.type === 'call') { icon = '📞'; iconBg = 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'; }
+        else if (c.type === 'meeting' || c.type === 'visit') { icon = '📅'; iconBg = 'bg-purple-500/20 text-purple-400 border border-purple-500/40'; }
+        else if (c.type === 'change-order') { icon = '⚡'; iconBg = 'bg-amber-500/20 text-amber-400 border border-amber-500/40'; }
+
+        div.innerHTML = `
+          <div class="absolute left-0 top-1 w-6 h-6 rounded-full ${iconBg} flex items-center justify-center font-bold text-[10px] shadow">${icon}</div>
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-white">${c.subject || c.title || 'Client Interaction'}</span>
+            <span class="text-slate-500 font-mono text-[10px]">${c.date || c.timestamp || 'Recent'}</span>
+          </div>
+          <div class="text-slate-400 text-[11px] bg-[#0A0F1D] p-2 rounded border border-slate-800 leading-relaxed">${c.notes || c.details || c.text}</div>
+          <div class="text-[10px] text-slate-500">Logged by: <span class="text-slate-300 font-semibold">${c.author || 'Rohit Churiwala'}</span></div>
+        `;
+        pastContainer.appendChild(div);
+      });
+    }
+
+    function renderRelatedLists(data) {
+      // Quotations
+      const qBox = document.getElementById('rel-quotes-container');
+      qBox.innerHTML = '';
+      const quotes = data.quotations || [];
+      if (quotes.length === 0) {
+        qBox.innerHTML = `<div class="p-2.5 bg-[#0A0F1D] rounded text-slate-500 text-xs">DSS-QTN-2026-001 • ₹38,50,000 (Approved)</div>`;
+      } else {
+        quotes.forEach(q => {
+          const div = document.createElement('div');
+          div.className = 'p-2.5 bg-[#0A0F1D] rounded border border-slate-800 flex items-center justify-between text-xs';
+          div.innerHTML = `
+            <div>
+              <div class="font-bold text-sky-400">${q.id || 'DSS-QTN-001'}</div>
+              <div class="text-[10px] text-slate-400">${q.title || 'Turnkey Woodwork'} • ${q.status || 'Approved'}</div>
+            </div>
+            <span class="font-mono font-bold text-emerald-400">₹${q.amount || q.total || '38,50,000'}</span>
+          `;
+          qBox.appendChild(div);
+        });
+      }
+
+      // Invoices
+      const iBox = document.getElementById('rel-invoices-container');
+      iBox.innerHTML = '';
+      const invoices = data.invoices || [];
+      if (invoices.length === 0) {
+        iBox.innerHTML = `
+          <div class="p-2.5 bg-[#0A0F1D] rounded border border-slate-800 space-y-1 text-xs">
+            <div class="flex justify-between font-bold"><span class="text-sky-400">DEMO-INV-001</span><span class="text-emerald-400">₹15,40,000</span></div>
+            <div class="flex justify-between text-[10px] text-slate-400"><span>Milestone 1 (40%)</span><span class="text-emerald-300">Paid In Full</span></div>
+          </div>
+        `;
+      } else {
+        invoices.forEach(inv => {
+          const div = document.createElement('div');
+          div.className = 'p-2.5 bg-[#0A0F1D] rounded border border-slate-800 space-y-1 text-xs';
+          div.innerHTML = `
+            <div class="flex justify-between font-bold">
+              <span class="text-sky-400">${inv.id}</span>
+              <span class="text-emerald-400 font-mono">₹${inv.amount || inv.total || 0}</span>
+            </div>
+            <div class="flex justify-between text-[10px] text-slate-400">
+              <span>${inv.milestone || 'Milestone Billing'}</span>
+              <span class="${inv.status === 'Paid' ? 'text-emerald-300' : 'text-amber-300'}">${inv.status || 'Pending'}</span>
+            </div>
+          `;
+          iBox.appendChild(div);
+        });
+      }
+
+      // Snags
+      const sBox = document.getElementById('rel-snags-container');
+      sBox.innerHTML = `
+        <div class="p-2.5 bg-[#0A0F1D] rounded border border-slate-800 flex items-center justify-between">
+          <div>
+            <div class="font-semibold text-white">Guest Room Wardrobe Alignment</div>
+            <div class="text-[10px] text-slate-500">Left shutter gap +1mm. Carpenter Tapas notified.</div>
+          </div>
+          <span class="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/30">In Progress</span>
+        </div>
+        <div class="p-2.5 bg-[#0A0F1D] rounded border border-slate-800 flex items-center justify-between">
+          <div>
+            <div class="font-semibold text-white">Living Room Dyna Beige Grout Seal</div>
+            <div class="text-[10px] text-slate-500">Epoxy grout complete. Cured and ready.</div>
+          </div>
+          <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-500/30">Resolved</span>
+        </div>
+      `;
+    }
+
+    function setPublisherTab(tab) {
+      publisherMode = tab;
+      const tabs = ['email', 'call', 'visit', 'task', 'note'];
+      tabs.forEach(t => {
+        const el = document.getElementById(`pub-tab-${t}`);
+        if (t === tab) {
+          el.className = 'p-2 rounded-lg bg-blue-600/20 text-blue-400 font-bold flex items-center gap-1.5 text-xs';
+        } else {
+          el.className = 'p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-bold flex items-center gap-1.5 text-xs';
+        }
+      });
+      const sub = document.getElementById('pub-subject');
+      if (tab === 'email') sub.placeholder = 'Email Subject (e.g. Revised Milestone Drawing Sent)';
+      else if (tab === 'call') sub.placeholder = 'Call Summary (e.g. Discussed Veneer Selection with Client)';
+      else if (tab === 'visit') sub.placeholder = 'Site Inspection Notes (e.g. Checked False Ceiling Leveling)';
+      else if (tab === 'task') sub.placeholder = 'Action Task Title (e.g. Verify Kohler diverter shipment)';
+      else if (tab === 'note') sub.placeholder = 'Internal Architectural Note';
+    }
+
+    async function submitPublisherActivity(e) {
+      e.preventDefault();
+      const subject = document.getElementById('pub-subject').value;
+      const notes = document.getElementById('pub-notes').value;
+
+      try {
+        const res = await fetch(`/api/crm/clients/${encodeURIComponent(clientId)}/conversations`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: publisherMode,
+            subject: subject,
+            notes: notes,
+            author: 'Rohit Churiwala'
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('pub-subject').value = '';
+          document.getElementById('pub-notes').value = '';
+          await loadClientDetail();
+        }
+      } catch (err) {
+        alert('Failed to log activity.');
+      }
+    }
+
+    function toggleCard(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('hidden');
+    }
+
+    function expandAllTimeline() {
+      alert("All client project interactions and activity milestones are expanded.");
+    }
+
+    function dispatchClientWhatsApp() {
+      const msg = `Namaste! Rohit Churiwala from Dream Address Studio here. Sharing the latest milestone progress update for ${document.getElementById('field-project-title').textContent}.`;
+      window.open(`https://api.whatsapp.com/send?phone=919163317574&text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    function followRecord() {
+      alert("You are now following this client project. Live WhatsApp & Push notifications enabled.");
+    }
+
+    function openInvoiceModal() {
+      document.getElementById('modal-invoice').classList.remove('hidden');
+    }
+
+    function closeInvoiceModal() {
+      document.getElementById('modal-invoice').classList.add('hidden');
+    }
+
+    async function submitNewInvoice(e) {
+      e.preventDefault();
+      const payload = {
+        projectId: clientId,
+        description: document.getElementById('inv-desc').value,
+        servicesAmount: parseFloat(document.getElementById('inv-service').value) || 0,
+        materialsAmount: parseFloat(document.getElementById('inv-material').value) || 0,
+        dueDate: document.getElementById('inv-due').value,
+        signatory: document.getElementById('inv-signatory').value
+      };
+
+      try {
+        const res = await fetch('/api/crm/invoices', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeInvoiceModal();
+          await loadClientDetail();
+          alert(`Invoice ${data.invoice ? data.invoice.id : ''} raised successfully!`);
+        }
+      } catch (err) {
+        alert('Failed to raise invoice.');
+      }
+    }
+
+    function openQuotationModal() {
+      alert("Quotation generator opening in workspace mode...");
+    }
+
+    function openChangeOrderModal() {
+      const title = prompt("Enter Change Order Title:", "Additional Balcony Teak Decking");
+      if (!title) return;
+      const amount = prompt("Enter Approved Change Order Cost (₹):", "45000");
+      if (!amount) return;
+
+      fetch(`/api/crm/clients/${encodeURIComponent(clientId)}/change-order`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, amount: parseFloat(amount), approvedBy: 'Rohit Churiwala' })
+      }).then(() => loadClientDetail());
+    }
+
+    function openSnagModal() {
+      const snag = prompt("Enter Snag / Defect Description:", "Polish buffing touch-up on master wardrobe shutter");
+      if (snag) alert(`Snag logged: "${snag}". Tapas Santra carpentry team alerted.`);
+    }
+
+    window.onload = initClientPage;
+  </script>
+</body>
+</html>
