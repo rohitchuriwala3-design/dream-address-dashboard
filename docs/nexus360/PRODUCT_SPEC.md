@@ -1,8 +1,17 @@
-# Nexus 360 product specification
+# MARK IV workspace and Nexus 360 CRM product specification
+
+## Product hierarchy and sign-in
+
+- **MARK IV** is the parent workspace and platform. Its dashboard and navigation are the front door for all studio tools.
+- **Nexus 360** is the CRM module inside MARK IV. Finance, project delivery, reports, and integrations are sibling modules within MARK IV.
+- A single user account and credential store serves every module. Signing into MARK IV opens Nexus 360 without another login. A user can also go directly to Nexus 360, sign in with the same credentials, and enter the CRM.
+- In the current staging app, both entry points share one application origin and Better Auth session. `/` opens MARK IV; `/nexus360` is the direct CRM entry. The authenticated session is shared automatically on the same origin.
+- If separate subdomains are introduced later, use sibling subdomains under one owned parent domain and configure secure parent-domain session cookies, shared auth URLs/trusted origins, and SSO return paths. Do not expect browser cookies to be shared between unrelated `onrender.com` service domains.
+- Public signup stays disabled. Administrators create profiles and can reset passwords until a verified email delivery provider is configured. The database-backed permission checklist is staged; existing role and record-scope checks remain authoritative until module-wide enforcement is finished and validated.
 
 ## Purpose
 
-Run the client relationship and delivery operations for Dream Address Studio, a Kolkata interior design and turnkey execution studio. NextCRM is the authenticated application and PostgreSQL record system. Google Sheets remains a staff-friendly operational surface for review, data entry, and analysis. Neither application may claim sync until a completed, verified sync run exists.
+Run the client relationship and delivery operations for Dream Address Studio, a Kolkata interior design and turnkey execution studio. MARK IV is the authenticated workspace and PostgreSQL record system; Nexus 360 is its CRM module. Google Sheets remains a staff-friendly operational surface for review, data entry, and analysis. Neither application may claim sync until a completed, verified sync run exists.
 
 ## Workspace navigation
 

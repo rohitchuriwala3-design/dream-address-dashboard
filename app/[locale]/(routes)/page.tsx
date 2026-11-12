@@ -78,7 +78,7 @@ const DashboardPage = async () => {
         <div className="relative flex flex-col justify-between gap-7 md:flex-row md:items-end">
           <div className="max-w-2xl">
             <div className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-indigo-200">
-              <LayoutDashboard className="h-4 w-4" /> Studio operations
+              <LayoutDashboard className="h-4 w-4" /> MARK IV · Studio operations
             </div>
             <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Good to see you{session.user.name ? `, ${session.user.name.split(" ")[0]}` : ""}.</h1>
             <p className="mt-3 max-w-xl text-sm leading-6 text-slate-300">Your studio overview for today. Keep client relationships, project delivery, and cash flow moving from one workspace.</p>

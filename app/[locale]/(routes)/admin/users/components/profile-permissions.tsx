@@ -41,7 +41,7 @@ export function ProfilePermissionsDialog({ userId, email, initialPermissions, op
     <DialogContent className="sm:max-w-xl">
       <DialogHeader>
         <DialogTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5" />Profile permissions</DialogTitle>
-        <DialogDescription>Choose the additional Nexus 360 areas available to {email}. Existing role rules continue to apply.</DialogDescription>
+        <DialogDescription>Module permissions for {email}. This rollout is incomplete: existing role and record-scope rules still control access, and these selections do not yet unlock or restrict every module.</DialogDescription>
       </DialogHeader>
       <div className="grid gap-2 sm:grid-cols-2">
         {NEXUS_PERMISSIONS.map(({ key, label, description }) => <label key={key} htmlFor={`permission-${key}`} className="flex cursor-pointer items-start gap-3 rounded-lg border p-3 hover:bg-muted/50">

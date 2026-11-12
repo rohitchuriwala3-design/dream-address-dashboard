@@ -28,7 +28,9 @@ export function LoginComponent() {
         toast.error(error.message || "Email or password is incorrect.");
         return;
       }
-      window.location.assign(new URL("/", window.location.origin).href);
+      const callbackUrl = new URLSearchParams(window.location.search).get("callbackUrl");
+      const destination = callbackUrl?.startsWith("/") && !callbackUrl.startsWith("//") ? callbackUrl : "/";
+      window.location.assign(new URL(destination, window.location.origin).href);
     } catch {
       toast.error("Sign in failed. Check your details and try again.");
     } finally {
@@ -39,8 +41,8 @@ export function LoginComponent() {
   return (
     <Card className="my-5 shadow-lg">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl">Sign in to Nexus 360</CardTitle>
-        <CardDescription>Use the account created by your administrator.</CardDescription>
+        <CardTitle className="text-2xl">Sign in to MARK IV</CardTitle>
+        <CardDescription>Open your MARK IV workspace, including Nexus 360 CRM and Finance.</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={login} className="grid gap-4">
@@ -72,7 +74,7 @@ export function LoginComponent() {
             {isLoading ? "Signing in…" : "Sign in"}
           </Button>
           <p className="text-center text-sm text-muted-foreground">
-            Need a password reset? Contact your Nexus 360 administrator.
+          Need a password reset? Contact your MARK IV administrator.
           </p>
         </form>
       </CardContent>

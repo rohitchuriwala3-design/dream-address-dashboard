@@ -29,7 +29,7 @@ import { partnerNavItems } from "@/lib/partner-routes";
  *
  * Core sidebar component for NextCRM application layout.
  * Implements shadcn/ui sidebar pattern with:
- * - Logo and "N" branding symbol with rotation animation
+ * - MARK IV branding symbol
  * - Build version display in footer (when expanded)
  * - Navigation with Dashboard and module items
  * - Nav-user section in footer for user profile and actions
@@ -143,14 +143,14 @@ export function AppSidebar({
             isExpanded ? "gap-x-4" : "justify-center",
           )}
         >
-          {/* "N" Branding Symbol with rotation animation */}
+          {/* MARK IV platform monogram */}
           <div
             className={cn(
               "flex-shrink-0 border rounded-full px-4 py-2 transition-transform duration-500",
               isExpanded && "rotate-[360deg]",
             )}
           >
-            N
+            M4
           </div>
 
           {/* App Name - visible when expanded, hidden when collapsed */}

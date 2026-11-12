@@ -34,6 +34,18 @@ function normalizePublicPageRequest(req: NextRequest) {
   return new NextRequest(requestUrl, { headers, method: req.method });
 }
 
+function sanitizeRedirect(response: NextResponse) {
+  const location = response.headers.get("location");
+  const configuredOrigin = process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL;
+  if (!location || !configuredOrigin) return response;
+  const publicUrl = new URL(configuredOrigin);
+  const destination = new URL(location, publicUrl);
+  destination.protocol = publicUrl.protocol;
+  destination.host = publicUrl.host;
+  response.headers.set("location", destination.toString());
+  return response;
+}
+
 // Admin-only API paths — cookie presence checked here, role checked server-side
 const ADMIN_ONLY_PATHS = [
   "/api/user/activateAdmin",
@@ -95,7 +107,7 @@ export async function proxy(req: NextRequest) {
       if (path.startsWith("/api")) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });
       }
-      return NextResponse.redirect(new URL("/", req.nextUrl));
+      return sanitizeRedirect(NextResponse.redirect(new URL("/", req.nextUrl)));
     }
   }
 
@@ -118,7 +130,9 @@ export async function proxy(req: NextRequest) {
       const authPaths = ["/sign-in", "/register", "/pending", "/inactive"];
       const isAuthPage = authPaths.some((p) => path.includes(p));
       if (!isAuthPage) {
-        return NextResponse.redirect(new URL("/sign-in", req.nextUrl));
+        const signInUrl = new URL("/sign-in", req.nextUrl);
+        signInUrl.searchParams.set("callbackUrl", `${path}${req.nextUrl.search}`);
+        return sanitizeRedirect(NextResponse.redirect(signInUrl));
       }
     }
   }
@@ -129,7 +143,7 @@ export async function proxy(req: NextRequest) {
   }
 
   // Non-API routes — delegate to next-intl
-  return intlMiddleware(normalizePublicPageRequest(req));
+  return sanitizeRedirect(intlMiddleware(normalizePublicPageRequest(req)));
 }
 
 export const config = {

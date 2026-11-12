@@ -21,17 +21,17 @@ services:
       - key: NEXT_PUBLIC_APP_URL
         value: https://nexus360-rebuild-staging.onrender.com
       - key: NEXT_PUBLIC_APP_NAME
-        value: Nexus 360
+        value: MARK IV
       - key: NEXUS360_BOOTSTRAP_ADMIN_EMAIL
         value: designspace1407@gmail.com
       - key: NEXUS360_BOOTSTRAP_ADMIN_NAME
-        value: Nexus 360 Admin
+        value: MARK IV Admin
       - key: NEXUS360_BOOTSTRAP_ADMIN_PASSWORD
         generateValue: true
       - key: INNGEST_ID
-        value: nexus360
+        value: markiv
       - key: INNGEST_APP_NAME
-        value: Nexus 360
+        value: MARK IV
       - key: INNGEST_SIGNING_KEY
         generateValue: true
       - key: INNGEST_EVENT_KEY

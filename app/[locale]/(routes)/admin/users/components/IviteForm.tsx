@@ -178,6 +178,7 @@ export function InviteForm() {
         />
         <FormField control={form.control} name="permissions" render={({ field }) => <FormItem className="md:col-span-3 xl:col-span-6">
           <FormLabel>Additional permissions</FormLabel>
+          <p className="text-xs text-muted-foreground">Permission rollout is in progress. Existing role-based access remains authoritative until module enforcement is complete.</p>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {NEXUS_PERMISSIONS.map(({ key, label, description }) => <label key={key} htmlFor={`new-user-${key}`} className="flex cursor-pointer items-start gap-3 rounded-lg border p-3 hover:bg-muted/50">
               <Checkbox id={`new-user-${key}`} checked={field.value.includes(key)} disabled={isLoading} onCheckedChange={(value) => {

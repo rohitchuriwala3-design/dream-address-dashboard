@@ -24,8 +24,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             N
           </div>
           <div>
-            <p className="font-semibold leading-tight">Nexus 360</p>
-            <p className="text-xs text-muted-foreground">Dream Address Studio</p>
+            <p className="font-semibold leading-tight">MARK IV</p>
+            <p className="text-xs text-muted-foreground">Dream Address Studio workspace</p>
           </div>
         </div>
         <ThemeToggle />
@@ -34,7 +34,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         {children}
       </main>
       <footer className="px-5 py-4 text-center text-xs text-muted-foreground">
-        Private workspace · Dream Address Studio
+        MARK IV · Nexus 360 CRM · Dream Address Studio
       </footer>
     </div>
   );

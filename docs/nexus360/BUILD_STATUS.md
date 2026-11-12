@@ -4,13 +4,18 @@ Updated: 2026-11-12 (Asia/Kolkata)
 
 ## Target
 
-Rebuild the management workspace for Dream Address Studio on the isolated NextCRM Next.js, TypeScript, PostgreSQL, and Prisma application. The full scope is defined in `PRODUCT_SPEC.md`. Keep Google Sheets as a staff-facing operational surface; do not claim sync until a real run has been read back and reconciled.
+Product hierarchy: MARK IV is the parent workspace; Nexus 360 is its CRM module. Finance, project delivery, analytics and integrations are sibling MARK IV tools. Staging uses one origin and one password-backed session; the direct CRM entry is `/nexus360` and the platform entry is `/`.
+
+Rebuild MARK IV, the parent management workspace, for Dream Address Studio on the isolated Next.js, TypeScript, PostgreSQL, and Prisma application. Nexus 360 is the CRM module inside MARK IV. The full scope is defined in `PRODUCT_SPEC.md`. Keep Google Sheets as a staff-facing operational surface; do not claim sync until a real run has been read back and reconciled.
 
 ## Work completed in this session
 
-- Replaced the OTP/Google login surface with admin-provisioned email/password sign-in; Better Auth blocks public sign-up. The initial production owner is bootstrapped from a Render-generated secret, profile creation is admin-only, and an admin can reset a user's password. Credential values are hashed and excluded from audit logs.
+- Replaced the OTP/Google login surface with admin-provisioned email/password sign-in; Better Auth blocks public sign-up. The staging owner is bootstrapped from a Render-generated secret, profile creation is admin-only, and an admin can reset a user's password. Credential values are hashed and excluded from audit logs.
 - Added database-backed `/api/health` and Render Blueprint configuration for a separate free test service wired to the disposable `nexus360-test-db`; the existing `main` service remains isolated.
-- Render's first build compiled and type-checked, then exceeded the build host's 8 GiB limit while Next.js tried to generate pages with 47 workers. Capped the Next.js build at two workers; retry is pending.
+- Render's first build compiled and type-checked, then exceeded the build host's 8 GiB limit while Next.js tried to generate pages with 47 workers. Capped the Next.js build at two workers. Fixed the Prisma 7 adapter startup issue and verified `/api/health` reports both service and database healthy on the isolated staging service.
+- Corrected product naming across staging UI: MARK IV is the parent brand; Nexus 360 CRM, Finance, Projects and other tools are modules. Added `/nexus360` as a direct CRM entry that shares the same-origin MARK IV session. Unauthenticated direct CRM requests preserve the requested path through password sign-in; sign-in now accepts only safe same-origin return paths.
+- Added database-backed user permission selections and admin audit logging. The checklist/helper is a first rollout foundation only: existing CRM, finance, reports and project routes still use a mixture of role-based and scoped authorization. Do not claim the selected permissions are enforced consistently until every page, server action and API route has been mapped and verified.
+- Visual/browser check confirmed the public password sign-in page renders and clearly describes MARK IV / Nexus 360. The direct sign-in URL and `/api/health` returned HTTP 200; `/sign-up` redirected to sign-in. The root `/sign-in` redirect still included Render's internal `:10000` port at the latest probe, so the proxy redirect fix remains unverified and needs another deploy/diagnosis.
 
 - Replaced the generic home dashboard with a studio operations overview, responsive workspace links, primary actions, and a Kolkata-local date.
 - Added a role-scoped INR invoice summary for issued invoices, collections, outstanding receivables, and overdue invoice count. Draft, cancelled, credit note, and non-INR records are excluded and called out in the UI.
@@ -46,7 +51,7 @@ Rebuild the management workspace for Dream Address Studio on the isolated NextCR
 
 ## Current readiness estimate
 
-**Prototype readiness: 67/100 (roughly 67%).** This is a weighted engineering assessment, not a test pass rate. It reflects the dashboard, CRM conversion, studio-project milestones and expense approval, vendor payables, immutable quote revisions and approved PDF export, project-linked invoices, receipt/payment posting into a signed treasury ledger, verified opening balances, retry-safe transfers/manual movements, statement variance snapshots, repaired master-sheet formulas, and the crosswalk-backed read-only Sheets preview foundation. Transaction-level bank reconciliation, receipt evidence, accountant-approved tax/terms, configured Sheet scan and app-to-Sheet reconciliation, email OTP provider, production-repo integration, and database-backed/browser verification remain incomplete. Do not treat the percentage as a certified health score.
+**Prototype readiness: 68/100 (rough engineering estimate, not a test pass rate).** This reflects the operational foundation plus a live isolated Render test service, database-backed health endpoint, password sign-in, MARK IV/Nexus 360 product hierarchy and direct CRM entry. It does not represent production readiness. Critical gaps remain: resolve the public root redirect, complete browser CRUD/permission enforcement, configure and verify Google Sheets access/sync, complete DB-backed workflows and financial controls, and integrate/release through the production repository only after full validation.
 
 ## Evidence and constraints
 

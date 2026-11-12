@@ -1,6 +1,12 @@
 # Antigravity handoff: lessons from the first management-tool build
 
-Use this as the build brief and review checklist for Nexus 360. The previous app is a prototype, not a trustworthy CRM or accounting source.
+Use this as the build brief and review checklist for MARK IV and its Nexus 360 CRM module. The previous app is a prototype, not a trustworthy CRM or accounting source.
+
+### Product hierarchy correction
+
+- MARK IV is the parent workspace. Nexus 360 is the CRM module inside it; Finance, studio projects, reports, and integrations are sibling MARK IV modules.
+- Use one identity store and password credential per profile. Users may enter through MARK IV or go directly to Nexus 360 with the same credentials; a session established in MARK IV must open CRM without another prompt.
+- The current staging build uses one app origin, which provides a shared session and straightforward SSO. Separate module subdomains require a shared parent domain and deliberate secure cookie/trusted-origin configuration; unrelated hosting domains cannot share a browser session cookie.
 
 ## Observed mistakes and why they matter
 

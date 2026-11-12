@@ -1,13 +1,13 @@
 {
   "RootLayout": {
-    "title": "NextCRM",
-    "description": "NextCRM is an open source CRM build on top of NextJS."
+    "title": "MARK IV | Dream Address Studio",
+    "description": "MARK IV is the Dream Address Studio workspace for Nexus 360 CRM, finance, projects, and operations."
   },
   "ModuleMenu": {
     "plugins": "Plugins",
     "dashboard": "Dashboard",
     "crm": {
-      "title": "Sales",
+      "title": "Nexus 360 CRM",
       "accounts": "Companies",
       "opportunities": "Opportunities",
       "contacts": "Contacts",
