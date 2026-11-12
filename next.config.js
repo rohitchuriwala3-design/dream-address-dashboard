@@ -5,6 +5,11 @@ const withNextIntl = require("next-intl/plugin")(
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
+  experimental: {
+    // Render's build host reports many CPUs but has a finite memory budget.
+    // Limit workers so page-data collection does not fork dozens of processes.
+    cpus: 2,
+  },
   serverExternalPackages: ["pdf-parse", "pdfjs-dist"],
   images: {
     remotePatterns: [

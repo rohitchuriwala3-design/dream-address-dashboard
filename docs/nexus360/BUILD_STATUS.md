@@ -10,6 +10,7 @@ Rebuild the management workspace for Dream Address Studio on the isolated NextCR
 
 - Replaced the OTP/Google login surface with admin-provisioned email/password sign-in; Better Auth blocks public sign-up. The initial production owner is bootstrapped from a Render-generated secret, profile creation is admin-only, and an admin can reset a user's password. Credential values are hashed and excluded from audit logs.
 - Added database-backed `/api/health` and Render Blueprint configuration for a separate free test service wired to the disposable `nexus360-test-db`; the existing `main` service remains isolated.
+- Render's first build compiled and type-checked, then exceeded the build host's 8 GiB limit while Next.js tried to generate pages with 47 workers. Capped the Next.js build at two workers; retry is pending.
 
 - Replaced the generic home dashboard with a studio operations overview, responsive workspace links, primary actions, and a Kolkata-local date.
 - Added a role-scoped INR invoice summary for issued invoices, collections, outstanding receivables, and overdue invoice count. Draft, cancelled, credit note, and non-INR records are excluded and called out in the UI.
