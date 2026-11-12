@@ -27,7 +27,7 @@ import { useRouter } from "next/navigation";
 import { Icons } from "@/components/ui/icons";
 import { inviteUser } from "@/actions/admin/users/invite-user";
 import { Checkbox } from "@/components/ui/checkbox";
-import { NEXUS_PERMISSIONS, type NexusPermission } from "@/lib/authz/permissions";
+import { NEXUS_PERMISSIONS, type NexusPermission } from "@/lib/authz/permission-catalog";
 
 const FormSchema = z.object({
   name: z.string().min(3).max(50),

@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { NEXUS_PERMISSIONS, type NexusPermission } from "@/lib/authz/permissions";
+import { NEXUS_PERMISSIONS, type NexusPermission } from "@/lib/authz/permission-catalog";
 import { setUserPermissions } from "@/actions/admin/users/set-user-permissions";
 
 interface Props {
