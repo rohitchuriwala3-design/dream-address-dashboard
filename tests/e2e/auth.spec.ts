@@ -1,48 +1,32 @@
 import { test, expect } from "@playwright/test";
 
-// These tests must run WITHOUT stored auth state
+// These tests must run WITHOUT stored auth state.
 test.use({ storageState: { cookies: [], origins: [] } });
 
 test.describe("Authentication", () => {
-  test("should show sign-in page with Google and Email OTP options", async ({ page }) => {
+  test("shows the admin-provisioned email and password sign-in form", async ({ page }) => {
     await page.goto("/sign-in");
-
-    // Verify Google OAuth button
-    await expect(page.getByRole("button", { name: /continue with google/i })).toBeVisible();
-
-    // Verify Email input
-    await expect(page.getByLabel("Email")).toBeVisible();
-
-    // Verify Send verification code button
-    await expect(page.getByRole("button", { name: /send verification code/i })).toBeVisible();
-
-    // Verify NO password field exists
-    await expect(page.getByLabel("Password")).not.toBeVisible();
+    await expect(page.getByRole("heading", { name: "Sign in to Nexus 360" })).toBeVisible();
+    await expect(page.getByLabel("Work email")).toBeVisible();
+    await expect(page.getByLabel("Password")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
+    await expect(page.getByText(/account created by your administrator/i)).toBeVisible();
+    await expect(page.getByRole("button", { name: /sign up|create account/i })).toHaveCount(0);
   });
 
-  test("should show OTP input after entering email", async ({ page }) => {
-    await page.goto("/sign-in");
-
-    // Enter email
-    await page.getByLabel("Email").fill("test@example.com");
-    await page.getByRole("button", { name: /send verification code/i }).click();
-
-    // Wait for OTP step to appear (may show error toast if email sending fails in test,
-    // but the UI should transition to OTP step)
-    await page.waitForTimeout(2000);
-
-    // Check for either OTP input or error message (depends on Resend config)
-    const hasOtpInput = await page.locator('[data-input-otp]').isVisible().catch(() => false);
-    const hasToast = await page.locator('[data-sonner-toast]').isVisible().catch(() => false);
-
-    expect(hasOtpInput || hasToast).toBeTruthy();
-  });
-
-  test("should redirect unauthenticated users to sign-in", async ({ page }) => {
-    // Try to access protected route
+  test("redirects unauthenticated users to sign-in", async ({ page }) => {
     await page.goto("/en");
-
-    // Should be redirected to sign-in
     await expect(page).toHaveURL(/sign-in/);
+  });
+
+  test("rejects public account creation", async ({ request }) => {
+    const response = await request.post("/api/auth/sign-up/email", {
+      data: {
+        name: "Unapproved Signup",
+        email: "unapproved@example.test",
+        password: "test-password-that-is-never-used",
+      },
+    });
+    expect(response.ok()).toBeFalsy();
   });
 });

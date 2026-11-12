@@ -29,6 +29,7 @@ import { setUserRole } from "@/actions/admin/users/set-role";
 import { revokeUserApiTokens } from "@/actions/admin/users/revoke-api-tokens";
 import type { AppRole } from "@/lib/authz";
 import { PartnerAccountDialog } from "../components/partner-account-dialog";
+import { ResetUserPasswordDialog } from "../components/reset-user-password-dialog";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -42,6 +43,7 @@ export function DataTableRowActions<TData>({
 
   const [open, setOpen] = useState(false);
   const [partnerAccountOpen, setPartnerAccountOpen] = useState(false);
+  const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const onCopy = (id: string) => {
@@ -150,6 +152,12 @@ export function DataTableRowActions<TData>({
           onOpenChange={setPartnerAccountOpen}
         />
       )}
+      <ResetUserPasswordDialog
+        userId={data.id}
+        email={data.email}
+        open={resetPasswordOpen}
+        onOpenChange={setResetPasswordOpen}
+      />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant={"ghost"} className="h-8 w-8 p-0">
@@ -175,6 +183,10 @@ export function DataTableRowActions<TData>({
           <DropdownMenuItem onClick={() => onRevokeTokens()}>
             <KeyRound className="mr-2 w-4 h-4" />
             Revoke API tokens
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setResetPasswordOpen(true)}>
+            <KeyRound className="mr-2 w-4 h-4" />
+            Reset password
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuSub>

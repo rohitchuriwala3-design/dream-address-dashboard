@@ -19,10 +19,10 @@ test.describe("Home Page", () => {
     
     await page.goto("/");
     
-    // Check for sign-in related elements (OTP email flow)
-    await expect(page.getByRole("textbox", { name: "Email" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Send verification code" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible();
+    // User accounts are provisioned by an admin and authenticate by password.
+    await expect(page.getByRole("textbox", { name: "Work email" })).toBeVisible();
+    await expect(page.getByLabel("Password")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
     
     await context.close();
   });

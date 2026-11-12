@@ -25,12 +25,13 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icons } from "@/components/ui/icons";
-import { useTranslations } from "next-intl";
 import { inviteUser } from "@/actions/admin/users/invite-user";
 
 const FormSchema = z.object({
   name: z.string().min(3).max(50),
   email: z.string().email(),
+  password: z.string().min(12).max(128),
+  role: z.enum(["user", "manager", "admin", "partner"]),
   language: z
     .string({
       message: "Please select a user language.",
@@ -40,13 +41,12 @@ const FormSchema = z.object({
 
 export function InviteForm() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const t = useTranslations("AdminPage");
-
   const router = useRouter();
 
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
+    defaultValues: { name: "", email: "", password: "", role: "user", language: "en" },
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
@@ -57,14 +57,16 @@ export function InviteForm() {
       if (result.error) {
         toast.error(result.error);
       } else {
-        toast.success(t("inviteForm.invited"));
+        toast.success("Profile created. Share the temporary password securely.");
       }
     } catch (error) {
-      toast.error(t("inviteForm.errorDesc"));
+      toast.error("Profile creation failed. Please try again.");
     } finally {
       form.reset({
         name: "",
         email: "",
+        password: "",
+        role: "user",
         language: "en",
       });
       router.refresh();
@@ -76,14 +78,14 @@ export function InviteForm() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex space-x-5 w-full p-5 items-end"
+        className="grid w-full grid-cols-1 items-end gap-4 p-5 md:grid-cols-3 xl:grid-cols-6"
       >
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
-            <FormItem className="w-1/3">
-              <FormLabel>{t("inviteForm.name")}</FormLabel>
+            <FormItem>
+              <FormLabel>Name</FormLabel>
               <FormControl>
                 <Input disabled={isLoading} placeholder="jdoe" {...field} />
               </FormControl>
@@ -95,8 +97,8 @@ export function InviteForm() {
           control={form.control}
           name="email"
           render={({ field }) => (
-            <FormItem className="w-1/3">
-              <FormLabel>{t("inviteForm.email")}</FormLabel>
+            <FormItem>
+              <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input
                   disabled={isLoading}
@@ -110,9 +112,50 @@ export function InviteForm() {
         />
         <FormField
           control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Temporary password</FormLabel>
+              <FormControl>
+                <Input
+                  type="password"
+                  autoComplete="new-password"
+                  minLength={12}
+                  disabled={isLoading}
+                  placeholder="At least 12 characters"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="role"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Access role</FormLabel>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <FormControl>
+                  <SelectTrigger><SelectValue placeholder="Select a role" /></SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="user">User</SelectItem>
+                  <SelectItem value="manager">Manager</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="partner">Partner</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
           name="language"
           render={({ field }) => (
-            <FormItem className="w-[250px]">
+            <FormItem>
               <FormLabel>Language</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
@@ -129,11 +172,11 @@ export function InviteForm() {
             </FormItem>
           )}
         />
-        <Button className="w-[150px]" type="submit" disabled={isLoading}>
+        <Button className="w-full" type="submit" disabled={isLoading}>
           {isLoading ? (
             <Icons.spinner className="animate-spin" />
           ) : (
-            "Invite user"
+            "Create profile"
           )}
         </Button>
       </form>

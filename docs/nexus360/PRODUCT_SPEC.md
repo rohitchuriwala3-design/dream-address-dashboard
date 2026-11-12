@@ -28,7 +28,7 @@ Report source, as-of time, definitions, and exclusions with every KPI. Separate 
 
 ## Security and tenancy
 
-The deployment serves one studio organization. Use NextCRM's authenticated sessions, server permissions, audit trail, and OTP delivery configuration. Hiding a route or using a subdomain does not enforce access. Client portal access is out of scope until project-level isolation and client identities have explicit security rules.
+The deployment serves one studio organization. Use authenticated sessions, server permissions, and an audit trail. Public signup is disabled; an admin creates each profile, assigns an access role, and sets a temporary password. Admins can reset passwords without email delivery. The current application supports one built-in role per profile (admin, manager, user, or partner); the requested combination-based permission checklist requires a permission model and enforcement across server actions, APIs, and UI before it can be represented safely. Hiding a route or using a subdomain does not enforce access. Client portal access is out of scope until project-level isolation and client identities have explicit security rules.
 
 ## Rollout
 
@@ -37,4 +37,4 @@ The deployment serves one studio organization. Use NextCRM's authenticated sessi
 3. Import a sanitized copy of the workbook into staging and produce a duplicate/conflict report.
 4. Verify dashboard totals against known ledger examples, then test lead conversion, quote approval, invoice payment, and balanced transfers.
 5. Run the spreadsheet integration read-only and compare IDs and money totals; enable deliberate writes only after field mapping, backup/restore, and concurrency checks pass.
-6. Deploy staging and verify login, email OTP, database persistence, and reconciliation before considering production cutover.
+6. Deploy a disposable staging service and verify admin-provisioned password login, profile creation/reset, database persistence, and reconciliation before considering production cutover.

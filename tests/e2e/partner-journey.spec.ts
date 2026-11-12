@@ -1,11 +1,12 @@
 import { test, expect, Page, APIRequestContext } from "@playwright/test";
 import { randomUUID } from "crypto";
 import { prismaBase as db } from "../../lib/prisma-base";
+import { hashPassword } from "better-auth/crypto";
 
 /**
  * The whole partner journey (partner-role spec, ticket 4). Fixture: partner A
  * and partner B, an internal rep, four accounts (A's, B's, an internal one and
- * A's own company account). A signs in with the test OTP and must see only his
+ * A's own company account). A signs in with the test password and must see only his
  * accounts, his own account read-only (record, contacts, orders, invoices),
  * add a contact and a lead to his account, create an account (he becomes its
  * partner, no owner), and be refused everything else on the server.
@@ -17,17 +18,12 @@ const ACC = { A: randomUUID(), B: randomUUID(), internal: randomUUID(), own: ran
 const name = (k: string) => `${k}-${tag}`;
 const emailA = `a-${tag}@partner.test`;
 
+const partnerPassword = "local-partner-password";
+
 async function signIn(api: APIRequestContext, email: string) {
-  await db.verification.deleteMany({ where: { identifier: `test-otp-${email}` } });
-  const send = await api.post("/api/auth/email-otp/send-verification-otp", { data: { email, type: "sign-in" } });
-  expect(send.ok()).toBeTruthy();
-  let otp: string | null = null;
-  for (let i = 0; i < 10 && !otp; i++) {
-    const res = await api.get(`/api/auth/test-otp?email=${encodeURIComponent(email)}`);
-    if (res.ok()) otp = (await res.json()).otp;
-    else await new Promise((r) => setTimeout(r, 500));
-  }
-  const res = await api.post("/api/auth/sign-in/email-otp", { data: { email, otp } });
+  const res = await api.post("/api/auth/sign-in/email", {
+    data: { email, password: partnerPassword },
+  });
   expect(res.ok()).toBeTruthy();
 }
 
@@ -45,6 +41,14 @@ test.describe.serial("partner journey", () => {
         { id: U.B, email: `b-${tag}@partner.test`, name: name("partnerB"), role: "partner", userStatus: "ACTIVE" },
         { id: U.rep, email: `rep-${tag}@partner.test`, name: name("rep"), role: "user", userStatus: "ACTIVE" },
       ],
+    });
+    await db.account.create({
+      data: {
+        accountId: U.A,
+        providerId: "credential",
+        userId: U.A,
+        password: await hashPassword(partnerPassword),
+      },
     });
     const partnerOf: Record<string, string | null> = { A: U.A, B: U.B, internal: null, own: null };
     for (const [k, id] of Object.entries(ACC)) {

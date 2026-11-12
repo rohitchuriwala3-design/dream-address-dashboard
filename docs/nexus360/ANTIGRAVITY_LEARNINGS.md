@@ -23,6 +23,7 @@ Use this as the build brief and review checklist for Nexus 360. The previous app
 16. **A supplier invoice needs its own payable identity and state.** Vendor bills now use a Vendor CRM account and a normalized unique invoice number, so resubmitting the same supplier invoice cannot create a duplicate. Review, revision after rejection and payment reference are audited. Paid bills now debit a selected cash account in the same transaction as the bill's paid state.
 17. **Cash status needs an auditable movement.** Record receipts and payouts as signed ledger entries linked to their source records; update source payment state and ledger posting atomically. Compute balances from entries, seed opening balances only after statement confirmation, prevent overdrafts on cash-out/transfer, keep transfers balanced and retry-safe, and never combine unlike currencies without a reviewed FX model. Keep a dated statement-vs-ledger variance snapshot, and do not claim transaction-level reconciliation until statement lines are matched.
 18. **Sheet tab labels do not define app entities.** The workbook's `Accounts` is a cash register, `Clients` and `Vendors` are distinct account types, `Payment Allocations` can split receipts, and `Expenses` can mix project costs and overhead. Quote/invoice line tabs lack their own permanent line IDs. Validate composite keys and have a human-reviewed crosswalk before comparing or syncing records.
+19. **A login screen is not an account lifecycle.** Do not create public users when the owner expects admin-controlled access. Bootstrap the first administrator from a secret, hash its password with the same scheme used by the auth provider, disable self-signup server-side, create profiles through a protected admin action, and audit password resets without writing passwords to logs. Do not pretend an existing single-role model supports combined permission checklists; enforce the permission matrix across server actions, APIs, and UI before exposing it.
 
 ## Required engineering response
 
@@ -32,11 +33,11 @@ Use this as the build brief and review checklist for Nexus 360. The previous app
 - Make every lifecycle action validated, authorized, atomic, auditable, and idempotent. A repeated lead conversion returns the existing result. A payment cannot exceed its current due. A transfer balances exactly.
 - State analytics definitions, time basis, source system, and refresh time. Separate actuals from forecasts and unresolved sheet conflicts.
 - Treat the sheet as a deliberate shared operational interface. Use the workbook dictionary and sync contract; start with a dry-run reconciliation, preserve formulas and validations, quarantine conflicts, and verify every write by reading it back.
-- Keep OTP delivery real: no code in API responses or logs, enforce expiry/attempt/resend limits, and show clear configuration/delivery failure. Do not assume an email provider exists.
+- Keep authentication tied to the approved account lifecycle: no public signup, no demo credentials in production, and no password values in logs. Admin password reset is supported; self-service email reset remains unavailable until a mail provider is configured.
 
 ## Acceptance review
 
-- Logged-out calls cannot read or mutate CRM or finance data; member permissions are enforced server-side.
+- Logged-out calls cannot read or mutate CRM or finance data; built-in roles are enforced server-side. Combined custom permissions are not complete until the permission model is wired through all guards.
 - Lead conversion cannot create duplicate account/contact/project rows when retried.
 - Concurrent invoice payment cannot over-allocate the balance; ledger and invoice totals update atomically.
 - A transfer creates two balanced entries, rejects same-account/insufficient-fund moves, and can be retried safely.

@@ -57,6 +57,16 @@ describe("minioPublicEndpoint", () => {
 });
 
 describe("minioPresignClient", () => {
+  it("allows the app to import without storage but fails clearly when storage is used", () => {
+    const { minioClient } = loadMinio({
+      MINIO_ENDPOINT: "",
+      MINIO_ACCESS_KEY: "",
+      MINIO_SECRET_KEY: "",
+      MINIO_BUCKET: "",
+    });
+    expect(() => minioClient.config).toThrow("Object storage is not configured. Missing: MINIO_ENDPOINT, MINIO_ACCESS_KEY, MINIO_SECRET_KEY, MINIO_BUCKET");
+  });
+
   it("signs browser URLs for the public endpoint, not the internal one", async () => {
     const { minioPresignClient, MINIO_PUBLIC_URL } = loadMinio({
       MINIO_PUBLIC_ENDPOINT: "https://files.example.com",

@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { hashPassword } from "better-auth/crypto";
 import dotenv from "dotenv";
 import path from "path";
 
@@ -146,25 +147,67 @@ async function main() {
   await upsertByName(prisma.crm_Lead_Types, leadTypesData);
   console.log("Lead Types seeded");
 
-  // Test User for E2E Testing
-  const testUserEmail = process.env.TEST_USER_EMAIL || "test@nextcrm.app";
-  // Name must contain "a" — e2e helpers (selectUserInCombobox) type "a" to
-  // filter the assignee combobox and need this user to match.
-  const testUser = await prisma.users.upsert({
-    where: { email: testUserEmail },
-    update: {
-      name: "Admin",
-      userStatus: "ACTIVE",
-      role: "admin",
-    },
-    create: {
-      email: testUserEmail,
-      name: "Admin",
-      userStatus: "ACTIVE",
-      role: "admin",
-    },
-  });
-  console.log(`Test user seeded: ${testUserEmail}`);
+  let testUserId: string;
+  if (process.env.NODE_ENV === "production") {
+    const adminEmail = process.env.NEXUS360_BOOTSTRAP_ADMIN_EMAIL?.trim().toLowerCase();
+    const adminPassword = process.env.NEXUS360_BOOTSTRAP_ADMIN_PASSWORD;
+    if (!adminEmail || !adminPassword || adminPassword.length < 12) {
+      throw new Error("Production bootstrap admin email/password are missing or invalid.");
+    }
+    const adminName = process.env.NEXUS360_BOOTSTRAP_ADMIN_NAME || "Nexus 360 Admin";
+    const adminUser = await prisma.users.upsert({
+      where: { email: adminEmail },
+      update: { name: adminName, userStatus: "ACTIVE", role: "admin", emailVerified: true },
+      create: {
+        email: adminEmail,
+        name: adminName,
+        userStatus: "ACTIVE",
+        role: "admin",
+        emailVerified: true,
+      },
+    });
+    testUserId = adminUser.id;
+    const credential = await prisma.account.findFirst({
+      where: { userId: adminUser.id, providerId: "credential" },
+      select: { id: true },
+    });
+    if (!credential) {
+      await prisma.account.create({
+        data: {
+          accountId: adminUser.id,
+          providerId: "credential",
+          userId: adminUser.id,
+          password: await hashPassword(adminPassword),
+        },
+      });
+    }
+    console.log(`Bootstrap admin ready: ${adminEmail}`);
+  } else {
+    // Test user for local and CI scenarios only. Production never gets a public
+    // demo admin account; the Render bootstrap credentials create the owner.
+    const testUserEmail = process.env.TEST_USER_EMAIL || "test@nextcrm.app";
+    const testUser = await prisma.users.upsert({
+      where: { email: testUserEmail },
+      update: { name: "Admin", userStatus: "ACTIVE", role: "admin" },
+      create: { email: testUserEmail, name: "Admin", userStatus: "ACTIVE", role: "admin" },
+    });
+    testUserId = testUser.id;
+    const testCredential = await prisma.account.findFirst({
+      where: { userId: testUser.id, providerId: "credential" },
+      select: { id: true },
+    });
+    if (!testCredential) {
+      await prisma.account.create({
+        data: {
+          accountId: testUser.id,
+          providerId: "credential",
+          userId: testUser.id,
+          password: await hashPassword(process.env.TEST_USER_PASSWORD || "test-e2e-password-only"),
+        },
+      });
+    }
+    console.log(`Test user seeded: ${testUserEmail}`);
+  }
 
   // Demo CRM dataset for e2e tests — the update/detail specs act on the
   // first table row and need at least one record per entity. Idempotent:
@@ -186,7 +229,7 @@ async function main() {
         name: "Seed Demo Account",
         status: "Active",
         email: "demo-account@nextcrm.app",
-        assigned_to: testUser.id,
+        assigned_to: testUserId,
       },
     });
   }
@@ -205,7 +248,7 @@ async function main() {
         // not on a re-run of `db:seed` against an existing row.
         email: process.env.SEED_CONTACT_EMAIL || "demo-contact@nextcrm.app",
         accountsIDs: demoAccount.id,
-        assigned_to: testUser.id,
+        assigned_to: testUserId,
       },
     });
   }
@@ -220,7 +263,7 @@ async function main() {
         lastName: "Demo Lead",
         company: "Seed Demo Company",
         email: "demo-lead@nextcrm.app",
-        assigned_to: testUser.id,
+        assigned_to: testUserId,
       },
     });
   }
@@ -245,9 +288,9 @@ async function main() {
         budget: 10000,
         expected_revenue: 8000,
         close_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        assigned_to: testUser.id,
-        createdBy: testUser.id,
-        updatedBy: testUser.id,
+        assigned_to: testUserId,
+        createdBy: testUserId,
+        updatedBy: testUserId,
       },
     });
   }
@@ -262,19 +305,19 @@ async function main() {
           last_name: "Demo Target One",
           company: "Target Co One",
           email: "demo-target@nextcrm.app",
-          created_by: testUser.id,
+          created_by: testUserId,
         },
         {
           last_name: "Demo Target Two",
           company: "Target Co Two",
           email: "demo-target-2@nextcrm.app",
-          created_by: testUser.id,
+          created_by: testUserId,
         },
         {
           last_name: "Demo Target Three",
           company: "Target Co Three",
           email: "demo-target-3@nextcrm.app",
-          created_by: testUser.id,
+          created_by: testUserId,
         },
       ],
     });

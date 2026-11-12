@@ -1,11 +1,9 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { emailOTP, testUtils } from "better-auth/plugins";
 import { admin as adminPlugin } from "better-auth/plugins";
 import { prismadb } from "@/lib/prisma";
 import { ac, admin, manager, user, partner } from "@/lib/auth-permissions";
 import { newUserNotify } from "@/lib/new-user-notify";
-import resendHelper from "@/lib/resend";
 
 const isDemo = process.env.NEXT_PUBLIC_APP_URL === "https://demo.nextcrm.io";
 
@@ -55,55 +53,23 @@ export const auth = betterAuth({
     },
   },
 
-  socialProviders: {
-    google: {
-      clientId: process.env.GOOGLE_ID!,
-      clientSecret: process.env.GOOGLE_SECRET!,
-    },
-  },
-
   emailAndPassword: {
-    enabled: false,
+    enabled: true,
+    disableSignUp: true,
+    minPasswordLength: 12,
+    revokeSessionsOnPasswordReset: true,
   },
+  // Reset requests require verified email delivery. Until a provider exists,
+  // only an authenticated admin may reset another user's password.
+  disabledPaths: ["/request-password-reset", "/reset-password", "/reset-password/:token"],
 
   plugins: [
-    emailOTP({
-      sendVerificationOTP: async ({ email, otp, type }) => {
-        try {
-          const resend = await resendHelper();
-          await resend.emails.send({
-            from: `${process.env.NEXT_PUBLIC_APP_NAME} <${process.env.EMAIL_FROM}>`,
-            to: email,
-            subject: `Your verification code: ${otp}`,
-            text: `Your one-time verification code is: ${otp}\n\nThis code expires in 5 minutes.\n\nIf you did not request this, please ignore this email.`,
-          });
-        } catch (e) {
-          // In dev/test, email sending may fail — OTP is captured by testUtils plugin
-          if (process.env.NODE_ENV !== "production") {
-            console.log(`[Auth] OTP email send failed for ${email}, but captured by testUtils`);
-          } else {
-            throw e;
-          }
-        }
-      },
-    }),
-    // testUtils captures OTPs for E2E testing — only enabled in non-production
-    ...(process.env.NODE_ENV !== "production"
-      ? [testUtils({ captureOTP: true })]
-      : []),
     adminPlugin({
       ac,
       roles: { admin, manager, user, partner },
       defaultRole: "user",
     }),
   ],
-
-  account: {
-    accountLinking: {
-      enabled: true,
-      trustedProviders: ["google"],
-    },
-  },
 
   callbacks: {
     async onUserCreated(user: { id: string }) {
@@ -118,7 +84,12 @@ export const auth = betterAuth({
         // Notify admins about new pending user
         const dbUser = await prismadb.users.findUnique({ where: { id: user.id } });
         if (dbUser) {
-          await newUserNotify(dbUser);
+          try {
+            await newUserNotify(dbUser);
+          } catch (error) {
+            // Creating a local profile must not depend on a mail provider.
+            console.warn("[AUTH_NEW_USER_NOTIFICATION] Email notification was not sent.", error);
+          }
         }
       }
     },

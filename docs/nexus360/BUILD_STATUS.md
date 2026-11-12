@@ -8,6 +8,9 @@ Rebuild the management workspace for Dream Address Studio on the isolated NextCR
 
 ## Work completed in this session
 
+- Replaced the OTP/Google login surface with admin-provisioned email/password sign-in; Better Auth blocks public sign-up. The initial production owner is bootstrapped from a Render-generated secret, profile creation is admin-only, and an admin can reset a user's password. Credential values are hashed and excluded from audit logs.
+- Added database-backed `/api/health` and Render Blueprint configuration for a separate free test service wired to the disposable `nexus360-test-db`; the existing `main` service remains isolated.
+
 - Replaced the generic home dashboard with a studio operations overview, responsive workspace links, primary actions, and a Kolkata-local date.
 - Added a role-scoped INR invoice summary for issued invoices, collections, outstanding receivables, and overdue invoice count. Draft, cancelled, credit note, and non-INR records are excluded and called out in the UI.
 - Added a role-scoped pipeline summary using only active opportunities explicitly denominated in INR. The UI calls it forecast and does not blend in unconverted currencies.
@@ -67,8 +70,8 @@ Rebuild the management workspace for Dream Address Studio on the isolated NextCR
 | Expenses, vendors, treasury | Treasury ledger and statement snapshot foundation added | Expenses and vendor bills debit selected cash accounts; invoices credit selected accounts; opening balances are verified; transfers are balanced, same-currency, locked and retry-safe; manual entries are idempotent; statement snapshots show variance. Still add transaction-level bank reconciliation, source evidence, and avoid duplicate cost entry across expense/bill surfaces |
 | Analytics | Existing generic reports; studio definitions incomplete | Separate contracted, forecast, issued billing, collection, receivables, committed cost, actual cost, margin; show source/as-of/exclusions |
 | Google Sheets | Read-only audit and reviewed crosswalk foundation added; sync not connected | Apply migration/configure service account, run preview, review mappings/conflicts, then implement conflict classification and validated staging read/write round-trip |
-| Email OTP delivery | Provider setup pending | Preserve existing auth, configure a verified sender/provider before claiming delivery readiness |
-| Deployment health | Partially checked | Service is live and root returns HTTP 200; Render metrics were empty; inspect app paths, sync/auth flows, and database availability separately |
+| Authentication | Admin-provisioned password login added; no public signup | Test bootstrap login, admin profile creation, role assignment, reset flow, and session revocation against staging; combined permission checklists still need a dedicated model and end-to-end enforcement |
+| Deployment health | Isolated free test deployment being prepared | Keep the legacy `main` service unchanged; deploy and verify migrations, `/api/health`, browser login, and persisted writes on the separate test service |
 | Full quality verification | Partial | Start a local PostgreSQL test environment and set local MinIO test values, apply additive migrations, rerun the full suite, then run browser tests and visual review; validate production repo relationship before any release |
 
 ## Safety and data rules
@@ -76,7 +79,7 @@ Rebuild the management workspace for Dream Address Studio on the isolated NextCR
 - The connected workbook is live operational data. A rollback copy exists; future bulk import/sync must still use stable-ID field mapping, reconciliation and write/readback checks.
 - Do not add production tax settings, opening balances, payment records, or fake demo rows.
 - Do not expose secrets or assume an email provider is configured.
-- Do not deploy or mutate Render production resources as part of local implementation.
+- Do not alter the existing `main` service or direct traffic to the rebuild until the separate test deployment has passed database, login, Sheet, and browser checks.
 
 ## Release path still in progress
 

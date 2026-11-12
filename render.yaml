@@ -1,0 +1,48 @@
+services:
+  - type: web
+    name: nexus360-rebuild-staging
+    runtime: docker
+    plan: free
+    region: oregon
+    branch: nexus360-rebuild-staging
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    autoDeployTrigger: commit
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nexus360-test-db
+          property: connectionString
+      - key: BETTER_AUTH_SECRET
+        generateValue: true
+      - key: BETTER_AUTH_URL
+        value: https://nexus360-rebuild-staging.onrender.com
+      - key: NEXT_PUBLIC_APP_URL
+        value: https://nexus360-rebuild-staging.onrender.com
+      - key: NEXT_PUBLIC_APP_NAME
+        value: Nexus 360
+      - key: NEXUS360_BOOTSTRAP_ADMIN_EMAIL
+        value: designspace1407@gmail.com
+      - key: NEXUS360_BOOTSTRAP_ADMIN_NAME
+        value: Nexus 360 Admin
+      - key: NEXUS360_BOOTSTRAP_ADMIN_PASSWORD
+        generateValue: true
+      - key: INNGEST_ID
+        value: nexus360
+      - key: INNGEST_APP_NAME
+        value: Nexus 360
+      - key: INNGEST_SIGNING_KEY
+        generateValue: true
+      - key: INNGEST_EVENT_KEY
+        generateValue: true
+      - key: EMAIL_ENCRYPTION_KEY
+        generateValue: true
+
+databases:
+  - name: nexus360-test-db
+    plan: free
+    region: oregon
+    databaseName: nexus360_test_db
+    user: nexus360_test_db_user
+    postgresMajorVersion: "16"
