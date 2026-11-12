@@ -55,18 +55,18 @@ Each phase report must include a 0–100 health score with a short breakdown for
 
 #### Phase 1 audit — 2026-11-13
 
-**Status: incomplete. Estimated health: 55/100.** This is a weighted engineering assessment, not a test pass percentage. It combines the previously live staging baseline with the current, locally validated but not yet deployed source batch and directly verified Sheets edits. Do not treat local code as live verification.
+**Status: incomplete. Estimated health: 59/100.** This is a weighted engineering assessment, not a test pass percentage. Commit `d791c25` is now live on isolated Render staging; the master/current template Sheets edits were read back. Authentication, mobile, privacy, issuer setup and the remaining localization gates are not verified.
 
 | Area | Score | Evidence and remaining gap |
 |---|---:|---|
-| Source implementation | 86 | Adds admin-profile fix, INR defaults, tax-free invoice/order/product/vendor/MCP paths, historical PDF protection, and INR-only controls; local tests, typecheck, lint and production build pass. This batch is not yet deployed. Issuer selection and the wider locale sweep remain. |
+| Source implementation | 86 | Adds admin-profile fix, INR defaults, tax-free invoice/order/product/vendor/MCP paths, historical PDF protection, and INR-only controls; tests, typecheck, lint and production build pass, and commit `d791c25` is live. Issuer selection and the wider locale sweep remain. |
 | Authentication and permissions | 40 | Three focused profile-action tests pass; no staging profile creation, sign-in, reset or role-boundary journey has been executed. |
 | India/tax data behavior | 78 | 25 master tabs, 11 invoice workbook tabs, and 8 quotation workbook tabs were scanned: active master/template workflow has no GST, IGST or tax matches. Historical customer files with tax language/amounts remain unchanged. Runtime currency settings and remaining country/locale defaults need staging verification. |
 | Brand and document setup | 30 | MARK IV/Dream Space appears on login; quote/invoice issuer profiles and authoritative business details are not yet selectable/configured. |
 | Mobile and privacy acceptance | 20 | No phone-sized browser review or end-to-end private-file access check was performed. |
-| Staging/deployment | 60 | Previously deployed staging baseline `52ba252` returned `/api/health` and `/en/login` successfully and used `nexus360_test_db`; this new source batch still awaits deployment and health recheck. |
+| Staging/deployment | 85 | Render reports `d791c25` live; `/api/health` is 200 (`database: ok`), `/en/login` is 200 and contains MARK IV/Nexus 360 branding. Startup logs show `nexus360_test_db`, 69 migrations found, no pending migrations, and the existing single user caused seed to be skipped. |
 
-The cumulative focused profile/invoice/tax/Orders/product/vendor regression batch passed **48 tests across 9 suites**. TypeScript, ESLint on touched files, production build (using build-only local placeholder credentials), and `git diff --check` pass. Sheets readback confirmed the repaired labels/formulas; historical quote/invoice worksheets still contain old tax wording and were preserved. The full Phase 1 exit gate remains open until this batch is live and rechecked, authenticated staging profile/login/reset/permissions, persisted settings, issuer setup, remaining locale sweep, mobile usability/privacy and final Render state are verified.
+The cumulative focused profile/invoice/tax/Orders/product/vendor regression batch passed **48 tests across 9 suites**. TypeScript, ESLint on touched files, production build (using build-only local placeholder credentials), and `git diff --check` pass. Sheets readback confirmed the repaired labels/formulas; historical quote/invoice worksheets still contain old tax wording and were preserved. The full Phase 1 exit gate remains open until authenticated staging profile/login/reset/permissions, persisted settings, issuer setup, remaining locale sweep, mobile usability and privacy are verified.
 
 ### Phase 2 — Build dependable finance and expense accounting
 
