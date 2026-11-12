@@ -7,6 +7,22 @@ import { isPartnerAllowedPath } from "@/lib/partner-routes";
 
 const intlMiddleware = createMiddleware(routing);
 
+function withPublicRedirectOrigin(response: NextResponse, requestOrigin: string) {
+  const location = response.headers.get("location");
+  if (!location) return response;
+
+  const configuredOrigin = (process.env.NEXT_PUBLIC_APP_URL || process.env.BETTER_AUTH_URL || requestOrigin)
+    .replace(/\/$/, "");
+  const absoluteLocation = location.match(/^(?:https?:)?\/\/[^/?#]*(\/[^#]*)?(?:#.*)?$/i);
+  const pathAndQuery = location.startsWith("/") && !location.startsWith("//")
+    ? location
+    : absoluteLocation?.[1] || "/";
+  // Next expects redirect locations to be absolute. Use the configured public
+  // origin so Render's private container port never reaches the browser.
+  response.headers.set("location", `${configuredOrigin}${pathAndQuery}`);
+  return response;
+}
+
 // Admin-only API paths — cookie presence checked here, role checked server-side
 const ADMIN_ONLY_PATHS = [
   "/api/user/activateAdmin",
@@ -70,7 +86,7 @@ export async function proxy(req: NextRequest) {
       }
       const redirect = new NextResponse(null, { status: 307 });
       redirect.headers.set("location", "/");
-      return redirect;
+      return withPublicRedirectOrigin(redirect, req.nextUrl.origin);
     }
   }
 
@@ -97,7 +113,7 @@ export async function proxy(req: NextRequest) {
           const signInUrl = `/en/sign-in?callbackUrl=${encodeURIComponent(callbackUrl)}`;
           const redirect = new NextResponse(null, { status: 307 });
           redirect.headers.set("location", signInUrl);
-          return redirect;
+          return withPublicRedirectOrigin(redirect, req.nextUrl.origin);
       }
     }
   }
@@ -116,10 +132,10 @@ export async function proxy(req: NextRequest) {
     const localizedPath = path === "/" ? "/en" : `/en${path}`;
     const redirect = new NextResponse(null, { status: 307 });
     redirect.headers.set("location", `${localizedPath}${req.nextUrl.search}`);
-    return redirect;
+    return withPublicRedirectOrigin(redirect, req.nextUrl.origin);
   }
 
-  return intlMiddleware(req);
+  return withPublicRedirectOrigin(intlMiddleware(req), req.nextUrl.origin);
 }
 
 export const config = {
