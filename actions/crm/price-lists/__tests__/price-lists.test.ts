@@ -28,7 +28,7 @@ const as = (role: "user" | "manager" | "admin") => {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  db.currency.findFirst.mockResolvedValue({ code: "CZK" });
+  db.currency.findFirst.mockResolvedValue({ code: "INR" });
   db.crm_PriceLists.create.mockResolvedValue({ id: "L" });
   db.crm_PriceLists.findUnique.mockResolvedValue({ id: "L", source: "CRM" });
   db.crm_PriceListRules.create.mockResolvedValue({ id: "r1" });
@@ -37,23 +37,23 @@ beforeEach(() => {
 
 it("refuses reps and lets managers create (Review Focus 2)", async () => {
   as("user");
-  await expect(createPriceList({ name: "A", currency: "CZK" })).resolves.toEqual({ error: "Forbidden" });
+  await expect(createPriceList({ name: "A", currency: "INR" })).resolves.toEqual({ error: "Forbidden" });
   expect(db.crm_PriceLists.create).not.toHaveBeenCalled();
   as("manager");
-  await expect(createPriceList({ name: "A", currency: "CZK" })).resolves.toEqual({ data: { id: "L" } });
+  await expect(createPriceList({ name: "A", currency: "INR" })).resolves.toEqual({ data: { id: "L" } });
   expect(writeAuditLog).toHaveBeenCalledWith(expect.objectContaining({ entityType: "price_list", action: "created" }));
 });
 
 it("rejects a disabled currency", async () => {
   as("admin");
   db.currency.findFirst.mockResolvedValue(null);
-  await expect(createPriceList({ name: "A", currency: "XYZ" })).resolves.toEqual({ error: "Currency is not enabled" });
+  await expect(createPriceList({ name: "A", currency: "XYZ" })).resolves.toEqual({ error: "MARK IV V1 supports INR only" });
 });
 
 it("locks external lists even for admins", async () => {
   as("admin");
   db.crm_PriceLists.findUnique.mockResolvedValue({ id: "L", source: "EXTERNAL" });
-  await expect(updatePriceList("L", { name: "B", currency: "CZK", isActive: true })).resolves.toEqual({ error: "Forbidden" });
+  await expect(updatePriceList("L", { name: "B", currency: "INR", isActive: true })).resolves.toEqual({ error: "Forbidden" });
   await expect(upsertPriceListRule("L", null, { appliesTo: "ALL", computePrice: "FIXED", fixedPrice: 1 })).resolves.toEqual({ error: "Forbidden" });
 });
 
@@ -97,8 +97,8 @@ it("refuses to delete the default price list", async () => {
 
 it("checks a price for any signed-in role", async () => {
   as("user");
-  (getPrice as jest.Mock).mockResolvedValue({ price: new Decimal("85.5"), listPrice: new Decimal(100), currency: "CZK", ruleId: "r1", steps: [{ label: "base", value: new Decimal(100) }] });
+  (getPrice as jest.Mock).mockResolvedValue({ price: new Decimal("85.5"), listPrice: new Decimal(100), currency: "INR", ruleId: "r1", steps: [{ label: "base", value: new Decimal(100) }] });
   await expect(checkPrice({ priceListId: "L", productId: "p1", quantity: 2 })).resolves.toEqual({
-    data: { price: "85.50", listPrice: "100.00", currency: "CZK", ruleId: "r1", steps: [{ label: "base", value: "100.00" }] },
+    data: { price: "85.50", listPrice: "100.00", currency: "INR", ruleId: "r1", steps: [{ label: "base", value: "100.00" }] },
   });
 });

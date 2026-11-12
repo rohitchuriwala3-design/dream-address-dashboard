@@ -70,7 +70,7 @@ const CreateContractForm = ({
     const description = formData.get("description") as string;
     const account = formData.get("account") as string;
     const assigned_to = formData.get("assigned_to") as string;
-    const currency = formData.get("currency") as string;
+    const currency = "INR" as const;
 
     await execute({
       title,

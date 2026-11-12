@@ -29,30 +29,33 @@ const baseFilters: ReportFilters = {
   dateTo: new Date("2025-12-31"),
 };
 
-const mockRates = [
-  { fromCurrency: "EUR", toCurrency: "USD", rate: { toString: () => "1.084" } },
-  { fromCurrency: "USD", toCurrency: "EUR", rate: { toString: () => "0.92251" } },
-];
-
 describe("sales report actions", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (prismadb.exchangeRate.findMany as jest.Mock).mockResolvedValue(mockRates);
+    (prismadb.exchangeRate.findMany as jest.Mock).mockResolvedValue([]);
   });
 
   describe("getRevenue", () => {
     it("sums budget of won opportunities in date range", async () => {
       (prismadb.crm_Opportunities.findMany as jest.Mock).mockResolvedValue([
-        { budget: 100000, currency: "EUR" },
-        { budget: 50000, currency: "EUR" },
+        { budget: 100000, currency: "INR" },
+        { budget: 50000, currency: "INR" },
       ]);
-      const result = await getRevenue(baseFilters, "EUR");
+      const result = await getRevenue(baseFilters, "INR");
       expect(result).toBe(150000);
     });
 
     it("returns 0 when no won opportunities", async () => {
       (prismadb.crm_Opportunities.findMany as jest.Mock).mockResolvedValue([]);
-      const result = await getRevenue(baseFilters, "EUR");
+      const result = await getRevenue(baseFilters, "INR");
+      expect(result).toBe(0);
+    });
+
+    it("does not convert an unsupported legacy amount into INR", async () => {
+      (prismadb.crm_Opportunities.findMany as jest.Mock).mockResolvedValue([
+        { budget: 100000, currency: "AAA" },
+      ]);
+      const result = await getRevenue(baseFilters, "INR");
       expect(result).toBe(0);
     });
   });
@@ -60,10 +63,10 @@ describe("sales report actions", () => {
   describe("getPipelineValue", () => {
     it("sums budget of active opportunities", async () => {
       (prismadb.crm_Opportunities.findMany as jest.Mock).mockResolvedValue([
-        { budget: 300000, currency: "EUR" },
-        { budget: 200000, currency: "EUR" },
+        { budget: 300000, currency: "INR" },
+        { budget: 200000, currency: "INR" },
       ]);
-      const result = await getPipelineValue(baseFilters, "EUR");
+      const result = await getPipelineValue(baseFilters, "INR");
       expect(result).toBe(500000);
     });
   });
@@ -112,7 +115,7 @@ describe("sales report actions", () => {
     it("applies user scope to opportunities query", async () => {
       (prismadb.crm_Opportunities.findMany as jest.Mock).mockResolvedValue([]);
       const scope = getReportScope({ id: "u3", role: "user" });
-      await getRevenue(baseFilters, "USD", scope);
+      await getRevenue(baseFilters, "INR", scope);
       const arg = (prismadb.crm_Opportunities.findMany as jest.Mock).mock.calls.at(-1)![0];
       expect(arg.where.OR).toEqual(
         expect.arrayContaining([{ assigned_to: "u3" }, { createdBy: "u3" }]),
@@ -123,10 +126,10 @@ describe("sales report actions", () => {
   describe("getAvgDealSize", () => {
     it("returns average budget of closed opportunities", async () => {
       (prismadb.crm_Opportunities.findMany as jest.Mock).mockResolvedValue([
-        { budget: 50000, currency: "EUR" },
-        { budget: 100000, currency: "EUR" },
+        { budget: 50000, currency: "INR" },
+        { budget: 100000, currency: "INR" },
       ]);
-      const result = await getAvgDealSize(baseFilters, "EUR");
+      const result = await getAvgDealSize(baseFilters, "INR");
       expect(result).toBe(75000);
     });
   });

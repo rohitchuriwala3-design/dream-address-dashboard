@@ -129,17 +129,17 @@ export function mkCompare(opts: { price: number | undefined; crm?: Record<string
   const calls: { path: string; body: any; headers: Record<string, string> }[] = [];
   const catalog: FakeCatalog = {
     categories: [], variants: [], taxes: [],
-    lists: [{ id: 245, name: "Gold CZK", currency_id: [9, "CZK"], write_date: "2026-10-10 08:00:00" }],
-    items: [{ id: 1285, pricelist_id: [245, "Gold CZK"], applied_on: "1_product", product_tmpl_id: [912, "Lid"], compute_price: "fixed", fixed_price: 1.51, min_quantity: 1000, base: "list_price", write_date: "2026-10-10 08:00:00" }],
+    lists: [{ id: 245, name: "Gold CCC", currency_id: [9, "CCC"], write_date: "2026-10-10 08:00:00" }],
+    items: [{ id: 1285, pricelist_id: [245, "Gold CCC"], applied_on: "1_product", product_tmpl_id: [912, "Lid"], compute_price: "fixed", fixed_price: 1.51, min_quantity: 1000, base: "list_price", write_date: "2026-10-10 08:00:00" }],
   };
   const fetch = fakeOdoo({
     ...catalogHandlers(catalog),
-    "product.pricelist/read": () => [{ id: 245, currency_id: [9, "CZK"] }],
+    "product.pricelist/read": () => [{ id: 245, currency_id: [9, "CCC"] }],
     "sale.order.line/onchange": () => ({ value: opts.price === undefined ? {} : { price_unit: opts.price } }),
   }, calls);
   const products: RecordData[] = [
-    { id: "p500", source: "EXTERNAL", externalRef: "500", status: "ACTIVE", name: "Lid", currency: opts.productCurrency ?? "CZK", deletedAt: null },
-    { id: "p501", source: "EXTERNAL", externalRef: "501", status: "ACTIVE", name: "Straw", currency: opts.productCurrency ?? "CZK", deletedAt: null },
+    { id: "p500", source: "EXTERNAL", externalRef: "500", status: "ACTIVE", name: "Lid", currency: opts.productCurrency ?? "CCC", deletedAt: null },
+    { id: "p501", source: "EXTERNAL", externalRef: "501", status: "ACTIVE", name: "Straw", currency: opts.productCurrency ?? "CCC", deletedAt: null },
   ];
   const ctx = createTestContext({
     pluginId: "odoo-connector",
@@ -148,10 +148,10 @@ export function mkCompare(opts: { price: number | undefined; crm?: Record<string
     prices: async ({ productId, quantity }) => {
       const q = opts.crm?.[`${productId.slice(1)}:${quantity}`];
       if (q instanceof Error) throw q;
-      return q ? { ruleBase: null, ...q } : { price: String(opts.price), currency: "CZK", ruleId: null, ruleBase: null };
+      return q ? { ruleBase: null, ...q } : { price: String(opts.price), currency: "CCC", ruleId: null, ruleBase: null };
     },
   }) as unknown as TestCtx;
-  void ctx.store.set("pricelist:245", { priceListId: "L245", name: "Gold CZK", ruleCount: 1, syncedAt: "2026-10-10T08:00:00Z" });
+  void ctx.store.set("pricelist:245", { priceListId: "L245", name: "Gold CCC", ruleCount: 1, syncedAt: "2026-10-10T08:00:00Z" });
   void ctx.store.set("product:500", { productId: "p500", tmplId: 912, categoryRef: "7" });
   void ctx.store.set("product:501", { productId: "p501", tmplId: 913, categoryRef: "7" });
   void ctx.store.set("category:7", { categoryId: "c7", parentRef: null });

@@ -12,7 +12,7 @@ type Result<T> = { data: T } | { error: string };
 export type CheckedPrice = { price: string; listPrice: string; currency: string; ruleId: string | null; steps: { label: string; value: string }[] };
 
 const PATH = "/[locale]/(routes)/crm/price-lists";
-const listSchema = z.object({ name: z.string().trim().min(1).max(200), currency: z.string().length(3) });
+const listSchema = z.object({ name: z.string().trim().min(1).max(200), currency: z.literal("INR") });
 
 async function signedIn() {
   try { return await requireAuthenticated(); } catch (e) { if (e instanceof AuthenticationError) return null; throw e; }
@@ -36,7 +36,7 @@ export async function createPriceList(input: { name: string; currency: string })
   const w = await writer(null);
   if ("error" in w) return w;
   const parsed = listSchema.safeParse(input);
-  if (!parsed.success) return { error: "invalid:name" };
+  if (!parsed.success) return { error: input.currency === "INR" ? "invalid:name" : "MARK IV V1 supports INR only" };
   if (!(await enabledCurrency(parsed.data.currency))) return { error: "Currency is not enabled" };
   const row = await prismadb.crm_PriceLists.create({ data: { ...parsed.data, createdBy: w.userId, updatedBy: w.userId } });
   await writeAuditLog({ entityType: "price_list", entityId: row.id, action: "created", changes: null, userId: w.userId });
@@ -48,7 +48,7 @@ export async function updatePriceList(id: string, input: { name: string; currenc
   const w = await writer(id);
   if ("error" in w) return w;
   const parsed = listSchema.safeParse(input);
-  if (!parsed.success) return { error: "invalid:name" };
+  if (!parsed.success) return { error: input.currency === "INR" ? "invalid:name" : "MARK IV V1 supports INR only" };
   if (!(await enabledCurrency(parsed.data.currency))) return { error: "Currency is not enabled" };
   await prismadb.crm_PriceLists.update({ where: { id }, data: { ...parsed.data, isActive: !!input.isActive, updatedBy: w.userId } });
   await writeAuditLog({ entityType: "price_list", entityId: id, action: "updated", changes: null, userId: w.userId });

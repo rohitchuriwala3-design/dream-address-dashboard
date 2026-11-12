@@ -1,6 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { cookies } from "next/headers";
-import { getDefaultCurrency, formatCurrency as formatCurrencyUtil } from "@/lib/currency";
+import { formatCurrency as formatCurrencyUtil } from "@/lib/currency";
 import { Decimal } from "@prisma/client/runtime/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { ReportPageLayout } from "@/components/reports/ReportPageLayout";
@@ -30,9 +29,7 @@ export default async function SalesReportPage({ searchParams }: Props) {
   const scope = getReportScope(await requireAuthenticated());
   const t = await getTranslations("ReportsPage");
 
-  const cookieStore = await cookies();
-  const defaultCurrency = await getDefaultCurrency();
-  const displayCurrency = cookieStore.get("display_currency")?.value || defaultCurrency;
+  const displayCurrency = "INR";
 
   const [revenue, pipeline, oppsByStage, oppsByMonth, winLoss, avgDeal, cycleLength] =
     await Promise.all([

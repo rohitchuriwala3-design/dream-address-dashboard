@@ -19,7 +19,7 @@
 | File | Responsibility |
 |------|---------------|
 | `prisma/migrations/<timestamp>_add_currency_support/migration.sql` | Schema migration |
-| `prisma/seeds/currencies.ts` | Seed EUR, USD, CZK with initial rates |
+| `prisma/seeds/currencies.ts` | Seed AAA, BBB, CCC with initial rates |
 | `lib/currency.ts` | `convertAmount()`, `formatCurrency()`, `getExchangeRates()`, `getSnapshotRate()` |
 | `context/currency-context.tsx` | `CurrencyProvider` + `useCurrency()` hook — reads cookie, provides display currency + rates |
 | `components/CurrencySwitcher.tsx` | Header dropdown — sets cookie, updates context |
@@ -44,12 +44,12 @@
 | `actions/crm/opportunity/get-expected-revenue.ts` | Convert to display currency |
 | `actions/reports/sales.ts` | Convert revenue/pipeline/avgDeal to display currency |
 | `app/[locale]/(routes)/page.tsx` | Pass display currency to revenue display, use formatCurrency |
-| `app/[locale]/(routes)/reports/sales/page.tsx` | Remove hardcoded USD formatter, use display currency |
+| `app/[locale]/(routes)/reports/sales/page.tsx` | Remove hardcoded BBB formatter, use display currency |
 | `app/[locale]/(routes)/crm/opportunities/components/NewOpportunityForm.tsx` | Currency dropdown from DB |
 | `app/[locale]/(routes)/crm/opportunities/components/UpdateOpportunityForm.tsx` | Currency dropdown from DB |
 | `app/[locale]/(routes)/crm/opportunities/[opportunityId]/components/BasicView.tsx` | Show currency symbol + converted value |
 | `app/[locale]/(routes)/crm/opportunities/table-components/columns.tsx` | Format with currency |
-| `app/[locale]/(routes)/crm/contracts/[contractId]/components/BasicView.tsx` | Replace hardcoded USD |
+| `app/[locale]/(routes)/crm/contracts/[contractId]/components/BasicView.tsx` | Replace hardcoded BBB |
 | `app/[locale]/(routes)/crm/contracts/_forms/create-contract.tsx` | Add currency field |
 | `app/[locale]/(routes)/crm/contracts/_forms/update-contract.tsx` | Add currency field |
 | `actions/crm/contracts/create-new-contract/schema.ts` | Add currency field |
@@ -213,18 +213,18 @@ import { PrismaClient, ExchangeRateSource } from "@prisma/client";
 const prisma = new PrismaClient();
 
 const currencies = [
-  { code: "EUR", name: "Euro", symbol: "€", isEnabled: true, isDefault: true },
-  { code: "USD", name: "US Dollar", symbol: "$", isEnabled: true, isDefault: false },
-  { code: "CZK", name: "Czech Koruna", symbol: "Kč", isEnabled: true, isDefault: false },
+  { code: "AAA", name: "Currency A", symbol: "¤", isEnabled: true, isDefault: true },
+  { code: "BBB", name: "Currency B", symbol: "$", isEnabled: true, isDefault: false },
+  { code: "CCC", name: "Currency C", symbol: "¤", isEnabled: true, isDefault: false },
 ];
 
 const rates = [
-  { fromCurrency: "EUR", toCurrency: "USD", rate: 1.084, source: ExchangeRateSource.ECB },
-  { fromCurrency: "EUR", toCurrency: "CZK", rate: 25.315, source: ExchangeRateSource.ECB },
-  { fromCurrency: "USD", toCurrency: "EUR", rate: 0.92251, source: ExchangeRateSource.ECB },
-  { fromCurrency: "USD", toCurrency: "CZK", rate: 23.35, source: ExchangeRateSource.ECB },
-  { fromCurrency: "CZK", toCurrency: "EUR", rate: 0.0395, source: ExchangeRateSource.ECB },
-  { fromCurrency: "CZK", toCurrency: "USD", rate: 0.04283, source: ExchangeRateSource.ECB },
+  { fromCurrency: "AAA", toCurrency: "BBB", rate: 1.084, source: ExchangeRateSource.ECB },
+  { fromCurrency: "AAA", toCurrency: "CCC", rate: 25.315, source: ExchangeRateSource.ECB },
+  { fromCurrency: "BBB", toCurrency: "AAA", rate: 0.92251, source: ExchangeRateSource.ECB },
+  { fromCurrency: "BBB", toCurrency: "CCC", rate: 23.35, source: ExchangeRateSource.ECB },
+  { fromCurrency: "CCC", toCurrency: "AAA", rate: 0.0395, source: ExchangeRateSource.ECB },
+  { fromCurrency: "CCC", toCurrency: "BBB", rate: 0.04283, source: ExchangeRateSource.ECB },
 ];
 
 export async function seedCurrencies() {
@@ -260,7 +260,7 @@ export async function seedCurrencies() {
   await prisma.crm_SystemSettings.upsert({
     where: { key: "default_currency" },
     update: {},
-    create: { key: "default_currency", value: "EUR" },
+    create: { key: "default_currency", value: "AAA" },
   });
 
   console.log("Currencies seeded.");
@@ -299,73 +299,73 @@ import { Decimal } from "@prisma/client/runtime/library";
 type Rate = { fromCurrency: string; toCurrency: string; rate: Decimal };
 
 const mockRates: Rate[] = [
-  { fromCurrency: "EUR", toCurrency: "USD", rate: new Decimal("1.084") },
-  { fromCurrency: "EUR", toCurrency: "CZK", rate: new Decimal("25.315") },
-  { fromCurrency: "USD", toCurrency: "EUR", rate: new Decimal("0.92251") },
-  { fromCurrency: "USD", toCurrency: "CZK", rate: new Decimal("23.35") },
-  { fromCurrency: "CZK", toCurrency: "EUR", rate: new Decimal("0.0395") },
-  { fromCurrency: "CZK", toCurrency: "USD", rate: new Decimal("0.04283") },
+  { fromCurrency: "AAA", toCurrency: "BBB", rate: new Decimal("1.084") },
+  { fromCurrency: "AAA", toCurrency: "CCC", rate: new Decimal("25.315") },
+  { fromCurrency: "BBB", toCurrency: "AAA", rate: new Decimal("0.92251") },
+  { fromCurrency: "BBB", toCurrency: "CCC", rate: new Decimal("23.35") },
+  { fromCurrency: "CCC", toCurrency: "AAA", rate: new Decimal("0.0395") },
+  { fromCurrency: "CCC", toCurrency: "BBB", rate: new Decimal("0.04283") },
 ];
 
 describe("findRate", () => {
   it("returns direct rate when available", () => {
-    const rate = findRate("EUR", "USD", mockRates);
+    const rate = findRate("AAA", "BBB", mockRates);
     expect(rate?.toString()).toBe("1.084");
   });
 
   it("returns 1 when from === to", () => {
-    const rate = findRate("EUR", "EUR", mockRates);
+    const rate = findRate("AAA", "AAA", mockRates);
     expect(rate?.toString()).toBe("1");
   });
 
   it("returns null when no rate exists", () => {
-    const rate = findRate("GBP", "USD", mockRates);
+    const rate = findRate("GBP", "BBB", mockRates);
     expect(rate).toBeNull();
   });
 });
 
 describe("convertAmount", () => {
-  it("converts EUR to USD using direct rate", () => {
-    const result = convertAmount(new Decimal("1000"), "EUR", "USD", mockRates);
+  it("converts AAA to BBB using direct rate", () => {
+    const result = convertAmount(new Decimal("1000"), "AAA", "BBB", mockRates);
     expect(result?.toString()).toBe("1084");
   });
 
   it("returns same amount when currencies match", () => {
-    const result = convertAmount(new Decimal("500"), "EUR", "EUR", mockRates);
+    const result = convertAmount(new Decimal("500"), "AAA", "AAA", mockRates);
     expect(result?.toString()).toBe("500");
   });
 
-  it("converts CZK to USD", () => {
-    const result = convertAmount(new Decimal("10000"), "CZK", "USD", mockRates);
+  it("converts CCC to BBB", () => {
+    const result = convertAmount(new Decimal("10000"), "CCC", "BBB", mockRates);
     expect(result?.toString()).toBe("428.3");
   });
 
   it("returns null when rate is missing", () => {
-    const result = convertAmount(new Decimal("100"), "GBP", "USD", mockRates);
+    const result = convertAmount(new Decimal("100"), "GBP", "BBB", mockRates);
     expect(result).toBeNull();
   });
 });
 
 describe("formatCurrency", () => {
-  it("formats EUR amount", () => {
-    const result = formatCurrency(new Decimal("1234.56"), "EUR");
+  it("formats AAA amount", () => {
+    const result = formatCurrency(new Decimal("1234.56"), "AAA");
     expect(result).toContain("1");
     expect(result).toContain("234");
-    expect(result).toContain("€");
+    expect(result).toContain("¤");
   });
 
-  it("formats USD amount", () => {
-    const result = formatCurrency(new Decimal("1234.56"), "USD");
+  it("formats BBB amount", () => {
+    const result = formatCurrency(new Decimal("1234.56"), "BBB");
     expect(result).toContain("$");
   });
 
-  it("formats CZK amount", () => {
-    const result = formatCurrency(new Decimal("1234.56"), "CZK");
-    expect(result).toContain("CZK");
+  it("formats CCC amount", () => {
+    const result = formatCurrency(new Decimal("1234.56"), "CCC");
+    expect(result).toContain("CCC");
   });
 
   it("formats whole numbers without unnecessary decimals", () => {
-    const result = formatCurrency(new Decimal("1000"), "EUR");
+    const result = formatCurrency(new Decimal("1000"), "AAA");
     expect(result).not.toContain(".00");
   });
 });
@@ -386,9 +386,9 @@ import { prismadb } from "@/lib/prisma";
 type Rate = { fromCurrency: string; toCurrency: string; rate: Decimal };
 
 const currencyLocaleMap: Record<string, string> = {
-  EUR: "de-DE",
-  USD: "en-US",
-  CZK: "cs-CZ",
+  AAA: "de-DE",
+  BBB: "en-US",
+  CCC: "cs-CZ",
   GBP: "en-GB",
 };
 
@@ -451,7 +451,7 @@ export async function getDefaultCurrency(): Promise<string> {
   const setting = await prismadb.crm_SystemSettings.findUnique({
     where: { key: "default_currency" },
   });
-  return setting?.value || "EUR";
+  return setting?.value || "AAA";
 }
 
 export async function getEnabledCurrencies() {
@@ -640,7 +640,7 @@ In the right-side `<div>`, add `<CurrencySwitcher />` between `<Feedback />` and
 
 Run: `pnpm dev` and open the app. Verify the currency switcher appears in the header.
 
-Expected: Dropdown shows EUR, USD, CZK. Clicking one sets a cookie and reloads.
+Expected: Dropdown shows AAA, BBB, CCC. Clicking one sets a cookie and reloads.
 
 - [ ] **Step 6: Commit**
 
@@ -1423,7 +1423,7 @@ Add `currencies` prop and replace the currency field with the same Select dropdo
 
 - [ ] **Step 4: Verify forms work**
 
-Run: `pnpm dev`, create a new opportunity, verify currency dropdown shows EUR/USD/CZK. Update an existing opportunity, verify currency persists.
+Run: `pnpm dev`, create a new opportunity, verify currency dropdown shows AAA/BBB/CCC. Update an existing opportunity, verify currency persists.
 
 - [ ] **Step 5: Commit**
 
@@ -1652,7 +1652,7 @@ Remove the hardcoded `currencyFormatter`:
 // DELETE THIS:
 // const currencyFormatter = new Intl.NumberFormat("en-US", {
 //   style: "currency",
-//   currency: "USD",
+//   currency: "BBB",
 //   maximumFractionDigits: 0,
 // });
 ```
@@ -1720,7 +1720,7 @@ Apply the same pattern to `expected_revenue`.
 
 - [ ] **Step 2: Update opportunity table columns**
 
-In `columns.tsx`, find where budget/expected_revenue are formatted and replace the hardcoded USD formatting with dynamic formatting using the row's `currency` field:
+In `columns.tsx`, find where budget/expected_revenue are formatted and replace the hardcoded BBB formatting with dynamic formatting using the row's `currency` field:
 
 ```typescript
 {
@@ -1728,7 +1728,7 @@ In `columns.tsx`, find where budget/expected_revenue are formatted and replace t
   header: "Budget",
   cell: ({ row }) => {
     const budget = row.original.budget;
-    const currency = row.original.currency || "EUR";
+    const currency = row.original.currency || "AAA";
     if (!budget) return "—";
     return formatCurrency(new Decimal(budget.toString()), currency);
   },
@@ -1756,7 +1756,7 @@ git commit -m "feat(opportunities): display budget and revenue with currency for
 **Files:**
 - Modify: `app/[locale]/(routes)/crm/contracts/[contractId]/components/BasicView.tsx`
 
-- [ ] **Step 1: Replace hardcoded USD formatting**
+- [ ] **Step 1: Replace hardcoded BBB formatting**
 
 In `BasicView.tsx`, find the `formatCurrency` local function:
 
@@ -1765,7 +1765,7 @@ In `BasicView.tsx`, find the `formatCurrency` local function:
     value != null
       ? new Intl.NumberFormat("en-US", {
           style: "currency",
-          currency: "USD",
+          currency: "BBB",
           maximumFractionDigits: 0,
         }).format(value)
       : "N/A";
@@ -1781,7 +1781,7 @@ import { Decimal } from "@prisma/client/runtime/library";
 ```typescript
   const formatValue = (value: number | string | null | undefined) =>
     value != null
-      ? formatCurrencyUtil(new Decimal(value.toString()), data.currency || "EUR")
+      ? formatCurrencyUtil(new Decimal(value.toString()), data.currency || "AAA")
       : "N/A";
 ```
 
@@ -1826,7 +1826,7 @@ export const syncExchangeRates = inngest.createFunction(
 
     const ecbRates = await step.run("fetch-ecb-rates", async () => {
       const response = await fetch(
-        "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml"
+        "https://www.ecb.europa.eu/stats/reference-rates/reference-rates-daily.xml"
       );
       if (!response.ok) {
         throw new Error(`ECB fetch failed: ${response.status}`);
@@ -1846,14 +1846,14 @@ export const syncExchangeRates = inngest.createFunction(
       for (const [currency, rate] of Object.entries(ecbRates)) {
         if (!enabledCodes.has(currency)) continue;
 
-        // EUR → X
+        // AAA → X
         await prismadb.exchangeRate.upsert({
           where: {
-            fromCurrency_toCurrency: { fromCurrency: "EUR", toCurrency: currency },
+            fromCurrency_toCurrency: { fromCurrency: "AAA", toCurrency: currency },
           },
           update: { rate, source: ExchangeRateSource.ECB, effectiveDate: new Date() },
           create: {
-            fromCurrency: "EUR",
+            fromCurrency: "AAA",
             toCurrency: currency,
             rate,
             source: ExchangeRateSource.ECB,
@@ -1861,16 +1861,16 @@ export const syncExchangeRates = inngest.createFunction(
           },
         });
 
-        // X → EUR (inverse)
+        // X → AAA (inverse)
         const inverse = parseFloat((1 / rate).toFixed(8));
         await prismadb.exchangeRate.upsert({
           where: {
-            fromCurrency_toCurrency: { fromCurrency: currency, toCurrency: "EUR" },
+            fromCurrency_toCurrency: { fromCurrency: currency, toCurrency: "AAA" },
           },
           update: { rate: inverse, source: ExchangeRateSource.ECB, effectiveDate: new Date() },
           create: {
             fromCurrency: currency,
-            toCurrency: "EUR",
+            toCurrency: "AAA",
             rate: inverse,
             source: ExchangeRateSource.ECB,
             effectiveDate: new Date(),
@@ -1879,8 +1879,8 @@ export const syncExchangeRates = inngest.createFunction(
         count += 2;
       }
 
-      // Cross rates between non-EUR currencies
-      const nonEurCodes = [...enabledCodes].filter((c) => c !== "EUR");
+      // Cross rates between non-AAA currencies
+      const nonEurCodes = [...enabledCodes].filter((c) => c !== "AAA");
       for (const from of nonEurCodes) {
         for (const to of nonEurCodes) {
           if (from === to) continue;

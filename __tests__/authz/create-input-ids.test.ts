@@ -49,7 +49,7 @@ beforeAll(async () => {
   await prismadb.crm_Accounts.create({
     data: { id: ACC.repGone, v: 0, name: `repGone-${tag}`, assigned_to: U.gone, createdBy: U.rep },
   });
-  await prismadb.crm_PriceLists.create({ data: { id: PRICELIST, name: `pl-${tag}`, currency: "EUR" } });
+  await prismadb.crm_PriceLists.create({ data: { id: PRICELIST, name: `pl-${tag}`, currency: "AAA" } });
   for (const [k, assignee] of [["rep", U.other], ["repGone", U.gone]] as const) {
     await prismadb.crm_Contracts.create({
       data: { id: CONTRACT[k], v: 0, title: `${k}-${tag}`, value: 1, account: ACC.rep, assigned_to: assignee, createdBy: U.rep },

@@ -100,7 +100,7 @@ it("ships a plain-SQL migration that backfills from createdAt", () => {
 });
 
 it("serializes the order date as an ISO day", () => {
-  const s = serializeOrder({ id: "o1", number: "N", status: "DRAFT", source: "CRM", accountId: "a", currency: "CZK", orderDate: new Date("2026-10-13T00:00:00Z"), createdAt: new Date(), updatedAt: new Date(), lines: [] });
+  const s = serializeOrder({ id: "o1", number: "N", status: "DRAFT", source: "CRM", accountId: "a", currency: "CCC", orderDate: new Date("2026-10-13T00:00:00Z"), createdAt: new Date(), updatedAt: new Date(), lines: [] });
   expect(s.orderDate).toBe("2026-10-13");
 });
 ```

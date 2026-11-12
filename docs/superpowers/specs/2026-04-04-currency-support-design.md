@@ -15,15 +15,15 @@ Add multi-currency support to the CRM's sales module. Admin manages currencies a
 
 | Field     | Type              | Notes                              |
 |-----------|-------------------|------------------------------------|
-| code      | String @unique    | ISO 4217 (EUR, USD, CZK)          |
-| name      | String            | "Euro", "US Dollar", etc.          |
-| symbol    | String            | "€", "$", "Kč"                     |
+| code      | String @unique    | ISO 4217 (AAA, BBB, CCC)          |
+| name      | String            | "Currency A", "Currency B", etc.          |
+| symbol    | String            | "¤", "$", "¤"                     |
 | isEnabled | Boolean           | Admin can enable/disable           |
 | isDefault | Boolean           | One currency is the default        |
 | createdAt | DateTime          |                                    |
 | updatedAt | DateTime          |                                    |
 
-Seeded with EUR, USD, CZK.
+Seeded with AAA, BBB, CCC.
 
 #### ExchangeRate
 
@@ -99,7 +99,7 @@ A dropdown in the header's right-side group, placed between `<Feedback />` and `
 
 ### Behavior
 
-- Displays current display currency code and symbol (e.g., "€ EUR ▼")
+- Displays current display currency code and symbol (e.g., "¤ AAA ▼")
 - Dropdown shows all enabled currencies with symbol, code, and full name
 - State stored in cookie (like sidebar state) — persists across page loads
 - Defaults to admin-configured default currency
@@ -111,7 +111,7 @@ A dropdown in the header's right-side group, placed between `<Feedback />` and `
 ### Storing Values
 
 When a user saves an opportunity/contract:
-1. Value stored in the chosen currency (e.g., `budget = 50000.00`, `currency = "EUR"`)
+1. Value stored in the chosen currency (e.g., `budget = 50000.00`, `currency = "AAA"`)
 2. System looks up current rate from opportunity's currency to default currency
 3. Stores `snapshot_rate` for historical reference
 
@@ -119,7 +119,7 @@ When a user saves an opportunity/contract:
 
 When the display currency differs from the record's currency:
 - Dashboard/reports use **current rates** for aggregation
-- Detail views show both: original value + approximate converted value (e.g., "€50,000 (≈ $54,210)")
+- Detail views show both: original value + approximate converted value (e.g., "¤50,000 (≈ $54,210)")
 - Table columns show converted value with currency symbol
 
 ### Aggregation (Dashboard & Reports)
@@ -137,7 +137,7 @@ convertAmount(amount: Decimal, fromCurrency: string, toCurrency: string, rates: 
 formatCurrency(amount: Decimal, currencyCode: string): string
 ```
 
-If no direct rate exists for a pair, convert through EUR (ECB base currency).
+If no direct rate exists for a pair, convert through AAA (ECB base currency).
 
 ### Edge Cases
 
@@ -165,7 +165,7 @@ If no direct rate exists for a pair, convert through EUR (ECB base currency).
 ### Schema & DB
 - `prisma/schema.prisma` — new models, modify existing
 - New Prisma migration
-- Seed EUR, USD, CZK with initial rates
+- Seed AAA, BBB, CCC with initial rates
 
 ### Admin
 - `app/[locale]/(routes)/admin/_components/AdminSidebarNav.tsx` — add "Currencies" item
@@ -186,14 +186,14 @@ If no direct rate exists for a pair, convert through EUR (ECB base currency).
 - `actions/crm/opportunities/update-opportunity.ts` — update snapshot_rate
 
 ### Contracts
-- `app/[locale]/(routes)/crm/contracts/[contractId]/components/BasicView.tsx` — replace hardcoded USD
+- `app/[locale]/(routes)/crm/contracts/[contractId]/components/BasicView.tsx` — replace hardcoded BBB
 - Contract create/update forms — add currency field
 
 ### Dashboard & Reports
 - `app/[locale]/(routes)/page.tsx` — pass display currency
 - `actions/crm/opportunity/get-expected-revenue.ts` — convert to display currency
 - `actions/reports/sales.ts` — getRevenue, getPipelineValue, getAvgDealSize with conversion
-- `app/[locale]/(routes)/reports/sales/page.tsx` — remove hardcoded USD formatter
+- `app/[locale]/(routes)/reports/sales/page.tsx` — remove hardcoded BBB formatter
 
 ### Shared
 - New: `lib/currency.ts` — convertAmount, formatCurrency, rate lookup

@@ -10,7 +10,6 @@ import { AssignProduct } from "./schema";
 import { InputType, ReturnType } from "./types";
 import { createSafeAction } from "@/lib/create-safe-action";
 import { writeAuditLog } from "@/lib/audit-log";
-import { getSnapshotRate, getDefaultCurrency } from "@/lib/currency";
 import { revalidatePath } from "next/cache";
 
 const handler = async (data: InputType): Promise<ReturnType> => {
@@ -56,15 +55,12 @@ const handler = async (data: InputType): Promise<ReturnType> => {
       return { error: "Renewal date must be after start date" };
     }
 
-    const defaultCurrency = await getDefaultCurrency();
-    const snapshotRate = currency ? await getSnapshotRate(currency, defaultCurrency) : null;
-
     const assignment = await prismadb.crm_AccountProducts.create({
       data: {
         accountId, productId, quantity,
         custom_price: custom_price ? parseFloat(custom_price) : undefined,
-        currency,
-        snapshot_rate: snapshotRate ? parseFloat(snapshotRate.toString()) : undefined,
+        currency: "INR",
+        snapshot_rate: 1,
         status: status || "ACTIVE",
         start_date,
         end_date: end_date || undefined,

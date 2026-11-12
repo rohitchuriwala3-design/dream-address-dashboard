@@ -28,7 +28,7 @@ jest.mock("@/lib/audit-log", () => ({ writeAuditLog: jest.fn(), diffObjects: jes
 jest.mock("@/inngest/client", () => ({ inngest: { send: jest.fn() } }));
 jest.mock("@/lib/sendmail", () => ({ __esModule: true, default: jest.fn() }));
 jest.mock("@/lib/currency", () => ({
-  getDefaultCurrency: jest.fn().mockResolvedValue("USD"),
+  getDefaultCurrency: jest.fn().mockResolvedValue("INR"),
   getSnapshotRate: jest.fn().mockResolvedValue(null),
 }));
 jest.mock("@/lib/crm/stage-transition", () => ({ handleStageTransition: jest.fn() }));

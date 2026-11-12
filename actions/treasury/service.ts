@@ -16,10 +16,12 @@ export async function listTreasury() {
   await treasuryUser();
   const [accounts, transactions] = await Promise.all([
     prismadb.treasuryAccount.findMany({
+      where: { currency: "INR" },
       orderBy: [{ active: "desc" }, { name: "asc" }],
       include: { entries: { select: { amount: true } }, reconciliations: { orderBy: { statementDate: "desc" }, take: 3 } },
     }),
     prismadb.treasuryTransaction.findMany({
+      where: { currency: "INR" },
       take: 100, orderBy: { occurredAt: "desc" },
       include: { entries: { include: { account: { select: { id: true, name: true, accountMask: true } } } } },
     }),
@@ -53,6 +55,7 @@ export async function recordTreasuryMovement(input: {
     await tx.$queryRaw`SELECT "id" FROM "TreasuryAccount" WHERE "id" = ${input.accountId}::uuid FOR UPDATE`;
     const account = await tx.treasuryAccount.findFirst({ where: { id: input.accountId, active: true } });
     if (!account) throw new TreasuryError("Choose an active cash account");
+    if (account.currency !== "INR") throw new TreasuryError("MARK IV V1 supports INR only for new cash movements");
     const signedAmount = input.direction === "INCOME" ? amount : amount.negated();
     if (signedAmount.isNegative()) {
       const balance = await tx.treasuryEntry.aggregate({ where: { accountId: account.id }, _sum: { amount: true } });
@@ -75,6 +78,7 @@ export async function recordTreasuryReconciliation(input: { accountId: string; s
     await tx.$queryRaw`SELECT "id" FROM "TreasuryAccount" WHERE "id" = ${input.accountId}::uuid FOR UPDATE`;
     const account = await tx.treasuryAccount.findFirst({ where: { id: input.accountId, active: true } });
     if (!account) throw new TreasuryError("Choose an active cash account");
+    if (account.currency !== "INR") throw new TreasuryError("MARK IV V1 supports INR only for new reconciliations");
     const balance = await tx.treasuryEntry.aggregate({ where: { accountId: account.id }, _sum: { amount: true } });
     const ledgerBalance = new Decimal(balance._sum.amount?.toString() ?? "0");
     return tx.treasuryReconciliation.create({ data: {
@@ -94,13 +98,14 @@ export async function listActiveTreasuryAccounts(currency?: string) {
 
 export async function createTreasuryAccount(input: { name: string; institution?: string; accountMask?: string; currency?: string; openingBalance?: string; openingBalanceConfirmed?: boolean }) {
   const user = await treasuryUser();
+  if (input.currency && input.currency !== "INR") throw new TreasuryError("MARK IV V1 supports INR only");
   const opening = new Decimal(input.openingBalance || "0");
   if (!opening.isFinite() || opening.isNegative() || opening.decimalPlaces() > 2) throw new TreasuryError("Opening balance must be zero or a positive amount with up to two decimal places");
   if (opening.gt(0) && !input.openingBalanceConfirmed) throw new TreasuryError("Confirm the opening balance against a bank statement before recording it");
   return prismadb.$transaction(async (tx) => {
     const account = await tx.treasuryAccount.create({ data: {
       name: input.name.trim(), institution: input.institution?.trim() || null,
-      accountMask: input.accountMask?.trim() || null, currency: (input.currency || "INR").toUpperCase(), createdBy: user.id,
+      accountMask: input.accountMask?.trim() || null, currency: "INR", createdBy: user.id,
     } });
     if (opening.gt(0)) await tx.treasuryTransaction.create({ data: {
       type: "OPENING_BALANCE", amount: opening, currency: account.currency,
@@ -131,6 +136,7 @@ export async function transferTreasury(input: { fromAccountId: string; toAccount
     if (accounts.length !== 2) throw new TreasuryError("Both cash accounts must be active");
     const from = accounts.find((account) => account.id === input.fromAccountId)!;
     const to = accounts.find((account) => account.id === input.toAccountId)!;
+    if (from.currency !== "INR" || to.currency !== "INR") throw new TreasuryError("MARK IV V1 supports INR only for new transfers");
     if (from.currency !== to.currency) throw new TreasuryError("Transfers require accounts with the same currency");
     const sum = await tx.treasuryEntry.aggregate({ where: { accountId: from.id }, _sum: { amount: true } });
     if (new Decimal(sum._sum.amount?.toString() ?? "0").lt(amount)) throw new TreasuryError("Transfer exceeds the available recorded balance");

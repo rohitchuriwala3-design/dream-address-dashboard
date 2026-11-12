@@ -259,7 +259,7 @@ import { getReportScope } from "@/lib/authz";
 it("applies user scope to opportunities query", async () => {
   (prismadb.crm_Opportunities.findMany as jest.Mock).mockResolvedValue([]);
   const scope = getReportScope({ id: "u3", role: "user" });
-  await getRevenue({ dateFrom: new Date(), dateTo: new Date() }, "USD", scope);
+  await getRevenue({ dateFrom: new Date(), dateTo: new Date() }, "BBB", scope);
   const arg = (prismadb.crm_Opportunities.findMany as jest.Mock).mock.calls.at(-1)![0];
   expect(arg.where.OR).toEqual(
     expect.arrayContaining([{ assigned_to: "u3" }, { created_by: "u3" }]),

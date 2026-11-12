@@ -2909,7 +2909,7 @@ function formatValue(value: number, label: string): string {
   if (label === "totalRevenue" || label === "pipelineValue") {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "BBB",
       maximumFractionDigits: 0,
     }).format(value);
   }
@@ -3768,19 +3768,19 @@ export default async function SalesReportPage({ searchParams }: Props) {
         <Card className="rounded-md p-4">
           <p className="text-sm text-muted-foreground">{t("charts.totalRevenue")}</p>
           <p className="text-2xl font-bold">
-            {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(revenue)}
+            {new Intl.NumberFormat("en-US", { style: "currency", currency: "BBB", maximumFractionDigits: 0 }).format(revenue)}
           </p>
         </Card>
         <Card className="rounded-md p-4">
           <p className="text-sm text-muted-foreground">{t("charts.pipelineValue")}</p>
           <p className="text-2xl font-bold">
-            {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(pipeline)}
+            {new Intl.NumberFormat("en-US", { style: "currency", currency: "BBB", maximumFractionDigits: 0 }).format(pipeline)}
           </p>
         </Card>
         <Card className="rounded-md p-4">
           <p className="text-sm text-muted-foreground">{t("charts.avgDealSize")}</p>
           <p className="text-2xl font-bold">
-            {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(avgDeal)}
+            {new Intl.NumberFormat("en-US", { style: "currency", currency: "BBB", maximumFractionDigits: 0 }).format(avgDeal)}
           </p>
         </Card>
       </div>

@@ -32,7 +32,7 @@ it("stops with a clear message when Odoo cannot price over the API", async () =>
 });
 
 it("finds a planted difference and labels rule versus rate", async () => {
-  const { ctx, client } = mkCompare({ price: 1.51, crm: { "500:1000": { price: "1.67", currency: "CZK", ruleId: "r1" }, "501:1": { price: "0.08", currency: "EUR", ruleId: null } }, priceLists: "245" });
+  const { ctx, client } = mkCompare({ price: 1.51, crm: { "500:1000": { price: "1.67", currency: "CCC", ruleId: "r1" }, "501:1": { price: "0.08", currency: "AAA", ruleId: null } }, priceLists: "245" });
   await runCompare(ctx, client, now);
   const res = (await ctx.store.get<CompareResult>(K.compareLast))!;
   expect(res.ok).toBe(true);

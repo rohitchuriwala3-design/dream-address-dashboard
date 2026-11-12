@@ -6,8 +6,6 @@ import { KPICard } from "@/components/reports/KPICard";
 import { DateRangePicker } from "@/components/reports/DateRangePicker";
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
-import { cookies } from "next/headers";
-import { getDefaultCurrency } from "@/lib/currency";
 
 type Props = {
   searchParams: Promise<Record<string, string | undefined>>;
@@ -22,9 +20,7 @@ export default async function ReportsPage({ searchParams }: Props) {
   );
   const filters = parseSearchParamsToFilters(params);
   const scope = getReportScope(await requireAuthenticated());
-  const cookieStore = await cookies();
-  const defaultCurrency = await getDefaultCurrency();
-  const displayCurrency = cookieStore.get("display_currency")?.value || defaultCurrency;
+  const displayCurrency = "INR";
   const kpis = await getDashboardKPIs(filters, displayCurrency, scope);
   const t = await getTranslations("ReportsPage");
   const dateParams = params.toString();

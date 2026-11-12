@@ -25,7 +25,7 @@ it("builds the panel only for linked accounts", async () => {
 describe("catalog screens", () => {
   it("marks chosen lists and reports queued jobs and skipped rules", async () => {
     const { ctx } = mk([], [], { priceLists: "245" });
-    await ctx.store.set(K.odooLists, { at: "2026-10-10T10:00:00Z", lists: [{ id: 245, name: "Gold", currency: "CZK", rules: 16, active: true }, { id: 246, name: "Plat", currency: "CZK", rules: 16, active: true }] });
+    await ctx.store.set(K.odooLists, { at: "2026-10-10T10:00:00Z", lists: [{ id: 245, name: "Gold", currency: "CCC", rules: 16, active: true }, { id: 246, name: "Plat", currency: "CCC", rules: 16, active: true }] });
     await ctx.store.set(K.job("compare"), { requestedAt: "x" });
     await ctx.store.set(K.pricelist(245), { priceListId: "L", name: "Gold", ruleCount: 16, syncedAt: "x" });
     await ctx.store.set(K.skipped(245), [{ ruleId: 9, reason: "applied_on 4_combo" }]);

@@ -29,8 +29,8 @@ it("maps domain errors to keys and pricing errors to their message", async () =>
   signIn("user");
   (svc.createOrder as jest.Mock).mockRejectedValue(new OrderError("notFound"));
   await expect(createOrder({ accountId: "a", lines: [] })).resolves.toEqual({ error: "notFound" });
-  (wf.submitOrder as jest.Mock).mockRejectedValue(new OrderError("pricing", "No exchange rate EUR → CZK"));
-  await expect(submitOrder("o1")).resolves.toEqual({ error: "pricing:No exchange rate EUR → CZK" });
+  (wf.submitOrder as jest.Mock).mockRejectedValue(new OrderError("pricing", "No exchange rate INR → INR"));
+  await expect(submitOrder("o1")).resolves.toEqual({ error: "pricing:No exchange rate INR → INR" });
   (wf.decideApproval as jest.Mock).mockResolvedValue({ status: "READY" });
   await expect(decideOrderApproval("o1", "APPROVED")).resolves.toEqual({ data: { status: "READY" } });
 });

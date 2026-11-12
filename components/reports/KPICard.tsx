@@ -6,20 +6,15 @@ import { ArrowUpRight, ArrowDownRight, Minus } from "lucide-react";
 import type { KPIData } from "@/actions/reports/types";
 import { useTranslations } from "next-intl";
 
-const currencyLocaleMap: Record<string, string> = {
-  EUR: "fr-FR", USD: "en-US", CZK: "cs-CZ", GBP: "en-GB",
-};
-
-function formatValue(value: number, label: string, currency: string = "USD"): string {
+function formatValue(value: number, label: string): string {
   if (label === "totalRevenue" || label === "pipelineValue") {
-    const locale = currencyLocaleMap[currency] || "en-US";
-    return new Intl.NumberFormat(locale, { style: "currency", currency, maximumFractionDigits: 0 }).format(value);
+    return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(value);
   }
   if (label === "conversionRate") return `${value}%`;
-  return new Intl.NumberFormat("en-US").format(value);
+  return new Intl.NumberFormat("en-IN").format(value);
 }
 
-export function KPICard({ kpi, dateParams, displayCurrency = "USD" }: { kpi: KPIData; dateParams: string; displayCurrency?: string }) {
+export function KPICard({ kpi, dateParams }: { kpi: KPIData; dateParams: string; displayCurrency?: string }) {
   const t = useTranslations("ReportsPage.kpi");
   const isPositive = kpi.changePercent > 0;
   const isZero = kpi.changePercent === 0;
@@ -35,7 +30,7 @@ export function KPICard({ kpi, dateParams, displayCurrency = "USD" }: { kpi: KPI
           </div>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-medium">{formatValue(kpi.value, kpi.label, displayCurrency)}</div>
+          <div className="text-2xl font-medium">{formatValue(kpi.value, kpi.label)}</div>
         </CardContent>
       </Card>
     </Link>

@@ -7,7 +7,6 @@ import { computeInvoiceTotals } from "@/lib/invoices/totals";
 import { canIssueInvoice, type InvoiceStatus } from "@/lib/invoices/permissions";
 import { mapLegacyRole } from "@/lib/authz";
 import { consumeNextNumber } from "@/lib/invoices/numbering";
-import { fetchFxRate } from "@/lib/invoices/fx";
 import { issueInvoiceSchema } from "@/types/invoice";
 import { renderInvoicePdf } from "@/lib/invoices/pdf/render";
 import { uploadInvoicePdf } from "@/lib/invoices/storage";
@@ -39,6 +38,9 @@ export async function issueInvoice(raw: unknown) {
   if (invoice.lineItems.length === 0) {
     throw new Error("Invoice must have at least one line item");
   }
+  if (invoice.currency !== "INR") {
+    throw new Error("This legacy invoice uses a non-INR currency and is read-only until its amount is reviewed.");
+  }
 
   const settings = await prismadb.invoice_Settings.findFirst();
   if (!settings) {
@@ -50,8 +52,7 @@ export async function issueInvoice(raw: unknown) {
     throw new Error("No invoice series configured");
   }
 
-  // Fetch FX rate outside the transaction (network call)
-  const fxRate = await fetchFxRate(invoice.currency, settings.baseCurrency);
+  const fxRate = new Decimal(1);
 
   const result = await prismadb.$transaction(
     async (tx) => {
@@ -105,7 +106,7 @@ export async function issueInvoice(raw: unknown) {
           taxableSupplyDate,
           dueDate,
           billingSnapshot,
-          baseCurrency: settings.baseCurrency,
+          baseCurrency: "INR",
           fxRateToBase: fxRate.toString(),
           subtotal: totals.subtotal.toString(),
           discountTotal: totals.discountTotal.toString(),

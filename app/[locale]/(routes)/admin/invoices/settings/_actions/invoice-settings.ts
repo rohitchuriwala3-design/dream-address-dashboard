@@ -21,7 +21,7 @@ const optionalStr = (max: number) =>
     .or(z.literal("").transform(() => null));
 
 const settingsSchema = z.object({
-  baseCurrency: z.string().length(3, "Currency must be a 3-letter code"),
+  baseCurrency: z.literal("INR"),
   defaultSeriesId: z.uuid().nullable(),
   defaultTaxRateId: z.uuid().nullable().optional().default(null),
   defaultDueDays: z
@@ -88,7 +88,7 @@ export async function saveInvoiceSettings(
       fieldErrors,
     };
   }
-  const data = parsed.data;
+  const data = { ...parsed.data, baseCurrency: "INR" as const, defaultTaxRateId: null };
 
   try {
     const existing = await prismadb.invoice_Settings.findFirst();

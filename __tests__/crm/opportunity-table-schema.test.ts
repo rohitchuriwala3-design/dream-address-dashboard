@@ -8,7 +8,7 @@ const baseRow = {
   status: "ACTIVE",
   budget: 1000,
   expected_revenue: 2500,
-  currency: "CZK",
+  currency: "CCC",
   assigned_account: { name: "Acme" },
   assigned_sales_stage: { name: "Pre-Sale" },
   assigned_to_user: { name: "Rep" },

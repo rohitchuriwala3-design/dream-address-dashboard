@@ -174,7 +174,7 @@ describe("getDashboardKPIs contractsExpiring", () => {
   // dateFrom = dateTo = END, so the previous period ends at END too and both
   // counts cover the fixture.
   const expiring = async (scope: ReturnType<typeof admin>) => {
-    const kpi = (await getDashboardKPIs({ dateFrom: END, dateTo: END }, "EUR", scope))
+    const kpi = (await getDashboardKPIs({ dateFrom: END, dateTo: END }, "AAA", scope))
       .find((k) => k.label === "contractsExpiring");
     return [kpi?.value, kpi?.previousValue];
   };

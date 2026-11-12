@@ -5,7 +5,6 @@ import { pluginRuleErrorMessage } from "@/lib/plugins/action-errors";
 import sendEmail from "@/lib/sendmail";
 import { inngest } from "@/inngest/client";
 import { writeAuditLog } from "@/lib/audit-log";
-import { getSnapshotRate, getDefaultCurrency } from "@/lib/currency";
 import { handleStageTransition } from "@/lib/crm/stage-transition";
 import {
   requireAuthenticated,
@@ -71,11 +70,9 @@ export const createOpportunity = async (data: {
   }
   const userId = user.id;
 
+  if (currency && currency !== "INR") return { error: "MARK IV V1 supports INR only" };
+
   try {
-    const defaultCurrency = await getDefaultCurrency();
-    const snapshotRate = currency
-      ? await getSnapshotRate(currency, defaultCurrency)
-      : null;
     const opportunity = await prismadb.crm_Opportunities.create({
       data: {
         account: account || undefined,
@@ -89,10 +86,10 @@ export const createOpportunity = async (data: {
         createdBy: userId,
         last_activity_by: userId,
         updatedBy: userId,
-        currency: currency || undefined,
+        currency: "INR",
         description: description || undefined,
         expected_revenue: expected_revenue ? parseFloat(expected_revenue) : undefined,
-        snapshot_rate: snapshotRate ? parseFloat(snapshotRate.toString()) : undefined,
+        snapshot_rate: 1,
         name,
         next_step: next_step || undefined,
         sales_stage: sales_stage || undefined,

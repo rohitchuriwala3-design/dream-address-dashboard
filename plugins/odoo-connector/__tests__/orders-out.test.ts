@@ -3,8 +3,8 @@ import { K } from "../store";
 import { mkOrders, order } from "./orders-helpers";
 import { now } from "./helpers";
 
-const linked = async (ctx: any) => ctx.store.set(K.account("a1"), { partnerId: 50, syncedAt: "x", salesperson: null, odooPriceList: [234, "Retail (CZK)"] });
-const customer = { id: 50, name: "Bubble s.r.o.", parent_id: false, active: true, type: "contact", property_product_pricelist: [234, "Retail (CZK)"] };
+const linked = async (ctx: any) => ctx.store.set(K.account("a1"), { partnerId: 50, syncedAt: "x", salesperson: null, odooPriceList: [234, "Retail (CCC)"] });
+const customer = { id: 50, name: "Bubble s.r.o.", parent_id: false, active: true, type: "contact", property_product_pricelist: [234, "Retail (CCC)"] };
 
 describe("sending", () => {
   it("creates one draft sale order and marks the CRM order SENT", async () => {
@@ -81,7 +81,7 @@ describe("sending", () => {
   });
 
   it("fails at once when the order currency differs from the Odoo price list", async () => {
-    const { ctx, client, data, writes } = mkOrders({ sales: { partners: [customer] }, orders: [order({ currency: "EUR" })] });
+    const { ctx, client, data, writes } = mkOrders({ sales: { partners: [customer] }, orders: [order({ currency: "AAA" })] });
     await linked(ctx);
     await sendOrder(ctx, client, "o1", now);
     expect(writes()).toEqual([]);

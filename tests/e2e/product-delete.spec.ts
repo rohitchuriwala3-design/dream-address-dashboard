@@ -29,7 +29,7 @@ async function createDisposableProduct(page: Page, name: string) {
   await dialog.locator(".space-y-2").filter({ hasText: "Name" }).locator("input").fill(name);
   await selectFormOption(page, "Type", "Product");
   await dialog.locator(".space-y-2").filter({ hasText: "Unit Price" }).locator("input").fill("1.00");
-  await selectFormOption(page, "Currency", /USD/);
+  await selectFormOption(page, "Currency", /BBB/);
 
   await dialog.locator('[type="submit"]').click();
 

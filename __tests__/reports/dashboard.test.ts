@@ -59,7 +59,7 @@ describe("getDashboardKPIs", () => {
       (prismadb.crm_Accounts.count as jest.Mock).mockResolvedValue(0);
       (prismadb.crm_Contracts.count as jest.Mock).mockResolvedValue(0);
       const scope = getReportScope({ id: "u8", role: "user" });
-      await getDashboardKPIs(baseFilters, "EUR", scope);
+      await getDashboardKPIs(baseFilters, "AAA", scope);
       const arg = (prismadb.crm_Opportunities.findMany as jest.Mock).mock.calls[0][0];
       expect(arg.where.OR).toEqual(
         expect.arrayContaining([{ assigned_to: "u8" }, { createdBy: "u8" }]),

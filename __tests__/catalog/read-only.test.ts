@@ -8,7 +8,7 @@ jest.mock("@/lib/authz", () => {
 const db: Record<string, any> = {
   crm_Products: { findUnique: jest.fn(), findFirst: jest.fn(), update: jest.fn(), findMany: jest.fn().mockResolvedValue([]), createMany: jest.fn() },
   crm_ProductCategories: { findUnique: jest.fn(), findMany: jest.fn().mockResolvedValue([]), update: jest.fn(), create: jest.fn() },
-  currency: { findMany: jest.fn().mockResolvedValue([{ code: "CZK" }]) },
+  currency: { findMany: jest.fn().mockResolvedValue([{ code: "CCC" }]) },
 };
 jest.mock("@/lib/prisma", () => ({ prismadb: db }));
 
@@ -48,7 +48,7 @@ it("CSV import skips a row whose SKU belongs to an EXTERNAL product (Ruling 3)",
   requireRole.mockResolvedValue({ id: "a1", role: "admin" });
   db.crm_Products.findMany.mockResolvedValue([{ sku: "X1" }]);
   const form = new FormData();
-  form.set("file", new File(["name,type,unit_price,currency,sku\nTea,PRODUCT,10,CZK,X1\n"], "p.csv"));
+  form.set("file", new File(["name,type,unit_price,currency,sku\nTea,PRODUCT,10,CCC,X1\n"], "p.csv"));
   const res = await importProducts(form);
   expect(res).toMatchObject({ imported: 0, skipped: 1 });
   expect(db.crm_Products.createMany).not.toHaveBeenCalled();

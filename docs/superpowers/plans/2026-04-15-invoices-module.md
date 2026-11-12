@@ -737,12 +737,12 @@ import { fetchFxRate } from "./fx";
 
 describe("fetchFxRate", () => {
   it("returns 1 when from === to", async () => {
-    const rate = await fetchFxRate("USD", "USD");
+    const rate = await fetchFxRate("BBB", "BBB");
     expect(rate.toString()).toBe("1");
   });
 
-  it("returns a positive number from frankfurter.app for EUR->USD", async () => {
-    const rate = await fetchFxRate("EUR", "USD");
+  it("returns a positive number from frankfurter.app for AAA->BBB", async () => {
+    const rate = await fetchFxRate("AAA", "BBB");
     expect(Number(rate.toString())).toBeGreaterThan(0);
   });
 });
@@ -1269,10 +1269,10 @@ git commit -m "feat(invoices): PDF template + render entry"
 import { PrismaClient } from "@prisma/client";
 
 const CURRENCIES: Array<[string, string, string]> = [
-  ["USD", "US Dollar", "$"],
-  ["EUR", "Euro", "€"],
+  ["BBB", "Currency B", "$"],
+  ["AAA", "Currency A", "¤"],
   ["GBP", "British Pound", "£"],
-  ["CZK", "Czech Koruna", "Kč"],
+  ["CCC", "Currency C", "¤"],
   ["CHF", "Swiss Franc", "CHF"],
   ["JPY", "Japanese Yen", "¥"],
   ["CNY", "Chinese Yuan", "¥"],
@@ -1328,7 +1328,7 @@ export async function seedInvoices(db: PrismaClient) {
   if (!existingSettings) {
     await db.invoice_Settings.create({
       data: {
-        baseCurrency: "USD",
+        baseCurrency: "BBB",
         defaultSeriesId: series.id,
         defaultTaxRateId: taxRate.id,
         defaultDueDays: 14,
@@ -2528,7 +2528,7 @@ describe("invoice issue flow", () => {
 
     const draft = await createInvoice({
       accountId: account.id,
-      currency: "USD",
+      currency: "BBB",
       lineItems: [{ description: "Test", quantity: 1, unitPrice: 100, discountPercent: 0, taxRateId: taxRate.id }],
     });
     const issued = await issueInvoice(draft.id);

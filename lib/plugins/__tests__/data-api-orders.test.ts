@@ -10,7 +10,7 @@ db.$transaction = jest.fn(async (fn: (tx: unknown) => unknown) => fn(db));
 jest.mock("@/lib/prisma", () => ({ prismadb: db }));
 jest.mock("@/inngest/client", () => ({ inngest: { send: jest.fn().mockResolvedValue(undefined) } }));
 jest.mock("@/lib/audit-log", () => ({ writeAuditLog: jest.fn() }));
-jest.mock("@/lib/currency", () => ({ getDefaultCurrency: jest.fn().mockResolvedValue("CZK") }));
+jest.mock("@/lib/currency", () => ({ getDefaultCurrency: jest.fn().mockResolvedValue("INR") }));
 jest.mock("@/lib/resend", () => ({ __esModule: true, default: jest.fn() }));
 
 import { Decimal } from "decimal.js";
@@ -41,7 +41,7 @@ it("creates EXTERNAL orders with plugin prices that are never below list", async
   const api = createDataApi("conn", ["orders:write"]);
   await api.orders.create({ accountId: "acc", externalRef: "SO1", status: "CONFIRMED", lines: [{ productId: "p1", quantity: 2, unitPrice: "10.5" }] });
   const data = db.crm_Orders.create.mock.calls[0][0].data;
-  expect(data).toMatchObject({ source: "EXTERNAL", externalRef: "SO1", status: "CONFIRMED", ownerId: "rep", number: expect.stringMatching(/^ORD-\d{4}-0005$/), currency: "CZK" });
+  expect(data).toMatchObject({ source: "EXTERNAL", externalRef: "SO1", status: "CONFIRMED", ownerId: "rep", number: expect.stringMatching(/^ORD-\d{4}-0005$/), currency: "INR" });
   expect(data.lines.create[0]).toMatchObject({ unitPriceOverridden: false });
   expect(data.lines.create[0].listPrice.toFixed(2)).toBe("10.50");
   expect(data.lines.create[0].unitPrice.toFixed(2)).toBe("10.50");

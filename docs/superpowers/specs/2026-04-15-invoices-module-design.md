@@ -302,7 +302,7 @@ model Invoice_TaxRates {
 
 model Invoice_Series {
   id              String   @id @default(uuid()) @db.Uuid
-  name            String   // e.g. "Main", "EUR Branch", "USD Branch"
+  name            String   // e.g. "Main", "AAA Branch", "BBB Branch"
   prefixTemplate  String   // e.g. "INV-{YYYY}-{####}"
   resetPolicy     String   @default("YEARLY") // YEARLY | NEVER
   currentYear     Int?
@@ -417,7 +417,7 @@ Guards live in `lib/invoices/permissions.ts` and are called from every action.
 1. Add Prisma models, run `prisma migrate dev` locally only first.
 2. Seed `Invoice_Currencies` with the top ~30 ISO 4217 codes.
 3. Seed one default `Invoice_Series` (`Main`, `INV-{YYYY}-{####}`) and three default `Invoice_TaxRates` (0%, 12%, 21%) — admin can rename/disable.
-4. Backfill `Invoice_Settings` with `baseCurrency=USD` (admin changes after).
+4. Backfill `Invoice_Settings` with `baseCurrency=BBB` (admin changes after).
 5. No data migration needed (new module, empty tables).
 
 ## 10. UX Notes

@@ -527,7 +527,7 @@ describe("duplicateInvoice", () => {
   it("succeeds when both checks pass", async () => {
     gs.mockResolvedValue({ user: { id: "u" } } as any);
     fu.mockResolvedValue({ id: "u", role: "user" } as any);
-    fi.mockResolvedValue({ id: "src", createdBy: "u", status: "ISSUED", accountId: "a1", lineItems: [], type: "INVOICE", currency: "USD", subtotal: "0", discountTotal: "0", vatTotal: "0", grandTotal: "0" } as any);
+    fi.mockResolvedValue({ id: "src", createdBy: "u", status: "ISSUED", accountId: "a1", lineItems: [], type: "INVOICE", currency: "BBB", subtotal: "0", discountTotal: "0", vatTotal: "0", grandTotal: "0" } as any);
     fa.mockResolvedValue({ id: "a1" } as any);
     ci.mockResolvedValue({ id: "new" } as any);
     await duplicateInvoice("i1");
@@ -673,7 +673,7 @@ const ci = prismadb.invoices.create as jest.MockedFunction<typeof prismadb.invoi
 const validInput = {
   type: "INVOICE",
   accountId: "a1",
-  currency: "USD",
+  currency: "BBB",
   lineItems: [{ description: "x", quantity: 1, unitPrice: 100, discountPercent: 0 }],
 };
 

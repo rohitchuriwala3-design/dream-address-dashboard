@@ -58,7 +58,7 @@ export const product = (id: number, over: Partial<OxoProduct> = {}): OxoProduct 
   kind: "STORABLE", listPrice: "100", saleOk: true, active: true, updatedAt: T, ...over,
 });
 export const order = (id: number, over: Partial<OxoOrder> = {}): OxoOrder => ({
-  id, odooId: null, number: `PRO${id}`, crmNumber: null, state: "sale", customerId: 1, deliveryAddressId: null, priceListId: null, currency: "CZK",
+  id, odooId: null, number: `PRO${id}`, crmNumber: null, state: "sale", customerId: 1, deliveryAddressId: null, priceListId: null, currency: "CCC",
   orderedAt: "2026-10-17T10:00:00.000Z", requestedDate: null, note: null, salesRep: null, amountUntaxed: "600", updatedAt: T,
   delivery: "none", lines: [], deliveries: [], ...over,
 });

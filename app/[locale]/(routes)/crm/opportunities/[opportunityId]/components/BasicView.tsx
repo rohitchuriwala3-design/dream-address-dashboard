@@ -24,9 +24,8 @@ import { getAllCrmData } from "@/actions/crm/get-crm-data";
 import { OpportunityDetailActions } from "./OpportunityDetailActions";
 import RequestApprovalButton from "./RequestApprovalButton";
 import { Badge } from "@/components/ui/badge";
-import { formatCurrency, convertAmount, getExchangeRates, getDefaultCurrency } from "@/lib/currency";
+import { formatCurrency, convertAmount, getExchangeRates } from "@/lib/currency";
 import { Decimal } from "@prisma/client/runtime/client";
-import { cookies } from "next/headers";
 import { serializeDecimals } from "@/lib/serialize-decimals";
 import ReopenQuoteButton from "./ReopenQuoteButton";
 import Link from "next/link";
@@ -47,9 +46,7 @@ export async function BasicView({ data }: OppsViewProps) {
   const users = await prismadb.users.findMany();
   const crmData = await getAllCrmData();
   const { saleTypes, saleStages, campaigns, currencies } = crmData;
-  const cookieStore = await cookies();
-  const defaultCurrency = await getDefaultCurrency();
-  const displayCurrency = cookieStore.get("display_currency")?.value || defaultCurrency;
+  const displayCurrency = "INR";
   const rates = await getExchangeRates();
   if (!data) return <div>Opportunity not found</div>;
 

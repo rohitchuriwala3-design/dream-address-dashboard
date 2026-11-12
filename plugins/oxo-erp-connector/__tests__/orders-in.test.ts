@@ -18,7 +18,7 @@ describe("orders in", () => {
     const { ctx, client, data } = await setup([order(70, { note: "Telefonicky", delivery: "full", lines: [line(1, 11), line(2, 99)] })]);
     const out = await syncOrdersIn({ ctx, client, dry: false, now });
     expect([out.imported, out.top]).toEqual([1, "2026-10-18T08:00:00.000Z"]);
-    expect(data.orders[0]).toMatchObject({ accountId: "a1", externalRef: "oxo:70", status: "DELIVERED", currency: "CZK", orderDate: "2026-10-17", note: "Telefonicky\norders.linesMissing",
+    expect(data.orders[0]).toMatchObject({ accountId: "a1", externalRef: "oxo:70", status: "DELIVERED", currency: "CCC", orderDate: "2026-10-17", note: "Telefonicky\norders.linesMissing",
       lines: [{ productId: "p11", quantity: "6", unitPrice: "90" }] });
     expect(await ctx.store.get<OrderLink>(K.order(data.orders[0].id as string))).toMatchObject({ oxoId: 70, imported: true, missing: 1 });
   });

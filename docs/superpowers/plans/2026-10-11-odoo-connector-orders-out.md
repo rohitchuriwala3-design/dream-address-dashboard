@@ -477,7 +477,7 @@ export function salesHandlers(s: FakeSales) {
     "res.partner/read": (b: any) => pick(s.partners.filter((p) => b.ids.includes(p.id)), b.fields),
     "res.partner/create": (b: any) => guard("res.partner/create", () => b.vals_list.map((v: RecordData) => {
       const id = s.nextId++;
-      s.partners.push({ id, active: true, type: "contact", parent_id: false, property_product_pricelist: [234, "Retail (CZK)"], ...norm(v) });
+      s.partners.push({ id, active: true, type: "contact", parent_id: false, property_product_pricelist: [234, "Retail (CCC)"], ...norm(v) });
       return id;
     })),
     "product.pricelist/read": (b: any) => pick(s.lists.filter((l) => b.ids.includes(l.id)), b.fields),
@@ -504,7 +504,7 @@ export const account = (over: RecordData = {}): RecordData => ({
 
 export const order = (over: RecordData = {}): RecordData => ({
   id: "o1", number: "ORD-2026-0001", status: "READY", source: "CRM", externalRef: null, accountId: "a1", ownerId: "u-rep", priceListId: null,
-  currency: "CZK", shipping_street: null, shipping_city: null, shipping_postal_code: null, shipping_country: null, requestedDeliveryDate: null,
+  currency: "CCC", shipping_street: null, shipping_city: null, shipping_postal_code: null, shipping_country: null, requestedDeliveryDate: null,
   note: null, grandTotal: "200.00", createdAt: "2026-10-13T07:00:00.000Z",
   lines: [{ productId: "p1", sku: "800009", productName: "Scoop", quantity: "2", unitPrice: "100.00" }], ...over,
 });
@@ -512,7 +512,7 @@ export const order = (over: RecordData = {}): RecordData => ({
 export function mkOrders(opts: { settings?: RecordData; sales?: Partial<FakeSales>; accounts?: RecordData[]; orders?: RecordData[]; products?: RecordData[] } = {}) {
   const sales: FakeSales = {
     partners: [], users: [{ id: 9, login: "rep@x.example", email: "Rep@X.example" }], orders: [], lines: [], pickings: [], moves: [],
-    lists: [{ id: 234, currency_id: [9, "CZK"] }, { id: 245, currency_id: [9, "CZK"] }, { id: 238, currency_id: [125, "EUR"] }],
+    lists: [{ id: 234, currency_id: [9, "CCC"] }, { id: 245, currency_id: [9, "CCC"] }, { id: 238, currency_id: [125, "AAA"] }],
     fail: {}, price: null, nextId: 1000, ...opts.sales,
   };
   const calls: { path: string; body: any }[] = [];
@@ -544,7 +544,7 @@ import { K } from "../store";
 import { account, mkOrders, order } from "./orders-helpers";
 import { now } from "./helpers";
 
-const odooCustomer = (over = {}) => ({ id: 50, name: "Bubble s.r.o.", parent_id: false, active: true, type: "contact", company_registry: false, vat: false, country_id: [56, "CZ"], street: "Main 1", city: "Praha", zip: "11000", property_product_pricelist: [234, "Retail (CZK)"], ...over });
+const odooCustomer = (over = {}) => ({ id: 50, name: "Bubble s.r.o.", parent_id: false, active: true, type: "contact", company_registry: false, vat: false, country_id: [56, "CZ"], street: "Main 1", city: "Praha", zip: "11000", property_product_pricelist: [234, "Retail (CCC)"], ...over });
 
 describe("customer", () => {
   it("uses the linked partner without asking Odoo", async () => {
@@ -558,7 +558,7 @@ describe("customer", () => {
     const { ctx, client, writes } = mkOrders({ sales: { partners: [odooCustomer({ company_registry: "12345678" })] } });
     expect(await findOrCreateCustomer(ctx, client, account(), 9, now)).toEqual({ partnerId: 50, created: false });
     expect(await ctx.store.get(K.partner(50))).toEqual({ accountId: "a1" });
-    expect(await ctx.store.get(K.account("a1"))).toMatchObject({ partnerId: 50, odooPriceList: [234, "Retail (CZK)"] });
+    expect(await ctx.store.get(K.account("a1"))).toMatchObject({ partnerId: 50, odooPriceList: [234, "Retail (CCC)"] });
     expect(writes()).toEqual([]);
   });
 
@@ -753,8 +753,8 @@ import { K } from "../store";
 import { mkOrders, order } from "./orders-helpers";
 import { now } from "./helpers";
 
-const linked = async (ctx: any) => ctx.store.set(K.account("a1"), { partnerId: 50, syncedAt: "x", salesperson: null, odooPriceList: [234, "Retail (CZK)"] });
-const customer = { id: 50, name: "Bubble s.r.o.", parent_id: false, active: true, type: "contact", property_product_pricelist: [234, "Retail (CZK)"] };
+const linked = async (ctx: any) => ctx.store.set(K.account("a1"), { partnerId: 50, syncedAt: "x", salesperson: null, odooPriceList: [234, "Retail (CCC)"] });
+const customer = { id: 50, name: "Bubble s.r.o.", parent_id: false, active: true, type: "contact", property_product_pricelist: [234, "Retail (CCC)"] };
 
 describe("sending", () => {
   it("creates one draft sale order and marks the CRM order SENT", async () => {
@@ -831,7 +831,7 @@ describe("sending", () => {
   });
 
   it("fails at once when the order currency differs from the Odoo price list", async () => {
-    const { ctx, client, data, writes } = mkOrders({ sales: { partners: [customer] }, orders: [order({ currency: "EUR" })] });
+    const { ctx, client, data, writes } = mkOrders({ sales: { partners: [customer] }, orders: [order({ currency: "AAA" })] });
     await linked(ctx);
     await sendOrder(ctx, client, "o1", now);
     expect(writes()).toEqual([]);
@@ -1989,13 +1989,13 @@ m2o = lambda v: v[0] if v else False
 
 # currencies + today's rates
 cur = {}
-for c in src("res.currency", [["name", "in", ["CZK", "EUR", "USD"]]], ["name", "rate"], context={"active_test": False}):
+for c in src("res.currency", [["name", "in", ["CCC", "AAA", "BBB"]]], ["name", "rate"], context={"active_test": False}):
     [d] = call(DST, "res.currency", "search_read", domain=[["name", "=", c["name"]]], fields=["id"], context={"active_test": False})
     call(DST, "res.currency", "write", ids=[d["id"]], vals={"active": True}); cur[c["id"]] = d["id"]
 [company] = call(DST, "res.company", "search_read", domain=[], fields=["id"], limit=1)
-[czk] = call(DST, "res.currency", "search_read", domain=[["name", "=", "CZK"]], fields=["id"])
-call(DST, "res.company", "write", ids=[company["id"]], vals={"currency_id": czk["id"]})   # fresh database: no journal items yet
-for r in src("res.currency.rate", [["currency_id.name", "in", ["EUR", "USD"]]], ["currency_id", "rate", "name"], order="name desc", limit=2):
+[currency_c] = call(DST, "res.currency", "search_read", domain=[["name", "=", "CCC"]], fields=["id"])
+call(DST, "res.company", "write", ids=[company["id"]], vals={"currency_id": currency_c["id"]})   # fresh database: no journal items yet
+for r in src("res.currency.rate", [["currency_id.name", "in", ["AAA", "BBB"]]], ["currency_id", "rate", "name"], order="name desc", limit=2):
     make("res.currency.rate", {"currency_id": cur[r["currency_id"][0]], "rate": r["rate"], "name": r["name"]})
 
 # sale taxes by amount

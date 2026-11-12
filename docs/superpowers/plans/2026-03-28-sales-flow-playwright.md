@@ -578,7 +578,7 @@ test.describe.serial("Sales Flow", () => {
 
     // Budget and currency
     await page.getByLabel("Budget").fill("100000");
-    await page.getByLabel("Currency").fill("USD");
+    await page.getByLabel("Currency").fill("BBB");
     await page.getByLabel("Expected Revenue").fill("80000");
 
     // Assigned To

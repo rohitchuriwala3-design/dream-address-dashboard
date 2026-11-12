@@ -61,7 +61,7 @@ it("prices a line from the list and follows it unless a price was typed", async 
 });
 
 it("rejects non-INR product prices in the India-only V1 order flow", async () => {
-  (getPrice as jest.Mock).mockResolvedValue({ price: new Decimal(4), currency: "EUR", listPrice: new Decimal(4), ruleId: null, steps: [] });
+  (getPrice as jest.Mock).mockResolvedValue({ price: new Decimal(4), currency: "AAA", listPrice: new Decimal(4), ruleId: null, steps: [] });
   await expect(priceLine({ priceListId: null, currency: "INR" }, { productId: "p1", quantity: 1 }, 0)).rejects.toEqual(new OrderError("pricing", "MARK IV V1 supports INR prices only"));
 });
 

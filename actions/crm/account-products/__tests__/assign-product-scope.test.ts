@@ -14,7 +14,7 @@ jest.mock("next/cache", () => ({ revalidatePath: jest.fn() }));
 jest.mock("@/lib/audit-log", () => ({ writeAuditLog: jest.fn() }));
 jest.mock("@/lib/currency", () => ({
   getSnapshotRate: jest.fn().mockResolvedValue(null),
-  getDefaultCurrency: jest.fn().mockResolvedValue("USD"),
+  getDefaultCurrency: jest.fn().mockResolvedValue("INR"),
 }));
 
 import { getSession } from "@/lib/auth-server";
@@ -32,7 +32,7 @@ const validInput = {
   accountId: "a1",
   productId: "p1",
   quantity: 1,
-  currency: "USD",
+  currency: "INR" as const,
   status: "ACTIVE" as const,
   start_date: new Date("2026-01-01"),
 };

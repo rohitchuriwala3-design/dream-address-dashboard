@@ -19,11 +19,11 @@ jest.mock("@/lib/create-safe-action", () => ({
 jest.mock("@/lib/prisma", () => ({
   prismadb: {
     crm_Contracts: {
-      findUnique: jest.fn().mockResolvedValue({ id: "ct-1", currency: "EUR", deletedAt: null }),
+      findUnique: jest.fn().mockResolvedValue({ id: "ct-1", currency: "INR", deletedAt: null }),
       update: jest.fn().mockResolvedValue({ id: "ct-1" }),
     },
     crm_Opportunities: {
-      findUnique: jest.fn().mockResolvedValue({ id: "o-1", currency: "EUR", deletedAt: null }),
+      findUnique: jest.fn().mockResolvedValue({ id: "o-1", currency: "INR", deletedAt: null }),
     },
     crm_ContractLineItems: {
       create: jest.fn().mockResolvedValue({ id: "cli-1" }),

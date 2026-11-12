@@ -2520,8 +2520,8 @@ import {
 import { importProducts } from "@/actions/crm/products/import-products";
 
 const CSV_TEMPLATE = `name,sku,type,category,description,unit_price,unit_cost,currency,tax_rate,unit,is_recurring,billing_period
-"Cloud Hosting Basic","SKU-001","SERVICE","Software","Basic cloud hosting plan",99.00,45.00,"USD",20,"per month",true,MONTHLY
-"Office Chair","SKU-002","PRODUCT","Hardware","Ergonomic office chair",299.00,150.00,"USD",20,"per unit",false,`;
+"Cloud Hosting Basic","SKU-001","SERVICE","Software","Basic cloud hosting plan",99.00,45.00,"BBB",20,"per month",true,MONTHLY
+"Office Chair","SKU-002","PRODUCT","Hardware","Ergonomic office chair",299.00,150.00,"BBB",20,"per unit",false,`;
 
 export const ImportProductsDialog = () => {
   const [open, setOpen] = useState(false);

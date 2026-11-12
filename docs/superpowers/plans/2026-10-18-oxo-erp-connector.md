@@ -14,7 +14,7 @@
 
 - Work in the worktree `~/development/Next.js/nextcrm-oxo-erp` on a new branch `feat/oxo-erp-connector` cut from the spec branch `docs/oxo-erp-connector-spec` (so spec and plan travel with the code). Never the stale local `main`.
 - Plugin id `oxo-erp-connector`, name "OXO ERP connector", version `0.1.0`, `sdk: "^0.2.6"`. Permissions exactly: `["http", "accounts:read", "accounts:write", "users:read", "notify", "products:read", "products:write", "priceLists:read", "priceLists:write", "orders:read", "orders:write"]`.
-- Settings exactly: `url` (https), `syncMinutes` (5–1440, default 15), `defaultCountry` (2 letters, default `CZ`), `currency` (3 capitals, default `CZK`), `dryRun` (default `true`), `priceLists` (text of OXO ERP list ids, default `""`), `sendOrders` (default `false`), `timeZone` (IANA, default `UTC`). Secret `apiKey` matching `^oxo_[A-Za-z0-9_-]{40}$`.
+- Settings exactly: `url` (https), `syncMinutes` (5–1440, default 15), `defaultCountry` (2 letters, default `CZ`), `currency` (3 capitals, default `CCC`), `dryRun` (default `true`), `priceLists` (text of OXO ERP list ids, default `""`), `sendOrders` (default `false`), `timeZone` (IANA, default `UTC`). Secret `apiKey` matching `^oxo_[A-Za-z0-9_-]{40}$`.
 - Ref rule for every core `externalRef` the plugin writes: `odooId != null ? String(odooId) : "oxo:" + id`. New categories: `oxo-cat:<full path>`. Template-expanded rules: `<rule ref>:<product ref>`.
 - OXO ERP wins on the fields it sends; an empty value never clears a CRM value (accounts and products alike; tax rate, cost and description are never sent and are kept).
 - `dryRun` on: no CRM write, no store write except `meta:lastRun`, `meta:report`, `meta:failures`, `meta:lock` (deleted at the end), `job:sync` (deleted), `meta:oxoLists`; no POST to OXO ERP. Cursors move only after a successful non-dry run.
@@ -241,7 +241,7 @@ export const product = (id: number, over: Partial<OxoProduct> = {}): OxoProduct 
   kind: "STORABLE", listPrice: "100", saleOk: true, active: true, updatedAt: T, ...over,
 });
 export const order = (id: number, over: Partial<OxoOrder> = {}): OxoOrder => ({
-  id, odooId: null, number: `PRO${id}`, crmNumber: null, state: "sale", customerId: 1, deliveryAddressId: null, priceListId: null, currency: "CZK",
+  id, odooId: null, number: `PRO${id}`, crmNumber: null, state: "sale", customerId: 1, deliveryAddressId: null, priceListId: null, currency: "CCC",
   orderedAt: "2026-10-17T10:00:00.000Z", requestedDate: null, note: null, salesRep: null, amountUntaxed: "600", updatedAt: T,
   delivery: "none", lines: [], deliveries: [], ...over,
 });
@@ -312,7 +312,7 @@ it("passes the key in the Authorization header", async () => {
 });
 
 it("test connection counts lists and lifts the send pause", async () => {
-  const { ctx } = mk({ lists: [{ id: 3, odooId: 242, name: "Retail_STARTER", currency: "CZK", rules: [] }] });
+  const { ctx } = mk({ lists: [{ id: 3, odooId: 242, name: "Retail_STARTER", currency: "CCC", rules: [] }] });
   await ctx.store.set(K.sendPaused, { at: "x", reason: "y" });
   expect(await testConnection(ctx)).toBe("admin.connected");
   expect(await ctx.store.get(K.sendPaused)).toBeNull();
@@ -366,11 +366,11 @@ export const settingsSchema = z.object({
   url: z.string().regex(/^https:\/\/[^\s/]+/, "An https URL, e.g. https://erp.example.com"),
   syncMinutes: z.number().int().min(5).max(1440).default(15),
   defaultCountry: z.string().length(2).default("CZ"),
-  currency: z.string().regex(/^[A-Z]{3}$/, "A currency code, e.g. CZK").default("CZK"),
+  currency: z.string().regex(/^[A-Z]{3}$/, "A currency code, e.g. CCC").default("CCC"),
   dryRun: z.boolean().default(true),
   priceLists: z.string().default(""),
   sendOrders: z.boolean().default(false),
-  timeZone: z.string().refine(validZone, "An IANA time zone, e.g. Europe/Prague").default("UTC"),
+  timeZone: z.string().refine(validZone, "An IANA time zone, e.g. Currency Ape/Prague").default("UTC"),
 });
 export const secretsSchema = z.object({ apiKey: z.string().regex(/^oxo_[A-Za-z0-9_-]{40}$/, "An OXO ERP API key: oxo_ followed by 40 characters") });
 
@@ -382,7 +382,7 @@ export type Ctx = PluginContext<Settings, Secrets>;
 export const chosenLists = (ctx: Ctx): number[] =>
   Array.from(new Set(ctx.settings.priceLists.split(/[\s,;]+/).filter(Boolean).map(Number).filter((n) => Number.isInteger(n) && n > 0)));
 
-/** A stored ISO time as "2026-10-18 11:30 (Europe/Prague)", in the instance's time zone. */
+/** A stored ISO time as "2026-10-18 11:30 (Currency Ape/Prague)", in the instance's time zone. */
 export function localTime(ctx: Ctx, iso: string): string {
   const tz = ctx.settings.timeZone;
   const p = Object.fromEntries(new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
@@ -999,8 +999,8 @@ describe("catalog sync", () => {
 
   it("replaces chosen lists and their bases (bases first) only when they change; deactivates a list removed from the setting; sets account lists", async () => {
     const lists = [
-      { id: 3, odooId: 242, name: "Retail_STARTER", currency: "CZK", rules: [rule(1, { odooId: 1285, appliesTo: "CATEGORY", categoryName: "Zásoby / Výrobky", kind: "FIXED", fixedPrice: "757.76", percent: null })] },
-      { id: 4, odooId: null, name: "Wholesale", currency: "CZK", rules: [rule(2, { base: "PRICE_LIST", basePriceListId: 3 })] },
+      { id: 3, odooId: 242, name: "Retail_STARTER", currency: "CCC", rules: [rule(1, { odooId: 1285, appliesTo: "CATEGORY", categoryName: "Zásoby / Výrobky", kind: "FIXED", fixedPrice: "757.76", percent: null })] },
+      { id: 4, odooId: null, name: "Wholesale", currency: "CCC", rules: [rule(2, { base: "PRICE_LIST", basePriceListId: 3 })] },
     ];
     const { ctx, client, data } = mk({ lists, products: [product(1)] }, { accounts: [{ id: "a1", pricelist_id: null, deletedAt: null }], productCategories: [cat("1", "Zásoby", null), cat("2", "Výrobky", "1")] }, { priceLists: "4" });
     await ctx.store.set(K.account("a1"), { customerId: 9, syncedAt: "x", priceListId: 4, addresses: [] });
@@ -1022,7 +1022,7 @@ describe("catalog sync", () => {
   });
 
   it("dry run counts and writes nothing", async () => {
-    const { ctx, client, data } = mk({ products: [product(1, { category: "A / B" })], lists: [{ id: 3, odooId: null, name: "L", currency: "CZK", rules: [] }] }, {}, { priceLists: "3" });
+    const { ctx, client, data } = mk({ products: [product(1, { category: "A / B" })], lists: [{ id: 3, odooId: null, name: "L", currency: "CCC", rules: [] }] }, {}, { priceLists: "3" });
     const before = JSON.stringify(data);
     const { counts } = await syncCatalog({ ctx, client, dry: true, now });
     expect([counts.productsCreated, counts.categoriesCreated, counts.listsReplaced]).toEqual([1, 2, 1]);
@@ -1344,12 +1344,12 @@ const takeoverData = () => ({
   accounts: [{ id: "a1", name: "Puffbox s.r.o.", company_id: "19737955", vat: null, assigned_to: "u-rep", deletedAt: null }],
   products: [{ id: "p537", source: "EXTERNAL", externalRef: "537", name: "[533002] K ČKS Jahoda", sku: "533002", tax_rate: 12, deletedAt: null }],
   productCategories: [{ id: "c1", source: "EXTERNAL", externalRef: "1", name: "Zásoby", parentRef: null }],
-  priceLists: [{ id: "L242", source: "EXTERNAL", externalRef: "242", name: "Retail_STARTER", currency: "CZK", isActive: true }],
+  priceLists: [{ id: "L242", source: "EXTERNAL", externalRef: "242", name: "Retail_STARTER", currency: "CCC", isActive: true }],
 });
 const takeoverOxo = () => ({
   customers: [customer(222, { odooId: 154, name: "Puffbox s.r.o.", ico: "19737955" }), customer(300, { name: "Nový bar" })],
   products: [product(537, { odooId: 537, code: "533002", name: "K ČKS Jahoda", category: "Zásoby" })],
-  lists: [{ id: 3, odooId: 242, name: "Retail_STARTER", currency: "CZK", rules: [] }],
+  lists: [{ id: 3, odooId: 242, name: "Retail_STARTER", currency: "CCC", rules: [] }],
 });
 
 describe("runSync", () => {
@@ -1409,9 +1409,9 @@ describe("schedule and jobs", () => {
   });
 
   it("loads OXO ERP's price lists for the admin section", async () => {
-    const { ctx, client } = mk({ lists: [{ id: 3, odooId: 242, name: "Retail_STARTER", currency: "CZK", rules: [] }] });
+    const { ctx, client } = mk({ lists: [{ id: 3, odooId: 242, name: "Retail_STARTER", currency: "CCC", rules: [] }] });
     expect(await loadPriceLists(ctx, client)).toBe("admin.listsLoaded");
-    expect((await ctx.store.get<{ lists: unknown[] }>(K.oxoLists))?.lists).toEqual([{ id: 3, odooId: 242, name: "Retail_STARTER", currency: "CZK", rules: 0 }]);
+    expect((await ctx.store.get<{ lists: unknown[] }>(K.oxoLists))?.lists).toEqual([{ id: 3, odooId: 242, name: "Retail_STARTER", currency: "CCC", rules: 0 }]);
   });
 });
 ```
@@ -1563,7 +1563,7 @@ import { order as oxoOrder } from "./fake-oxo";
 import { mk, now } from "./helpers";
 
 const crmOrder = (over: RecordData = {}): RecordData => ({
-  id: "o1", number: "ORD-2026-0001", status: "READY", source: "CRM", externalRef: null, accountId: "a1", ownerId: "u1", currency: "CZK",
+  id: "o1", number: "ORD-2026-0001", status: "READY", source: "CRM", externalRef: null, accountId: "a1", ownerId: "u1", currency: "CCC",
   requestedDeliveryDate: "2026-10-20T00:00:00.000Z", note: "Ráno", priceListId: "L242",
   lines: [{ productId: "p537", sku: "533002", productName: "K ČKS Jahoda", quantity: "6", unitPrice: "757.76" }], ...over,
 });
@@ -1575,7 +1575,7 @@ async function setup(opts: { post?: (b: any) => any; linked?: boolean; order?: R
     users: [{ id: "u1", name: "Jana Obchodní" }], orders: [crmOrder(opts.order)],
   }, { sendOrders: true, ...opts.settings });
   await t.ctx.store.set(K.product("p537"), { oxoId: 11, ref: "537", templateId: null, categoryRef: null });
-  await t.ctx.store.set(K.pricelist(3), { priceListId: "L242", ref: "242", name: "Retail_STARTER", currency: "CZK", hash: "x", syncedAt: "x", isActive: true });
+  await t.ctx.store.set(K.pricelist(3), { priceListId: "L242", ref: "242", name: "Retail_STARTER", currency: "CCC", hash: "x", syncedAt: "x", isActive: true });
   if (opts.linked !== false) {
     await t.ctx.store.set(K.customer(222), { accountId: "a1" });
     await t.ctx.store.set(K.account("a1"), { customerId: 222, syncedAt: "x", priceListId: 3, addresses: [{ id: 223, odooId: 155, name: "Sklad", street: "Dlouhá 1", city: "Praha", zip: "110 00", country: null, active: true }] });
@@ -1588,7 +1588,7 @@ describe("orders out", () => {
     const t = await setup({ order: { shipping_street: "dlouhá 1", shipping_city: "Praha", shipping_postal_code: "11000" } });
     expect(await sendOrder(t.ctx, t.client, "o1", now)).toBe("sent");
     expect(t.oxo.calls.find((c) => c.method === "POST")?.body).toEqual({
-      crmNumber: "ORD-2026-0001", customerId: 222, deliveryAddressId: 223, priceListId: 3, currency: "CZK", requestedDate: "2026-10-20",
+      crmNumber: "ORD-2026-0001", customerId: 222, deliveryAddressId: 223, priceListId: 3, currency: "CCC", requestedDate: "2026-10-20",
       note: "Ráno", salesRep: "Jana Obchodní", lines: [{ productId: 11, quantity: "6", unitPrice: "757.76" }],
     });
     expect(t.data.orders[0]).toMatchObject({ status: "SENT", externalRef: "oxo:501" });
@@ -2079,7 +2079,7 @@ describe("orders in", () => {
     const { ctx, client, data } = await setup([order(70, { note: "Telefonicky", delivery: "full", lines: [line(1, 11), line(2, 99)] })]);
     const out = await syncOrdersIn({ ctx, client, dry: false, now });
     expect([out.imported, out.top]).toEqual([1, "2026-10-18T08:00:00.000Z"]);
-    expect(data.orders[0]).toMatchObject({ accountId: "a1", externalRef: "oxo:70", status: "DELIVERED", currency: "CZK", orderDate: "2026-10-17", note: "Telefonicky\norders.linesMissing",
+    expect(data.orders[0]).toMatchObject({ accountId: "a1", externalRef: "oxo:70", status: "DELIVERED", currency: "CCC", orderDate: "2026-10-17", note: "Telefonicky\norders.linesMissing",
       lines: [{ productId: "p11", quantity: "6", unitPrice: "90" }] });
     expect(await ctx.store.get<OrderLink>(K.order(data.orders[0].id as string))).toMatchObject({ oxoId: 70, imported: true, missing: 1 });
   });
@@ -2271,7 +2271,7 @@ it("account panel: customer id, price list, active addresses, inactive flag", as
   const { ctx } = mk();
   expect(await panelData(ctx, "a1")).toBeNull();
   await ctx.store.set(K.account("a1"), { customerId: 222, syncedAt: T, priceListId: 3, inactive: true, addresses: [{ id: 223, odooId: null, name: "Sklad", street: "Dlouhá 1", city: "Praha", zip: "11000", country: null, active: true }] });
-  await ctx.store.set(K.pricelist(3), { priceListId: "L", ref: "242", name: "Retail_STARTER", currency: "CZK", hash: "x", syncedAt: T, isActive: true });
+  await ctx.store.set(K.pricelist(3), { priceListId: "L", ref: "242", name: "Retail_STARTER", currency: "CCC", hash: "x", syncedAt: T, isActive: true });
   expect(await panelData(ctx, "a1")).toEqual({ customerId: 222, syncedAt: T, inactive: true, priceList: { id: 3, name: "Retail_STARTER", imported: true },
     addresses: [{ id: 223, text: "Sklad, Dlouhá 1, 11000 Praha" }] });
 });
@@ -2293,8 +2293,8 @@ it("order panel: link with an OXO ERP URL, waiting and failed states", async () 
 
 it("account tab lists the account's linked orders, newest first", async () => {
   const { ctx } = mk({}, { orders: [
-    { id: "o1", accountId: "a1", number: "ORD-1", orderDate: "2026-10-01", subtotal: "600", currency: "CZK", status: "DELIVERED" },
-    { id: "o2", accountId: "a1", number: "ORD-2", orderDate: "2026-10-10", subtotal: "100", currency: "CZK", status: "SENT" },
+    { id: "o1", accountId: "a1", number: "ORD-1", orderDate: "2026-10-01", subtotal: "600", currency: "CCC", status: "DELIVERED" },
+    { id: "o2", accountId: "a1", number: "ORD-2", orderDate: "2026-10-10", subtotal: "100", currency: "CCC", status: "SENT" },
   ] });
   await ctx.store.set(K.account("a1"), { customerId: 1, syncedAt: T, priceListId: null, addresses: [] });
   await ctx.store.set(K.order("o1"), { oxoId: 1, number: "PRO1", state: "sale", delivery: "full", deliveries: [], belowList: [], sentAt: T, checkedAt: T, imported: true });
@@ -2304,8 +2304,8 @@ it("account tab lists the account's linked orders, newest first", async () => {
 
 it("admin data: chosen lists, skipped rules, queued sync, order counts", async () => {
   const { ctx } = mk({}, { orders: [{ id: "o1", status: "READY", externalRef: null }] }, { priceLists: "3", sendOrders: true });
-  await ctx.store.set(K.oxoLists, { at: T, lists: [{ id: 3, odooId: 242, name: "Retail_STARTER", currency: "CZK", rules: 2 }, { id: 4, odooId: null, name: "Wholesale", currency: "CZK", rules: 1 }] });
-  await ctx.store.set(K.pricelist(3), { priceListId: "L", ref: "242", name: "Retail_STARTER", currency: "CZK", hash: "x", syncedAt: T, isActive: true });
+  await ctx.store.set(K.oxoLists, { at: T, lists: [{ id: 3, odooId: 242, name: "Retail_STARTER", currency: "CCC", rules: 2 }, { id: 4, odooId: null, name: "Wholesale", currency: "CCC", rules: 1 }] });
+  await ctx.store.set(K.pricelist(3), { priceListId: "L", ref: "242", name: "Retail_STARTER", currency: "CCC", hash: "x", syncedAt: T, isActive: true });
   await ctx.store.set(K.skipped(3), [{ ruleId: 9, reason: "category Nope not in the CRM" }]);
   await ctx.store.set(K.job, { requestedAt: T });
   await ctx.store.set(K.pending(80), { order: {} });
@@ -2689,7 +2689,7 @@ it("has the same message keys in every locale", () => {
 
 it("never fails an install", async () => {
   const log: string[] = [];
-  const ctx = { settings: { url: "https://x", dryRun: true, syncMinutes: 15, defaultCountry: "CZ", currency: "CZK", priceLists: "", sendOrders: false, timeZone: "UTC" }, secrets: { apiKey: "k" },
+  const ctx = { settings: { url: "https://x", dryRun: true, syncMinutes: 15, defaultCountry: "CZ", currency: "CCC", priceLists: "", sendOrders: false, timeZone: "UTC" }, secrets: { apiKey: "k" },
     http: { fetch: async () => new Response("{}", { status: 401 }) }, store: { get: async () => null, set: async () => {}, delete: async () => {}, list: async () => [] },
     data: { productCategories: { findExternal: async () => [] }, products: { findExternal: async () => [] } },
     log: { info: () => {}, warn: () => {}, debug: () => {}, error: (m: string) => log.push(m) }, notify: async () => {}, t: (k: string) => k } as never;

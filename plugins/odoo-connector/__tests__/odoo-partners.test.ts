@@ -3,7 +3,7 @@ import { K } from "../store";
 import { account, mkOrders, order } from "./orders-helpers";
 import { now } from "./helpers";
 
-const odooCustomer = (over = {}) => ({ id: 50, name: "Bubble s.r.o.", parent_id: false, active: true, type: "contact", company_registry: false, vat: false, country_id: [56, "CZ"], street: "Main 1", city: "Praha", zip: "11000", property_product_pricelist: [234, "Retail (CZK)"], ...over });
+const odooCustomer = (over = {}) => ({ id: 50, name: "Bubble s.r.o.", parent_id: false, active: true, type: "contact", company_registry: false, vat: false, country_id: [56, "CZ"], street: "Main 1", city: "Praha", zip: "11000", property_product_pricelist: [234, "Retail (CCC)"], ...over });
 
 describe("customer", () => {
   it("uses the linked partner without asking Odoo", async () => {
@@ -17,7 +17,7 @@ describe("customer", () => {
     const { ctx, client, writes } = mkOrders({ sales: { partners: [odooCustomer({ company_registry: "12345678" })] } });
     expect(await findOrCreateCustomer(ctx, client, account(), 9, now)).toEqual({ partnerId: 50, created: false });
     expect(await ctx.store.get(K.partner(50))).toEqual({ accountId: "a1" });
-    expect(await ctx.store.get(K.account("a1"))).toMatchObject({ partnerId: 50, odooPriceList: [234, "Retail (CZK)"] });
+    expect(await ctx.store.get(K.account("a1"))).toMatchObject({ partnerId: 50, odooPriceList: [234, "Retail (CCC)"] });
     expect(writes()).toEqual([]);
   });
 

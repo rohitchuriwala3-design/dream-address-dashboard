@@ -27,11 +27,11 @@ Generic product rules apply: nothing specific to OXO or GIPS in code; all text i
 
 ### 1.2 Facts (GIPS Odoo 19.0+e, read 2026-10-10)
 
-- 311 sellable templates, 332 sellable variants (22 with attributes); 315 with `default_code`, no duplicates; all CZK; 17 categories in use of 34; units ks, Units, kg, m, L, Hours; sale taxes 12 % / 21 % / 0 % EU (percent, tax-excluded) or none.
-- 19 active price lists (Retail ×4 and Wholesale ×5 in CZK and EUR, one USD), 16 own rules each, built on **24 archived lists** (e.g. "SPOTŘEBITEL CZK" is the base of 207 rules). 794 rules: 455 percentage, 338 fixed, 1 formula; 442 on a category, 351 on a product template, 1 global; 677 with a minimum quantity; none dated.
-- EUR/USD lists: 399 rules, all fixed or percentage of another list in the same currency; currency conversion (CZK `list_price` at Odoo's daily ČNB rate) happens only for products without a rule.
-- Customers: 78 of 86 on Retail_STARTER (CZK), 5 on the USD list, 3 on Retail_STARTER (EUR).
-- Odoo has no public method that computes a price. A line-level `onchange` on `sale.order.line` (order given as a nested value with `pricelist_id`) returns Odoo's `price_unit` and saves nothing; checked against a 1000-piece fixed rule (1.67 → 1.51) and an EUR list (0.06), sale-order count unchanged.
+- 311 sellable templates, 332 sellable variants (22 with attributes); 315 with `default_code`, no duplicates; all CCC; 17 categories in use of 34; units ks, Units, kg, m, L, Hours; sale taxes 12 % / 21 % / 0 % EU (percent, tax-excluded) or none.
+- 19 active price lists (Retail ×4 and Wholesale ×5 in CCC and AAA, one BBB), 16 own rules each, built on **24 archived lists** (e.g. "SPOTŘEBITEL CCC" is the base of 207 rules). 794 rules: 455 percentage, 338 fixed, 1 formula; 442 on a category, 351 on a product template, 1 global; 677 with a minimum quantity; none dated.
+- AAA/BBB lists: 399 rules, all fixed or percentage of another list in the same currency; currency conversion (CCC `list_price` at Odoo's daily ČNB rate) happens only for products without a rule.
+- Customers: 78 of 86 on Retail_STARTER (CCC), 5 on the BBB list, 3 on Retail_STARTER (AAA).
+- Odoo has no public method that computes a price. A line-level `onchange` on `sale.order.line` (order given as a nested value with `pricelist_id`) returns Odoo's `price_unit` and saves nothing; checked against a 1000-piece fixed rule (1.67 → 1.51) and an AAA list (0.06), sale-order count unchanged.
 
 ### 1.3 Not in scope
 

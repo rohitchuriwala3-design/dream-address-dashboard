@@ -25,7 +25,7 @@ const lineItemSchema = z.object({
   discount_type: z.enum(["PERCENTAGE", "FIXED"]).default("PERCENTAGE"),
   discount_value: z.number().min(0).default(0),
   line_total: z.number().min(0),
-  currency: z.string().length(3),
+  currency: z.literal("INR"),
   sort_order: z.number().int().default(0),
 });
 
@@ -88,7 +88,7 @@ export const crmContractTools = [
       startDate: z.string().datetime().optional(),
       endDate: z.string().datetime().optional(),
       type: z.string().optional(),
-      currency: z.string().length(3).optional(),
+      currency: z.literal("INR").optional(),
       lineItems: z.array(lineItemSchema).optional(),
     }),
     async handler(args: Record<string, any>, userId: string, user: AuthzUser) {
@@ -101,6 +101,8 @@ export const crmContractTools = [
         data: {
           v: 0,
           ...contractData,
+          currency: "INR",
+          snapshot_rate: 1,
           ...(startDate && { startDate: new Date(startDate) }),
           ...(endDate && { endDate: new Date(endDate) }),
           createdBy: userId,
@@ -134,7 +136,7 @@ export const crmContractTools = [
       endDate: z.string().datetime().optional(),
       status: z.enum(["NOTSTARTED", "INPROGRESS", "SIGNED"]).optional(),
       type: z.string().optional(),
-      currency: z.string().length(3).optional(),
+      currency: z.literal("INR").optional(),
     }),
     async handler(args: Record<string, any>, userId: string, user: AuthzUser) {
       await assertScopeOrNotFound(() => assertCanWriteContract(user, args.id), "Contract");

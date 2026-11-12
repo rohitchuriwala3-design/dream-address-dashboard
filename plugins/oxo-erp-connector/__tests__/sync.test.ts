@@ -8,12 +8,12 @@ const takeoverData = () => ({
   accounts: [{ id: "a1", name: "Puffbox s.r.o.", company_id: "19737955", vat: null, assigned_to: "u-rep", deletedAt: null }],
   products: [{ id: "p537", source: "EXTERNAL", externalRef: "537", name: "[533002] K ČKS Jahoda", sku: "533002", tax_rate: 12, deletedAt: null }],
   productCategories: [{ id: "c1", source: "EXTERNAL", externalRef: "1", name: "Zásoby", parentRef: null }],
-  priceLists: [{ id: "L242", source: "EXTERNAL", externalRef: "242", name: "Retail_STARTER", currency: "CZK", isActive: true }],
+  priceLists: [{ id: "L242", source: "EXTERNAL", externalRef: "242", name: "Retail_STARTER", currency: "CCC", isActive: true }],
 });
 const takeoverOxo = () => ({
   customers: [customer(222, { odooId: 154, name: "Puffbox s.r.o.", ico: "19737955" }), customer(300, { name: "Nový bar" })],
   products: [product(537, { odooId: 537, code: "533002", name: "K ČKS Jahoda", category: "Zásoby" })],
-  lists: [{ id: 3, odooId: 242, name: "Retail_STARTER", currency: "CZK", rules: [] }],
+  lists: [{ id: 3, odooId: 242, name: "Retail_STARTER", currency: "CCC", rules: [] }],
 });
 
 describe("runSync", () => {
@@ -73,8 +73,8 @@ describe("schedule and jobs", () => {
   });
 
   it("loads OXO ERP's price lists for the admin section", async () => {
-    const { ctx, client } = mk({ lists: [{ id: 3, odooId: 242, name: "Retail_STARTER", currency: "CZK", rules: [] }] });
+    const { ctx, client } = mk({ lists: [{ id: 3, odooId: 242, name: "Retail_STARTER", currency: "CCC", rules: [] }] });
     expect(await loadPriceLists(ctx, client)).toBe("admin.listsLoaded");
-    expect((await ctx.store.get<{ lists: unknown[] }>(K.oxoLists))?.lists).toEqual([{ id: 3, odooId: 242, name: "Retail_STARTER", currency: "CZK", rules: 0 }]);
+    expect((await ctx.store.get<{ lists: unknown[] }>(K.oxoLists))?.lists).toEqual([{ id: 3, odooId: 242, name: "Retail_STARTER", currency: "CCC", rules: 0 }]);
   });
 });

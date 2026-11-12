@@ -50,6 +50,7 @@ export async function listVendorBillProjects() {
 export async function listVendorBills() {
   await financeUser();
   const rows = await prismadb.vendorBill.findMany({
+    where: { currency: "INR" },
     include: { vendor: { select: { id: true, name: true } }, project: { select: { id: true, code: true, name: true } } },
     orderBy: [{ dueDate: "asc" }, { invoiceDate: "desc" }], take: 1000,
   });

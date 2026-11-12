@@ -9,7 +9,7 @@ export default async function CurrenciesPage() {
       <Card>
         <CardHeader><CardTitle>Regional settings</CardTitle></CardHeader>
         <CardContent>
-          <p className="mb-4 text-sm text-muted-foreground">MARK IV V1 uses Indian rupees (INR) for active work. Historic records in other currencies are retained as recorded.</p>
+          <p className="mb-4 text-sm text-muted-foreground">All new MARK IV V1 financial activity uses Indian rupees (INR).</p>
           <div className="rounded-lg border p-4 text-sm"><span className="font-semibold">Active currency: INR</span>{currencies.find((c) => c.code === "INR")?.isEnabled ? " · Enabled" : " · Not enabled in the database yet"}</div>
         </CardContent>
       </Card>

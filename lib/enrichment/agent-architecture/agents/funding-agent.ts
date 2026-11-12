@@ -45,7 +45,7 @@ export function createFundingAgent(firecrawlApiKey: string) {
     - Public: Note IPO date and current market cap
     
     DATA VALIDATION:
-    - Amounts must include currency (usually USD)
+    - Amounts must include currency (usually INR)
     - Verify amounts are in millions (M) or billions (B)
     - Dates should be in YYYY or Month YYYY format
     - Only include well-known or lead investors

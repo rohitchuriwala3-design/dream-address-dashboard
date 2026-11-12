@@ -28,10 +28,7 @@ export async function getSnapshotRate(
 }
 
 export async function getDefaultCurrency(): Promise<string> {
-  const setting = await prismadb.crm_SystemSettings.findUnique({
-    where: { key: "default_currency" },
-  });
-  return setting?.value || "INR";
+  return "INR";
 }
 
 export async function getEnabledCurrencies() {

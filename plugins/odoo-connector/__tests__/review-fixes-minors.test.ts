@@ -18,17 +18,17 @@ describe("times carry the instance's time zone", () => {
   });
 
   it("formats in the zone and names it", () => {
-    const { ctx } = mkOrders({ settings: { timeZone: "Europe/Prague" } });
-    expect(localTime(ctx, "2026-10-11T17:30:00.000Z")).toBe("2026-10-11 19:30 (Europe/Prague)");
+    const { ctx } = mkOrders({ settings: { timeZone: "Currency Ape/Prague" } });
+    expect(localTime(ctx, "2026-10-11T17:30:00.000Z")).toBe("2026-10-11 19:30 (Currency Ape/Prague)");
     expect(localTime(mkOrders().ctx, "2026-10-11T17:30:00.000Z")).toBe("2026-10-11 17:30 (UTC)");
   });
 
   it("the day-long-wait email uses it", async () => {
-    const { ctx, client } = mkOrders({ settings: { timeZone: "Europe/Prague" }, sales: { fail: { "sale.order/create": 502 } } });
+    const { ctx, client } = mkOrders({ settings: { timeZone: "Currency Ape/Prague" }, sales: { fail: { "sale.order/create": 502 } } });
     await ctx.store.set(K.send("o1"), { attempts: 0, lastError: "x", waitingSince: "2026-10-12T06:00:00.000Z" });
     const t = jest.spyOn(ctx, "t");
     await sendOrder(ctx, client, "o1", now);
-    expect(t).toHaveBeenCalledWith("mail.stuckText", expect.objectContaining({ since: "2026-10-12 08:00 (Europe/Prague)" }));
+    expect(t).toHaveBeenCalledWith("mail.stuckText", expect.objectContaining({ since: "2026-10-12 08:00 (Currency Ape/Prague)" }));
     expect(ctx.notifications.length).toBe(1);
   });
 });

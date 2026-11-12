@@ -193,7 +193,7 @@ jest.mock("@/lib/authz", () => {
 const db: Record<string, any> = {
   crm_Products: { findUnique: jest.fn(), findFirst: jest.fn(), update: jest.fn(), findMany: jest.fn().mockResolvedValue([]), createMany: jest.fn() },
   crm_ProductCategories: { findUnique: jest.fn(), findMany: jest.fn().mockResolvedValue([]), update: jest.fn(), create: jest.fn() },
-  currency: { findMany: jest.fn().mockResolvedValue([{ code: "CZK" }]) },
+  currency: { findMany: jest.fn().mockResolvedValue([{ code: "CCC" }]) },
 };
 jest.mock("@/lib/prisma", () => ({ prismadb: db }));
 
@@ -233,7 +233,7 @@ it("CSV import skips a row whose SKU belongs to an EXTERNAL product (Ruling 3)",
   requireRole.mockResolvedValue({ id: "a1", role: "admin" });
   db.crm_Products.findMany.mockResolvedValue([{ sku: "X1" }]);
   const form = new FormData();
-  form.set("file", new File(["name,type,unit_price,currency,sku\nTea,PRODUCT,10,CZK,X1\n"], "p.csv"));
+  form.set("file", new File(["name,type,unit_price,currency,sku\nTea,PRODUCT,10,CCC,X1\n"], "p.csv"));
   const res = await importProducts(form);
   expect(res).toMatchObject({ imported: 0, skipped: 1 });
   expect(db.crm_Products.createMany).not.toHaveBeenCalled();
@@ -378,7 +378,7 @@ jest.mock("@/lib/audit-log", () => ({ writeAuditLog: jest.fn() }));
 
 import { replaceExternalPriceList, upsertExternalCategory, upsertExternalProduct } from "@/lib/catalog/plugin-writes";
 
-const product = { name: "Cup", sku: "800004", description: null, type: "PRODUCT" as const, status: "ACTIVE" as const, unit_price: "1.89", unit_cost: "0.9", currency: "CZK", tax_rate: "21", unit: "ks", categoryRef: "7" };
+const product = { name: "Cup", sku: "800004", description: null, type: "PRODUCT" as const, status: "ACTIVE" as const, unit_price: "1.89", unit_cost: "0.9", currency: "CCC", tax_rate: "21", unit: "ks", categoryRef: "7" };
 const key = (ref: string) => ({ source_externalRef: { source: "EXTERNAL", externalRef: ref } });
 
 beforeEach(() => jest.clearAllMocks());
@@ -428,7 +428,7 @@ it("replaces a list and all its rules in one transaction", async () => {
   db.crm_PriceLists.findUnique.mockResolvedValue({ id: "L1", source: "EXTERNAL" });
   db.crm_Products.findUnique.mockResolvedValue({ id: "p1", source: "EXTERNAL" });
   db.crm_PriceLists.update.mockResolvedValue({ id: "L1" });
-  expect(await replaceExternalPriceList("odoo", "245", { name: "Gold", currency: "CZK", isActive: true }, [rule])).toEqual({ id: "L1" });
+  expect(await replaceExternalPriceList("odoo", "245", { name: "Gold", currency: "CCC", isActive: true }, [rule])).toEqual({ id: "L1" });
   expect(db.$transaction).toHaveBeenCalledTimes(1);
   expect(db.crm_PriceListRules.deleteMany).toHaveBeenCalledWith({ where: { priceListId: "L1" } });
   expect(db.crm_PriceListRules.createMany.mock.calls[0][0].data[0]).toMatchObject({ priceListId: "L1", productId: "p1", appliesTo: "PRODUCT", minQuantity: "1000", fixedPrice: "1.51", externalRef: "1285" });
@@ -437,14 +437,14 @@ it("replaces a list and all its rules in one transaction", async () => {
 it("fails the whole replace on an unknown product ref, before writing", async () => {
   db.crm_PriceLists.findUnique.mockResolvedValue({ id: "L1", source: "EXTERNAL" });
   db.crm_Products.findUnique.mockResolvedValue(null);
-  await expect(replaceExternalPriceList("odoo", "245", { name: "Gold", currency: "CZK", isActive: true }, [rule])).rejects.toThrow("Unknown product ref: 332");
+  await expect(replaceExternalPriceList("odoo", "245", { name: "Gold", currency: "CCC", isActive: true }, [rule])).rejects.toThrow("Unknown product ref: 332");
   expect(db.crm_PriceListRules.deleteMany).not.toHaveBeenCalled();
 });
 
 it("refuses a base list that is not EXTERNAL", async () => {
   db.crm_PriceLists.findUnique.mockImplementation(async ({ where }: any) => ("source_externalRef" in where ? { id: "L1", source: "EXTERNAL" } : null));
   const r = { ...rule, appliesTo: "ALL" as const, productRef: null, base: "PRICE_LIST" as const, basePriceListRef: "234" };
-  await expect(replaceExternalPriceList("odoo", "245", { name: "Gold", currency: "CZK", isActive: true }, [r])).rejects.toThrow();
+  await expect(replaceExternalPriceList("odoo", "245", { name: "Gold", currency: "CCC", isActive: true }, [r])).rejects.toThrow();
 });
 ```
 
@@ -608,7 +608,7 @@ import { SDK_VERSION, definePlugin } from "@nextcrm/plugin-sdk";
 import { createTestContext } from "@nextcrm/plugin-sdk/testing";
 import { createDataApi } from "@/lib/plugins/data-api";
 
-const f = { name: "Cup", sku: "S1", description: null, type: "PRODUCT" as const, status: "ACTIVE" as const, unit_price: "1", unit_cost: null, currency: "CZK", tax_rate: null, unit: null, categoryRef: null };
+const f = { name: "Cup", sku: "S1", description: null, type: "PRODUCT" as const, status: "ACTIVE" as const, unit_price: "1", unit_cost: null, currency: "CCC", tax_rate: null, unit: null, categoryRef: null };
 
 it("is SDK 0.2.3 (additive)", () => expect(SDK_VERSION).toBe("0.2.3"));
 
@@ -621,16 +621,16 @@ it("needs products:write for external product and category upserts", async () =>
 });
 
 it("needs priceLists:write to replace and priceLists:read to list", async () => {
-  await expect(createDataApi("demo", ["priceLists:read"]).priceLists.replaceExternal("245", { name: "G", currency: "CZK", isActive: true }, [])).rejects.toThrow("priceLists:write");
+  await expect(createDataApi("demo", ["priceLists:read"]).priceLists.replaceExternal("245", { name: "G", currency: "CCC", isActive: true }, [])).rejects.toThrow("priceLists:write");
   await expect(createDataApi("demo", []).priceLists.findExternal()).rejects.toThrow("priceLists:read");
-  await createDataApi("demo", ["priceLists:write"]).priceLists.replaceExternal("245", { name: "G", currency: "CZK", isActive: true }, []);
-  expect(writes.replaceExternalPriceList).toHaveBeenCalledWith("demo", "245", { name: "G", currency: "CZK", isActive: true }, []);
+  await createDataApi("demo", ["priceLists:write"]).priceLists.replaceExternal("245", { name: "G", currency: "CCC", isActive: true }, []);
+  expect(writes.replaceExternalPriceList).toHaveBeenCalledWith("demo", "245", { name: "G", currency: "CCC", isActive: true }, []);
 });
 
 it("prices a product through core getPrice with products:read, decimals as strings", async () => {
-  getPrice.mockResolvedValue({ price: new Decimal("1.51"), currency: "CZK", ruleId: "r1", listPrice: new Decimal("1.67"), steps: [] });
+  getPrice.mockResolvedValue({ price: new Decimal("1.51"), currency: "CCC", ruleId: "r1", listPrice: new Decimal("1.67"), steps: [] });
   const out = await createDataApi("demo", ["products:read"]).prices.get({ priceListId: "L1", productId: "p1", quantity: "1000" });
-  expect(out).toEqual({ price: "1.51", currency: "CZK", ruleId: "r1" });
+  expect(out).toEqual({ price: "1.51", currency: "CCC", ruleId: "r1" });
   expect(getPrice).toHaveBeenCalledWith({ priceListId: "L1", productId: "p1", quantity: "1000" });
   await expect(createDataApi("demo", []).prices.get({ priceListId: "L1", productId: "p1", quantity: "1" })).rejects.toThrow("products:read");
 });
@@ -643,14 +643,14 @@ it("registers product panels", () => {
 
 it("gives plugin tests an in-memory catalog", async () => {
   const products: Record<string, unknown>[] = [];
-  const ctx = createTestContext({ data: { products }, prices: async () => ({ price: "2", currency: "CZK", ruleId: null }) });
+  const ctx = createTestContext({ data: { products }, prices: async () => ({ price: "2", currency: "CCC", ruleId: null }) });
   expect(await ctx.data.products.upsertExternal("332", f)).toMatchObject({ created: true });
   expect(await ctx.data.products.upsertExternal("332", { ...f, name: "Cup 2" })).toMatchObject({ created: false });
   expect(products).toEqual([expect.objectContaining({ source: "EXTERNAL", externalRef: "332", name: "Cup 2" })]);
   await ctx.data.productCategories.upsertExternal("7", { name: "Tea", parentRef: null });
-  const { id } = await ctx.data.priceLists.replaceExternal("245", { name: "G", currency: "CZK", isActive: true }, []);
+  const { id } = await ctx.data.priceLists.replaceExternal("245", { name: "G", currency: "CCC", isActive: true }, []);
   expect(await ctx.data.priceLists.findExternal()).toEqual([expect.objectContaining({ id, ref: "245", isActive: true })]);
-  expect(await ctx.data.prices.get({ priceListId: id, productId: "x", quantity: "1" })).toEqual({ price: "2", currency: "CZK", ruleId: null });
+  expect(await ctx.data.prices.get({ priceListId: id, productId: "x", quantity: "1" })).toEqual({ price: "2", currency: "CCC", ruleId: null });
 });
 ```
 
@@ -880,11 +880,11 @@ git commit -m "feat(plugins): SDK 0.2.3 catalog writes, prices and product panel
 import { baseRefs, categoryOrder, mapRules, orderLists, variantFields, type OdooRule, type OdooVariant } from "../catalog-map";
 
 const v = (over: Partial<OdooVariant> = {}): OdooVariant => ({ id: 332, display_name: "[800004] Cup (600 ml)", default_code: "800004", description_sale: false, type: "consu", active: true, sale_ok: true,
-  lst_price: 1.89, standard_price: 0.9, currency_id: [9, "CZK"], taxes_id: [27], uom_id: [1, "ks"], categ_id: [7, "Cups"], product_tmpl_id: [899, "Cup"], write_date: "2026-10-10 08:00:00", ...over });
+  lst_price: 1.89, standard_price: 0.9, currency_id: [9, "CCC"], taxes_id: [27], uom_id: [1, "ks"], categ_id: [7, "Cups"], product_tmpl_id: [899, "Cup"], write_date: "2026-10-10 08:00:00", ...over });
 const tax = (ids: number[]) => (ids.length === 1 ? ({ 27: "21", 20: "12" } as Record<number, string>)[ids[0]] ?? null : null);
 
 it("maps a variant to an external product", () => {
-  expect(variantFields(v(), tax)).toEqual({ name: "[800004] Cup (600 ml)", sku: "800004", description: null, type: "PRODUCT", status: "ACTIVE", unit_price: "1.89", unit_cost: "0.9", currency: "CZK", tax_rate: "21", unit: "ks", categoryRef: "7" });
+  expect(variantFields(v(), tax)).toEqual({ name: "[800004] Cup (600 ml)", sku: "800004", description: null, type: "PRODUCT", status: "ACTIVE", unit_price: "1.89", unit_cost: "0.9", currency: "CCC", tax_rate: "21", unit: "ks", categoryRef: "7" });
 });
 
 it("maps services, archived or unsellable variants, no or several taxes", () => {
@@ -1098,24 +1098,24 @@ const later = (min: number) => new Date(now.getTime() + min * 60_000);
 const cat = () => ({
   categories: [{ id: 1, name: "Zásoby", parent_id: false as const }, { id: 7, name: "Cups", parent_id: [1, "Zásoby"] as [number, string] }],
   variants: [
-    { id: 500, display_name: "[800017] Lid", default_code: "800017", description_sale: false as const, type: "consu", active: true, sale_ok: true, lst_price: 1.67, standard_price: 1, currency_id: [9, "CZK"] as [number, string], taxes_id: [27], uom_id: [1, "ks"] as [number, string], categ_id: [7, "Cups"] as [number, string], product_tmpl_id: [912, "Lid"] as [number, string], write_date: "2026-10-10 08:00:00" },
-    { id: 501, display_name: "[800018] Straw", default_code: "800018", description_sale: false as const, type: "consu", active: true, sale_ok: true, lst_price: 2, standard_price: 1, currency_id: [9, "CZK"] as [number, string], taxes_id: [27], uom_id: [1, "ks"] as [number, string], categ_id: [7, "Cups"] as [number, string], product_tmpl_id: [913, "Straw"] as [number, string], write_date: "2026-10-10 08:00:00" },
+    { id: 500, display_name: "[800017] Lid", default_code: "800017", description_sale: false as const, type: "consu", active: true, sale_ok: true, lst_price: 1.67, standard_price: 1, currency_id: [9, "CCC"] as [number, string], taxes_id: [27], uom_id: [1, "ks"] as [number, string], categ_id: [7, "Cups"] as [number, string], product_tmpl_id: [912, "Lid"] as [number, string], write_date: "2026-10-10 08:00:00" },
+    { id: 501, display_name: "[800018] Straw", default_code: "800018", description_sale: false as const, type: "consu", active: true, sale_ok: true, lst_price: 2, standard_price: 1, currency_id: [9, "CCC"] as [number, string], taxes_id: [27], uom_id: [1, "ks"] as [number, string], categ_id: [7, "Cups"] as [number, string], product_tmpl_id: [913, "Straw"] as [number, string], write_date: "2026-10-10 08:00:00" },
   ],
   lists: [
-    { id: 234, name: "Base CZK", currency_id: [9, "CZK"] as [number, string], active: false, write_date: "2026-10-10 08:00:00" },
-    { id: 245, name: "Gold CZK", currency_id: [9, "CZK"] as [number, string], active: true, write_date: "2026-10-10 08:00:00" },
+    { id: 234, name: "Base CCC", currency_id: [9, "CCC"] as [number, string], active: false, write_date: "2026-10-10 08:00:00" },
+    { id: 245, name: "Gold CCC", currency_id: [9, "CCC"] as [number, string], active: true, write_date: "2026-10-10 08:00:00" },
   ],
   items: [
-    { id: 1, pricelist_id: [234, "Base CZK"] as [number, string], applied_on: "2_product_category", categ_id: [7, "Cups"] as [number, string], compute_price: "percentage", percent_price: 10, base: "list_price", write_date: "2026-10-10 08:00:00" },
-    { id: 1285, pricelist_id: [245, "Gold CZK"] as [number, string], applied_on: "1_product", product_tmpl_id: [912, "Lid"] as [number, string], compute_price: "fixed", fixed_price: 1.51, min_quantity: 1000, base: "list_price", write_date: "2026-10-10 08:00:00" },
-    { id: 1290, pricelist_id: [245, "Gold CZK"] as [number, string], applied_on: "3_global", compute_price: "percentage", percent_price: 0, base: "pricelist", base_pricelist_id: [234, "Base CZK"] as [number, string], write_date: "2026-10-10 08:00:00" },
+    { id: 1, pricelist_id: [234, "Base CCC"] as [number, string], applied_on: "2_product_category", categ_id: [7, "Cups"] as [number, string], compute_price: "percentage", percent_price: 10, base: "list_price", write_date: "2026-10-10 08:00:00" },
+    { id: 1285, pricelist_id: [245, "Gold CCC"] as [number, string], applied_on: "1_product", product_tmpl_id: [912, "Lid"] as [number, string], compute_price: "fixed", fixed_price: 1.51, min_quantity: 1000, base: "list_price", write_date: "2026-10-10 08:00:00" },
+    { id: 1290, pricelist_id: [245, "Gold CCC"] as [number, string], applied_on: "3_global", compute_price: "percentage", percent_price: 0, base: "pricelist", base_pricelist_id: [234, "Base CCC"] as [number, string], write_date: "2026-10-10 08:00:00" },
   ],
   taxes: [{ id: 27, amount: 21, amount_type: "percent" }],
 });
 
 it("imports categories, products, the chosen list and its archived base, and the account's list", async () => {
   const c = cat();
-  const { ctx, client, data } = mkCatalog([company(1, { property_product_pricelist: [245, "Gold CZK"] })], c, { priceLists: "245" });
+  const { ctx, client, data } = mkCatalog([company(1, { property_product_pricelist: [245, "Gold CCC"] })], c, { priceLists: "245" });
   const s = await runSync(ctx, client, now);
   expect(s).toMatchObject({ ok: true, catalog: { categories: 2, productsCreated: 2, listsReplaced: 2, accountLists: 1 } });
   expect(data.productCategories.map((x) => x.externalRef)).toEqual(["1", "7"]);
@@ -1153,7 +1153,7 @@ it("archives a variant that is no longer sellable", async () => {
 });
 
 it("writes nothing in a dry run, including account lists and the catalog cursor (Review Focus 5)", async () => {
-  const { ctx, client, data } = mkCatalog([company(1, { property_product_pricelist: [245, "Gold CZK"] })], cat(), { priceLists: "245", dryRun: true });
+  const { ctx, client, data } = mkCatalog([company(1, { property_product_pricelist: [245, "Gold CCC"] })], cat(), { priceLists: "245", dryRun: true });
   const s = await runSync(ctx, client, now);
   expect(s.catalog).toMatchObject({ productsCreated: 2, listsReplaced: 2 });
   expect(data.products).toEqual([]);
@@ -1450,10 +1450,10 @@ it("skips queued jobs while another run holds the lock", async () => {
 
 it("loads Odoo price lists for the admin section", async () => {
   const { ctx, client } = mk([], [], {}, undefined, {
-    "product.pricelist/search_read": () => [{ id: 245, name: "Gold CZK", currency_id: [9, "CZK"], item_ids: [1, 2], active: true }],
+    "product.pricelist/search_read": () => [{ id: 245, name: "Gold CCC", currency_id: [9, "CCC"], item_ids: [1, 2], active: true }],
   });
   expect(await loadPriceLists(ctx, client)).toBe("admin.listsLoaded");
-  expect(await ctx.store.get(K.odooLists)).toMatchObject({ lists: [{ id: 245, name: "Gold CZK", currency: "CZK", rules: 2, active: true }] });
+  expect(await ctx.store.get(K.odooLists)).toMatchObject({ lists: [{ id: 245, name: "Gold CCC", currency: "CCC", rules: 2, active: true }] });
 });
 ```
 
@@ -1591,7 +1591,7 @@ it("stops with a clear message when Odoo cannot price over the API", async () =>
 });
 
 it("finds a planted difference and labels rule versus rate", async () => {
-  const { ctx, client } = mkCompare({ price: 1.51, crm: { "500:1000": { price: "1.67", currency: "CZK", ruleId: "r1" }, "501:1": { price: "0.08", currency: "EUR", ruleId: null } }, priceLists: "245" });
+  const { ctx, client } = mkCompare({ price: 1.51, crm: { "500:1000": { price: "1.67", currency: "CCC", ruleId: "r1" }, "501:1": { price: "0.08", currency: "AAA", ruleId: null } }, priceLists: "245" });
   await runCompare(ctx, client, now);
   const res = (await ctx.store.get<CompareResult>(K.compareLast))!;
   expect(res.ok).toBe(true);
@@ -1602,7 +1602,7 @@ it("finds a planted difference and labels rule versus rate", async () => {
 });
 ```
 
-`mkCompare({ price, crm, priceLists })` in helpers: a context with one imported list (`K.pricelist(245)` → `{ priceListId: "L245", name: "Gold CZK", … }`), two imported products (`K.product(500/501)` → `{ productId, tmplId: 912/913, categoryRef: "7" }`, `K.category(7)` → `{ categoryId: "c7", parentRef: null }`, and EXTERNAL product rows), fake Odoo handlers for `product.pricelist/read` (currency `[9,"CZK"]`), `product.pricelist.item/search_read` (one template rule min 1000 on 500), `fields_get`, and `sale.order.line/onchange` returning `{ value: { price_unit: price } }` (or `{ value: {} }` when `price` is undefined); `prices` mock returns `crm["<odooId>:<qty>"]` or `{ price: String(price), currency: "CZK", ruleId: null }`.
+`mkCompare({ price, crm, priceLists })` in helpers: a context with one imported list (`K.pricelist(245)` → `{ priceListId: "L245", name: "Gold CCC", … }`), two imported products (`K.product(500/501)` → `{ productId, tmplId: 912/913, categoryRef: "7" }`, `K.category(7)` → `{ categoryId: "c7", parentRef: null }`, and EXTERNAL product rows), fake Odoo handlers for `product.pricelist/read` (currency `[9,"CCC"]`), `product.pricelist.item/search_read` (one template rule min 1000 on 500), `fields_get`, and `sale.order.line/onchange` returning `{ value: { price_unit: price } }` (or `{ value: {} }` when `price` is undefined); `prices` mock returns `crm["<odooId>:<qty>"]` or `{ price: String(price), currency: "CCC", ruleId: null }`.
 
 - [ ] **Step 2: Run test to verify it fails**
 
@@ -1743,7 +1743,7 @@ import { catalogData, panelData, productPanelData } from "../ui/data";
 
 it("marks chosen lists and reports queued jobs and skipped rules", async () => {
   const { ctx } = mk([], [], { priceLists: "245" });
-  await ctx.store.set(K.odooLists, { at: "2026-10-10T10:00:00Z", lists: [{ id: 245, name: "Gold", currency: "CZK", rules: 16, active: true }, { id: 246, name: "Plat", currency: "CZK", rules: 16, active: true }] });
+  await ctx.store.set(K.odooLists, { at: "2026-10-10T10:00:00Z", lists: [{ id: 245, name: "Gold", currency: "CCC", rules: 16, active: true }, { id: 246, name: "Plat", currency: "CCC", rules: 16, active: true }] });
   await ctx.store.set(K.job("compare"), { requestedAt: "x" });
   await ctx.store.set(K.pricelist(245), { priceListId: "L", name: "Gold", ruleCount: 16, syncedAt: "x" });
   await ctx.store.set(K.skipped(245), [{ ruleId: 9, reason: "applied_on 4_combo" }]);
@@ -1775,7 +1775,7 @@ jest.mock("@/lib/authz", () => ({ requireAuthenticated: jest.fn().mockResolvedVa
 import { getPriceLists } from "@/actions/crm/price-lists/queries";
 
 it("marks inactive external lists used as a base", async () => {
-  db.crm_PriceLists.findMany.mockResolvedValue([{ id: "B", name: "Base", currency: "CZK", isActive: false, source: "EXTERNAL", updatedAt: new Date(), _count: { rules: 3, baseFor: 5 } }]);
+  db.crm_PriceLists.findMany.mockResolvedValue([{ id: "B", name: "Base", currency: "CCC", isActive: false, source: "EXTERNAL", updatedAt: new Date(), _count: { rules: 3, baseFor: 5 } }]);
   expect((await getPriceLists({ includeArchived: true }))[0]).toMatchObject({ usedAsBase: true });
 });
 ```
@@ -1924,7 +1924,7 @@ Local dev on `:3001` (local DB on 5433 with Task 1's migration applied, `RESEND_
 1. Admin → Plugins → Odoo connector: **Load price lists** → the 19 active lists appear with ids.
 2. Set `priceLists` to the 18 Retail/Wholesale list ids, keep `dryRun` on, Save; **Sync now** → within 5 minutes the log lists would-create products (≈332), would-replace lists (18 chosen + their bases), account lists.
 3. Turn `dryRun` off (clear the API key field before saving, as in part 1) → **Sync now** → products, categories, lists appear; reps can't edit them; accounts carry Retail_STARTER etc.; skipped rules (if any) listed.
-4. **Compare with Odoo** → within 5 minutes: results for 18 lists. Target: 0 "price rule" differences; "exchange rate" differences only on EUR lists for products without an EUR rule. Any rule difference gets a failing test first (Step 3).
+4. **Compare with Odoo** → within 5 minutes: results for 18 lists. Target: 0 "price rule" differences; "exchange rate" differences only on AAA lists for products without an AAA rule. Any rule difference gets a failing test first (Step 3).
 5. **Sync now** again → 0 products created, 0 lists replaced.
 
 Nothing is ever written to Odoo.

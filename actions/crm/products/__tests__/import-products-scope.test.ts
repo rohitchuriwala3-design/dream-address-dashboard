@@ -3,7 +3,7 @@ jest.mock("@/lib/prisma", () => ({
   prismadb: {
     users: { findUnique: jest.fn() },
     crm_ProductCategories: { findMany: jest.fn().mockResolvedValue([]) },
-    currency: { findMany: jest.fn().mockResolvedValue([{ code: "USD" }]) },
+    currency: { findMany: jest.fn().mockResolvedValue([{ code: "INR" }]) },
     crm_Products: {
       findMany: jest.fn().mockResolvedValue([]),
       createMany: jest.fn(),
@@ -21,7 +21,7 @@ const gs = getSession as jest.MockedFunction<typeof getSession>;
 const fu = prismadb.users.findUnique as jest.MockedFunction<typeof prismadb.users.findUnique>;
 const createMany = prismadb.crm_Products.createMany as jest.MockedFunction<typeof prismadb.crm_Products.createMany>;
 
-const csv = "name,type,unit_price,currency\nWidget,PRODUCT,10,USD\n";
+const csv = "name,type,unit_price,currency\nWidget,PRODUCT,10,INR\n";
 const makeForm = () => {
   const fd = new FormData();
   fd.set("file", new File([csv], "p.csv", { type: "text/csv" }));
@@ -31,7 +31,7 @@ const makeForm = () => {
 beforeEach(() => {
   jest.clearAllMocks();
   (prismadb.crm_ProductCategories.findMany as jest.Mock).mockResolvedValue([]);
-  (prismadb.currency.findMany as jest.Mock).mockResolvedValue([{ code: "USD" }]);
+  (prismadb.currency.findMany as jest.Mock).mockResolvedValue([{ code: "INR" }]);
   (prismadb.crm_Products.findMany as jest.Mock).mockResolvedValue([]);
   createMany.mockResolvedValue({ count: 1 } as any);
 });

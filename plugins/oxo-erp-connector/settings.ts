@@ -8,7 +8,7 @@ export const settingsSchema = z.object({
   url: z.string().regex(/^https:\/\/[^\s/]+/, "An https URL, e.g. https://erp.example.com"),
   syncMinutes: z.number().int().min(5).max(1440).default(15),
   defaultCountry: z.string().length(2).default("CZ"),
-  currency: z.string().regex(/^[A-Z]{3}$/, "A currency code, e.g. CZK").default("CZK"),
+  currency: z.string().regex(/^[A-Z]{3}$/, "A currency code, e.g. INR").default("INR"),
   dryRun: z.boolean().default(true),
   priceLists: z.string().default(""),
   sendOrders: z.boolean().default(false),

@@ -68,8 +68,8 @@ describe("catalog sync", () => {
 
   it("replaces chosen lists and their bases (bases first) only when they change; deactivates a list removed from the setting; sets account lists", async () => {
     const lists = [
-      { id: 3, odooId: 242, name: "Retail_STARTER", currency: "CZK", rules: [rule(1, { odooId: 1285, appliesTo: "CATEGORY", categoryName: "Zásoby / Výrobky", kind: "FIXED", fixedPrice: "757.76", percent: null })] },
-      { id: 4, odooId: null, name: "Wholesale", currency: "CZK", rules: [rule(2, { base: "PRICE_LIST", basePriceListId: 3 })] },
+      { id: 3, odooId: 242, name: "Retail_STARTER", currency: "CCC", rules: [rule(1, { odooId: 1285, appliesTo: "CATEGORY", categoryName: "Zásoby / Výrobky", kind: "FIXED", fixedPrice: "757.76", percent: null })] },
+      { id: 4, odooId: null, name: "Wholesale", currency: "CCC", rules: [rule(2, { base: "PRICE_LIST", basePriceListId: 3 })] },
     ];
     const { ctx, client, data } = mk({ lists, products: [product(1)] }, { accounts: [{ id: "a1", pricelist_id: null, deletedAt: null }], productCategories: [cat("1", "Zásoby", null), cat("2", "Výrobky", "1")] }, { priceLists: "4" });
     await ctx.store.set(K.account("a1"), { customerId: 9, syncedAt: "x", priceListId: 4, addresses: [] });
@@ -91,7 +91,7 @@ describe("catalog sync", () => {
   });
 
   it("dry run counts and writes nothing", async () => {
-    const { ctx, client, data } = mk({ products: [product(1, { category: "A / B" })], lists: [{ id: 3, odooId: null, name: "L", currency: "CZK", rules: [] }] }, {}, { priceLists: "3" });
+    const { ctx, client, data } = mk({ products: [product(1, { category: "A / B" })], lists: [{ id: 3, odooId: null, name: "L", currency: "CCC", rules: [] }] }, {}, { priceLists: "3" });
     const before = JSON.stringify(data);
     const { counts } = await syncCatalog({ ctx, client, dry: true, now });
     expect([counts.productsCreated, counts.categoriesCreated, counts.listsReplaced]).toEqual([1, 2, 1]);

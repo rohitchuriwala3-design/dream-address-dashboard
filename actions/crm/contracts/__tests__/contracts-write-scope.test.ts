@@ -26,7 +26,7 @@ jest.mock("@/lib/prisma", () => ({
 }));
 jest.mock("@/lib/audit-log", () => ({ writeAuditLog: jest.fn(), diffObjects: jest.fn(() => null) }));
 jest.mock("@/lib/currency", () => ({
-  getDefaultCurrency: jest.fn().mockResolvedValue("USD"),
+  getDefaultCurrency: jest.fn().mockResolvedValue("INR"),
   getSnapshotRate: jest.fn().mockResolvedValue(null),
 }));
 

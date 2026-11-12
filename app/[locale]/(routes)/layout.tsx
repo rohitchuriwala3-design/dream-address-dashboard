@@ -11,7 +11,7 @@ import { AppSidebar } from "./components/app-sidebar";
 import { getTranslations } from "next-intl/server";
 import { AvatarProvider } from "@/context/avatar-context";
 import { CurrencyProvider } from "@/context/currency-context";
-import { getEnabledCurrencies, getDefaultCurrency } from "@/lib/currency";
+import { getEnabledCurrencies } from "@/lib/currency";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -97,12 +97,10 @@ export default async function AppLayout({
   const sidebarOpen = cookieStore.get("sidebar_state")?.value !== "false";
 
   const enabledCurrencies = await getEnabledCurrencies();
-  const defaultCurrency = await getDefaultCurrency();
-  const cookieCurrency = cookieStore.get("display_currency")?.value;
-  const displayCurrency = cookieCurrency && enabledCurrencies.some((c: { code: string }) => c.code === cookieCurrency)
-    ? cookieCurrency
-    : defaultCurrency;
-  const currencyList = enabledCurrencies.map((c: { code: string; name: string; symbol: string }) => ({ code: c.code, name: c.name, symbol: c.symbol }));
+  const displayCurrency = "INR";
+  const currencyList = enabledCurrencies
+    .filter((c: { code: string }) => c.code === "INR")
+    .map((c: { code: string; name: string; symbol: string }) => ({ code: c.code, name: c.name, symbol: c.symbol }));
 
   const { getPluginNavItems } = await import("@/lib/plugins/nav");
   const { mapLegacyRole } = await import("@/lib/authz/roles");

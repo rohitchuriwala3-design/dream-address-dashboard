@@ -33,7 +33,7 @@ it("passes the key in the Authorization header", async () => {
 });
 
 it("test connection counts lists and lifts the send pause", async () => {
-  const { ctx } = mk({ lists: [{ id: 3, odooId: 242, name: "Retail_STARTER", currency: "CZK", rules: [] }] });
+  const { ctx } = mk({ lists: [{ id: 3, odooId: 242, name: "Retail_STARTER", currency: "CCC", rules: [] }] });
   await ctx.store.set(K.sendPaused, { at: "x", reason: "y" });
   expect(await testConnection(ctx)).toBe("admin.connected");
   expect(await ctx.store.get(K.sendPaused)).toBeNull();

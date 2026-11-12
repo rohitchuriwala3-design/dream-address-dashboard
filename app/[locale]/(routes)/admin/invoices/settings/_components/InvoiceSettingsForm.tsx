@@ -71,9 +71,7 @@ export function InvoiceSettingsForm({
       return rest;
     });
 
-  const [baseCurrency, setBaseCurrency] = useState(
-    settings?.baseCurrency ?? "INR"
-  );
+  const [baseCurrency] = useState<"INR">("INR");
   const [defaultSeriesId, setDefaultSeriesId] = useState(
     settings?.defaultSeriesId ?? ""
   );
@@ -272,16 +270,12 @@ export function InvoiceSettingsForm({
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>Base Currency</Label>
-          <Select value={baseCurrency} onValueChange={setBaseCurrency}>
+          <Select value={baseCurrency} disabled>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {currencies.map((c) => (
-                <SelectItem key={c.code} value={c.code}>
-                  {c.code} - {c.name}
-                </SelectItem>
-              ))}
+              <SelectItem value="INR">INR — Indian Rupee</SelectItem>
             </SelectContent>
           </Select>
         </div>

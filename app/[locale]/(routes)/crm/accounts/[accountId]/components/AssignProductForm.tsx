@@ -45,7 +45,7 @@ const AssignProductForm = ({
     const quantity = parseInt((formData.get("quantity") as string) || "1", 10);
     const custom_price =
       (formData.get("custom_price") as string) || undefined;
-    const currency = formData.get("currency") as string;
+    const currency = "INR" as const;
     const status = (formData.get("status") as "ACTIVE" | "PENDING") || "ACTIVE";
     const start_date = new Date(formData.get("start_date") as string);
     const end_date_raw = formData.get("end_date") as string;

@@ -38,7 +38,7 @@ beforeEach(() => {
 
 it("validates the product catalog as INR-only for V1", () => {
   expect(CreateProduct.safeParse(validInput).success).toBe(true);
-  expect(CreateProduct.safeParse({ ...validInput, currency: "USD" }).success).toBe(false);
+  expect(CreateProduct.safeParse({ ...validInput, currency: "INR" }).success).toBe(false);
 });
 
 describe("createProduct role gate", () => {

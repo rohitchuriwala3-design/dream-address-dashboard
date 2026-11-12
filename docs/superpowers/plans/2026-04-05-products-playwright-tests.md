@@ -91,8 +91,8 @@ async function selectFormOption(page: Page, fieldLabel: string, optionName: stri
 
 ```csv
 name,sku,type,category,description,unit_price,unit_cost,currency,tax_rate,unit,is_recurring,billing_period
-"PW Import Widget","PW-IMP-001","PRODUCT","","Playwright import test product",49.99,25.00,"USD",10,"per unit",false,
-"PW Import Service","PW-IMP-002","SERVICE","","Playwright import test service",199.00,80.00,"USD",20,"per month",true,MONTHLY
+"PW Import Widget","PW-IMP-001","PRODUCT","","Playwright import test product",49.99,25.00,"BBB",10,"per unit",false,
+"PW Import Service","PW-IMP-002","SERVICE","","Playwright import test service",199.00,80.00,"BBB",20,"per month",true,MONTHLY
 ```
 
 - [ ] **Step 2: Commit**
@@ -168,7 +168,7 @@ test.describe("Create Product", () => {
     await page.getByLabel("Name", { exact: true }).fill(uniqueName);
     await selectFormOption(page, "Type", "Product");
     await page.getByLabel("Unit Price", { exact: true }).fill("99.99");
-    await selectFormOption(page, "Currency", /USD/);
+    await selectFormOption(page, "Currency", /BBB/);
 
     // Submit
     await page.locator('[role="dialog"] [type="submit"]').click();
@@ -204,7 +204,7 @@ test.describe("Create Product", () => {
     await selectFormOption(page, "Status", "Active");
     await page.getByLabel("Unit Price", { exact: true }).fill("199.00");
     await page.getByLabel("Unit Cost", { exact: true }).fill("80.00");
-    await selectFormOption(page, "Currency", /USD/);
+    await selectFormOption(page, "Currency", /BBB/);
     await page.getByLabel("Tax Rate (%)", { exact: true }).fill("20");
     await page.getByLabel("Unit", { exact: true }).fill("per month");
 
@@ -242,7 +242,7 @@ test.describe("Create Product", () => {
     // Fill other required fields but leave name empty
     await selectFormOption(page, "Type", "Product");
     await page.getByLabel("Unit Price", { exact: true }).fill("10");
-    await selectFormOption(page, "Currency", /USD/);
+    await selectFormOption(page, "Currency", /BBB/);
 
     // Submit with empty name
     await page.locator('[role="dialog"] [type="submit"]').click();
@@ -266,7 +266,7 @@ test.describe("Create Product", () => {
     await page.getByLabel("SKU", { exact: true }).fill(duplicateSku);
     await selectFormOption(page, "Type", "Product");
     await page.getByLabel("Unit Price", { exact: true }).fill("10");
-    await selectFormOption(page, "Currency", /USD/);
+    await selectFormOption(page, "Currency", /BBB/);
     await page.locator('[role="dialog"] [type="submit"]').click();
     await assertSuccessToast(page);
     await expect(
@@ -280,7 +280,7 @@ test.describe("Create Product", () => {
     await page.getByLabel("SKU", { exact: true }).fill(duplicateSku);
     await selectFormOption(page, "Type", "Product");
     await page.getByLabel("Unit Price", { exact: true }).fill("20");
-    await selectFormOption(page, "Currency", /USD/);
+    await selectFormOption(page, "Currency", /BBB/);
     await page.locator('[role="dialog"] [type="submit"]').click();
 
     // Should show error toast (Prisma unique constraint violation)
@@ -637,7 +637,7 @@ async function createDisposableProduct(page: Page, name: string) {
   await page.getByLabel("Name", { exact: true }).fill(name);
   await selectFormOption(page, "Type", "Product");
   await page.getByLabel("Unit Price", { exact: true }).fill("1.00");
-  await selectFormOption(page, "Currency", /USD/);
+  await selectFormOption(page, "Currency", /BBB/);
 
   await page.locator('[role="dialog"] [type="submit"]').click();
   await assertSuccessToast(page);

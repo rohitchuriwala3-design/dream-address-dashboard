@@ -34,8 +34,8 @@ it("skips queued jobs while another run holds the lock", async () => {
 
 it("loads Odoo price lists for the admin section", async () => {
   const { ctx, client } = mk([], [], {}, undefined, {
-    "product.pricelist/search_read": () => [{ id: 245, name: "Gold CZK", currency_id: [9, "CZK"], item_ids: [1, 2], active: true }],
+    "product.pricelist/search_read": () => [{ id: 245, name: "Gold CCC", currency_id: [9, "CCC"], item_ids: [1, 2], active: true }],
   });
   expect(await loadPriceLists(ctx, client)).toBe("admin.listsLoaded");
-  expect(await ctx.store.get(K.odooLists)).toMatchObject({ lists: [{ id: 245, name: "Gold CZK", currency: "CZK", rules: 2, active: true }] });
+  expect(await ctx.store.get(K.odooLists)).toMatchObject({ lists: [{ id: 245, name: "Gold CCC", currency: "CCC", rules: 2, active: true }] });
 });

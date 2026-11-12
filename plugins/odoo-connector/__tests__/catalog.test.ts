@@ -6,24 +6,24 @@ const later = (min: number) => new Date(now.getTime() + min * 60_000);
 const cat = () => ({
   categories: [{ id: 1, name: "Zásoby", parent_id: false as const }, { id: 7, name: "Cups", parent_id: [1, "Zásoby"] as [number, string] }],
   variants: [
-    { id: 500, display_name: "[800017] Lid", default_code: "800017", description_sale: false as const, type: "consu", active: true, sale_ok: true, lst_price: 1.67, standard_price: 1, currency_id: [9, "CZK"] as [number, string], taxes_id: [27], uom_id: [1, "ks"] as [number, string], categ_id: [7, "Cups"] as [number, string], product_tmpl_id: [912, "Lid"] as [number, string], write_date: "2026-10-10 08:00:00" },
-    { id: 501, display_name: "[800018] Straw", default_code: "800018", description_sale: false as const, type: "consu", active: true, sale_ok: true, lst_price: 2, standard_price: 1, currency_id: [9, "CZK"] as [number, string], taxes_id: [27], uom_id: [1, "ks"] as [number, string], categ_id: [7, "Cups"] as [number, string], product_tmpl_id: [913, "Straw"] as [number, string], write_date: "2026-10-10 08:00:00" },
+    { id: 500, display_name: "[800017] Lid", default_code: "800017", description_sale: false as const, type: "consu", active: true, sale_ok: true, lst_price: 1.67, standard_price: 1, currency_id: [9, "CCC"] as [number, string], taxes_id: [27], uom_id: [1, "ks"] as [number, string], categ_id: [7, "Cups"] as [number, string], product_tmpl_id: [912, "Lid"] as [number, string], write_date: "2026-10-10 08:00:00" },
+    { id: 501, display_name: "[800018] Straw", default_code: "800018", description_sale: false as const, type: "consu", active: true, sale_ok: true, lst_price: 2, standard_price: 1, currency_id: [9, "CCC"] as [number, string], taxes_id: [27], uom_id: [1, "ks"] as [number, string], categ_id: [7, "Cups"] as [number, string], product_tmpl_id: [913, "Straw"] as [number, string], write_date: "2026-10-10 08:00:00" },
   ],
   lists: [
-    { id: 234, name: "Base CZK", currency_id: [9, "CZK"] as [number, string], active: false, write_date: "2026-10-10 08:00:00" },
-    { id: 245, name: "Gold CZK", currency_id: [9, "CZK"] as [number, string], active: true, write_date: "2026-10-10 08:00:00" },
+    { id: 234, name: "Base CCC", currency_id: [9, "CCC"] as [number, string], active: false, write_date: "2026-10-10 08:00:00" },
+    { id: 245, name: "Gold CCC", currency_id: [9, "CCC"] as [number, string], active: true, write_date: "2026-10-10 08:00:00" },
   ],
   items: [
-    { id: 1, pricelist_id: [234, "Base CZK"] as [number, string], applied_on: "2_product_category", categ_id: [7, "Cups"] as [number, string], compute_price: "percentage", percent_price: 10, base: "list_price", write_date: "2026-10-10 08:00:00" },
-    { id: 1285, pricelist_id: [245, "Gold CZK"] as [number, string], applied_on: "1_product", product_tmpl_id: [912, "Lid"] as [number, string], compute_price: "fixed", fixed_price: 1.51, min_quantity: 1000, base: "list_price", write_date: "2026-10-10 08:00:00" },
-    { id: 1290, pricelist_id: [245, "Gold CZK"] as [number, string], applied_on: "3_global", compute_price: "percentage", percent_price: 0, base: "pricelist", base_pricelist_id: [234, "Base CZK"] as [number, string], write_date: "2026-10-10 08:00:00" },
+    { id: 1, pricelist_id: [234, "Base CCC"] as [number, string], applied_on: "2_product_category", categ_id: [7, "Cups"] as [number, string], compute_price: "percentage", percent_price: 10, base: "list_price", write_date: "2026-10-10 08:00:00" },
+    { id: 1285, pricelist_id: [245, "Gold CCC"] as [number, string], applied_on: "1_product", product_tmpl_id: [912, "Lid"] as [number, string], compute_price: "fixed", fixed_price: 1.51, min_quantity: 1000, base: "list_price", write_date: "2026-10-10 08:00:00" },
+    { id: 1290, pricelist_id: [245, "Gold CCC"] as [number, string], applied_on: "3_global", compute_price: "percentage", percent_price: 0, base: "pricelist", base_pricelist_id: [234, "Base CCC"] as [number, string], write_date: "2026-10-10 08:00:00" },
   ],
   taxes: [{ id: 27, amount: 21, amount_type: "percent" }],
 });
 
 it("imports categories, products, the chosen list and its archived base, and the account's list", async () => {
   const c = cat();
-  const { ctx, client, data } = mkCatalog([company(1, { property_product_pricelist: [245, "Gold CZK"] })], c, { priceLists: "245" });
+  const { ctx, client, data } = mkCatalog([company(1, { property_product_pricelist: [245, "Gold CCC"] })], c, { priceLists: "245" });
   const s = await runSync(ctx, client, now);
   expect(s).toMatchObject({ ok: true, catalog: { categories: 2, productsCreated: 2, listsReplaced: 2, accountLists: 1 } });
   expect(data.productCategories.map((x) => x.externalRef)).toEqual(["1", "7"]);
@@ -61,7 +61,7 @@ it("archives a variant that is no longer sellable", async () => {
 });
 
 it("writes nothing in a dry run, including account lists and the catalog cursor (Review Focus 5)", async () => {
-  const { ctx, client, data } = mkCatalog([company(1, { property_product_pricelist: [245, "Gold CZK"] })], cat(), { priceLists: "245", dryRun: true });
+  const { ctx, client, data } = mkCatalog([company(1, { property_product_pricelist: [245, "Gold CCC"] })], cat(), { priceLists: "245", dryRun: true });
   const s = await runSync(ctx, client, now);
   expect(s.catalog).toMatchObject({ productsCreated: 2, listsReplaced: 2 });
   expect(data.products).toEqual([]);

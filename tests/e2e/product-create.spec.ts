@@ -42,7 +42,7 @@ test.describe("Product Creation", () => {
     await dialog.locator(".space-y-2").filter({ hasText: "Name" }).locator("input").fill(productName);
     await selectFormOption(page, "Type", "Product");
     await dialog.locator(".space-y-2").filter({ hasText: "Unit Price" }).locator("input").fill("99.99");
-    await selectFormOption(page, "Currency", /USD/);
+    await selectFormOption(page, "Currency", /BBB/);
 
     await dialog.locator('[type="submit"]').click();
 
@@ -68,7 +68,7 @@ test.describe("Product Creation", () => {
     await selectFormOption(page, "Status", "Active");
     await dialog.locator(".space-y-2").filter({ hasText: "Unit Price" }).locator("input").fill("199.99");
     await dialog.locator(".space-y-2").filter({ hasText: "Unit Cost" }).locator("input").fill("50.00");
-    await selectFormOption(page, "Currency", /USD/);
+    await selectFormOption(page, "Currency", /BBB/);
     await dialog.locator(".space-y-2").filter({ hasText: "Tax Rate" }).locator("input").fill("10");
     await dialog.locator("#unit").fill("each");
     await dialog.locator("#is_recurring").check();
@@ -93,7 +93,7 @@ test.describe("Product Creation", () => {
 
     await selectFormOption(page, "Type", "Product");
     await dialog.locator(".space-y-2").filter({ hasText: "Unit Price" }).locator("input").fill("49.99");
-    await selectFormOption(page, "Currency", /USD/);
+    await selectFormOption(page, "Currency", /BBB/);
 
     await dialog.locator('[type="submit"]').click();
 
@@ -115,7 +115,7 @@ test.describe("Product Creation", () => {
     await dialog.locator(".space-y-2").filter({ hasText: "SKU" }).locator("input").fill(sharedSku);
     await selectFormOption(page, "Type", "Product");
     await dialog.locator(".space-y-2").filter({ hasText: "Unit Price" }).locator("input").fill("10.00");
-    await selectFormOption(page, "Currency", /USD/);
+    await selectFormOption(page, "Currency", /BBB/);
     await dialog.locator('[type="submit"]').click();
 
     await assertSuccessToast(page);
@@ -130,7 +130,7 @@ test.describe("Product Creation", () => {
     await dialog2.locator(".space-y-2").filter({ hasText: "SKU" }).locator("input").fill(sharedSku);
     await selectFormOption(page, "Type", "Product");
     await dialog2.locator(".space-y-2").filter({ hasText: "Unit Price" }).locator("input").fill("20.00");
-    await selectFormOption(page, "Currency", /USD/);
+    await selectFormOption(page, "Currency", /BBB/);
     await dialog2.locator('[type="submit"]').click();
 
     await assertErrorToast(page);

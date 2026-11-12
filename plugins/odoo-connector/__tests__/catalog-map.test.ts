@@ -1,11 +1,11 @@
 import { baseRefs, categoryOrder, mapRules, orderLists, variantFields, type OdooRule, type OdooVariant } from "../catalog-map";
 
 const v = (over: Partial<OdooVariant> = {}): OdooVariant => ({ id: 332, display_name: "[800004] Cup (600 ml)", default_code: "800004", description_sale: false, type: "consu", active: true, sale_ok: true,
-  lst_price: 1.89, standard_price: 0.9, currency_id: [9, "CZK"], taxes_id: [27], uom_id: [1, "ks"], categ_id: [7, "Cups"], product_tmpl_id: [899, "Cup"], write_date: "2026-10-10 08:00:00", ...over });
+  lst_price: 1.89, standard_price: 0.9, currency_id: [9, "CCC"], taxes_id: [27], uom_id: [1, "ks"], categ_id: [7, "Cups"], product_tmpl_id: [899, "Cup"], write_date: "2026-10-10 08:00:00", ...over });
 const tax = (ids: number[]) => (ids.length === 1 ? ({ 27: "21", 20: "12" } as Record<number, string>)[ids[0]] ?? null : null);
 
 it("maps a variant to an external product", () => {
-  expect(variantFields(v(), tax)).toEqual({ name: "[800004] Cup (600 ml)", sku: "800004", description: null, type: "PRODUCT", status: "ACTIVE", unit_price: "1.89", unit_cost: "0.9", currency: "CZK", tax_rate: "21", unit: "ks", categoryRef: "7" });
+  expect(variantFields(v(), tax)).toEqual({ name: "[800004] Cup (600 ml)", sku: "800004", description: null, type: "PRODUCT", status: "ACTIVE", unit_price: "1.89", unit_cost: "0.9", currency: "CCC", tax_rate: "21", unit: "ks", categoryRef: "7" });
 });
 
 it("maps services, archived or unsellable variants, no or several taxes", () => {

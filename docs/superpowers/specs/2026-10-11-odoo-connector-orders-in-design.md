@@ -24,7 +24,7 @@ Success:
 ### 1.2 Facts (GIPS Odoo 19.0+e, read 2026-10-11)
 
 - 176 sale orders: 38 from 2025, 138 from 2026; 153 confirmed, 21 cancelled, 2 draft. About 15–20 distinct customers. None from an Odoo website (`website_id` empty on all).
-- Lines on confirmed orders: 1,788 product lines; 23 note or section lines (no amount); 31 down-payment lines (`is_downpayment`, about 634k CZK); 9 other service lines.
+- Lines on confirmed orders: 1,788 product lines; 23 note or section lines (no amount); 31 down-payment lines (`is_downpayment`, about 634k CCC); 9 other service lines.
 - Orders ship to child delivery partners, so the customer is the order partner's `commercial_partner_id`.
 
 ### 1.3 Not in scope

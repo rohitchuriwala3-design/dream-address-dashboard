@@ -5,7 +5,7 @@ import { order as oxoOrder } from "./fake-oxo";
 import { mk, now } from "./helpers";
 
 const crmOrder = (over: RecordData = {}): RecordData => ({
-  id: "o1", number: "ORD-2026-0001", status: "READY", source: "CRM", externalRef: null, accountId: "a1", ownerId: "u1", currency: "CZK",
+  id: "o1", number: "ORD-2026-0001", status: "READY", source: "CRM", externalRef: null, accountId: "a1", ownerId: "u1", currency: "CCC",
   requestedDeliveryDate: "2026-10-20T00:00:00.000Z", note: "Ráno", priceListId: "L242",
   lines: [{ productId: "p537", sku: "533002", productName: "K ČKS Jahoda", quantity: "6", unitPrice: "757.76" }], ...over,
 });
@@ -17,7 +17,7 @@ async function setup(opts: { post?: (b: any) => any; linked?: boolean; order?: R
     users: [{ id: "u1", name: "Jana Obchodní" }], orders: [crmOrder(opts.order)],
   }, { sendOrders: true, ...opts.settings });
   await t.ctx.store.set(K.product("p537"), { oxoId: 11, ref: "537", templateId: null, categoryRef: null });
-  await t.ctx.store.set(K.pricelist(3), { priceListId: "L242", ref: "242", name: "Retail_STARTER", currency: "CZK", hash: "x", syncedAt: "x", isActive: true });
+  await t.ctx.store.set(K.pricelist(3), { priceListId: "L242", ref: "242", name: "Retail_STARTER", currency: "CCC", hash: "x", syncedAt: "x", isActive: true });
   if (opts.linked !== false) {
     await t.ctx.store.set(K.customer(222), { accountId: "a1" });
     await t.ctx.store.set(K.account("a1"), { customerId: 222, syncedAt: "x", priceListId: 3, addresses: [{ id: 223, odooId: 155, name: "Sklad", street: "Dlouhá 1", city: "Praha", zip: "110 00", country: null, active: true }] });
@@ -30,7 +30,7 @@ describe("orders out", () => {
     const t = await setup({ order: { shipping_street: "dlouhá 1", shipping_city: "Praha", shipping_postal_code: "11000" } });
     expect(await sendOrder(t.ctx, t.client, "o1", now)).toBe("sent");
     expect(t.oxo.calls.find((c) => c.method === "POST")?.body).toEqual({
-      crmNumber: "ORD-2026-0001", customerId: 222, deliveryAddressId: 223, priceListId: 3, currency: "CZK", requestedDate: "2026-10-20",
+      crmNumber: "ORD-2026-0001", customerId: 222, deliveryAddressId: 223, priceListId: 3, currency: "CCC", requestedDate: "2026-10-20",
       note: "Ráno", salesRep: "Jana Obchodní", lines: [{ productId: 11, quantity: "6", unitPrice: "757.76" }],
     });
     expect(t.data.orders[0]).toMatchObject({ status: "SENT", externalRef: "oxo:501" });

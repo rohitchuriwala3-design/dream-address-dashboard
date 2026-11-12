@@ -332,7 +332,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
         discount_type,
         discount_value: discountVal,
         line_total: lineTotal,
-        currency: opportunity.currency || "EUR",
+        currency: opportunity.currency || "AAA",
         sort_order,
         createdBy: userId,
         updatedBy: userId,
@@ -740,7 +740,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
         discount_type,
         discount_value: discountVal,
         line_total: lineTotal,
-        currency: contract.currency || "EUR",
+        currency: contract.currency || "AAA",
         sort_order,
         createdBy: userId,
         updatedBy: userId,
@@ -1028,8 +1028,8 @@ export const copyLineItemsFromOpportunity = async (
     }
 
     // Currency mismatch check
-    const contractCurrency = contract.currency || "EUR";
-    const opportunityCurrency = opportunity.currency || "EUR";
+    const contractCurrency = contract.currency || "AAA";
+    const opportunityCurrency = opportunity.currency || "AAA";
     if (contractCurrency !== opportunityCurrency) {
       return {
         error: `Currency mismatch: contract uses ${contractCurrency} but opportunity uses ${opportunityCurrency}. Cannot copy line items across currencies.`,
@@ -1764,7 +1764,7 @@ Add the LineItemsSection in the overview tab, after `<BasicView data={opportunit
             <LineItemsSection
               opportunityId={opportunityId}
               lineItems={serializedLineItems as any}
-              currency={opportunity.currency || "EUR"}
+              currency={opportunity.currency || "AAA"}
               products={activeProducts}
             />
 ```
@@ -2001,7 +2001,7 @@ Add the LineItemsSection in the overview tab after `<BasicView data={contract} /
             <LineItemsSection
               contractId={contractId}
               lineItems={serializedLineItems}
-              currency={contract.currency || "EUR"}
+              currency={contract.currency || "AAA"}
               products={activeProducts}
               opportunities={accountOpportunities}
             />

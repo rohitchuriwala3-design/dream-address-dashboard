@@ -21,8 +21,8 @@ const cases: [string, Partial<RuleData>, string][] = [
 
 it.each(cases)("%s", (_name, over, expected) => {
   const r = computePrice({
-    lists: new Map([["L", { id: "L", currency: "CZK", rules: [{ ...base, ...over }] }]]),
-    product: { id: "p1", unitPrice: d(100), unitCost: d(60), currency: "CZK", categoryId: null },
+    lists: new Map([["L", { id: "L", currency: "CCC", rules: [{ ...base, ...over }] }]]),
+    product: { id: "p1", unitPrice: d(100), unitCost: d(60), currency: "CCC", categoryId: null },
     categoryChain: [],
     rate: () => d(1),
   }, "L", d(1), new Date("2026-06-01T00:00:00Z"));

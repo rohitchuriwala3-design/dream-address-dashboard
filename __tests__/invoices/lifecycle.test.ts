@@ -90,7 +90,7 @@ function draftPayload(
 ) {
   return {
     accountId: testAccountId,
-    currency: "USD",
+    currency: "BBB",
     type: "INVOICE",
     lineItems: [
       {
@@ -170,7 +170,7 @@ beforeAll(async () => {
     });
     if (!currency) {
       currency = await prismadb.currency.create({
-        data: { code: "USD", name: "US Dollar", symbol: "$", isEnabled: true },
+        data: { code: "BBB", name: "Currency B", symbol: "$", isEnabled: true },
       });
     }
     await prismadb.invoice_Settings.create({

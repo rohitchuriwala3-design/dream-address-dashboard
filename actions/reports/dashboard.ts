@@ -1,7 +1,6 @@
 import { prismadb } from "@/lib/prisma";
 import type { ReportFilters, KPIData } from "./types";
 import { CAMPAIGN_NOT_DELETED, TASK_NOT_ON_DELETED_BOARD } from "./types";
-import { getExchangeRates, convertAmount } from "@/lib/currency";
 import { Decimal } from "@prisma/client/runtime/client";
 import type { ReportScope } from "@/lib/authz/scopes/report-scope";
 import { getReportScope } from "@/lib/authz/scopes/report-scope";
@@ -23,12 +22,10 @@ function prevPeriod(filters: ReportFilters): { dateFrom: Date; dateTo: Date } {
 
 export async function getDashboardKPIs(
   filters: ReportFilters,
-  displayCurrency: string = "INR",
+  _displayCurrency: string = "INR",
   scope: ReportScope = DEFAULT_SCOPE,
 ): Promise<KPIData[]> {
   const prev = prevPeriod(filters);
-  const rates = await getExchangeRates();
-
   const [
     revOppsCurr,
     revOppsPrev,
@@ -136,21 +133,21 @@ export async function getDashboardKPIs(
     }),
   ]);
 
-  function sumConverted(opps: { budget: unknown; currency: string | null }[]): number {
+  function sumInr(opps: { budget: unknown; currency: string | null }[]): number {
     let total = new Decimal(0);
     for (const opp of opps) {
       const budget = new Decimal(opp.budget?.toString() ?? "0");
-      const from = opp.currency || displayCurrency;
-      const converted = convertAmount(budget, from, displayCurrency, rates);
-      total = total.add(converted ?? budget);
+      // Legacy amounts in another currency are retained but excluded from INR totals.
+      if (opp.currency && opp.currency !== "INR") continue;
+      total = total.add(budget);
     }
     return total.toNumber();
   }
 
-  const totalRevenueCurr = sumConverted(revOppsCurr);
-  const totalRevenuePrev = sumConverted(revOppsPrev);
-  const pipelineCurr = sumConverted(pipeOppsCurr);
-  const pipelinePrev = sumConverted(pipeOppsPrev);
+  const totalRevenueCurr = sumInr(revOppsCurr);
+  const totalRevenuePrev = sumInr(revOppsPrev);
+  const pipelineCurr = sumInr(pipeOppsCurr);
+  const pipelinePrev = sumInr(pipeOppsPrev);
 
   // suppress unused vars
   void tasksCurr;

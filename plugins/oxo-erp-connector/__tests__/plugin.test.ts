@@ -24,7 +24,7 @@ it("has the same message keys in every locale", () => {
 
 it("never fails an install", async () => {
   const log: string[] = [];
-  const ctx = { settings: { url: "https://x", dryRun: true, syncMinutes: 15, defaultCountry: "CZ", currency: "CZK", priceLists: "", sendOrders: false, timeZone: "UTC" }, secrets: { apiKey: "k" },
+  const ctx = { settings: { url: "https://x", dryRun: true, syncMinutes: 15, defaultCountry: "CZ", currency: "CCC", priceLists: "", sendOrders: false, timeZone: "UTC" }, secrets: { apiKey: "k" },
     http: { fetch: async () => new Response("{}", { status: 401 }) }, store: { get: async () => null, set: async () => {}, delete: async () => {}, list: async () => [] },
     data: { productCategories: { findExternal: async () => [] }, products: { findExternal: async () => [] } },
     log: { info: () => {}, warn: () => {}, debug: () => {}, error: (m: string) => log.push(m) }, notify: async () => {}, t: (k: string) => k } as never;

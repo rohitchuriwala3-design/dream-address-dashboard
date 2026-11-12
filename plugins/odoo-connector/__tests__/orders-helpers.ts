@@ -48,7 +48,7 @@ export function salesHandlers(s: FakeSales) {
     "res.partner/read": (b: any) => pick(s.partners.filter((p) => b.ids.includes(p.id)).map((p) => ({ ...p, commercial_partner_id: p.commercial_partner_id ?? (p.parent_id ? p.parent_id : [p.id, String(p.name ?? p.id)]) })), b.fields),
     "res.partner/create": (b: any) => guard("res.partner/create", () => b.vals_list.map((v: RecordData) => {
       const id = s.nextId++;
-      const row: RecordData = { id, active: true, type: "contact", parent_id: false, property_product_pricelist: [234, "Retail (CZK)"], ...norm(v) };
+      const row: RecordData = { id, active: true, type: "contact", parent_id: false, property_product_pricelist: [234, "Retail (CCC)"], ...norm(v) };
       if (s.vatFormat && typeof row.vat === "string") row.vat = s.vatFormat(row.vat);
       s.partners.push(row);
       return id;
@@ -90,7 +90,7 @@ export const account = (over: RecordData = {}): RecordData => ({
 
 export const order = (over: RecordData = {}): RecordData => ({
   id: "o1", number: "ORD-2026-0001", status: "READY", source: "CRM", externalRef: null, accountId: "a1", ownerId: "u-rep", priceListId: null,
-  currency: "CZK", shipping_street: null, shipping_city: null, shipping_postal_code: null, shipping_country: null, requestedDeliveryDate: null,
+  currency: "CCC", shipping_street: null, shipping_city: null, shipping_postal_code: null, shipping_country: null, requestedDeliveryDate: null,
   note: null, grandTotal: "200.00", createdAt: "2026-10-13T07:00:00.000Z",
   lines: [{ productId: "p1", sku: "800009", productName: "Scoop", quantity: "2", unitPrice: "100.00" }], ...over,
 });
@@ -98,7 +98,7 @@ export const order = (over: RecordData = {}): RecordData => ({
 export function mkOrders(opts: { settings?: RecordData; sales?: Partial<FakeSales>; accounts?: RecordData[]; orders?: RecordData[]; products?: RecordData[] } = {}) {
   const sales: FakeSales = {
     partners: [], users: [{ id: 9, login: "rep@x.example", email: "Rep@X.example" }], orders: [], lines: [], pickings: [], moves: [],
-    lists: [{ id: 234, currency_id: [9, "CZK"] }, { id: 245, currency_id: [9, "CZK"] }, { id: 238, currency_id: [125, "EUR"] }],
+    lists: [{ id: 234, currency_id: [9, "CCC"] }, { id: 245, currency_id: [9, "CCC"] }, { id: 238, currency_id: [125, "AAA"] }],
     fail: {}, price: null, nextId: 1000, ...opts.sales,
   };
   const calls: { path: string; body: any }[] = [];

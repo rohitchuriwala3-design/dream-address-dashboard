@@ -6,7 +6,7 @@ import { now } from "./helpers";
 
 describe("shared order index", () => {
   it("a sent order is indexed by its Odoo id", async () => {
-    const { ctx, client } = mkOrders({ sales: { partners: [{ id: 50, name: "Bubble s.r.o.", parent_id: false, active: true, type: "contact", property_product_pricelist: [234, "Retail (CZK)"] }] } });
+    const { ctx, client } = mkOrders({ sales: { partners: [{ id: 50, name: "Bubble s.r.o.", parent_id: false, active: true, type: "contact", property_product_pricelist: [234, "Retail (CCC)"] }] } });
     await ctx.store.set(K.account("a1"), { partnerId: 50, syncedAt: "x", salesperson: null });
     await sendOrder(ctx, client, "o1", now);
     expect(await ctx.store.get(K.odooOrder(1000))).toEqual({ orderId: "o1" });
@@ -15,7 +15,7 @@ describe("shared order index", () => {
 
 const odooOrder = (over: Record<string, unknown> = {}) => ({
   id: 900, name: "S00900", state: "sale", partner_id: [50, "Bubble s.r.o."], origin: false, date_order: "2026-03-05 10:22:11",
-  currency_id: [9, "CZK"], note: "<p>Leave at the gate</p>", write_date: "2026-03-05 10:30:00", amount_total: 242, amount_untaxed: 200,
+  currency_id: [9, "CCC"], note: "<p>Leave at the gate</p>", write_date: "2026-03-05 10:30:00", amount_total: 242, amount_untaxed: 200,
   delivery_status: false, invoice_status: "no", invoice_ids: [], picking_ids: [], ...over,
 });
 const line = (over: Record<string, unknown> = {}) => ({ id: 1, order_id: [900, "S00900"], product_id: [700, "Scoop"], product_uom_qty: 2, price_unit: 100, discount: 0, display_type: false, is_downpayment: false, ...over });
@@ -38,7 +38,7 @@ describe("importing Odoo orders", () => {
     const m = setup();
     expect(await run(m)).toBe(1);
     expect(m.data.orders).toHaveLength(1);
-    expect(m.data.orders[0]).toMatchObject({ accountId: "a1", externalRef: "900", status: "CONFIRMED", currency: "CZK", orderDate: "2026-03-05", note: "Leave at the gate", lines: [{ productId: "p1", quantity: 2, unitPrice: 100 }] });
+    expect(m.data.orders[0]).toMatchObject({ accountId: "a1", externalRef: "900", status: "CONFIRMED", currency: "CCC", orderDate: "2026-03-05", note: "Leave at the gate", lines: [{ productId: "p1", quantity: 2, unitPrice: 100 }] });
     const orderId = m.data.orders[0].id as string;
     expect(await m.ctx.store.get(K.odooOrder(900))).toEqual({ orderId });
     expect(await m.ctx.store.get<OrderLink>(K.order(orderId))).toMatchObject({ odooId: 900, name: "S00900", state: "sale", imported: true, partnerId: 50, writeDate: "2026-03-05 10:30:00", total: 242 });
@@ -251,7 +251,7 @@ it("review: the 'customer changed' email asks for nothing users cannot do on an 
 });
 
 describe("archived Odoo products on imported orders (Pavel 2026-10-11, option A)", () => {
-  const variant = { id: 799, display_name: "[511013_1] EXP K Bob Jahoda 31.08.2026", default_code: "511013_1", description_sale: false, type: "consu", active: false, sale_ok: true, lst_price: 35.96, standard_price: 20, currency_id: [9, "CZK"], taxes_id: [3], uom_id: [1, "ks"], categ_id: [9, "Bob"], product_tmpl_id: [70, "x"], write_date: "2026-01-01 00:00:00" };
+  const variant = { id: 799, display_name: "[511013_1] EXP K Bob Jahoda 31.08.2026", default_code: "511013_1", description_sale: false, type: "consu", active: false, sale_ok: true, lst_price: 35.96, standard_price: 20, currency_id: [9, "CCC"], taxes_id: [3], uom_id: [1, "ks"], categ_id: [9, "Bob"], product_tmpl_id: [70, "x"], write_date: "2026-01-01 00:00:00" };
 
   it("imports the archived variant as an archived CRM product and keeps the line", async () => {
     const m = setup({ lines: [line(), line({ id: 2, product_id: [799, "EXP K Bob"], product_uom_qty: 15, price_unit: 35.96 })], variants: [variant], taxes: [{ id: 3, amount: 12, amount_type: "percent" }] });
@@ -278,7 +278,7 @@ it("CodeQL: a note never comes out with markup, even from encoded or nested tags
 });
 
 describe("hand-made CRM products and missing lines (Pavel 2026-10-12, OXO)", () => {
-  const variant = { id: 799, display_name: "[511013] K Bob Jahoda", default_code: "511013", description_sale: false, type: "consu", active: true, sale_ok: true, lst_price: 35.96, standard_price: 20, currency_id: [9, "CZK"], taxes_id: [], uom_id: [1, "ks"], categ_id: false, product_tmpl_id: [70, "x"], write_date: "2026-01-01 00:00:00" };
+  const variant = { id: 799, display_name: "[511013] K Bob Jahoda", default_code: "511013", description_sale: false, type: "consu", active: true, sale_ok: true, lst_price: 35.96, standard_price: 20, currency_id: [9, "CCC"], taxes_id: [], uom_id: [1, "ks"], categ_id: false, product_tmpl_id: [70, "x"], write_date: "2026-01-01 00:00:00" };
 
   it("the order import takes over a hand-made product with the same SKU", async () => {
     const m = setup({ lines: [line({ product_id: [799, "K Bob"] })], variants: [variant], taxes: [] }, { products: [{ id: "p1", source: "EXTERNAL", externalRef: "700", sku: "800009", name: "Scoop", status: "ACTIVE", deletedAt: null }, { id: "hand-1", source: "CRM", sku: "511013", name: "Popping boba jahoda", status: "ACTIVE", deletedAt: null }] });

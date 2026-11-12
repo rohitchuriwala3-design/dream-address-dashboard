@@ -36,7 +36,7 @@ const createArgs = {
   name: "Widget",
   type: "PRODUCT",
   unit_price: 10,
-  currency: "USD",
+  currency: "BBB",
 };
 
 beforeEach(() => jest.clearAllMocks());

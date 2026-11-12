@@ -123,6 +123,7 @@ export const createColumns = (config: OpportunityConfig): ColumnDef<Opportunity>
       const budget = row.original.budget;
       const fromCurrency = row.original.currency || "INR";
       if (!budget) return <div>—</div>;
+      if (fromCurrency !== "INR") return <div className="text-xs text-muted-foreground">Historical amount needs review</div>;
       const amount = new Decimal(budget.toString());
       const targetCurrency = config.displayCurrency || fromCurrency;
       if (targetCurrency !== fromCurrency && config.exchangeRates?.length) {

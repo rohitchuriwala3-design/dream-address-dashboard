@@ -36,7 +36,7 @@
 
 ## Review Focus
 
-1. **A list in EUR prices CZK products** and only `EUR→CZK` is stored. The inverse rate is used and the price is right, not an error. Test in Task 3.
+1. **A list in AAA prices CCC products** and only `AAA→CCC` is stored. The inverse rate is used and the price is right, not an error. Test in Task 3.
 2. **A rep opens price-list screens or calls write tools.** They can read everything and change nothing, including through MCP. Tests in Tasks 5 and 7.
 3. **A rule saved with fields from another compute type** (e.g. switching FIXED → FORMULA leaves an old `fixedPrice`). Irrelevant fields are cleared, so the engine and the UI never see stale values. Test in Task 5.
 4. **Clearing an account's price list in the edit form** sends `""`. It must be stored as `null`, not rejected by the FK. Test in Task 6.
@@ -282,16 +282,16 @@ const rule = (over: Partial<RuleData>): RuleData => ({
   priceDiscount: d(0), priceSurcharge: d(0), priceRound: null, priceMinMargin: null, priceMaxMargin: null,
   createdAt: new Date("2026-01-01T00:00:00Z"), ...over,
 });
-const product: ProductData = { id: "p1", unitPrice: d(100), unitCost: d(60), currency: "CZK", categoryId: "c-child" };
+const product: ProductData = { id: "p1", unitPrice: d(100), unitCost: d(60), currency: "CCC", categoryId: "c-child" };
 const rate = (from: string, to: string) => {
   if (from === to) return d(1);
-  if (from === "EUR" && to === "CZK") return d(25);
-  if (from === "CZK" && to === "EUR") return d(1).div(25);
+  if (from === "AAA" && to === "CCC") return d(25);
+  if (from === "CCC" && to === "AAA") return d(1).div(25);
   throw new MissingRateError(from, to);
 };
 const ctx = (lists: ListData[], over: Partial<PricingContext> = {}): PricingContext =>
   ({ lists: new Map(lists.map((l) => [l.id, l])), product, categoryChain: ["c-child", "c-parent"], rate, ...over });
-const list = (rules: RuleData[], over: Partial<ListData> = {}): ListData => ({ id: "L", currency: "CZK", rules, ...over });
+const list = (rules: RuleData[], over: Partial<ListData> = {}): ListData => ({ id: "L", currency: "CCC", rules, ...over });
 const price = (c: PricingContext, qty = 1, date = new Date("2026-06-01T12:00:00Z"), listId = "L") => computePrice(c, listId, d(qty), date);
 
 it("falls back to the product's list price without a matching rule", () => {
@@ -369,15 +369,15 @@ it("rounds half away from zero", () => {
 });
 
 it("chains price lists and converts currencies", () => {
-  const base: ListData = { id: "B", currency: "EUR", rules: [rule({ fixedPrice: d(4) })] };
+  const base: ListData = { id: "B", currency: "AAA", rules: [rule({ fixedPrice: d(4) })] };
   const main = list([rule({ computePrice: "FORMULA", base: "PRICE_LIST", basePriceListId: "B", priceDiscount: d(10) })]);
   expect(price(ctx([main, base])).price.toFixed(2)).toBe("90.00");
-  const eur = list([], { currency: "EUR" });
-  expect(price(ctx([eur])).price.toFixed(2)).toBe("4.00");
+  const currencyA = list([], { currency: "AAA" });
+  expect(price(ctx([currencyA])).price.toFixed(2)).toBe("4.00");
 });
 
 it("throws on a missing rate, a missing list and a loop", () => {
-  expect(() => price(ctx([list([], { currency: "USD" })]))).toThrow(MissingRateError);
+  expect(() => price(ctx([list([], { currency: "BBB" })]))).toThrow(MissingRateError);
   expect(() => price(ctx([]))).toThrow(PriceListNotFound);
   const a = list([rule({ computePrice: "FORMULA", base: "PRICE_LIST", basePriceListId: "B" })], { id: "A" });
   const b = list([rule({ computePrice: "FORMULA", base: "PRICE_LIST", basePriceListId: "A" })], { id: "B" });
@@ -414,8 +414,8 @@ const cases: [string, Partial<RuleData>, string][] = [
 
 it.each(cases)("%s", (_name, over, expected) => {
   const r = computePrice({
-    lists: new Map([["L", { id: "L", currency: "CZK", rules: [{ ...base, ...over }] }]]),
-    product: { id: "p1", unitPrice: d(100), unitCost: d(60), currency: "CZK", categoryId: null },
+    lists: new Map([["L", { id: "L", currency: "CCC", rules: [{ ...base, ...over }] }]]),
+    product: { id: "p1", unitPrice: d(100), unitCost: d(60), currency: "CCC", categoryId: null },
     categoryChain: [],
     rate: () => d(1),
   }, "L", d(1), new Date("2026-06-01T00:00:00Z"));
@@ -564,7 +564,7 @@ export function computePrice(ctx: PricingContext, listId: string, quantity: Deci
   return done(price, rule.id, steps);
 }
 ```
-Note: the "chains" test expects 90.00. Base list B is in EUR with a fixed 4 EUR; converted to CZK (×25) that's 100, minus 10 % = 90.
+Note: the "chains" test expects 90.00. Base list B is in AAA with a fixed 4 AAA; converted to CCC (×25) that's 100, minus 10 % = 90.
 
 - [ ] **Step 4: Run tests to verify they pass**
 
@@ -622,31 +622,31 @@ const rule = (over: Record<string, unknown>) => ({
 
 beforeEach(() => {
   jest.resetAllMocks();
-  db.crm_Products.findFirst.mockResolvedValue({ id: "p1", unit_price: "100", unit_cost: "60", currency: "CZK", categoryId: "c-child" });
+  db.crm_Products.findFirst.mockResolvedValue({ id: "p1", unit_price: "100", unit_cost: "60", currency: "CCC", categoryId: "c-child" });
   db.crm_ProductCategories.findUnique.mockImplementation(async ({ where }: { where: { id: string } }) =>
     ({ "c-child": { parentId: "c-parent" }, "c-parent": { parentId: null } } as Record<string, { parentId: string | null }>)[where.id] ?? null);
-  db.exchangeRate.findMany.mockResolvedValue([{ fromCurrency: "EUR", toCurrency: "CZK", rate: "25" }]);
+  db.exchangeRate.findMany.mockResolvedValue([{ fromCurrency: "AAA", toCurrency: "CCC", rate: "25" }]);
 });
 
 it("loads the category chain and chained lists", async () => {
   db.crm_PriceLists.findUnique.mockImplementation(async ({ where }: { where: { id: string } }) => ({
-    L: { id: "L", currency: "CZK", rules: [rule({ computePrice: "FORMULA", base: "PRICE_LIST", basePriceListId: "B", priceDiscount: "10" })] },
-    B: { id: "B", currency: "CZK", rules: [rule({ appliesTo: "CATEGORY", categoryId: "c-parent", fixedPrice: "70" })] },
+    L: { id: "L", currency: "CCC", rules: [rule({ computePrice: "FORMULA", base: "PRICE_LIST", basePriceListId: "B", priceDiscount: "10" })] },
+    B: { id: "B", currency: "CCC", rules: [rule({ appliesTo: "CATEGORY", categoryId: "c-parent", fixedPrice: "70" })] },
   } as Record<string, unknown>)[where.id] ?? null);
   const r = await getPrice({ priceListId: "L", productId: "p1", quantity: 1, date: new Date("2026-06-01T00:00:00Z") });
   expect(r.price.toFixed(2)).toBe("63.00");
 });
 
 it("uses the inverse rate when only the other direction is stored (Review Focus 1)", async () => {
-  db.crm_PriceLists.findUnique.mockResolvedValue({ id: "L", currency: "EUR", rules: [] });
+  db.crm_PriceLists.findUnique.mockResolvedValue({ id: "L", currency: "AAA", rules: [] });
   const r = await getPrice({ priceListId: "L", productId: "p1", quantity: 1 });
   expect(r.price.toFixed(2)).toBe("4.00");
-  expect(r.currency).toBe("EUR");
+  expect(r.currency).toBe("AAA");
 });
 
 it("returns the product price without a list", async () => {
   const r = await getPrice({ priceListId: null, productId: "p1", quantity: 3 });
-  expect([r.price.toFixed(2), r.currency, r.ruleId]).toEqual(["100.00", "CZK", null]);
+  expect([r.price.toFixed(2), r.currency, r.ruleId]).toEqual(["100.00", "CCC", null]);
 });
 
 it("refuses deleted or unknown products", async () => {
@@ -656,16 +656,16 @@ it("refuses deleted or unknown products", async () => {
 
 it("stops walking a looping category tree", async () => {
   db.crm_ProductCategories.findUnique.mockResolvedValue({ parentId: "c-child" });
-  db.crm_PriceLists.findUnique.mockResolvedValue({ id: "L", currency: "CZK", rules: [] });
+  db.crm_PriceLists.findUnique.mockResolvedValue({ id: "L", currency: "CCC", rules: [] });
   await expect(getPrice({ priceListId: "L", productId: "p1", quantity: 1 })).resolves.toBeDefined();
 });
 
 it("looks up rates direct, inverse, or throws", () => {
-  const rate = rateLookup([{ fromCurrency: "EUR", toCurrency: "CZK", rate: "25" }]);
-  expect(rate("CZK", "CZK").toString()).toBe("1");
-  expect(rate("EUR", "CZK").toString()).toBe("25");
-  expect(rate("CZK", "EUR").toFixed(2)).toBe("0.04");
-  expect(() => rate("USD", "CZK")).toThrow(MissingRateError);
+  const rate = rateLookup([{ fromCurrency: "AAA", toCurrency: "CCC", rate: "25" }]);
+  expect(rate("CCC", "CCC").toString()).toBe("1");
+  expect(rate("AAA", "CCC").toString()).toBe("25");
+  expect(rate("CCC", "AAA").toFixed(2)).toBe("0.04");
+  expect(() => rate("BBB", "CCC")).toThrow(MissingRateError);
 });
 
 it("resolves account list, then default list, then null", async () => {
@@ -1046,7 +1046,7 @@ const as = (role: "user" | "manager" | "admin") => {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  db.currency.findFirst.mockResolvedValue({ code: "CZK" });
+  db.currency.findFirst.mockResolvedValue({ code: "CCC" });
   db.crm_PriceLists.create.mockResolvedValue({ id: "L" });
   db.crm_PriceLists.findUnique.mockResolvedValue({ id: "L", source: "CRM" });
   db.crm_PriceListRules.create.mockResolvedValue({ id: "r1" });
@@ -1055,10 +1055,10 @@ beforeEach(() => {
 
 it("refuses reps and lets managers create (Review Focus 2)", async () => {
   as("user");
-  await expect(createPriceList({ name: "A", currency: "CZK" })).resolves.toEqual({ error: "Forbidden" });
+  await expect(createPriceList({ name: "A", currency: "CCC" })).resolves.toEqual({ error: "Forbidden" });
   expect(db.crm_PriceLists.create).not.toHaveBeenCalled();
   as("manager");
-  await expect(createPriceList({ name: "A", currency: "CZK" })).resolves.toEqual({ data: { id: "L" } });
+  await expect(createPriceList({ name: "A", currency: "CCC" })).resolves.toEqual({ data: { id: "L" } });
   expect(writeAuditLog).toHaveBeenCalledWith(expect.objectContaining({ entityType: "price_list", action: "created" }));
 });
 
@@ -1071,7 +1071,7 @@ it("rejects a disabled currency", async () => {
 it("locks external lists even for admins", async () => {
   as("admin");
   db.crm_PriceLists.findUnique.mockResolvedValue({ id: "L", source: "EXTERNAL" });
-  await expect(updatePriceList("L", { name: "B", currency: "CZK", isActive: true })).resolves.toEqual({ error: "Forbidden" });
+  await expect(updatePriceList("L", { name: "B", currency: "CCC", isActive: true })).resolves.toEqual({ error: "Forbidden" });
   await expect(upsertPriceListRule("L", null, { appliesTo: "ALL", computePrice: "FIXED", fixedPrice: 1 })).resolves.toEqual({ error: "Forbidden" });
 });
 
@@ -1097,9 +1097,9 @@ it("only deletes unreferenced lists", async () => {
 
 it("checks a price for any signed-in role", async () => {
   as("user");
-  (getPrice as jest.Mock).mockResolvedValue({ price: new Decimal("85.5"), listPrice: new Decimal(100), currency: "CZK", ruleId: "r1", steps: [{ label: "base", value: new Decimal(100) }] });
+  (getPrice as jest.Mock).mockResolvedValue({ price: new Decimal("85.5"), listPrice: new Decimal(100), currency: "CCC", ruleId: "r1", steps: [{ label: "base", value: new Decimal(100) }] });
   await expect(checkPrice({ priceListId: "L", productId: "p1", quantity: 2 })).resolves.toEqual({
-    data: { price: "85.50", listPrice: "100.00", currency: "CZK", ruleId: "r1", steps: [{ label: "base", value: "100.00" }] },
+    data: { price: "85.50", listPrice: "100.00", currency: "CCC", ruleId: "r1", steps: [{ label: "base", value: "100.00" }] },
   });
 });
 ```
@@ -1576,10 +1576,10 @@ it("lets reps read and price, but not write (Review Focus 2)", async () => {
   await expect(tool("crm_list_price_lists").handler({ limit: 20, offset: 0 } as never, "u1", rep)).resolves.toEqual({ data: [{ id: "L" }], total: 1, offset: 0 });
   db.crm_Accounts.findFirst.mockResolvedValue({ id: "acc" });
   (resolvePriceListId as jest.Mock).mockResolvedValue("L");
-  (getPrice as jest.Mock).mockResolvedValue({ price: new Decimal(85), listPrice: new Decimal(100), currency: "CZK", ruleId: "r", steps: [] });
+  (getPrice as jest.Mock).mockResolvedValue({ price: new Decimal(85), listPrice: new Decimal(100), currency: "CCC", ruleId: "r", steps: [] });
   await expect(tool("crm_get_price").handler({ productId: "p", quantity: 1, accountId: "acc" } as never, "u1", rep))
-    .resolves.toEqual({ data: { price: "85.00", listPrice: "100.00", currency: "CZK", ruleId: "r", priceListId: "L", steps: [] } });
-  await expect(tool("crm_create_price_list").handler({ name: "X", currency: "CZK" } as never, "u1", rep)).rejects.toThrow("FORBIDDEN");
+    .resolves.toEqual({ data: { price: "85.00", listPrice: "100.00", currency: "CCC", ruleId: "r", priceListId: "L", steps: [] } });
+  await expect(tool("crm_create_price_list").handler({ name: "X", currency: "CCC" } as never, "u1", rep)).rejects.toThrow("FORBIDDEN");
 });
 
 it("refuses writes to external lists and validates rules", async () => {
@@ -2594,12 +2594,12 @@ Setup:
 
 Then check:
 1. Admin → CRM Settings → Product categories: create "Drinks" and "Tea" under it. Moving "Drinks" under "Tea" is refused.
-2. As manager, create a list "Retail CZK":
+2. As manager, create a list "Retail CCC":
    - rule ALL → formula from list price, −10 %, round 1, surcharge −0.10;
    - rule CATEGORY Tea → fixed 49;
    - price check on a Tea product shows 49 and the matched rule; on a non-tea product it shows the formula steps.
-3. Create "Wholesale" based on "Retail CZK" at −20 %; the price check shows the chained price. Pointing "Retail CZK" at "Wholesale" is refused (cycle).
-4. Set "Retail CZK" on an account; set "Wholesale" as the default in Admin → Pricing. `crm_get_price` with the accountId uses the account list; for another account, the default list.
+3. Create "Wholesale" based on "Retail CCC" at −20 %; the price check shows the chained price. Pointing "Retail CCC" at "Wholesale" is refused (cycle).
+4. Set "Retail CCC" on an account; set "Wholesale" as the default in Admin → Pricing. `crm_get_price` with the accountId uses the account list; for another account, the default list.
 5. As the rep:
    - lists and the price check work;
    - there are no edit controls, and direct write attempts are refused.

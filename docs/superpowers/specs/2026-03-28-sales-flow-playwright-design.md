@@ -140,7 +140,7 @@ All tests live in `test.describe.serial("Sales Flow", () => { ... })` with `test
    - Name (`"Playwright Test Opportunity"`)
    - Close date (via Calendar popover — pick a future date)
    - Sales type, sales stage selects
-   - Budget (`"100000"`), currency (`"USD"`), expected revenue (`"80000"`)
+   - Budget (`"100000"`), currency (`"BBB"`), expected revenue (`"80000"`)
    - Assigned To
    - Account → select using `testData.accountId`
    - Contact → select using `testData.contactId`

@@ -10,16 +10,16 @@ const rule = (over: Partial<RuleData>): RuleData => ({
   priceDiscount: d(0), priceSurcharge: d(0), priceRound: null, priceMinMargin: null, priceMaxMargin: null,
   createdAt: new Date("2026-01-01T00:00:00Z"), ...over,
 });
-const product: ProductData = { id: "p1", unitPrice: d(100), unitCost: d(60), currency: "CZK", categoryId: "c-child" };
+const product: ProductData = { id: "p1", unitPrice: d(100), unitCost: d(60), currency: "CCC", categoryId: "c-child" };
 const rate = (from: string, to: string) => {
   if (from === to) return d(1);
-  if (from === "EUR" && to === "CZK") return d(25);
-  if (from === "CZK" && to === "EUR") return d(1).div(25);
+  if (from === "AAA" && to === "CCC") return d(25);
+  if (from === "CCC" && to === "AAA") return d(1).div(25);
   throw new MissingRateError(from, to);
 };
 const ctx = (lists: ListData[], over: Partial<PricingContext> = {}): PricingContext =>
   ({ lists: new Map(lists.map((l) => [l.id, l])), product, categoryChain: ["c-child", "c-parent"], rate, ...over });
-const list = (rules: RuleData[], over: Partial<ListData> = {}): ListData => ({ id: "L", currency: "CZK", rules, ...over });
+const list = (rules: RuleData[], over: Partial<ListData> = {}): ListData => ({ id: "L", currency: "CCC", rules, ...over });
 const price = (c: PricingContext, qty = 1, date = new Date("2026-06-01T12:00:00Z"), listId = "L") => computePrice(c, listId, d(qty), date);
 
 it("falls back to the product's list price without a matching rule", () => {
@@ -106,15 +106,15 @@ it("rounds half away from zero", () => {
 });
 
 it("chains price lists and converts currencies", () => {
-  const base: ListData = { id: "B", currency: "EUR", rules: [rule({ fixedPrice: d(4) })] };
+  const base: ListData = { id: "B", currency: "AAA", rules: [rule({ fixedPrice: d(4) })] };
   const main = list([rule({ computePrice: "FORMULA", base: "PRICE_LIST", basePriceListId: "B", priceDiscount: d(10) })]);
   expect(price(ctx([main, base])).price.toFixed(2)).toBe("90.00");
-  const eur = list([], { currency: "EUR" });
-  expect(price(ctx([eur])).price.toFixed(2)).toBe("4.00");
+  const currencyA = list([], { currency: "AAA" });
+  expect(price(ctx([currencyA])).price.toFixed(2)).toBe("4.00");
 });
 
 it("throws on a missing rate, a missing list and a loop", () => {
-  expect(() => price(ctx([list([], { currency: "USD" })]))).toThrow(MissingRateError);
+  expect(() => price(ctx([list([], { currency: "BBB" })]))).toThrow(MissingRateError);
   expect(() => price(ctx([]))).toThrow(PriceListNotFound);
   const a = list([rule({ computePrice: "FORMULA", base: "PRICE_LIST", basePriceListId: "B" })], { id: "A" });
   const b = list([rule({ computePrice: "FORMULA", base: "PRICE_LIST", basePriceListId: "A" })], { id: "B" });

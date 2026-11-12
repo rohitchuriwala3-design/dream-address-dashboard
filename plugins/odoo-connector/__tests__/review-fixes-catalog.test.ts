@@ -7,12 +7,12 @@ import { company, mkCatalog, mkCompare, now, type FakeCatalog } from "./helpers"
 const later = (min: number) => new Date(now.getTime() + min * 60_000);
 const M2 = (id: number, name: string) => [id, name] as [number, string];
 const variant = (id: number, tmpl: number) => ({ id, display_name: `P${id}`, default_code: `S${id}`, description_sale: false as const, type: "consu", active: true, sale_ok: true, lst_price: 10,
-  standard_price: 5, currency_id: M2(9, "CZK"), taxes_id: [], uom_id: M2(1, "ks"), categ_id: false as const, product_tmpl_id: M2(tmpl, `T${tmpl}`), write_date: "2026-10-10 08:00:00" });
+  standard_price: 5, currency_id: M2(9, "CCC"), taxes_id: [], uom_id: M2(1, "ks"), categ_id: false as const, product_tmpl_id: M2(tmpl, `T${tmpl}`), write_date: "2026-10-10 08:00:00" });
 const cat = (): FakeCatalog => ({
   categories: [], taxes: [], variants: [variant(500, 912), variant(501, 913)],
   lists: [
-    { id: 234, name: "Base", currency_id: M2(9, "CZK"), active: false, write_date: "2026-10-10 08:00:00" },
-    { id: 245, name: "Gold", currency_id: M2(9, "CZK"), active: true, write_date: "2026-10-10 08:00:00" },
+    { id: 234, name: "Base", currency_id: M2(9, "CCC"), active: false, write_date: "2026-10-10 08:00:00" },
+    { id: 245, name: "Gold", currency_id: M2(9, "CCC"), active: true, write_date: "2026-10-10 08:00:00" },
   ],
   items: [
     { id: 1, pricelist_id: M2(234, "Base"), applied_on: "3_global", compute_price: "percentage", percent_price: 10, base: "list_price", write_date: "2026-10-10 08:00:00" },
@@ -87,16 +87,16 @@ it("reads Odoo rule dates as UTC (review M6)", () => {
 });
 
 it("records a price that cannot be computed as a difference and finishes the compare (review I3)", async () => {
-  const { ctx, client } = mkCompare({ price: 1.51, crm: { "501:1": new Error("Missing exchange rate CZK → EUR") } });
+  const { ctx, client } = mkCompare({ price: 1.51, crm: { "501:1": new Error("Missing exchange rate CCC → AAA") } });
   await runCompare(ctx, client, now);
   const res = (await ctx.store.get<CompareResult>(K.compareLast))!;
   expect(res.ok).toBe(true);
-  expect(res.mismatches).toEqual([expect.objectContaining({ product: "Straw", quantity: 1, crm: "", reason: "rate", error: "Missing exchange rate CZK → EUR" })]);
+  expect(res.mismatches).toEqual([expect.objectContaining({ product: "Straw", quantity: 1, crm: "", reason: "rate", error: "Missing exchange rate CCC → AAA" })]);
   expect(await ctx.store.get(K.compareProgress)).toEqual({ done: 1, total: 1 });
 });
 
 it("labels a list-price rule across currencies as a rate difference (review I3)", async () => {
-  const { ctx, client } = mkCompare({ price: 1.51, productCurrency: "EUR", crm: { "501:1": { price: "1.60", currency: "CZK", ruleId: "r9", ruleBase: "LIST_PRICE" } } });
+  const { ctx, client } = mkCompare({ price: 1.51, productCurrency: "AAA", crm: { "501:1": { price: "1.60", currency: "CCC", ruleId: "r9", ruleBase: "LIST_PRICE" } } });
   await runCompare(ctx, client, now);
   expect((await ctx.store.get<CompareResult>(K.compareLast))!.mismatches).toEqual([expect.objectContaining({ product: "Straw", reason: "rate" })]);
 });

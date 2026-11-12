@@ -151,7 +151,7 @@ export const crmOpportunityTools = [
       close_date: z.string().datetime().optional(),
       budget: z.number().int().min(0).optional(),
       expected_revenue: z.number().int().min(0).optional(),
-      currency: z.string().optional(),
+      currency: z.literal("INR").optional(),
       next_step: z.string().optional(),
       // Ids from crm_list_opportunity_options.
       sales_stage_id: z.string().uuid().optional(),
@@ -164,7 +164,7 @@ export const crmOpportunityTools = [
         close_date?: string;
         budget?: number;
         expected_revenue?: number;
-        currency?: string;
+        currency?: "INR";
         next_step?: string;
         sales_stage_id?: string;
         type_id?: string;
@@ -185,6 +185,8 @@ export const crmOpportunityTools = [
           v: 0,
           name,
           ...rest,
+          currency: "INR",
+          snapshot_rate: 1,
           ...(budget !== undefined && { budget }),
           ...(expected_revenue !== undefined && { expected_revenue }),
           ...(close_date !== undefined && { close_date: new Date(close_date) }),
@@ -221,7 +223,7 @@ export const crmOpportunityTools = [
       close_date: z.string().datetime().optional(),
       budget: z.number().int().min(0).optional(),
       expected_revenue: z.number().int().min(0).optional(),
-      currency: z.string().optional(),
+      currency: z.literal("INR").optional(),
       next_step: z.string().optional(),
       // Pass an id to link, explicit null to unlink. Omit to leave unchanged.
       account: z.string().uuid().nullable().optional(),
@@ -240,7 +242,7 @@ export const crmOpportunityTools = [
         close_date?: string;
         budget?: number;
         expected_revenue?: number;
-        currency?: string;
+        currency?: "INR";
         next_step?: string;
         account?: string | null;
         contact?: string | null;

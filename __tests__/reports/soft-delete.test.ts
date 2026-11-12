@@ -249,12 +249,12 @@ describe("task reports", () => {
 
 describe("getDashboardKPIs", () => {
   it("openTasks skips tasks on a soft-deleted board", async () => {
-    const kpis = await getDashboardKPIs(filters, "EUR", user());
+    const kpis = await getDashboardKPIs(filters, "AAA", user());
     expect(kpis.find((k) => k.label === "openTasks")?.value).toBe(2);
   });
 
   const sentAt = async (scope: ReturnType<typeof admin>) =>
-    (await getDashboardKPIs({ dateFrom: SENT_AT, dateTo: SENT_AT }, "EUR", scope))
+    (await getDashboardKPIs({ dateFrom: SENT_AT, dateTo: SENT_AT }, "AAA", scope))
       .find((k) => k.label === "campaignsSent")?.value;
 
   it("campaignsSent: a user counts only his own live campaigns' sends", async () => {
@@ -270,7 +270,7 @@ describe("getDashboardKPIs", () => {
   });
 
   it("newContacts does not count a soft-deleted contact", async () => {
-    const kpis = await getDashboardKPIs(filters, "EUR", user());
+    const kpis = await getDashboardKPIs(filters, "AAA", user());
     expect(kpis.find((k) => k.label === "newContacts")?.value).toBe(1);
   });
 });

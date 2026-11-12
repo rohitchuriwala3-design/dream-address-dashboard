@@ -23,7 +23,7 @@ jest.mock("@/lib/audit-log", () => ({
   diffObjects: jest.fn(() => ({})),
 }));
 jest.mock("@/lib/currency", () => ({
-  getDefaultCurrency: jest.fn().mockResolvedValue("CZK"),
+  getDefaultCurrency: jest.fn().mockResolvedValue("INR"),
   getSnapshotRate: jest.fn().mockResolvedValue(null),
 }));
 jest.mock("next/cache", () => ({ revalidatePath: jest.fn() }));
@@ -51,10 +51,24 @@ describe("updateOpportunity currency handling", () => {
     expect(data.currency).toBeUndefined();
   });
 
-  it("passes currency through when set", async () => {
-    await updateOpportunity({ id: "opp-1", name: "Deal", currency: "USD" } as any);
+  it("rejects a new foreign-currency value", async () => {
+    await updateOpportunity({ id: "opp-1", name: "Deal", currency: "BBB" } as any);
+    expect(prismadb.crm_Opportunities.update).not.toHaveBeenCalled();
+  });
+
+  it("keeps an unchanged legacy currency while allowing other edits", async () => {
+    (prismadb.crm_Opportunities.findUnique as jest.Mock).mockResolvedValue({ id: "opp-1", currency: "AAA" });
+    await updateOpportunity({ id: "opp-1", name: "Deal", currency: "AAA" } as any);
     const data = (prismadb.crm_Opportunities.update as jest.Mock).mock.calls[0][0].data;
-    expect(data.currency).toBe("USD");
+    expect(data.currency).toBeUndefined();
+    expect(data.name).toBe("Deal");
+  });
+
+  it("writes new and updated opportunities in INR", async () => {
+    await updateOpportunity({ id: "opp-1", name: "Deal", currency: "INR" } as any);
+    const data = (prismadb.crm_Opportunities.update as jest.Mock).mock.calls[0][0].data;
+    expect(data.currency).toBe("INR");
+    expect(data.snapshot_rate).toBe(1);
   });
 });
 

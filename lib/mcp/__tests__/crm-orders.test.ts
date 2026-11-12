@@ -40,8 +40,8 @@ it("maps forbidden, changed and pricing errors (Review Focus 4)", async () => {
   await expect(tool("crm_decide_order_approval").handler({ id: "o1", decision: "APPROVED" } as never, "rep", rep)).rejects.toThrow("FORBIDDEN");
   (wf.changeStatus as jest.Mock).mockRejectedValue(new OrderError("changed"));
   await expect(tool("crm_cancel_order").handler({ id: "o1" } as never, "rep", rep)).rejects.toThrow("CONFLICT");
-  (svc.createOrder as jest.Mock).mockRejectedValue(new OrderError("pricing", "No exchange rate EUR → CZK"));
-  await expect(tool("crm_create_order").handler({ accountId: "a", lines: [] } as never, "rep", rep)).rejects.toThrow("VALIDATION_ERROR: No exchange rate EUR → CZK");
+  (svc.createOrder as jest.Mock).mockRejectedValue(new OrderError("pricing", "No exchange rate INR → INR"));
+  await expect(tool("crm_create_order").handler({ accountId: "a", lines: [] } as never, "rep", rep)).rejects.toThrow("VALIDATION_ERROR: No exchange rate INR → INR");
 });
 
 it("passes status actions through", async () => {

@@ -80,7 +80,7 @@ import { now } from "./helpers";
 
 describe("shared order index", () => {
   it("a sent order is indexed by its Odoo id", async () => {
-    const { ctx, client } = mkOrders({ sales: { partners: [{ id: 50, name: "Bubble s.r.o.", parent_id: false, active: true, type: "contact", property_product_pricelist: [234, "Retail (CZK)"] }] } });
+    const { ctx, client } = mkOrders({ sales: { partners: [{ id: 50, name: "Bubble s.r.o.", parent_id: false, active: true, type: "contact", property_product_pricelist: [234, "Retail (CCC)"] }] } });
     await ctx.store.set(K.account("a1"), { partnerId: 50, syncedAt: "x", salesperson: null });
     await sendOrder(ctx, client, "o1", now);
     expect(await ctx.store.get(K.odooOrder(1000))).toEqual({ orderId: "o1" });
@@ -187,7 +187,7 @@ import { type OrderLink } from "../store";
 
 const odooOrder = (over: Record<string, unknown> = {}) => ({
   id: 900, name: "S00900", state: "sale", partner_id: [50, "Bubble s.r.o."], origin: false, date_order: "2026-03-05 10:22:11",
-  currency_id: [9, "CZK"], note: "<p>Leave at the gate</p>", write_date: "2026-03-05 10:30:00", amount_total: 242, amount_untaxed: 200,
+  currency_id: [9, "CCC"], note: "<p>Leave at the gate</p>", write_date: "2026-03-05 10:30:00", amount_total: 242, amount_untaxed: 200,
   delivery_status: false, invoice_status: "no", invoice_ids: [], picking_ids: [], ...over,
 });
 const line = (over: Record<string, unknown> = {}) => ({ id: 1, order_id: [900, "S00900"], product_id: [700, "Scoop"], product_uom_qty: 2, price_unit: 100, display_type: false, is_downpayment: false, ...over });
@@ -210,7 +210,7 @@ describe("importing Odoo orders", () => {
     const m = setup();
     expect(await run(m)).toBe(1);
     expect(m.data.orders).toHaveLength(1);
-    expect(m.data.orders[0]).toMatchObject({ accountId: "a1", externalRef: "900", status: "CONFIRMED", currency: "CZK", orderDate: "2026-03-05", note: "Leave at the gate", lines: [{ productId: "p1", quantity: 2, unitPrice: 100 }] });
+    expect(m.data.orders[0]).toMatchObject({ accountId: "a1", externalRef: "900", status: "CONFIRMED", currency: "CCC", orderDate: "2026-03-05", note: "Leave at the gate", lines: [{ productId: "p1", quantity: 2, unitPrice: 100 }] });
     const orderId = m.data.orders[0].id as string;
     expect(await m.ctx.store.get(K.odooOrder(900))).toEqual({ orderId });
     expect(await m.ctx.store.get<OrderLink>(K.order(orderId))).toMatchObject({ odooId: 900, name: "S00900", state: "sale", imported: true, partnerId: 50, writeDate: "2026-03-05 10:30:00", total: 242 });
@@ -600,8 +600,8 @@ import type { OdooOrderIn } from "../orders-in";
 import { mkOrders } from "./orders-helpers";
 import { now } from "./helpers";
 
-const inv = (over: Record<string, unknown> = {}) => ({ id: 1, name: "INV/1", move_type: "out_invoice", state: "posted", payment_state: "not_paid", commercial_partner_id: [50, "Bubble"], invoice_date: "2026-09-01", invoice_date_due: "2026-09-15", currency_id: [9, "CZK"], amount_total: 1210, amount_residual: 1210, ...over });
-const ord = (over: Record<string, unknown> = {}) => ({ id: 1, partner_id: [50, "Bubble"], date_order: "2026-03-05 10:00:00", currency_id: [9, "CZK"], amount_untaxed: 100, ...over }) as unknown as OdooOrderIn;
+const inv = (over: Record<string, unknown> = {}) => ({ id: 1, name: "INV/1", move_type: "out_invoice", state: "posted", payment_state: "not_paid", commercial_partner_id: [50, "Bubble"], invoice_date: "2026-09-01", invoice_date_due: "2026-09-15", currency_id: [9, "CCC"], amount_total: 1210, amount_residual: 1210, ...over });
+const ord = (over: Record<string, unknown> = {}) => ({ id: 1, partner_id: [50, "Bubble"], date_order: "2026-03-05 10:00:00", currency_id: [9, "CCC"], amount_untaxed: 100, ...over }) as unknown as OdooOrderIn;
 
 function setup(moves: Record<string, unknown>[]) {
   const m = mkOrders({ sales: { moves: moves as never[] } });
@@ -611,15 +611,15 @@ function setup(moves: Record<string, unknown>[]) {
 it("stores open invoices and credit notes and this and last year's totals per linked account", async () => {
   const m = setup([inv(), inv({ id: 2, name: "RINV/2", move_type: "out_refund", amount_total: 100, amount_residual: 100 }), inv({ id: 3, payment_state: "paid" }), inv({ id: 4, commercial_partner_id: [60, "Other"] })]);
   const linked = new Map([[50, "a1"], [70, "a2"]]);
-  const orders = [ord(), ord({ id: 2, amount_untaxed: 50.5 }), ord({ id: 3, date_order: "2025-12-31 23:00:00" }), ord({ id: 4, date_order: "2024-06-01 00:00:00" }), ord({ id: 5, partner_id: [51, "Depot"], currency_id: [125, "EUR"], amount_untaxed: 10 })];
+  const orders = [ord(), ord({ id: 2, amount_untaxed: 50.5 }), ord({ id: 3, date_order: "2025-12-31 23:00:00" }), ord({ id: 4, date_order: "2024-06-01 00:00:00" }), ord({ id: 5, partner_id: [51, "Depot"], currency_id: [125, "AAA"], amount_untaxed: 10 })];
   await syncCustomerInfo({ ctx: m.ctx, client: m.client, dry: false, now, linked, orders, commercial: new Map([[51, 50]]) });
   expect(await m.ctx.store.get<CustomerInfo>(K.customer("a1"))).toEqual({
     at: now.toISOString(),
     invoices: [
-      { number: "INV/1", type: "out_invoice", date: "2026-09-01", due: "2026-09-15", currency: "CZK", amount: 1210, residual: 1210 },
-      { number: "RINV/2", type: "out_refund", date: "2026-09-01", due: "2026-09-15", currency: "CZK", amount: 100, residual: 100 },
+      { number: "INV/1", type: "out_invoice", date: "2026-09-01", due: "2026-09-15", currency: "CCC", amount: 1210, residual: 1210 },
+      { number: "RINV/2", type: "out_refund", date: "2026-09-01", due: "2026-09-15", currency: "CCC", amount: 100, residual: 100 },
     ],
-    totals: [{ year: 2026, currency: "CZK", amount: 150.5 }, { year: 2026, currency: "EUR", amount: 10 }, { year: 2025, currency: "CZK", amount: 100 }],
+    totals: [{ year: 2026, currency: "CCC", amount: 150.5 }, { year: 2026, currency: "AAA", amount: 10 }, { year: 2025, currency: "CCC", amount: 100 }],
   });
   expect(await m.ctx.store.get(K.customer("a2"))).toEqual({ at: now.toISOString(), invoices: [], totals: [] });
 });
@@ -864,32 +864,32 @@ it("is null for an account that is not linked", async () => {
 });
 
 it("localDay is the calendar day in the instance zone", () => {
-  expect(localDay(mkOrders({ settings: { timeZone: "Europe/Prague" } }).ctx, new Date("2026-10-12T22:30:00Z"))).toBe("2026-10-13");
+  expect(localDay(mkOrders({ settings: { timeZone: "Currency Ape/Prague" } }).ctx, new Date("2026-10-12T22:30:00Z"))).toBe("2026-10-13");
 });
 
 it("lists the account's Odoo orders newest first, open invoices with overdue days and what is owed, totals", async () => {
   const { ctx } = mkOrders({ orders: [
-    order({ id: "o1", number: "N1", status: "PAID", orderDate: "2026-03-05", subtotal: "200.00", currency: "CZK" }),
-    order({ id: "o2", number: "N2", status: "CONFIRMED", orderDate: "2026-09-01", subtotal: "50.00", currency: "CZK" }),
-    order({ id: "o3", number: "N3", status: "DRAFT", orderDate: "2026-10-01", subtotal: "9.00", currency: "CZK" }),
+    order({ id: "o1", number: "N1", status: "PAID", orderDate: "2026-03-05", subtotal: "200.00", currency: "CCC" }),
+    order({ id: "o2", number: "N2", status: "CONFIRMED", orderDate: "2026-09-01", subtotal: "50.00", currency: "CCC" }),
+    order({ id: "o3", number: "N3", status: "DRAFT", orderDate: "2026-10-01", subtotal: "9.00", currency: "CCC" }),
   ] });
   await ctx.store.set(K.account("a1"), { partnerId: 50, syncedAt: "x", salesperson: null });
   await ctx.store.set(K.order("o1"), { odooId: 900, name: "S00900", imported: true });
   await ctx.store.set(K.order("o2"), { odooId: 901, name: "S00901" });
-  await ctx.store.set(K.customer("a1"), { at: "2026-10-13T07:45:00.000Z", totals: [{ year: 2026, currency: "CZK", amount: 250 }], invoices: [
-    { number: "INV/1", type: "out_invoice", date: "2026-09-01", due: "2026-10-03", currency: "CZK", amount: 1210, residual: 1210 },
-    { number: "RINV/2", type: "out_refund", date: "2026-09-02", due: null, currency: "CZK", amount: 100, residual: 100 },
+  await ctx.store.set(K.customer("a1"), { at: "2026-10-13T07:45:00.000Z", totals: [{ year: 2026, currency: "CCC", amount: 250 }], invoices: [
+    { number: "INV/1", type: "out_invoice", date: "2026-09-01", due: "2026-10-03", currency: "CCC", amount: 1210, residual: 1210 },
+    { number: "RINV/2", type: "out_refund", date: "2026-09-02", due: null, currency: "CCC", amount: 100, residual: 100 },
   ] });
   const d = await accountTabData(ctx, "a1", now);
   expect(d).toMatchObject({
     partnerId: 50, url: "https://odoo.example.com/odoo/contacts/50", at: "2026-10-13T07:45:00.000Z",
     orders: [
-      { orderId: "o2", number: "N2", odooName: "S00901", date: "2026-09-01", total: 50, currency: "CZK", status: "CONFIRMED", imported: false },
-      { orderId: "o1", number: "N1", odooName: "S00900", date: "2026-03-05", total: 200, currency: "CZK", status: "PAID", imported: true },
+      { orderId: "o2", number: "N2", odooName: "S00901", date: "2026-09-01", total: 50, currency: "CCC", status: "CONFIRMED", imported: false },
+      { orderId: "o1", number: "N1", odooName: "S00900", date: "2026-03-05", total: 200, currency: "CCC", status: "PAID", imported: true },
     ],
     invoices: [{ number: "INV/1", overdueDays: 10, sign: 1 }, { number: "RINV/2", overdueDays: 0, sign: -1 }],
-    owed: [{ currency: "CZK", amount: 1110 }],
-    totals: [{ year: 2026, currency: "CZK", amount: 250 }],
+    owed: [{ currency: "CCC", amount: 1110 }],
+    totals: [{ year: 2026, currency: "CCC", amount: 250 }],
   });
 });
 

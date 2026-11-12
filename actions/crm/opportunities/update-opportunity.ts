@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { pluginRuleErrorMessage } from "@/lib/plugins/action-errors";
 import { inngest } from "@/inngest/client";
 import { writeAuditLog, diffObjects } from "@/lib/audit-log";
-import { getSnapshotRate, getDefaultCurrency } from "@/lib/currency";
 import { handleStageTransition } from "@/lib/crm/stage-transition";
 import { qualifiedEntryBlockReason } from "@/lib/crm/approval-gate";
 import {
@@ -83,11 +82,10 @@ export const updateOpportunity = async (data: {
   const userId = user.id;
 
   try {
-    const defaultCurrency = await getDefaultCurrency();
-    const snapshotRate = currency
-      ? await getSnapshotRate(currency, defaultCurrency)
-      : null;
     const before = await prismadb.crm_Opportunities.findUnique({ where: { id, deletedAt: null } });
+    if (currency && currency !== "INR" && currency !== before?.currency) {
+      return { error: "MARK IV V1 supports INR only" };
+    }
     const blockReason = await qualifiedEntryBlockReason({
       fromStage: before?.sales_stage ?? null,
       toStage: sales_stage || null,
@@ -107,10 +105,10 @@ export const updateOpportunity = async (data: {
         delivery_deadline,
         contact: contact || undefined,
         updatedBy: userId,
-        currency: currency || undefined,
+        currency: currency === "INR" ? "INR" : undefined,
         description,
         expected_revenue: expected_revenue ? parseFloat(expected_revenue) : undefined,
-        snapshot_rate: snapshotRate ? parseFloat(snapshotRate.toString()) : undefined,
+        snapshot_rate: currency === "INR" ? 1 : undefined,
         name,
         next_step,
         sales_stage: sales_stage || undefined,

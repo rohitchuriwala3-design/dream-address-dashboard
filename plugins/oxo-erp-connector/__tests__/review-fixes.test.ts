@@ -27,7 +27,7 @@ describe("review fixes", () => {
 
   it("C1: the send sweep and the waiting count see every READY order", async () => {
     const { ctx, client } = mk({}, { accounts: [{ id: "a1", name: "A", deletedAt: null }],
-      orders: many(150, (i) => ({ id: `o${i}`, number: `ORD-${i}`, status: "READY", externalRef: null, accountId: "a1", currency: "CZK", lines: [{ productId: "pX", quantity: "1", unitPrice: "1" }], createdAt: `2026-10-01T00:00:${String(i % 60).padStart(2, "0")}Z` })) }, { sendOrders: true });
+      orders: many(150, (i) => ({ id: `o${i}`, number: `ORD-${i}`, status: "READY", externalRef: null, accountId: "a1", currency: "CCC", lines: [{ productId: "pX", quantity: "1", unitPrice: "1" }], createdAt: `2026-10-01T00:00:${String(i % 60).padStart(2, "0")}Z` })) }, { sendOrders: true });
     capFind(ctx);
     expect((await ordersData(ctx, now)).waiting).toBe(150);
     expect(await sweepOrders(ctx, client, now)).toBe(150);
@@ -69,7 +69,7 @@ describe("review fixes", () => {
 
   it("M1: lines go out in the order's position order, so a repeat matches and below-list names the right line", async () => {
     const t = mk({ post: (b) => ({ status: 201, body: order(9, { lines: b.lines.map((l: { productId: number }, i: number) => ({ id: i, productId: l.productId, quantity: "1", deliveredQty: "0", unitPrice: "1", discount: "0", listPrice: "2", belowList: l.productId === 12 })) }) }) },
-      { accounts: [{ id: "a1", name: "A", deletedAt: null }], orders: [{ id: "o1", number: "ORD-1", status: "READY", externalRef: null, accountId: "a1", currency: "CZK",
+      { accounts: [{ id: "a1", name: "A", deletedAt: null }], orders: [{ id: "o1", number: "ORD-1", status: "READY", externalRef: null, accountId: "a1", currency: "CCC",
         lines: [{ position: 2, productId: "p12", sku: "SECOND", quantity: "1", unitPrice: "1" }, { position: 1, productId: "p11", sku: "FIRST", quantity: "1", unitPrice: "1" }] }] }, { sendOrders: true });
     await t.ctx.store.set(K.product("p11"), { oxoId: 11, ref: "oxo:11", templateId: null, categoryRef: null });
     await t.ctx.store.set(K.product("p12"), { oxoId: 12, ref: "oxo:12", templateId: null, categoryRef: null });
