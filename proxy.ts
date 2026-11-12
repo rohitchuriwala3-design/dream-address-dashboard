@@ -7,6 +7,35 @@ import { isPartnerAllowedPath } from "@/lib/partner-routes";
 
 const intlMiddleware = createMiddleware(routing);
 
+/**
+ * Render proxies public HTTPS traffic to the container's internal PORT. Keep
+ * that port out of absolute redirects emitted by next-intl by normalizing
+ * page requests to the configured public origin before locale handling.
+ */
+function normalizePublicPageRequest(req: NextRequest) {
+  const renderPort = process.env.PORT;
+  const configuredOrigin = process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL;
+  if (
+    !renderPort ||
+    req.nextUrl.port !== renderPort ||
+    !configuredOrigin ||
+    !["GET", "HEAD"].includes(req.method)
+  ) {
+    return req;
+  }
+
+  const publicUrl = new URL(configuredOrigin);
+  const requestUrl = req.nextUrl.clone();
+  requestUrl.protocol = publicUrl.protocol;
+  requestUrl.host = publicUrl.host;
+
+  const headers = new Headers(req.headers);
+  headers.set("x-forwarded-host", publicUrl.host);
+  headers.set("x-forwarded-proto", publicUrl.protocol.slice(0, -1));
+
+  return new NextRequest(requestUrl, { headers, method: req.method });
+}
+
 // Admin-only API paths — cookie presence checked here, role checked server-side
 const ADMIN_ONLY_PATHS = [
   "/api/user/activateAdmin",
@@ -102,7 +131,7 @@ export async function proxy(req: NextRequest) {
   }
 
   // Non-API routes — delegate to next-intl
-  return intlMiddleware(req);
+  return intlMiddleware(normalizePublicPageRequest(req));
 }
 
 export const config = {
