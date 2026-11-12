@@ -22,7 +22,7 @@ export function ProfilePermissionsDialog({ userId, email, initialPermissions, op
   const [selected, setSelected] = useState<NexusPermission[]>(initialPermissions as NexusPermission[]);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const toggle = (key: NexusPermission, checked: boolean) => setSelected((current) => checked ? [...new Set([...current, key])] : current.filter((item) => item !== key));
+  const toggle = (key: NexusPermission, checked: boolean) => setSelected((current) => checked ? Array.from(new Set([...current, key])) : current.filter((item) => item !== key));
 
   async function save() {
     setLoading(true);

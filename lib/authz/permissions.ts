@@ -19,7 +19,7 @@ const validKeys = new Set<string>(NEXUS_PERMISSIONS.map(({ key }) => key));
 
 export function parseNexusPermissions(value: unknown): NexusPermission[] | null {
   if (!Array.isArray(value) || value.some((key) => typeof key !== "string" || !validKeys.has(key))) return null;
-  return [...new Set(value)] as NexusPermission[];
+  return Array.from(new Set(value)) as NexusPermission[];
 }
 
 export async function getUserPermissions(userId: string): Promise<NexusPermission[]> {

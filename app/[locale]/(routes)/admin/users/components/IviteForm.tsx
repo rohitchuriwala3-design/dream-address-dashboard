@@ -182,7 +182,7 @@ export function InviteForm() {
             {NEXUS_PERMISSIONS.map(({ key, label, description }) => <label key={key} htmlFor={`new-user-${key}`} className="flex cursor-pointer items-start gap-3 rounded-lg border p-3 hover:bg-muted/50">
               <Checkbox id={`new-user-${key}`} checked={field.value.includes(key)} disabled={isLoading} onCheckedChange={(value) => {
                 const current = field.value as NexusPermission[];
-                field.onChange(value === true ? [...new Set([...current, key])] : current.filter((permission) => permission !== key));
+                field.onChange(value === true ? Array.from(new Set([...current, key])) : current.filter((permission) => permission !== key));
               }} />
               <span className="grid gap-1"><span className="text-sm font-medium">{label}</span><span className="text-xs text-muted-foreground">{description}</span></span>
             </label>)}
