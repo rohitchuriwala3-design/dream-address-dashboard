@@ -82,6 +82,7 @@ RUN printf '{"name":"nextcrm-tools","version":"0.0.0","private":true}\n' > packa
       @prisma/client@7.10.1 \
       @prisma/adapter-pg@7.10.1 \
       pg@8.18.0 \
+      better-auth@1.7.14 \
       tsx@4.21.0 \
       dotenv@17.3.1 \
       typescript@5.9.3 && \
@@ -119,13 +120,13 @@ RUN printf '%s\n' \
     chown nextjs:nodejs /app/prisma.config.ts
 
 # Merge /opt/tools packages into /app/node_modules for ESM resolution.
-# ESM ignores NODE_PATH, so packages like @prisma/adapter-pg must exist
-# as real directories. The `-n` flag prevents overwriting pnpm symlinks.
+# ESM ignores NODE_PATH, so packages like @prisma/adapter-pg and the
+# Better Auth crypto package used by the bootstrap seed must exist as real
+# directories. The `-n` flag prevents overwriting standalone pnpm symlinks.
 # /app/data holds generated secrets (see docker-entrypoint.sh); mount a volume
 # there so they survive container re-creation.
 RUN mkdir -p /app/data /app/node_modules/@prisma && \
-    cp -rn /opt/tools/node_modules/@prisma/adapter-pg /app/node_modules/@prisma/ 2>/dev/null || true && \
-    cp -rn /opt/tools/node_modules/pg-cloudflare /app/node_modules/ 2>/dev/null || true && \
+    cp -rn /opt/tools/node_modules/. /app/node_modules/ && \
     chown -R nextjs:nodejs /app /opt/tools
 
 USER nextjs
