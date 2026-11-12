@@ -13,7 +13,7 @@ const intlMiddleware = createMiddleware(routing);
  * page requests to the configured public origin before locale handling.
  */
 function normalizePublicPageRequest(req: NextRequest) {
-  const configuredOrigin = process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL;
+  const configuredOrigin = process.env.NEXT_PUBLIC_APP_URL || process.env.BETTER_AUTH_URL;
   if (
     !configuredOrigin ||
     !["GET", "HEAD"].includes(req.method)
@@ -30,15 +30,17 @@ function normalizePublicPageRequest(req: NextRequest) {
   headers.set("host", publicUrl.host);
   headers.set("x-forwarded-host", publicUrl.host);
   headers.set("x-forwarded-proto", publicUrl.protocol.slice(0, -1));
+  headers.set("x-forwarded-port", publicUrl.port || (publicUrl.protocol === "https:" ? "443" : "80"));
 
   return new NextRequest(requestUrl, { headers, method: req.method });
 }
 
 function sanitizeRedirect(response: NextResponse) {
   const location = response.headers.get("location");
-  const configuredOrigin = process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL;
+  const configuredOrigin = process.env.NEXT_PUBLIC_APP_URL || process.env.BETTER_AUTH_URL;
   if (!location || !configuredOrigin) return response;
   const publicUrl = new URL(configuredOrigin);
+  if (publicUrl.port === process.env.PORT) publicUrl.port = "";
   const destination = new URL(location, publicUrl);
   destination.protocol = publicUrl.protocol;
   destination.host = publicUrl.host;
