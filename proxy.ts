@@ -7,16 +7,6 @@ import { isPartnerAllowedPath } from "@/lib/partner-routes";
 
 const intlMiddleware = createMiddleware(routing);
 
-function sanitizeRedirect(response: NextResponse) {
-  const location = response.headers.get("location");
-  if (!location || (location.startsWith("/") && !location.startsWith("//"))) return response;
-  // Redirects produced by Next middleware may contain Render's internal port.
-  // Keep only the URL path/query; downstream navigation then stays same-origin.
-  const absoluteLocation = location.match(/^(?:https?:)?\/\/[^/?#]*(\/[^#]*)?(?:#.*)?$/i);
-  if (absoluteLocation) response.headers.set("location", absoluteLocation[1] || "/");
-  return response;
-}
-
 // Admin-only API paths — cookie presence checked here, role checked server-side
 const ADMIN_ONLY_PATHS = [
   "/api/user/activateAdmin",
@@ -104,7 +94,7 @@ export async function proxy(req: NextRequest) {
       const isAuthPage = authPaths.some((p) => path.includes(p));
       if (!isAuthPage) {
           const callbackUrl = `${path}${req.nextUrl.search}`;
-          const signInUrl = `/sign-in?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+          const signInUrl = `/en/sign-in?callbackUrl=${encodeURIComponent(callbackUrl)}`;
           const redirect = new NextResponse(null, { status: 307 });
           redirect.headers.set("location", signInUrl);
           return redirect;
@@ -117,8 +107,19 @@ export async function proxy(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Non-API routes — delegate to next-intl
-  return sanitizeRedirect(intlMiddleware(req));
+  // Localize paths explicitly. Relative redirects remain correct behind Render
+  // and preserve callback parameters without exposing the container port.
+  const isLocalized = routing.locales.some(
+    (locale) => path === `/${locale}` || path.startsWith(`/${locale}/`),
+  );
+  if (!isLocalized) {
+    const localizedPath = path === "/" ? "/en" : `/en${path}`;
+    const redirect = new NextResponse(null, { status: 307 });
+    redirect.headers.set("location", `${localizedPath}${req.nextUrl.search}`);
+    return redirect;
+  }
+
+  return intlMiddleware(req);
 }
 
 export const config = {
