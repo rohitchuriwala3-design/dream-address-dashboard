@@ -1,0 +1,134 @@
+---
+title: MCP server
+description: Connect AI agents to NextCRM over the Model Context Protocol, with bearer tokens, a tool catalogue and known limits.
+---
+
+NextCRM has a built-in [Model Context Protocol](https://modelcontextprotocol.io/) server. AI clients such as Claude Code, Claude Desktop or Cursor can list, read and change CRM data through it, with the permissions of the user who owns the token.
+
+## Endpoints
+
+The server is one route handler, `app/api/mcp/[transport]/route.ts`, built with `mcp-handler` and base path `/api/mcp`.
+
+| Transport | URL | Notes |
+| --- | --- | --- |
+| Streamable HTTP | `https://<your-host>/api/mcp/mcp` | Recommended. Current MCP spec default. |
+| SSE (legacy) | `https://<your-host>/api/mcp/sse`, messages to `/api/mcp/message` | For old clients only. Needs Redis; without it the endpoints answer 501, see below. |
+
+The server exposes tools only. It has no MCP resources or prompts.
+
+## Authentication
+
+Every request needs a personal API token in the `Authorization` header:
+
+```http
+Authorization: Bearer nxtc__<48 hex characters>
+```
+
+Create a token in **Profile → Developer** (`/profile?tab=developer`). The raw token is shown once. See [API tokens](/docs/developers/auth-permissions#api-tokens) for format, limits and revocation.
+
+For each call, `getMcpUser()` in `lib/mcp/auth.ts` validates the token, loads the user and their role, and passes both to the tool. Tools apply the same scope rules as the web app. A `user` token sees only that user's records; a `manager` or `admin` token sees everything their role allows.
+
+<Callout type="info">
+When `NODE_ENV` is `development` and there is no `nxtc__` bearer token, the server falls back to the Better Auth session cookie. This makes local testing from a browser session easy. Production always requires a token.
+</Callout>
+
+## Connect a client
+
+<Tabs items={["Claude Code", "JSON config", "Claude Desktop"]}>
+<Tab value="Claude Code">
+
+```bash
+claude mcp add --transport http nextcrm https://<your-host>/api/mcp/mcp \
+  --header "Authorization: Bearer nxtc__your_token"
+```
+
+</Tab>
+<Tab value="JSON config">
+
+For clients that read an `mcpServers` file, such as a project `.mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "nextcrm": {
+      "type": "http",
+      "url": "https://<your-host>/api/mcp/mcp",
+      "headers": { "Authorization": "Bearer nxtc__your_token" }
+    }
+  }
+}
+```
+
+</Tab>
+<Tab value="Claude Desktop">
+
+Claude Desktop's config file starts local (stdio) servers. Use the `mcp-remote` bridge to reach the HTTP endpoint:
+
+```json
+{
+  "mcpServers": {
+    "nextcrm": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://<your-host>/api/mcp/mcp",
+        "--header",
+        "Authorization: Bearer nxtc__your_token"
+      ]
+    }
+  }
+}
+```
+
+</Tab>
+</Tabs>
+
+The Developer tab also offers a `SKILL.md` download (served from `/SKILL.md`). Put it in `.claude/skills/` to give Claude Code a description of the tools.
+
+## Tool catalogue
+
+The tools are registered from `lib/mcp/tools/index.ts`. The [MCP tools reference](/docs/reference/mcp-tools) lists every one with its input fields; it is generated from the code.
+
+Your client lists each tool's input schema (from its zod definition) when it connects.
+
+### Conventions
+
+- **Pagination:** paginated list tools take `limit` (1 to 100, default 20) and `offset` (default 0) and return `{ data, total, offset }`.
+- **Single items** return `{ data }`.
+- **Deletes are mostly soft deletes.** CRM records, campaigns, documents and boards get `deletedAt` and `deletedBy`. `projects_delete_task` deletes the task and its comments, as the UI does, and needs write access to the task's board (being the assignee is not enough). `projects_delete_section` hard-deletes, and only an empty section.
+- **Enrichment tools** queue Inngest jobs and return before the enrichment finishes.
+- **`crm_add_to_target_list`** adds only targets the caller can access, like the web app, and reports that number in `added`.
+- **Sending campaigns:** `campaigns_send` and `campaigns_resume` need the `manager` or `admin` role, like sending from the web app. A `user` token gets `FORBIDDEN`, whether or not the campaign exists. `campaigns_pause` stays open to a `user` on their own campaign, so a manager has to resume it.
+- **Documents:** `crm_create_document` and `crm_get_upload_url` return a presigned URL. The client uploads the file to object storage itself.
+
+### Errors
+
+Failed calls return `isError: true` and a JSON body `{ "error": "...", "code": "..." }`:
+
+| Code | Meaning |
+| --- | --- |
+| `UNAUTHORIZED` | Missing, invalid, expired or revoked token, or the token's owner is not `ACTIVE` |
+| `FORBIDDEN` | The user's role may not use this tool, or the record exists but the user may not access it |
+| `NOT_FOUND` | No such record (or soft-deleted) |
+| `INVALID_PARAMS` | Validation failed |
+| `INVALID_REQUEST` | Conflict with existing data |
+| `RULE_REJECTED` | A plugin rule rejected the write. The message is translated to English. |
+| `INTERNAL_ERROR` | Anything else, including failures of external services |
+
+## Add a tool
+
+1. Add an object to the array in the right `lib/mcp/tools/*.ts` file: `name`, `description`, `schema` (a `z.object`) and `handler(args, userId, user)`.
+2. In the handler, check access with the `@/lib/authz` helpers or a `…ReadScopeWhere(user)` filter, exactly like the matching server action. This covers every id the tool takes, not only the main record: a linked account, template, target list or a list of target ids needs the same check the web app makes. A denied id returns `NOT_FOUND`. Tools that take an id are listed in `__tests__/mcp/tool-id-inventory.test.ts`, which fails until a new one is added with a note on how its ids are checked.
+3. Throw with the helpers in `lib/mcp/helpers.ts` (`notFound`, `forbidden`, `conflict`, `validationError`) so the error maps to the right code.
+4. For a new file, export its array from `lib/mcp/tools/index.ts` and add it to `allTools`.
+5. Add a test under `lib/mcp/__tests__/` or `__tests__/mcp/`. Existing suites test scope for the `user` role.
+
+Tool calls run inside `runAsActor({ type: "token", ... })`, so plugin rules see the token user as the actor.
+
+## Limitations
+
+- **SSE needs Redis.** `mcp-handler` keeps SSE sessions in Redis and reads the URL from `REDIS_URL` or `KV_URL`. NextCRM does not set one up. Without either variable, `/api/mcp/sse` and `/api/mcp/message` return `501` with a JSON error that points to `/api/mcp/mcp`. Set `REDIS_URL` to enable SSE, or use Streamable HTTP.
+- **No per-token scopes.** A token can do everything its user can.
+- **Tools only.** No MCP resources, prompts or notifications.
+- **Plugins cannot add tools** in the current plugin SDK.
+- **No uploads through MCP.** File content goes to object storage through the presigned URL, not through the tool call.

@@ -1,0 +1,111 @@
+import { z } from "zod";
+import { prismadb } from "@/lib/prisma";
+import { paginationSchema, paginationArgs, listResponse, itemResponse } from "../helpers";
+import type { ReportFilters } from "@/actions/reports/types";
+import type { AuthzUser } from "@/lib/authz";
+import { getReportScope } from "@/lib/authz/scopes/report-scope";
+
+export const reportTools = [
+  {
+    name: "reports_list",
+    description: "List available report configurations",
+    schema: z.object({
+      category: z
+        .enum(["sales", "leads", "accounts", "activity", "campaigns", "users"])
+        .optional(),
+      ...paginationSchema,
+    }),
+    async handler(
+      args: { category?: string; limit: number; offset: number },
+      _userId: string,
+      user: AuthzUser
+    ) {
+      // Same visibility as the web report pages: managers and admins see all
+      // saved configs, users only their own and shared ones.
+      const where = {
+        ...(args.category && { category: args.category }),
+        ...(user.role !== "admin" && user.role !== "manager" && {
+          OR: [{ createdBy: user.id }, { isShared: true }],
+        }),
+      };
+      const [data, total] = await Promise.all([
+        prismadb.crm_Report_Config.findMany({
+          where,
+          ...paginationArgs(args),
+          orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        }),
+        prismadb.crm_Report_Config.count({ where }),
+      ]);
+      return listResponse(data, total, args.offset);
+    },
+  },
+  {
+    name: "reports_run",
+    description:
+      "Run a report by category and get the data. Returns raw report data (use format param for CSV/PDF via the /api/reports/export endpoint).",
+    schema: z.object({
+      category: z.enum([
+        "sales",
+        "leads",
+        "accounts",
+        "activity",
+        "campaigns",
+        "users",
+      ]),
+      dateFrom: z.string().datetime().optional(),
+      dateTo: z.string().datetime().optional(),
+    }),
+    async handler(
+      args: { category: string; dateFrom?: string; dateTo?: string },
+      _userId: string,
+      user: AuthzUser
+    ) {
+      // Same scoping as the web report pages and the CSV/PDF export.
+      const scope = getReportScope(user);
+      const now = new Date();
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const filters: ReportFilters = {
+        dateFrom: args.dateFrom ? new Date(args.dateFrom) : thirtyDaysAgo,
+        dateTo: args.dateTo ? new Date(args.dateTo) : now,
+      };
+
+      let data: any;
+      switch (args.category) {
+        case "sales": {
+          const mod = await import("@/actions/reports/sales");
+          data = await mod.getOppsByMonth(filters, scope);
+          break;
+        }
+        case "leads": {
+          const mod = await import("@/actions/reports/leads");
+          data = await mod.getNewLeads(filters, scope);
+          break;
+        }
+        case "accounts": {
+          const mod = await import("@/actions/reports/accounts");
+          data = await mod.getNewAccounts(filters, scope);
+          break;
+        }
+        case "activity": {
+          const mod = await import("@/actions/reports/activity");
+          data = await mod.getTasksByAssignee(filters, scope);
+          break;
+        }
+        case "campaigns": {
+          const mod = await import("@/actions/reports/campaigns");
+          data = await mod.getCampaignPerformance(filters, scope);
+          break;
+        }
+        case "users": {
+          if (!scope.allowUserDirectory) throw new Error("FORBIDDEN");
+          const mod = await import("@/actions/reports/users");
+          data = await mod.getUserGrowth(filters);
+          break;
+        }
+      }
+
+      return itemResponse({ category: args.category, data });
+    },
+  },
+];

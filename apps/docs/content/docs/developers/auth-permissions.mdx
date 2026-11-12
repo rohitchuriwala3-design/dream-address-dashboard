@@ -1,0 +1,167 @@
+---
+title: Auth and permissions
+description: Better Auth sessions, the three roles, how actions and routes check access, and API tokens.
+---
+
+## Authentication
+
+Authentication uses [Better Auth](https://www.better-auth.com/), configured in `lib/auth.ts`:
+
+- **Sign-in methods:** email OTP (passwordless) and Google OAuth. Email and password sign-in is disabled.
+- **User table:** Better Auth maps its user model to `Users`, with extra fields `role`, `userStatus`, `userLanguage` and `avatar`. IDs are UUIDs.
+- **Sessions:** 7 days, refreshed every 24 hours.
+- **New users:** the first user becomes an active `admin`. Later users start as `PENDING` and admins are notified. A pending or inactive user cannot use the app until an admin activates them.
+- **Admin plugin:** the Better Auth admin plugin is enabled with the roles `admin`, `manager`, `user` and `partner` (`lib/auth-permissions.ts`). None of the roles is granted any of the plugin's permissions, so its `/api/auth/admin/*` endpoints are closed; user management uses the server actions in `actions/admin/users`.
+- **Schema check:** since Better Auth 1.7, startup compares `prisma/schema.prisma` with every table and column Better Auth and its plugins write (for example `session.impersonatedBy` from the admin plugin). If one is missing, every `/api/auth/*` request fails with "Prisma schema mismatch". Enabling a plugin or upgrading Better Auth therefore needs a Prisma migration for any new fields (`npx auth generate` lists them).
+- **Testing:** outside production the `testUtils` plugin captures OTPs. See [Local setup](/docs/developers/local-setup#sign-in-locally).
+
+On the server, `getSession()` from `lib/auth-server.ts` returns the Better Auth session for the current request, or `null` when the user is not `ACTIVE`. `getSessionAnyStatus()` skips that check and is only for the pages that route pending and inactive users. In feature code, use the `@/lib/authz` helpers below instead of reading the session directly.
+
+## Roles
+
+There are four roles, stored in `Users.role` (enum `AppRole`):
+
+| Role | Data visibility | Administration |
+| --- | --- | --- |
+| `user` | Only records in their own scope | No |
+| `manager` | All business data | No |
+| `admin` | Everything | Yes (`/admin`, plugins, settings, users) |
+| `partner` | His partner accounts and their child records (create/edit, never delete); his own company account read-only (see below) | No |
+
+`partner` is for external users such as a distributor. An admin or manager names an account's partner (`crm_Accounts.partnerUserId`, Partner card on the account page), and an admin sets the partner's own company account (`Users.partnerAccountId`, users table). A partner signs in like anyone else, but `proxy.ts` gives him only the routes in `lib/partner-routes.ts` (dashboard, accounts, contacts, leads, opportunities, CRM tasks, orders, his invoice PDFs and document files): any other page redirects to his dashboard and any other API route answers 403, including routes added later. His navigation shows only those modules. Server actions can't be limited by route, so `getSession()` and `requireAuthenticated()` refuse a partner unless the call site passes `{ partner: true }`; only scoped CRM reads, partner writes (`PARTNER_EDIT`), dashboard counters, his user directory entry and his invoice/document files opt in. Every opt-in is listed in `__tests__/authz/partner-entry-points.test.ts`, which fails on an unlisted one. He sees no campaigns at all, not even one recorded as created by him (campaign scope has no partner branch; locked in by `__tests__/authz/partner-leaks.test.ts`). He cannot create API tokens or use MCP. When an admin changes a partner to another role, his partner links are cleared.
+
+The partner read scope (`lib/authz/scopes/partner.ts`, used by `scopes/crm.ts`, `scopes/orders.ts`, `scopes/report-scope.ts` and `invoiceReadScopeWhere` in `lib/invoices/permissions.ts`) covers accounts where `partnerUserId` is him (`partnerAccountWhere`), with their contacts, leads, opportunities, contracts, orders, invoices, documents, CRM tasks and activities, only through those accounts. On his own company account (`partnerAccountId`, `partnerVisibleAccountWhere`) he reads only the account record, its contacts, orders and invoices; that account is never one of his partner accounts, even if he is also named its partner. Never through `createdBy`, `assigned_to`, watchers or `visibility: "public"`. The helpers check `role === "partner"` before using the link, so a `partnerUserId` left on a non-partner grants nothing.
+
+**Partner writes.** `assertCanWriteAccount`, `…Contact`, `…Lead`, `…Opportunity`, `…CrmTask` and `…Activity` take an optional third argument. A partner passes only when the call site gives `PARTNER_EDIT` and the row sits on one of his partner accounts. The create/edit actions for accounts, contacts, leads, opportunities, CRM tasks and activities pass it; deletes, restores, contracts, invoices, line items, account products, documents and enrichment do not, so they refuse him. A partner's new account gets `partnerUserId = him` and no `assigned_to`; his new contacts, leads, opportunities and tasks are assigned to himself, and his `assigned_to` input on edits is ignored. `filterWritableDocumentIds` / `filterWritableContactIds` are the write-side filters for bulk document actions and bulk enrichment (none for a partner). `__tests__/authz/partner-writes.test.ts` runs the real actions against Postgres.
+
+**Deny by default.** The scope helpers have full rules for the roles in `SCOPED_ROLES` (`lib/authz/roles.ts`: `user`, `manager`, `admin`) and read rules for `partner`. Any other role gets a `where` that matches no rows (`NO_ROWS`) and is refused by every `assertCan…` helper. It never falls back to the `user` rules. `lib/authz/__tests__/deny-unhandled-role.test.ts` calls every exported scope helper: an unknown role must get nothing; `partner` must get a partner-shaped scope from the helpers listed in `PARTNER_READS` and nothing from the rest. `__tests__/authz/partner-read-scope.test.ts` checks the partner sets against Postgres.
+
+For the `user` role, "own scope" is defined per resource in `lib/authz/scopes/crm.ts`. For accounts, a user can see a record if they are `assigned_to`, `createdBy`, or a watcher. Contacts, leads, opportunities and contracts add rules for records linked to an account in scope.
+
+The role list, the partner route allow-list and the partner entry points are generated from the code in [Roles and access](/docs/reference/roles).
+
+Access is enforced in code through `lib/authz`. The Better Auth access-control statements in `lib/auth-permissions.ts` only cover the plugin's own endpoints and grant nothing.
+
+## Checking access
+
+The design is permission-driven: every server action and route handler authenticates, then checks the specific object it touches. A session check alone is never enough.
+
+### The helpers
+
+All helpers are exported from `@/lib/authz`:
+
+| Helper | Use it to |
+| --- | --- |
+| `requireAuthenticated()` | Get `{ id, role }` for the current user. Throws `AuthenticationError`. |
+| `requireRole(["admin"])` | Require one of the given roles. Throws `AuthorizationError`. |
+| `isAdmin(user)`, `isManagerOrAdmin(user)` | Branch on role. |
+| `isUnhandledRole(user)` | True for a role outside `SCOPED_ROLES` (includes `partner`, so handle `partner` before it). Return nothing for it. |
+| `assertHandledRole(user)` (in `lib/authz/scopes/unhandled-role.ts`) | Throw `AuthorizationError` for such a role, at the top of a new assert. |
+| `accountReadScopeWhere(user)`, `leadReadScopeWhere(user)`, ... | Build a Prisma `where` for list queries. Includes `deletedAt: null`. |
+| `assertCanReadAccount(user, id)`, `assertCanWriteAccount(user, id)`, ... | Check one object. Throws `AuthorizationError`. |
+| `assertAssignableUser(user, assigneeId)` | Check an `assigned_to` from the input: the user must exist and be `ACTIVE`, and a partner may only name himself. Throws `AuthorizationError`. On edits, check it only when the assignee changes (forms resend the current one). |
+| `filterAuthorizedAccountIds(user, ids)`, ... | Reduce a list of IDs to the ones the user may touch (bulk actions). |
+| `getReportScope(user)` | Scope for report queries. |
+
+Helpers exist for accounts, contacts, leads, opportunities, contracts, targets, target lists, activities, campaigns, templates, documents, boards and tasks. Check `lib/authz/index.ts` for the full list before you write a new one.
+
+### In a server action
+
+```ts
+"use server";
+import {
+  requireAuthenticated,
+  assertCanWriteAccount,
+  AuthenticationError,
+  AuthorizationError,
+} from "@/lib/authz";
+
+export async function renameAccount(id: string, name: string) {
+  let user;
+  try {
+    user = await requireAuthenticated();
+  } catch (e) {
+    if (e instanceof AuthenticationError) return { error: "Unauthorized" };
+    throw e;
+  }
+  try {
+    await assertCanWriteAccount(user, id);
+  } catch (e) {
+    if (e instanceof AuthorizationError) return { error: "Forbidden" };
+    throw e;
+  }
+  // ... write with prismadb, audit log, inngest event
+}
+```
+
+### In a list query
+
+```ts
+const user = await requireAuthenticated();
+const accounts = await prismadb.crm_Accounts.findMany({
+  where: { ...accountReadScopeWhere(user), status: "Active" },
+});
+```
+
+### In a route handler
+
+```ts
+import {
+  requireAuthenticated,
+  assertCanReadAccount,
+  AuthenticationError,
+  AuthorizationError,
+  unauthorizedResponse,
+  notFoundOrForbiddenResponse,
+} from "@/lib/authz";
+
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  let user;
+  try {
+    user = await requireAuthenticated();
+    await assertCanReadAccount(user, id);
+  } catch (e) {
+    if (e instanceof AuthenticationError) return unauthorizedResponse();
+    if (e instanceof AuthorizationError) return notFoundOrForbiddenResponse();
+    throw e;
+  }
+  // ...
+}
+```
+
+`notFoundOrForbiddenResponse()` returns `404`, so a caller cannot probe which IDs exist.
+
+### Admin-only code
+
+Admin pages, admin actions and `/api/admin/*` routes call `requireRole(["admin"])`. The middleware in `proxy.ts` only checks that a session cookie exists for those paths; the role check happens in the handler.
+
+### Rules for contributors
+
+- Never trust an ID from the client. Check it with an `assertCan…` helper or a scoped `where`.
+- Use the same helper for reads and writes in MCP tools, actions and routes, so all entry points behave the same.
+- A new scope helper must deny roles outside `SCOPED_ROLES` (return `NO_ROWS` or call `assertHandledRole`); the deny-by-default test picks up new exports automatically and expects them to deny a partner unless listed in `PARTNER_READS`. Use `NO_ROWS`, not a bare `OR: []`: Prisma reads an empty `OR` inside `AND: [...]` as "all rows".
+- Add a test for the `user` role when you add or change a scope. The suites under `__tests__/` and `lib/authz/__tests__/` show the pattern.
+
+## API tokens
+
+API tokens let external clients act as a user. They are used by the [MCP server](/docs/developers/mcp).
+
+- Users create and revoke tokens in **Profile → Developer** (`/profile?tab=developer`).
+- Format: `nxtc__` followed by 48 hex characters.
+- Only the SHA-256 hash is stored (`ApiToken.tokenHash`), plus the first 8 characters for display. The raw token is shown once.
+- Each user can have at most 10 active tokens. A token can have an expiry date and can be revoked. Admins can revoke all tokens of a user (`revokeAllApiTokens`); deactivating a user does the same and also deletes their sessions.
+- `getMcpUser()` rejects a valid token whose owner is not `ACTIVE` or has the role `partner`. Partners cannot create tokens.
+- `lastUsedAt` is updated on each use.
+- A token carries the full permissions of its user. There are no per-token scopes.
+
+The logic is in `lib/api-tokens.ts` (`generateApiToken`, `validateApiToken`, `revokeApiToken`, `revokeAllApiTokens`, `listApiTokens`).
+
+## Shared-secret endpoints
+
+Two older endpoints accept a shared secret from `NEXTCRM_TOKEN` instead of a user token, for creating records from external forms:
+
+- `POST /api/crm/leads/create-lead-from-web` reads it from the `Authorization` header.
+- `POST /api/crm/contacts/create-from-remote` reads it from a header named `NEXTCRM_TOKEN`.
+
+Leave `NEXTCRM_TOKEN` empty if you do not use them.

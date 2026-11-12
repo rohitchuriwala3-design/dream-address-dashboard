@@ -1,0 +1,1497 @@
+# Changelog
+
+All notable changes to NextCRM are documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.39.5](https://github.com/pdovhomilja/nextcrm-app/compare/v0.39.4...v0.39.5) (2026-11-11)
+
+
+### Fixed
+
+* keep step 0 on campaigns that will send (createCampaign, MCP step delete/move) ([#487](https://github.com/pdovhomilja/nextcrm-app/issues/487)) ([fcc62f7](https://github.com/pdovhomilja/nextcrm-app/commit/fcc62f7095f34524a5cc51d3347152a4f29f6782))
+* **mcp:** stable ordering for offset-paged MCP list tools ([#492](https://github.com/pdovhomilja/nextcrm-app/issues/492)) ([dc02d39](https://github.com/pdovhomilja/nextcrm-app/commit/dc02d3959384d09b800fa80a2068a53527784f6f))
+* **plugins:** write audit rows for plugin writes of accounts, contacts, leads and opportunities ([#489](https://github.com/pdovhomilja/nextcrm-app/issues/489)) ([3486034](https://github.com/pdovhomilja/nextcrm-app/commit/34860345f03161085d115d8d74a648121cd07cd3))
+* **search:** skip soft-deleted rows in vector queries before LIMIT ([#488](https://github.com/pdovhomilja/nextcrm-app/issues/488)) ([416a18f](https://github.com/pdovhomilja/nextcrm-app/commit/416a18ff239d744c47326a40ebd015b75309661e))
+
+
+### Changed
+
+* **leads:** one runLeadAction wrapper for the four lead actions ([#490](https://github.com/pdovhomilja/nextcrm-app/issues/490)) ([1b00921](https://github.com/pdovhomilja/nextcrm-app/commit/1b00921843a40d6df157d68469bc9c9cb3369e7b))
+
+## [0.39.4](https://github.com/pdovhomilja/nextcrm-app/compare/v0.39.3...v0.39.4) (2026-11-10)
+
+
+### Fixed
+
+* **opportunities:** check the account when updateOpportunity relinks an opportunity ([#485](https://github.com/pdovhomilja/nextcrm-app/issues/485)) ([6350c41](https://github.com/pdovhomilja/nextcrm-app/commit/6350c4124485ca6acfb13306b443d465ed95bbdd))
+
+## [0.39.3](https://github.com/pdovhomilja/nextcrm-app/compare/v0.39.2...v0.39.3) (2026-11-10)
+
+
+### Fixed
+
+* **leads:** check the account when updateLead relinks a lead ([896d699](https://github.com/pdovhomilja/nextcrm-app/commit/896d699686032d9e43e3a5c84a8f97cf545da732))
+
+## [0.39.2](https://github.com/pdovhomilja/nextcrm-app/compare/v0.39.1...v0.39.2) (2026-11-10)
+
+
+### Fixed
+
+* **campaigns:** scheduled run skips a campaign already sent now ([f0f6928](https://github.com/pdovhomilja/nextcrm-app/commit/f0f692888876d08f966185256b0c5376f60f3608))
+* **campaigns:** scheduled run skips a campaign already sent now ([f481efc](https://github.com/pdovhomilja/nextcrm-app/commit/f481efc59cb1eb1ae3d5131774ffba5a20196841))
+
+## [0.39.1](https://github.com/pdovhomilja/nextcrm-app/compare/v0.39.0...v0.39.1) (2026-11-10)
+
+
+### Fixed
+
+* **search:** URL-encode the top search box query ([3a54fa9](https://github.com/pdovhomilja/nextcrm-app/commit/3a54fa97dc849b584663dabc63992a6e55b51801))
+
+## [0.39.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.38.4...v0.39.0) (2026-11-10)
+
+
+### Added
+
+* **leads:** one lead service for server actions, MCP tools and the web form ([0a12044](https://github.com/pdovhomilja/nextcrm-app/commit/0a12044e8e9dececa5513a172494a0d7ec55acbd))
+
+## [0.38.4](https://github.com/pdovhomilja/nextcrm-app/compare/v0.38.3...v0.38.4) (2026-11-09)
+
+
+### Fixed
+
+* updateCampaign accepts only its six declared fields at runtime ([c2a2b7f](https://github.com/pdovhomilja/nextcrm-app/commit/c2a2b7f01e0687d353a0c24fd78a8a6eda45e67b))
+* updateCampaign accepts only its six declared fields at runtime ([d081f3f](https://github.com/pdovhomilja/nextcrm-app/commit/d081f3f290380fbcd6f7bdd938f37fcc1cc280ad))
+
+## [0.38.3](https://github.com/pdovhomilja/nextcrm-app/compare/v0.38.2...v0.38.3) (2026-11-09)
+
+
+### Fixed
+
+* claim a campaign send row before emailing it ([3ff3a91](https://github.com/pdovhomilja/nextcrm-app/commit/3ff3a91ed7b2aa2c1a42083ce1fe410bfd5f182c))
+* emit campaigns/send-now only from the call that moved the campaign ([e34504a](https://github.com/pdovhomilja/nextcrm-app/commit/e34504a0718bb2b0e2d5a1c21ac4d1fe94a3e629))
+* resuming a campaign releases sends stuck in sending ([36276b1](https://github.com/pdovhomilja/nextcrm-app/commit/36276b16590f117541f63b1c3529b09a93238402))
+* stop duplicate campaign sends with an atomic send claim and conditional send-now ([6412908](https://github.com/pdovhomilja/nextcrm-app/commit/64129087a9e1a23eb21d18e27b53bcffe2f3a309))
+
+## [0.38.2](https://github.com/pdovhomilja/nextcrm-app/compare/v0.38.1...v0.38.2) (2026-11-09)
+
+
+### Fixed
+
+* **mcp:** keep the scope comment on the scope helper ([0cb07f5](https://github.com/pdovhomilja/nextcrm-app/commit/0cb07f56e63ab6db3333cdc3c68171e4aba79a57)), closes [#467](https://github.com/pdovhomilja/nextcrm-app/issues/467)
+* **mcp:** require manager or admin for campaigns_send and campaigns_resume ([f7aec8f](https://github.com/pdovhomilja/nextcrm-app/commit/f7aec8fe47d8ea0f31c3a0e23422cbdac8f76e1e))
+* **mcp:** require manager or admin for campaigns_send and campaigns_resume ([98f5861](https://github.com/pdovhomilja/nextcrm-app/commit/98f5861923da5fa6dfcfcc5dc996ea8d06f07ced)), closes [#467](https://github.com/pdovhomilja/nextcrm-app/issues/467)
+* sendCampaignNow only accepts draft or scheduled campaigns ([441ccb1](https://github.com/pdovhomilja/nextcrm-app/commit/441ccb175a45d63175aa719c31ccf5a6ee31706d))
+* sendCampaignNow only accepts draft or scheduled campaigns ([dda8933](https://github.com/pdovhomilja/nextcrm-app/commit/dda89336d985232477b54abaa07d73f4cc92718f))
+
+
+### Changed
+
+* **mcp:** use isManagerOrAdmin in the campaign send check ([afe957a](https://github.com/pdovhomilja/nextcrm-app/commit/afe957a9dcb8d59885ea0cca97d5c71dfe3e3570)), closes [#467](https://github.com/pdovhomilja/nextcrm-app/issues/467)
+
+## [0.38.1](https://github.com/pdovhomilja/nextcrm-app/compare/v0.38.0...v0.38.1) (2026-11-08)
+
+
+### Fixed
+
+* **campaigns:** do not email finished sends again on resume ([79aca25](https://github.com/pdovhomilja/nextcrm-app/commit/79aca25222b9a74888e24713edbef9b542bdd5ef))
+* **campaigns:** do not email finished sends again on resume ([f427641](https://github.com/pdovhomilja/nextcrm-app/commit/f42764160938c3852213fd93d2cb6a7c8106b6aa))
+* **campaigns:** refuse send, schedule and resume without step 0 ([26700a3](https://github.com/pdovhomilja/nextcrm-app/commit/26700a30a97880622f4aa5a7ad86c545294eb055))
+* **campaigns:** refuse send, schedule and resume without step 0 ([5c2e66b](https://github.com/pdovhomilja/nextcrm-app/commit/5c2e66b49e4f36d2ce28b67f3dff6fe81c0bcef5))
+
+## [0.38.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.37.20...v0.38.0) (2026-11-08)
+
+
+### Added
+
+* **mcp:** opportunity sales stage, type and options tool ([1c4632d](https://github.com/pdovhomilja/nextcrm-app/commit/1c4632d38140ea9aeeeefe2bb9a9097cccc32ee3))
+* **mcp:** opportunity sales stage, type and options tool ([8f4ac7c](https://github.com/pdovhomilja/nextcrm-app/commit/8f4ac7cddac7c1d93759b4a6afa43965f69ae8b3))
+* **mcp:** stage_kind in crm_list_opportunity_options ([2888a2e](https://github.com/pdovhomilja/nextcrm-app/commit/2888a2edfbade05355c5e197002a28e9c9cb721a))
+
+## [0.37.20](https://github.com/pdovhomilja/nextcrm-app/compare/v0.37.19...v0.37.20) (2026-11-08)
+
+
+### Fixed
+
+* **campaigns:** mark send failed when the send-step run fails ([f537def](https://github.com/pdovhomilja/nextcrm-app/commit/f537def10fb8dc36bc1c7ce4b55f18e2bb29d434))
+* **campaigns:** mark send failed when the send-step run fails ([fc5b971](https://github.com/pdovhomilja/nextcrm-app/commit/fc5b97113d7eba920c941bb73ed08e117e9c9464))
+
+## [0.37.19](https://github.com/pdovhomilja/nextcrm-app/compare/v0.37.18...v0.37.19) (2026-11-07)
+
+
+### Fixed
+
+* **campaigns:** pause only scheduled or sending campaigns ([722fa3a](https://github.com/pdovhomilja/nextcrm-app/commit/722fa3a22ace2de169339d56d6755f3ac6c2d95c))
+* **campaigns:** pause only scheduled or sending campaigns ([a0e007f](https://github.com/pdovhomilja/nextcrm-app/commit/a0e007fe5bd77a2cbb2d27d067b80a71ff78ca61))
+
+## [0.37.18](https://github.com/pdovhomilja/nextcrm-app/compare/v0.37.17...v0.37.18) (2026-11-07)
+
+
+### Fixed
+
+* **deps:** close 67 Dependabot alerts in the root lockfile ([dab9b3c](https://github.com/pdovhomilja/nextcrm-app/commit/dab9b3c6db910c91e0aecb13e6aa630b6f0bb1f3))
+* **deps:** close 68 of 72 Dependabot alerts (all critical) ([98872df](https://github.com/pdovhomilja/nextcrm-app/commit/98872dfe06595d7981ca8949c1454b37701a55f7))
+* **docker:** align runtime Prisma tools with 7.10.1 ([49e0fa2](https://github.com/pdovhomilja/nextcrm-app/commit/49e0fa2d667bdec2f69f7dcee2e50139fc8dd7cf))
+* **docs:** update zod to 4.6.7 in the docs lockfile (GHSA-mrhx-c7xc-m3w5) ([cd2151a](https://github.com/pdovhomilja/nextcrm-app/commit/cd2151a9c90b0a8d37e1e7debff417ab71ff86e2))
+
+## [0.37.17](https://github.com/pdovhomilja/nextcrm-app/compare/v0.37.16...v0.37.17) (2026-11-05)
+
+
+### Fixed
+
+* **campaigns:** backfill finished sending campaigns to sent ([2a04739](https://github.com/pdovhomilja/nextcrm-app/commit/2a047398e681c7e1d59998e1d27c2fbf64db2d04))
+* **campaigns:** mark a campaign sent once step 0 is finished ([ca0fe70](https://github.com/pdovhomilja/nextcrm-app/commit/ca0fe70414dd8f9a938f1ed193367a55e57fa3d9))
+* **campaigns:** mark a campaign sent once step 0 is finished ([6bbba0d](https://github.com/pdovhomilja/nextcrm-app/commit/6bbba0da68c2b6e11b54b3c9cff10d43d893ea57))
+
+## [0.37.16](https://github.com/pdovhomilja/nextcrm-app/compare/v0.37.15...v0.37.16) (2026-11-04)
+
+
+### Fixed
+
+* **campaigns:** campaign follow-ups to [#447](https://github.com/pdovhomilja/nextcrm-app/issues/447) (reschedule/pause cancel, delete while sending, clear deal campaign, partner lock-in, dead code, re-credit migration) ([cfc4b32](https://github.com/pdovhomilja/nextcrm-app/commit/cfc4b32d8978222c64a20738b3274495a01f31c6))
+* **campaigns:** cancel sleeping runs on reschedule and pause ([c232e9b](https://github.com/pdovhomilja/nextcrm-app/commit/c232e9bc5107848fc214c3eae4dd786dbdf415bd))
+* **campaigns:** UI delete refuses a campaign that is sending ([61cfb4d](https://github.com/pdovhomilja/nextcrm-app/commit/61cfb4d482017d8d50f20aea2696bcb1e105e4a1))
+* **crm:** re-credit converted deals that sit on a deleted campaign ([a386883](https://github.com/pdovhomilja/nextcrm-app/commit/a38688377f8e13cb6ae424ef822966cce403c9af))
+* **opportunities:** clearing the campaign on a deal saves NULL ([c5f624a](https://github.com/pdovhomilja/nextcrm-app/commit/c5f624ae2df08e875566c4774154d5f57c62e613))
+
+## [0.37.15](https://github.com/pdovhomilja/nextcrm-app/compare/v0.37.14...v0.37.15) (2026-11-03)
+
+
+### Fixed
+
+* **campaigns:** cancel sleeping campaign runs when a campaign is deleted ([7009bf3](https://github.com/pdovhomilja/nextcrm-app/commit/7009bf3dc443a49b474ec750ddaaa13c765209f4))
+* **campaigns:** cancel sleeping schedule/follow-up runs on campaigns/deleted ([52ed995](https://github.com/pdovhomilja/nextcrm-app/commit/52ed995e5efecbd8c1c58136c969c53039025891))
+* **campaigns:** send campaigns/deleted after a successful UI or MCP delete ([3eaefd8](https://github.com/pdovhomilja/nextcrm-app/commit/3eaefd86160f1c98937e63820e1a20b8701dffdd))
+
+## [0.37.14](https://github.com/pdovhomilja/nextcrm-app/compare/v0.37.13...v0.37.14) (2026-11-03)
+
+
+### Fixed
+
+* **plugins:** refuse deleted campaigns on plugin opportunity writes ([15cca10](https://github.com/pdovhomilja/nextcrm-app/commit/15cca10adb069bd8248ef2cbc3852ae1786f921d))
+* **plugins:** refuse deleted campaigns on plugin opportunity writes ([4acc4f1](https://github.com/pdovhomilja/nextcrm-app/commit/4acc4f11e721bf35d69bbc8d8bfd1bdccf2fbbfc))
+* **plugins:** refuse relation and operator campaign writes; own opportunities block ([c2ec7f9](https://github.com/pdovhomilja/nextcrm-app/commit/c2ec7f968a2db07869eb10e74d5ec718c2379acb))
+
+## [0.37.13](https://github.com/pdovhomilja/nextcrm-app/compare/v0.37.12...v0.37.13) (2026-11-03)
+
+
+### Fixed
+
+* **crm:** convert to deal skips deleted campaigns when crediting a campaign ([e4d18d4](https://github.com/pdovhomilja/nextcrm-app/commit/e4d18d420519075487e22e8034fd8553af0eab69))
+* **crm:** convert to deal skips deleted campaigns when crediting a campaign ([94937f1](https://github.com/pdovhomilja/nextcrm-app/commit/94937f15eae39a35b90bd10bec27c62669ca601b))
+* **crm:** wrap CAMPAIGN_NOT_DELETED in AND, as its other callers do ([5d121e4](https://github.com/pdovhomilja/nextcrm-app/commit/5d121e4b110140e556ff41500024098ad8c575eb))
+
+## [0.37.12](https://github.com/pdovhomilja/nextcrm-app/compare/v0.37.11...v0.37.12) (2026-11-03)
+
+
+### Fixed
+
+* **crm:** check campaign read scope when an opportunity links a campaign ([9023c14](https://github.com/pdovhomilja/nextcrm-app/commit/9023c14cd196aab723dbb426a9916c5df13472b9))
+* **crm:** check campaign read scope when an opportunity links a campaign ([ae61581](https://github.com/pdovhomilja/nextcrm-app/commit/ae61581a1c3f0a54af8645c440428721bb8dfce8))
+
+## [0.37.11](https://github.com/pdovhomilja/nextcrm-app/compare/v0.37.10...v0.37.11) (2026-11-02)
+
+
+### Fixed
+
+* **crm:** scope the opportunity campaign picker to the caller ([04aeb94](https://github.com/pdovhomilja/nextcrm-app/commit/04aeb94af467e3d24c6254d8583dc63d718a9d93))
+* **crm:** scope the opportunity campaign picker to the caller ([fc58ba9](https://github.com/pdovhomilja/nextcrm-app/commit/fc58ba9198822e6d46546b7ecba8264545136319))
+
+## [0.37.10](https://github.com/pdovhomilja/nextcrm-app/compare/v0.37.9...v0.37.10) (2026-11-02)
+
+
+### Fixed
+
+* stop campaign sending jobs for deleted campaigns ([4fe2ca9](https://github.com/pdovhomilja/nextcrm-app/commit/4fe2ca9a04393c114422a38fd13b69d2a68dff31))
+* stop campaign sending jobs for deleted campaigns ([efcd495](https://github.com/pdovhomilja/nextcrm-app/commit/efcd4957119b0bd7f7b2fd8a4d695444ab3556f0))
+
+
+### Changed
+
+* keep campaignSkipReason next to CAMPAIGN_NOT_DELETED ([6277d50](https://github.com/pdovhomilja/nextcrm-app/commit/6277d50b35b1ee48b490aab6d7198366ce806974))
+
+## [0.37.9](https://github.com/pdovhomilja/nextcrm-app/compare/v0.37.8...v0.37.9) (2026-11-02)
+
+
+### Fixed
+
+* hide campaigns deleted by either marker and keep NULL-status ones ([ecce3cc](https://github.com/pdovhomilja/nextcrm-app/commit/ecce3cc714a8d96c854c8c4cfdcdb549ed0dd1e2))
+* hide campaigns deleted by either marker and keep NULL-status ones ([448bec0](https://github.com/pdovhomilja/nextcrm-app/commit/448bec0a081ee2e89d3ee1022bba940fd06a4a38))
+
+
+### Changed
+
+* move CAMPAIGN_NOT_DELETED into lib/authz ([88adb76](https://github.com/pdovhomilja/nextcrm-app/commit/88adb764c5c11d51419e97d478502021bb253124))
+
+## [0.37.8](https://github.com/pdovhomilja/nextcrm-app/compare/v0.37.7...v0.37.8) (2026-11-01)
+
+
+### Fixed
+
+* scope dashboard contracts expiring to the caller's contracts ([6cf080e](https://github.com/pdovhomilja/nextcrm-app/commit/6cf080e88b343a1c62efb46b75d8ad78343fc43a))
+* scope dashboard contracts expiring to the caller's contracts ([445a3db](https://github.com/pdovhomilja/nextcrm-app/commit/445a3dbc655e4584123eb3b5d55cba8311155160))
+
+## [0.37.7](https://github.com/pdovhomilja/nextcrm-app/compare/v0.37.6...v0.37.7) (2026-11-01)
+
+
+### Fixed
+
+* reports exclude soft-deleted records ([26f7fdd](https://github.com/pdovhomilja/nextcrm-app/commit/26f7fddf5177850c470e4b4a1355e7024e64b9f2))
+* reports exclude soft-deleted records ([b96d463](https://github.com/pdovhomilja/nextcrm-app/commit/b96d463c3c5e80bb6cdf0c797c7b109398e66b07))
+* reports skip deleted campaigns' sends and tasks on deleted boards ([fb502be](https://github.com/pdovhomilja/nextcrm-app/commit/fb502bec8c6ddcc04c55f3570e1af138d956de26))
+* scope dashboard campaigns sent to the caller's campaigns ([c5da5d1](https://github.com/pdovhomilja/nextcrm-app/commit/c5da5d1fa9053deb2af5c685e5b8460b7551bac0))
+
+## [0.37.6](https://github.com/pdovhomilja/nextcrm-app/compare/v0.37.5...v0.37.6) (2026-10-31)
+
+
+### Fixed
+
+* check updateAccount input ids like createAccount ([fc57e57](https://github.com/pdovhomilja/nextcrm-app/commit/fc57e57a05237da94d302ff6f0e9c1d3bda490b7))
+* member_of is a free-text label, not an account id ([4496f64](https://github.com/pdovhomilja/nextcrm-app/commit/4496f64549b2789b14a7ae537953e100c5b8be84))
+* scope target list growth and activities by type to the caller ([4803a4f](https://github.com/pdovhomilja/nextcrm-app/commit/4803a4f7409667baee7c087bbb01dece070b41e5))
+* scope target-list/activity reports, check updateAccount input ids ([983fc94](https://github.com/pdovhomilja/nextcrm-app/commit/983fc94b49a2a13f0e33604f51710c3d9eccb237))
+
+## [0.37.5](https://github.com/pdovhomilja/nextcrm-app/compare/v0.37.4...v0.37.5) (2026-10-30)
+
+
+### Fixed
+
+* check assignee, parent account and price list ids in createAccount and contracts ([4c86a10](https://github.com/pdovhomilja/nextcrm-app/commit/4c86a10af7741d32550c1f9152877850a1ffa6a3))
+* **deps:** raise axios override to &gt;=1.20.0 ([da4f28f](https://github.com/pdovhomilja/nextcrm-app/commit/da4f28fca701cfe28c264f44d42cf97a708c2405))
+* scope campaign performance sends to the caller's campaigns ([422aca4](https://github.com/pdovhomilja/nextcrm-app/commit/422aca457dd346ba617d5d8b631652733a9d2d06))
+* scope campaign performance, check input ids in createAccount and contracts, axios &gt;=1.20 ([3eef4a4](https://github.com/pdovhomilja/nextcrm-app/commit/3eef4a41d83582b2a3afcbc2c4099f3e014338e5))
+
+
+### Changed
+
+* assertAssignableUser(user, assigneeId) with a required actor ([e9aeeac](https://github.com/pdovhomilja/nextcrm-app/commit/e9aeeac89d87204c44566d1dda8cd334ed45c782))
+
+## [0.37.4](https://github.com/pdovhomilja/nextcrm-app/compare/v0.37.3...v0.37.4) (2026-10-30)
+
+
+### Fixed
+
+* Origin check with Authorization header, BigInt in MCP project results, real MCP task delete ([#424](https://github.com/pdovhomilja/nextcrm-app/issues/424)) ([79edd69](https://github.com/pdovhomilja/nextcrm-app/commit/79edd69b2863509896a7fba1420b85b90bbefb36))
+
+## [0.37.3](https://github.com/pdovhomilja/nextcrm-app/compare/v0.37.2...v0.37.3) (2026-10-30)
+
+
+### Fixed
+
+* check record scope in three server actions (requestApproval, setCaseStudyCandidate, disconnectDocumentFromTask) ([#421](https://github.com/pdovhomilja/nextcrm-app/issues/421)) ([9707780](https://github.com/pdovhomilja/nextcrm-app/commit/9707780e53e8fd58f2346c4b938ba73d0479998c))
+* sign upload content types and require the app Origin on cookie-authenticated /api writes ([#423](https://github.com/pdovhomilja/nextcrm-app/issues/423)) ([89b8a88](https://github.com/pdovhomilja/nextcrm-app/commit/89b8a88ca0dbf6facdbdd9fde44f1b0678c639b8))
+
+## [0.37.2](https://github.com/pdovhomilja/nextcrm-app/compare/v0.37.1...v0.37.2) (2026-10-29)
+
+
+### Fixed
+
+* **deps:** upgrade better-auth to 1.7 ([#419](https://github.com/pdovhomilja/nextcrm-app/issues/419)) ([8cd319d](https://github.com/pdovhomilja/nextcrm-app/commit/8cd319dbde767cb3a563f03f8be35d67ac9aec55))
+
+## [0.37.1](https://github.com/pdovhomilja/nextcrm-app/compare/v0.37.0...v0.37.1) (2026-10-28)
+
+
+### Fixed
+
+* **authz:** web UI checks templates and new contract accounts like MCP (F1b) ([#416](https://github.com/pdovhomilja/nextcrm-app/issues/416)) ([2d56139](https://github.com/pdovhomilja/nextcrm-app/commit/2d56139f8dda9034c2f32006e87d72f258520bfe))
+* **deps:** update next to 16.4.2 (CVE-2026-96889, GHSA-673q-mjm6-r5xr, GHSA-p3m5-59mp-jv5r) ([f6cb2da](https://github.com/pdovhomilja/nextcrm-app/commit/f6cb2da252c9d35853526734c336cb217d42872c))
+* **deps:** update next to 16.4.2 (security: CVE-2026-96889, GHSA-673q-mjm6-r5xr, GHSA-p3m5-59mp-jv5r) ([8c1a9e7](https://github.com/pdovhomilja/nextcrm-app/commit/8c1a9e7a58995f7dacb9975c65cfc1c4cbc29677))
+* **enrichment:** run agent-browser without a shell in the E2B agent ([#415](https://github.com/pdovhomilja/nextcrm-app/issues/415)) ([83b80f1](https://github.com/pdovhomilja/nextcrm-app/commit/83b80f1edf5221d0262ae70c1b21acc99698ab81))
+* **mcp:** apply the web UI's object-level checks in MCP tools ([#414](https://github.com/pdovhomilja/nextcrm-app/issues/414)) ([2ff9f2d](https://github.com/pdovhomilja/nextcrm-app/commit/2ff9f2db9522d901567de110f5d4b631bcddebb4))
+
+## [0.37.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.36.0...v0.37.0) (2026-10-19)
+
+
+### Added
+
+* **docs:** reference pages generated from the code (MCP tools, roles, env, plugins) ([#404](https://github.com/pdovhomilja/nextcrm-app/issues/404)) ([6c521ec](https://github.com/pdovhomilja/nextcrm-app/commit/6c521ec1e4178cd481691ede4427eb20e41720b4))
+* **docs:** version switcher with per-version docs built from release tags ([#403](https://github.com/pdovhomilja/nextcrm-app/issues/403)) ([b0923ef](https://github.com/pdovhomilja/nextcrm-app/commit/b0923ef6a886e03c93a14cc0361ea91410555c5b))
+
+## [0.36.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.35.0...v0.36.0) (2026-10-18)
+
+
+### Added
+
+* **authz:** partner app — route allow-list, navigation, door open, e2e (partner ticket 4, part B) ([#402](https://github.com/pdovhomilja/nextcrm-app/issues/402)) ([282fb7f](https://github.com/pdovhomilja/nextcrm-app/commit/282fb7febdd21c147070f00c4ca5e6bafb05fdf7))
+* **authz:** partner read scope through his accounts (partner ticket 2) ([#398](https://github.com/pdovhomilja/nextcrm-app/issues/398)) ([6a35cfc](https://github.com/pdovhomilja/nextcrm-app/commit/6a35cfca4349413a0c996382aff0c75938bf73c6))
+* **authz:** partner writes and own-account rule (partner ticket 4, part A) ([#400](https://github.com/pdovhomilja/nextcrm-app/issues/400)) ([ef40edd](https://github.com/pdovhomilja/nextcrm-app/commit/ef40eddf6c364730d9599a84832a3f836419335d))
+* oxo-erp-connector plugin (OXO ERP /api/v1) + SDK 0.2.6 ([#394](https://github.com/pdovhomilja/nextcrm-app/issues/394)) ([dcf0478](https://github.com/pdovhomilja/nextcrm-app/commit/dcf047845c9f301937e8106bb0606d5d2ff77976))
+* partner role, partner fields and admin controls (deny by default) ([#397](https://github.com/pdovhomilja/nextcrm-app/issues/397)) ([291d323](https://github.com/pdovhomilja/nextcrm-app/commit/291d323a95f47f0bdcc5317f877aa381204c41f6))
+
+
+### Fixed
+
+* **authz:** close partner read leaks (partner ticket 3) ([#399](https://github.com/pdovhomilja/nextcrm-app/issues/399)) ([45b4d79](https://github.com/pdovhomilja/nextcrm-app/commit/45b4d798bd8736ddd931a3d887d3ef743715d17d))
+* **authz:** linking an activity or document requires write access to the target record ([#401](https://github.com/pdovhomilja/nextcrm-app/issues/401)) ([cb52f2a](https://github.com/pdovhomilja/nextcrm-app/commit/cb52f2a8fddcfdd650451d5568b919698fee5638))
+* **documents:** private document files (presigned reads after access check) ([#396](https://github.com/pdovhomilja/nextcrm-app/issues/396)) ([d1271c1](https://github.com/pdovhomilja/nextcrm-app/commit/d1271c11cd47ba211806acfbaf225f894375e89a))
+
+## [0.35.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.34.0...v0.35.0) (2026-10-14)
+
+
+### Added
+
+* **mcp:** lead description, campaign, referral, status/source/type ([#390](https://github.com/pdovhomilja/nextcrm-app/issues/390)) ([437d3ab](https://github.com/pdovhomilja/nextcrm-app/commit/437d3abbf1beea6592df28382cd4744e8b2ecef3))
+
+
+### Fixed
+
+* **compose:** bare ${VAR:?} for required vars in docker-compose-coolify.yml ([064d7b5](https://github.com/pdovhomilja/nextcrm-app/commit/064d7b5c6c04096f6d1949312dfd10623930ef60))
+* **compose:** bare ${VAR:?} for required vars in docker-compose-coolify.yml ([63068ca](https://github.com/pdovhomilja/nextcrm-app/commit/63068ca3a107696283cd134fbdf137d2fbc724dc))
+
+## [0.34.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.33.4...v0.34.0) (2026-10-13)
+
+
+### Added
+
+* **odoo-connector:** fill missing owners on existing accounts ([e50d478](https://github.com/pdovhomilja/nextcrm-app/commit/e50d4784fab3ab363a64e2422d9033dcde6846b4))
+* **odoo-connector:** fill missing owners on existing accounts ([23e3e4f](https://github.com/pdovhomilja/nextcrm-app/commit/23e3e4f85434fc6cd14ddb9737748ff8712492fa))
+
+## [0.33.4](https://github.com/pdovhomilja/nextcrm-app/compare/v0.33.3...v0.33.4) (2026-10-12)
+
+
+### Fixed
+
+* one approval mail per manager; plugin form no longer re-sends a saved secret ([dc83aed](https://github.com/pdovhomilja/nextcrm-app/commit/dc83aedc6f701ab45399d215e9188d4c058061ad))
+* one approval mail per manager; plugin form no longer re-sends a saved secret ([cd751f1](https://github.com/pdovhomilja/nextcrm-app/commit/cd751f17ee3300b26a4cf04a2a5b7b35f5544216))
+
+## [0.33.3](https://github.com/pdovhomilja/nextcrm-app/compare/v0.33.2...v0.33.3) (2026-10-12)
+
+
+### Fixed
+
+* **authz:** account detail page checks that the caller may read the account ([3e3a3bc](https://github.com/pdovhomilja/nextcrm-app/commit/3e3a3bce4f31fd6f4be5fe895c5ff12923ff5bde))
+* **crm:** accounts list crash on null first name; scope account detail page ([7e231cf](https://github.com/pdovhomilja/nextcrm-app/commit/7e231cfd07072071488b077ef1616fe5cdca7aba))
+* **crm:** accounts list no longer crashes on a contact without a first name ([cd35cfc](https://github.com/pdovhomilja/nextcrm-app/commit/cd35cfcec0182f9c44e803a20e0c1079417b4a89))
+
+## [0.33.2](https://github.com/pdovhomilja/nextcrm-app/compare/v0.33.1...v0.33.2) (2026-10-12)
+
+
+### Fixed
+
+* **authz:** scope CRM data, invoice and target-list reads to the caller ([f35ba30](https://github.com/pdovhomilja/nextcrm-app/commit/f35ba30a158b882ac3b36cb9774720208d2db04f))
+* **authz:** scope CRM data, invoice and target-list reads to the caller ([2bc8e0c](https://github.com/pdovhomilja/nextcrm-app/commit/2bc8e0cf3bfde01d4cd17bbb184fcae958376a7d))
+
+## [0.33.1](https://github.com/pdovhomilja/nextcrm-app/compare/v0.33.0...v0.33.1) (2026-10-12)
+
+
+### Fixed
+
+* **odoo-connector:** paid and cancelled imported orders also get their missing lines ([1c639aa](https://github.com/pdovhomilja/nextcrm-app/commit/1c639aa7633b2840be748482e0d920b2998a0abb))
+* **odoo-connector:** paid and cancelled imported orders also get their missing lines (0.4.2) ([82b0f0a](https://github.com/pdovhomilja/nextcrm-app/commit/82b0f0a099b684d5382d702ebca38aaa9e6c0553))
+
+## [0.33.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.32.0...v0.33.0) (2026-10-11)
+
+
+### Added
+
+* **odoo-connector:** take over hand-made CRM products with the same SKU ([174a42c](https://github.com/pdovhomilja/nextcrm-app/commit/174a42c2fbdf4c6744ebbadd6e2eda31d97f1562))
+* **odoo-connector:** take over hand-made CRM products with the same SKU; re-copy missing order lines (0.4.1) ([f8c0059](https://github.com/pdovhomilja/nextcrm-app/commit/f8c00593e58ce4aa38818106eb440d7beaf55bd5))
+* **plugins:** SDK 0.2.5, products.upsertExternal can take over a CRM product with the same SKU ([c41760c](https://github.com/pdovhomilja/nextcrm-app/commit/c41760cb51ff66b6af5d8f62a284ae9b2006b55f))
+
+## [0.32.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.31.1...v0.32.0) (2026-10-11)
+
+
+### Added
+
+* **odoo-connector:** Odoo orders in and the Odoo tab on the account (part 3b) ([f000ac3](https://github.com/pdovhomilja/nextcrm-app/commit/f000ac38fcb4be3ea9c409fe89e68cd4d05fc4bc))
+
+## [0.31.1](https://github.com/pdovhomilja/nextcrm-app/compare/v0.31.0...v0.31.1) (2026-10-11)
+
+
+### Fixed
+
+* **odoo-connector:** order follow-ups from part 3a ([af5c6a9](https://github.com/pdovhomilja/nextcrm-app/commit/af5c6a9d1fe1378a340314796c47d98732a0b1f5))
+* **odoo-connector:** order follow-ups from part 3a ([a3c79c4](https://github.com/pdovhomilja/nextcrm-app/commit/a3c79c4285714ddd505b5cbffbfbcf4a7e45d476))
+
+## [0.31.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.30.0...v0.31.0) (2026-10-11)
+
+
+### Added
+
+* **odoo-connector:** send orders to Odoo and bring statuses back (part 3a) ([4de4261](https://github.com/pdovhomilja/nextcrm-app/commit/4de426112e4aca93a0323411da5271029963ff38))
+
+## [0.30.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.29.0...v0.30.0) (2026-10-10)
+
+
+### Added
+
+* **catalog:** core upsert and replace calls for external catalog data ([2c7f5bf](https://github.com/pdovhomilja/nextcrm-app/commit/2c7f5bfcfb20c9924f60c52af053ed9144b4cd4d))
+* **catalog:** external products and categories are read-only ([bf91343](https://github.com/pdovhomilja/nextcrm-app/commit/bf91343d11408f0186288fe1d70b453beabba6f7))
+* **catalog:** product and category source (CRM | EXTERNAL) ([0fb8222](https://github.com/pdovhomilja/nextcrm-app/commit/0fb8222a948236212b808e769ad021ffb46d6c03))
+* **odoo-connector:** catalog mapping for categories, variants and price rules ([caa03b0](https://github.com/pdovhomilja/nextcrm-app/commit/caa03b07a840a5ff81e4a7793c12a49e7ca77b8b))
+* **odoo-connector:** catalog screens, product panel, docs; v0.2.0 ([5ef65d5](https://github.com/pdovhomilja/nextcrm-app/commit/5ef65d59c9a517cff1fd373f6c9dabc0c57d86d1))
+* **odoo-connector:** catalog sync of categories, products, price lists and account lists ([cecb226](https://github.com/pdovhomilja/nextcrm-app/commit/cecb226f6b896b0b60bb50d8b3759b5b60a18959))
+* **odoo-connector:** compare CRM prices with Odoo (read-only onchange) ([2f89923](https://github.com/pdovhomilja/nextcrm-app/commit/2f899230b808af7b5fd654b21d80c8821b973724))
+* **odoo-connector:** import the product catalog and price lists, compare with Odoo ([aea2efb](https://github.com/pdovhomilja/nextcrm-app/commit/aea2efb66af204d29acec3d1961dbbd782f749fc))
+* **odoo-connector:** queued Sync now and Compare jobs, Load price lists ([c7c5257](https://github.com/pdovhomilja/nextcrm-app/commit/c7c52572e0369f205382999a6f060cd29c9fbada))
+* **plugins:** SDK 0.2.3 catalog writes, prices and product panel ([6479dfc](https://github.com/pdovhomilja/nextcrm-app/commit/6479dfc74adbd8a83c80b6f0b67902d9f971569c))
+
+
+### Fixed
+
+* **odoo-connector:** final review fixes for the catalog ([5c8fdd5](https://github.com/pdovhomilja/nextcrm-app/commit/5c8fdd568de0d349159496f6000277fb2b92f871))
+
+## [0.29.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.28.0...v0.29.0) (2026-10-10)
+
+
+### Added
+
+* **odoo-connector:** customer sync with cursor, dry run and alerts ([ce62f23](https://github.com/pdovhomilja/nextcrm-app/commit/ce62f23dc1e86f4938810162d6f34d3e7caabdce))
+* **odoo-connector:** JSON-2 client and settings ([8bab954](https://github.com/pdovhomilja/nextcrm-app/commit/8bab95443feef89a6d133d36ea93123508def377))
+* **odoo-connector:** matching by link, number and VAT ([f42fb21](https://github.com/pdovhomilja/nextcrm-app/commit/f42fb216e1fb45ff9d647767c581d2c022c5c1ef))
+* **odoo-connector:** part 1, connection and customers ([0f60559](https://github.com/pdovhomilja/nextcrm-app/commit/0f60559b66ff2e8a58b9d6b66e9167c55c323df7))
+* **odoo-connector:** partner to account and contact mapping ([d58a5e8](https://github.com/pdovhomilja/nextcrm-app/commit/d58a5e8a1bca6f972620443525c3eff0a14a6768))
+* **odoo-connector:** people sync to contacts ([b617d4d](https://github.com/pdovhomilja/nextcrm-app/commit/b617d4d3eb13e1ba493d3c3d558cebc39a75e65a))
+* **odoo-connector:** plugin definition, screens, messages and docs ([151ab4a](https://github.com/pdovhomilja/nextcrm-app/commit/151ab4a38c836d411314c8784dd4af369e33a5e8))
+* **plugins:** SDK 0.2.2 admin actions ([fef2900](https://github.com/pdovhomilja/nextcrm-app/commit/fef290017a2d854d6a8d04cd7726ad29c084f41a))
+
+
+### Fixed
+
+* **odoo-connector:** final review fixes ([ba4fe30](https://github.com/pdovhomilja/nextcrm-app/commit/ba4fe30cadb3423b64520cc5a53e15b0ba15ee63))
+
+## [0.28.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.27.0...v0.28.0) (2026-10-10)
+
+
+### Added
+
+* **account-protection:** orders extend protection (rule 3) ([cbc633c](https://github.com/pdovhomilja/nextcrm-app/commit/cbc633c0ba6ea7f343796bf75b811e8ace531d77))
+
+
+### Fixed
+
+* **account-protection:** final review fixes ([f306b02](https://github.com/pdovhomilja/nextcrm-app/commit/f306b022de08317dc5a5540c299cfd841da5d49f))
+
+## [0.27.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.26.0...v0.27.0) (2026-10-10)
+
+
+### Added
+
+* **orders:** account tab, approvals queue and admin settings ([96b0a55](https://github.com/pdovhomilja/nextcrm-app/commit/96b0a555b88171a97434507050e2b96f8719dc77))
+* **orders:** atomic number allocation and read scope ([9406513](https://github.com/pdovhomilja/nextcrm-app/commit/940651352b060175c094dd36ff91a19c84fb1ef9))
+* **orders:** core orders with price-list pricing and approval ([05b950a](https://github.com/pdovhomilja/nextcrm-app/commit/05b950afd4fc78c9a125866f537e96a288075d3b))
+* **orders:** create, edit, delete and line pricing ([58f2910](https://github.com/pdovhomilja/nextcrm-app/commit/58f2910976ad3b45d8644d98ca757c1012c1bb76))
+* **orders:** line and order totals ([3c70096](https://github.com/pdovhomilja/nextcrm-app/commit/3c70096af96ff523f339da9c0e84dcf8548735fc))
+* **orders:** MCP tools ([27d0552](https://github.com/pdovhomilja/nextcrm-app/commit/27d0552ee8fb275cb157a21b83c536c90f66dcbb))
+* **orders:** order screens, menu and translations ([2628d91](https://github.com/pdovhomilja/nextcrm-app/commit/2628d912aef121e3c4c7a72c7bc67fbbc62db372))
+* **orders:** schema, migration and number series seed ([92f21ac](https://github.com/pdovhomilja/nextcrm-app/commit/92f21ace95e94ad5a3d3415c2997ffa65b191329))
+* **orders:** server actions and read queries ([4427bef](https://github.com/pdovhomilja/nextcrm-app/commit/4427bef249f043f4659b13ee957a5075820b279c))
+* **orders:** status transition rules ([c2d8d11](https://github.com/pdovhomilja/nextcrm-app/commit/c2d8d11145ccdfb720b5497c84c3919b8891501e))
+* **orders:** submit, approval and status changes ([2938dd3](https://github.com/pdovhomilja/nextcrm-app/commit/2938dd308e08b2c755cbfe2c39836b7923fda78a))
+* **plugins:** SDK 0.2.0 with the order entity and order panel ([b805cff](https://github.com/pdovhomilja/nextcrm-app/commit/b805cff129607d0946c531d7bd2364577c00f1a2))
+
+
+### Fixed
+
+* **deploy:** build one image per release and deploy it from CI ([a6074ed](https://github.com/pdovhomilja/nextcrm-app/commit/a6074ed0729730efcd6b491e6ad61b838f20d198))
+* **deploy:** build one image per release and deploy it from CI ([ce01335](https://github.com/pdovhomilja/nextcrm-app/commit/ce01335abb4b6b57e3eabe556748876c8775d6ba))
+* **docker:** connect via DATABASE_URL when DB_* is unset; never seed blind ([53b6aa5](https://github.com/pdovhomilja/nextcrm-app/commit/53b6aa5bb089a2210c6048a2337345835bac8154))
+* **orders:** audit only header fields that changed ([51f23c3](https://github.com/pdovhomilja/nextcrm-app/commit/51f23c3b4df67d5ec162486cb7b568bef2bf5bc1))
+* **orders:** final review fixes ([c65b033](https://github.com/pdovhomilja/nextcrm-app/commit/c65b0337f1a21d062508b697205bdea244d17167))
+* **orders:** quote literal braces in admin help texts (ICU) ([f1e2a12](https://github.com/pdovhomilja/nextcrm-app/commit/f1e2a1203cb7260d41bbfb391f96083ad7b04d59))
+
+## [0.26.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.25.1...v0.26.0) (2026-10-09)
+
+
+### Added
+
+* **pricing:** core price lists (Odoo 17-compatible engine) ([65ef6b7](https://github.com/pdovhomilja/nextcrm-app/commit/65ef6b7247143480d4964b9fdfb7159568a10d64))
+
+
+### Fixed
+
+* **pricing:** final review fixes ([a096a40](https://github.com/pdovhomilja/nextcrm-app/commit/a096a40bc11df7b57d21c3a7eb073d2e292cca42))
+* **pricing:** rule order hint matches Odoo 17 order ([17aed27](https://github.com/pdovhomilja/nextcrm-app/commit/17aed2758d7516e02ddcfebafbb90d03e60ac476))
+* **pricing:** strip pnpm output from the price-list migration ([e906a82](https://github.com/pdovhomilja/nextcrm-app/commit/e906a82f20c344e10ff7b465a643a0ca76a23b4c))
+
+## [0.25.1](https://github.com/pdovhomilja/nextcrm-app/compare/v0.25.0...v0.25.1) (2026-10-09)
+
+
+### Fixed
+
+* **account-protection:** catch up after the plugin was disabled ([110b9b6](https://github.com/pdovhomilja/nextcrm-app/commit/110b9b6352ec7208f1ce83a9cdb7e445fc112e4e))
+* **account-protection:** contact types, conflicts, re-enable and freed numbers ([73598a0](https://github.com/pdovhomilja/nextcrm-app/commit/73598a06e86500200ca61a109a7215e030bc7876))
+* **account-protection:** fresh window for a duplicate that takes over a number ([489ecbf](https://github.com/pdovhomilja/nextcrm-app/commit/489ecbffd8b18892524385b1a3fae55e378c99e7))
+* **account-protection:** keep the conflicts list in step with account numbers ([2623a5e](https://github.com/pdovhomilja/nextcrm-app/commit/2623a5eba82c4e0a026b42aa5e9e5153aa62741a))
+* **account-protection:** never drop the contact type filter ([d72f02f](https://github.com/pdovhomilja/nextcrm-app/commit/d72f02fbe7f0b48d62e5cd15397cc9833990ce67))
+
+## [0.25.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.24.1...v0.25.0) (2026-10-09)
+
+
+### Added
+
+* **plugins:** account-protection — one owner per company registration number ([c6b8c11](https://github.com/pdovhomilja/nextcrm-app/commit/c6b8c11ee8ada25cd1eb9758a0993abc637e482d))
+
+## [0.24.1](https://github.com/pdovhomilja/nextcrm-app/compare/v0.24.0...v0.24.1) (2026-10-09)
+
+
+### Fixed
+
+* **deps:** release 0.24.1 with next 16.3.8 ([0e5d22e](https://github.com/pdovhomilja/nextcrm-app/commit/0e5d22e9a6d6920dc0d0c9db659ff81a83c9f287))
+* **deps:** update next to 16.3.8 and @modelcontextprotocol/sdk to 1.31.0 ([9da6cfa](https://github.com/pdovhomilja/nextcrm-app/commit/9da6cfacbb6d91d38b0a718f8296b68f614a5b91))
+
+## [0.24.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.23.1...v0.24.0) (2026-10-09)
+
+
+### Added
+
+* **accounts:** Ověřit DIČ button in new and edit account forms ([fd90e12](https://github.com/pdovhomilja/nextcrm-app/commit/fd90e12e68397fa78b3c5dd5c1a5c24aadd99842))
+* **accounts:** VAT check actions over any provider with validateVat ([b880b00](https://github.com/pdovhomilja/nextcrm-app/commit/b880b00aa99c4fe444d7473ff4a13fb24399fee2))
+* **admin:** let admins revoke a user's API tokens ([f3a4e40](https://github.com/pdovhomilja/nextcrm-app/commit/f3a4e408c1ff09b5f8046df08b119369f5be8a74))
+* plugin system v0 (host + SDK) ([7e4ccf8](https://github.com/pdovhomilja/nextcrm-app/commit/7e4ccf84c417641d5a95f0e56ee9b485b5bb03d0))
+* **plugins:** account tabs, panels and plugin pages ([107f513](https://github.com/pdovhomilja/nextcrm-app/commit/107f51392114bea4b1c2bac180bf7a4018ac3d92))
+* **plugins:** add plugin SDK types, versions and definePlugin ([e7ad676](https://github.com/pdovhomilja/nextcrm-app/commit/e7ad676b45a8b31865a700a0cecc50a7025463ca))
+* **plugins:** admin UI for plugin lifecycle and settings ([ab45ad3](https://github.com/pdovhomilja/nextcrm-app/commit/ab45ad3efb3b41c052d89e4e56d2df20ec4a2fad))
+* **plugins:** company registry provider button in the account form ([aed510f](https://github.com/pdovhomilja/nextcrm-app/commit/aed510fa2cba0bb71325a7d288bb724818b311ab))
+* **plugins:** enforce plugin rules on CRM writes via Prisma extension ([9567c9b](https://github.com/pdovhomilja/nextcrm-app/commit/9567c9b0a1202b64643dccee02f9dd18d4e69d33))
+* **plugins:** install/enable/disable/uninstall and upgrades on start ([b77c24e](https://github.com/pdovhomilja/nextcrm-app/commit/b77c24e3a04c2dca16cddf82d5fc3e5713798bbe))
+* **plugins:** plugin tables and cached plugin state ([d94add6](https://github.com/pdovhomilja/nextcrm-app/commit/d94add67d9168338402fb2a7d6f233d04cf7c66b))
+* **plugins:** register plugin crons, events and after-actions with Inngest ([39458fc](https://github.com/pdovhomilja/nextcrm-app/commit/39458fcc1374ea4dec69291afecee3ed11ac8cb0))
+* **plugins:** registry generator and import boundaries ([83696ea](https://github.com/pdovhomilja/nextcrm-app/commit/83696ea416a889681393fa27dc250ef39061e8c0))
+* **plugins:** registry-ares — ARES company lookup + VIES VAT check ([f9c26c6](https://github.com/pdovhomilja/nextcrm-app/commit/f9c26c6c118de5a2992360f54693cdf069b95b12))
+* **plugins:** settings, i18n, actor context and plugin ctx ([26f02c5](https://github.com/pdovhomilja/nextcrm-app/commit/26f02c5f968b0ff5f39a461878b9870ee4b6988e))
+* **plugins:** show plugin rule rejections in actions and MCP ([278c103](https://github.com/pdovhomilja/nextcrm-app/commit/278c103953561d11728d959cca401378c3454707))
+* **plugins:** test harness, plugin contract tests and authoring guide ([206e6d0](https://github.com/pdovhomilja/nextcrm-app/commit/206e6d050c63ce594b71cfaad43a0d42b17f15a1))
+* **registry-ares:** ARES client with IČO checksum and address mapping ([5002743](https://github.com/pdovhomilja/nextcrm-app/commit/5002743bab4ccb71b016c1c5f358076125e452cb))
+* **registry-ares:** plugin definition, messages, registry entry ([2df5862](https://github.com/pdovhomilja/nextcrm-app/commit/2df5862c8d5fd8f75a70cafa9305ee5249f617f7))
+* **registry-ares:** VIES VAT check, unavailable answers throw ([a1aed81](https://github.com/pdovhomilja/nextcrm-app/commit/a1aed81f9f89b6593c296736fc3c7df9c1b0f2cb))
+
+
+### Fixed
+
+* access control and security fixes (user status, API tokens, Resend key, reports scope) ([7c0d3b9](https://github.com/pdovhomilja/nextcrm-app/commit/7c0d3b9b3035c9c708b31f55e0e1272472e64dce))
+* **accounts:** registry lookup survives context errors; country name instead of ISO code ([2e4ecb4](https://github.com/pdovhomilja/nextcrm-app/commit/2e4ecb425e687bd427756be39dbbc24e62095adb))
+* **admin:** admins cannot deactivate themselves ([bbc471d](https://github.com/pdovhomilja/nextcrm-app/commit/bbc471d6fc7ca0378ea6d7efb995ecd83c1ab510))
+* **admin:** admins cannot delete themselves ([afbc2f6](https://github.com/pdovhomilja/nextcrm-app/commit/afbc2f677545fe489b32298a06bc67abe5df9319))
+* **admin:** encrypt the stored Resend key and show it masked ([dc088f6](https://github.com/pdovhomilja/nextcrm-app/commit/dc088f65c8d0211a7b8bf9dc5c625e995b173bfa))
+* **admin:** send-mail-to-all mails active users once ([51c3a35](https://github.com/pdovhomilja/nextcrm-app/commit/51c3a35696dcf3fafd083d27dd21785e743dc19f))
+* **api-keys:** treat empty and placeholder env keys as unset ([65eee03](https://github.com/pdovhomilja/nextcrm-app/commit/65eee03cfac56f44e9c3413fe5553b1502265b4b))
+* **audit:** add imported and cancelled to crm_AuditLog_Action ([0d3c9cd](https://github.com/pdovhomilja/nextcrm-app/commit/0d3c9cd3da0f4815767c70d2c39149aa283afd5b))
+* **auth:** grant no BetterAuth admin-plugin permissions ([315faeb](https://github.com/pdovhomilja/nextcrm-app/commit/315faeb1154ca38c7421dd4463d0033145c4e2d0))
+* **auth:** reject non-active users everywhere and end access on deactivation ([c804377](https://github.com/pdovhomilja/nextcrm-app/commit/c80437787e6a45b1bc302284a02d4ec5ceb221bc))
+* **calendar:** send a signing key when subscribing Calendly webhooks ([1a7c5b3](https://github.com/pdovhomilja/nextcrm-app/commit/1a7c5b3d6198b01c88f1168a36fd0f1096835200))
+* **campaigns:** build unsubscribe links from NEXT_PUBLIC_APP_URL ([9190def](https://github.com/pdovhomilja/nextcrm-app/commit/9190def9a61d040be6aac46ec8f37b87f6d8ee15))
+* **campaigns:** point targets links and revalidation at /campaigns paths ([60e6701](https://github.com/pdovhomilja/nextcrm-app/commit/60e67019271da0abefcd9bab6183a00670c78f0a))
+* **campaigns:** verify Resend webhooks with Svix signatures ([04161e4](https://github.com/pdovhomilja/nextcrm-app/commit/04161e43d8f31a51cb45516e58f3acd104ffccef))
+* **command-menu:** open with Cmd/Ctrl+K, drop logout shortcut ([24c08a6](https://github.com/pdovhomilja/nextcrm-app/commit/24c08a65470dffbdc688d0d119b340f98f7a3c4e))
+* **crm:** accounts list filter placeholder said "Filter leads" ([004fafe](https://github.com/pdovhomilja/nextcrm-app/commit/004fafead73c8d1a13a2246500e3e9eb8ff8f335))
+* **crm:** drop vendor fallback addresses from notification mails ([e5c7d79](https://github.com/pdovhomilja/nextcrm-app/commit/e5c7d79234f10a015cc58b98a265f3c222db2d26))
+* **crm:** soft-delete confirmation no longer says it cannot be undone ([cca598c](https://github.com/pdovhomilja/nextcrm-app/commit/cca598c35b47896c7ed8c93c7ec6adf0acb23563))
+* **docker:** ignore non-hex Inngest keys with the bundled server ([44b6990](https://github.com/pdovhomilja/nextcrm-app/commit/44b6990f6e2c04cd73a2d83ceb479f8372581498))
+* **docker:** persist secrets, sign Inngest, pass every env var ([95f6eb4](https://github.com/pdovhomilja/nextcrm-app/commit/95f6eb4b5947da31a2f4497f1909c0f64c82b6f6))
+* **docker:** persistent secrets, signed Inngest, public MinIO endpoint, env cleanup ([a5466d1](https://github.com/pdovhomilja/nextcrm-app/commit/a5466d104e1ae8eba6c7ae6370f037659b6b3cce))
+* **enrichment:** pre-check the keys the target enrichment job uses ([bf1ab67](https://github.com/pdovhomilja/nextcrm-app/commit/bf1ab67c7ba9f25ebb58619c66da86c49f921e75))
+* **feedback:** send in-app feedback to the instance's active admins ([2d80630](https://github.com/pdovhomilja/nextcrm-app/commit/2d80630bccbf42fc076e8a072141b0a74e58e81c))
+* **i18n:** add missing de, uk and cz translations ([4cb23ff](https://github.com/pdovhomilja/nextcrm-app/commit/4cb23ff499486ba80e92ea2f640fe0ca9ea5a71b))
+* **i18n:** complete de/uk/cz translations, add i18n:check and English fallback ([77945c2](https://github.com/pdovhomilja/nextcrm-app/commit/77945c2bf9221d7f346fed0168c8a2fec4240b98))
+* **i18n:** fall back to English for keys missing from a locale ([707df3e](https://github.com/pdovhomilja/nextcrm-app/commit/707df3eacb465f78e8bd872929d6f09ad2ffbcdf))
+* integration webhooks, enrichment key check, MCP SSE, CI and contributor docs ([9f9024c](https://github.com/pdovhomilja/nextcrm-app/commit/9f9024c8a1495f34846d8b3bf21803994338745d))
+* **lint:** hoist invoices SortHeader out of render; justify OAuth &lt;a&gt; link ([d4166a1](https://github.com/pdovhomilja/nextcrm-app/commit/d4166a17e76a59e94655a55454ac3b2ce07a8f0d))
+* **lint:** resolve set-state-in-effect and exhaustive-deps in app routes ([cb1ce9c](https://github.com/pdovhomilja/nextcrm-app/commit/cb1ce9cdddf99a19f119e357dedf97925d7a18cc))
+* **lint:** resolve set-state-in-effect in shared components ([c7c38e5](https://github.com/pdovhomilja/nextcrm-app/commit/c7c38e5f89bd21c123c49b82d6d522f56b247716))
+* make pnpm lint pass and run it in CI ([4e0089b](https://github.com/pdovhomilja/nextcrm-app/commit/4e0089ba2550e2983bbbd7ec977754d7ad37a056))
+* **mcp:** return 501 for SSE transport when no Redis is configured ([4b4374c](https://github.com/pdovhomilja/nextcrm-app/commit/4b4374c37a3e2f9191a40c9223a02c163b244838))
+* **mcp:** scope reports_list to own and shared configs for role user ([57bb854](https://github.com/pdovhomilja/nextcrm-app/commit/57bb854fb7ebe8b92d96d1df09740dd561819649))
+* **plugins:** clean PluginData on hard delete without rules; keep record id under select ([ff5d3db](https://github.com/pdovhomilja/nextcrm-app/commit/ff5d3dbf5bfa74480db4145b704a1eff889a94aa))
+* **plugins:** final review fixes (negative take cap, PUT redirects, install-job guard, audit on count, docs) ([d6b2b91](https://github.com/pdovhomilja/nextcrm-app/commit/d6b2b91ac77ff1d25e2ded5b1e4d603360d58ac1))
+* **plugins:** follow fetch redirect semantics in ctx.http ([fe493c1](https://github.com/pdovhomilja/nextcrm-app/commit/fe493c1075a2d4776ce77fffdf01f1118d8d9499))
+* **plugins:** harden write interception (after-send catch, zero-plugin fast path, ids, ctx timeout) ([28374d8](https://github.com/pdovhomilja/nextcrm-app/commit/28374d83f6dc636fc35ce55883c8b88d5183bbbd))
+* **plugins:** hide user passwords from plugins and catch saved-event failures ([7deb0c7](https://github.com/pdovhomilja/nextcrm-app/commit/7deb0c7a3fc326ad9425b2ff225c236396fd61a7))
+* **plugins:** host hardening before the first real plugin ([da3900e](https://github.com/pdovhomilja/nextcrm-app/commit/da3900e7824b8b3a58a60de607e877fd3c4a374d))
+* **plugins:** loop guard for a plugin's own async after/on events ([87e2827](https://github.com/pdovhomilja/nextcrm-app/commit/87e28278647cc15a65cb97812743479a6a1ea0e0))
+* **plugins:** notify only active users, one mail per recipient, mapped roles ([2f022f2](https://github.com/pdovhomilja/nextcrm-app/commit/2f022f23f1ba3d6fc1b0752767ee6c25e059dacc))
+* **plugins:** own private-host flag and re-checked redirects for ctx.http ([ece3016](https://github.com/pdovhomilja/nextcrm-app/commit/ece3016b6cee3b7a761bc1a921076d443ee2a6e8))
+* **plugins:** plugin lifecycle audit rows were never written ([a3749b8](https://github.com/pdovhomilja/nextcrm-app/commit/a3749b8111883031d303ce1301b43ca453b44d95))
+* **plugins:** roll back failed installs, audit automatic disables, non-blocking boot upgrades ([1b32c0a](https://github.com/pdovhomilja/nextcrm-app/commit/1b32c0a23ed7a70ad834ac91dc963d07a4779c45))
+* **plugins:** scalar-only filters and capped take for ctx.data reads ([e41a78c](https://github.com/pdovhomilja/nextcrm-app/commit/e41a78cd4e735c921e8f7d39b93552d88c148402))
+* **plugins:** skip upgrade transaction when the registry is empty ([29fff19](https://github.com/pdovhomilja/nextcrm-app/commit/29fff19e6d28864adb5ff8d1a2993549f05a3212))
+* **plugins:** strip include/select from ctx.data reads on every entity ([d318605](https://github.com/pdovhomilja/nextcrm-app/commit/d3186052ee9b95d3564a4db48f28bda6925c317e))
+* **plugins:** treat undecryptable secrets as not set instead of crashing ([3a3b1de](https://github.com/pdovhomilja/nextcrm-app/commit/3a3b1de21a33bf9a345f4a207f1d4cc38f0377a7))
+* **plugins:** use transaction-scoped advisory lock for upgrades ([a1bbcdd](https://github.com/pdovhomilja/nextcrm-app/commit/a1bbcdd06832f946990ef7dc4dd4901802940490))
+* **plugins:** validate export plugin id; test uninstall of missing plugin ([a61849d](https://github.com/pdovhomilja/nextcrm-app/commit/a61849d9a0ca7e6b1e30a2601976b193d866f3db))
+* **plugins:** warn on missing required settings, once per process ([d3c8626](https://github.com/pdovhomilja/nextcrm-app/commit/d3c8626f946b6bd5e35b46a77b7c94134701f8c8))
+* **registry-ares:** report non-VIES VAT prefixes as unverifiable, not invalid ([af9b206](https://github.com/pdovhomilja/nextcrm-app/commit/af9b206cf9a297009f20fd99be7d75495b972ac8))
+* remove hard-coded vendor addresses and client references ([e1dd37f](https://github.com/pdovhomilja/nextcrm-app/commit/e1dd37fb8b6e90ca4a1701edc4a51c6cc9e6efe0))
+* **reports:** scope report pages and MCP reports like the exports ([7ddcb6a](https://github.com/pdovhomilja/nextcrm-app/commit/7ddcb6aee347851f6c938a18be55ac0a32d05848))
+* scope MCP reports_list; block admin self-deactivation and self-delete ([0e0a025](https://github.com/pdovhomilja/nextcrm-app/commit/0e0a02533c865c291d5bc769df185a19c53f5536))
+* small UI bugs (command menu shortcuts, delete wording, targets links, unsubscribe URL) ([b077737](https://github.com/pdovhomilja/nextcrm-app/commit/b0777376101db63a0b8ac8cfb97d60ff18f12996))
+* **storage:** sign browser-facing URLs for the public MinIO endpoint ([cda2287](https://github.com/pdovhomilja/nextcrm-app/commit/cda2287fc68e7ba554be4f9e4be75ac23da7fdff))
+
+## [0.23.1](https://github.com/pdovhomilja/nextcrm-app/compare/v0.23.0...v0.23.1) (2026-10-04)
+
+
+### Fixed
+
+* **docker:** copy pnpm-workspace.yaml before frozen install ([98a6d0d](https://github.com/pdovhomilja/nextcrm-app/commit/98a6d0d625ec451999302c5a652720e189d06062)) ([#322](https://github.com/pdovhomilja/nextcrm-app/pull/322))
+* **docker:** switch MinIO to pgsty/minio, pinned ([1780e5d](https://github.com/pdovhomilja/nextcrm-app/commit/1780e5d7eee78e25182991aaba260a37fb26426e)) ([#324](https://github.com/pdovhomilja/nextcrm-app/pull/324))
+* **docker:** sign MinIO bucket creation with SigV4 ([4325c3b](https://github.com/pdovhomilja/nextcrm-app/commit/4325c3ba2e19948e1eedca4887ca6501644e7376)) ([#325](https://github.com/pdovhomilja/nextcrm-app/pull/325))
+
+## [0.23.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.22.1...v0.23.0) (2026-10-04)
+
+
+### Added
+
+* **docker:** add docker-compose-coolify.yml for env-configured deployments ([f13b64e](https://github.com/pdovhomilja/nextcrm-app/commit/f13b64e42baad6ef7285c2600595060d8cd1482a)) ([#320](https://github.com/pdovhomilja/nextcrm-app/pull/320))
+
+## [0.22.1](https://github.com/pdovhomilja/nextcrm-app/compare/v0.22.0...v0.22.1) (2026-10-04)
+
+
+### Fixed
+
+* **calendar:** delete prior Calendly subscription on re-subscribe ([7a57f18](https://github.com/pdovhomilja/nextcrm-app/commit/7a57f186d3832c10e5687032099bd61a925eb638)), closes [#267](https://github.com/pdovhomilja/nextcrm-app/issues/267) ([#304](https://github.com/pdovhomilja/nextcrm-app/pull/304))
+* show save success/error feedback on Calendly settings form ([b3e4538](https://github.com/pdovhomilja/nextcrm-app/commit/b3e45388b25f4f9801f393754866de495ebd6688)), closes [#268](https://github.com/pdovhomilja/nextcrm-app/issues/268) ([#303](https://github.com/pdovhomilja/nextcrm-app/pull/303))
+* **webhooks:** match Resend events by email_id, not the RFC Message-ID header ([dd5ac0b](https://github.com/pdovhomilja/nextcrm-app/commit/dd5ac0bfc51043c6e9d1bdfdd0e8a6d8c625ed8a)) ([#314](https://github.com/pdovhomilja/nextcrm-app/pull/314))
+
+
+### Dependencies
+
+* next 16.2.11 → 16.3.6 ([#310](https://github.com/pdovhomilja/nextcrm-app/pull/310))
+* sharp 0.35.3 → 0.35.4 ([#309](https://github.com/pdovhomilja/nextcrm-app/pull/309))
+* nodemailer 9.0.1 → 10.0.9 ([#308](https://github.com/pdovhomilja/nextcrm-app/pull/308))
+* sanitize-html 2.17.5 → 2.17.7, with a Jest transform for its ESM-only htmlparser2 dependency ([#318](https://github.com/pdovhomilja/nextcrm-app/pull/318))
+
+## [0.22.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.21.2...v0.22.0) (2026-08-10)
+
+
+### Added
+
+* add CSV/Excel export to campaign targets table ([36e3299](https://github.com/pdovhomilja/nextcrm-app/commit/36e3299b42f4be267755de4e99d59def3afa0a67))
+* add CSV/Excel export to target list detail page ([b6bb912](https://github.com/pdovhomilja/nextcrm-app/commit/b6bb9123a43419a391fd1d9c697dfd1a28e85531))
+* add CSV/XLSX export utility for targets ([77ca5ae](https://github.com/pdovhomilja/nextcrm-app/commit/77ca5ae7069a74669f62cfbd7ec22942905a986a))
+* CSV/Excel export for campaign targets and target lists ([f1ab4dc](https://github.com/pdovhomilja/nextcrm-app/commit/f1ab4dc684feaeddaad03afefdb0b68fd06c04c1))
+
+
+### Fixed
+
+* map exported 'X / Twitter' header back to social_x in import suggestions ([b457040](https://github.com/pdovhomilja/nextcrm-app/commit/b457040fa16c9ddc632ab71fecadeb67be769d82))
+* **security:** verify TLS certificates on IMAP/SMTP connections ([41e3e6b](https://github.com/pdovhomilja/nextcrm-app/commit/41e3e6bfcebd6055f6345f4f32171b3090395df1))
+* **security:** verify TLS certificates on IMAP/SMTP connections ([327d240](https://github.com/pdovhomilja/nextcrm-app/commit/327d240ab60f5d45e3066f3483e6e4585c7f92ab)), closes [#262](https://github.com/pdovhomilja/nextcrm-app/issues/262)
+
+
+### Changed
+
+* extract TARGET_FIELDS into shared spreadsheet module ([1b98905](https://github.com/pdovhomilja/nextcrm-app/commit/1b98905ae8e455d8da248b314e1b4b387de9e71f))
+
+## [0.21.2](https://github.com/pdovhomilja/nextcrm-app/compare/v0.21.1...v0.21.2) (2026-08-01)
+
+
+### Fixed
+
+* **security:** resolve all open Dependabot and CodeQL alerts ([d7145d7](https://github.com/pdovhomilja/nextcrm-app/commit/d7145d7732c457ac40a6e1fccbf1ca53e8c1188a))
+* **security:** resolve all open Dependabot and CodeQL alerts ([5a0c382](https://github.com/pdovhomilja/nextcrm-app/commit/5a0c3820c65d8c36eb41a5949b2ebccfebd73dbe))
+
+## [0.21.1](https://github.com/pdovhomilja/nextcrm-app/compare/v0.21.0...v0.21.1) (2026-08-01)
+
+
+### Fixed
+
+* add calendar connection feedback ([854233f](https://github.com/pdovhomilja/nextcrm-app/commit/854233f4538264e4a9e6b4800b58051ba7b651c0))
+
+## [0.21.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.20.2...v0.21.0) (2026-08-01)
+
+
+### Added
+
+* **campaigns:** add rendered email preview to template editor ([60d4933](https://github.com/pdovhomilja/nextcrm-app/commit/60d49338d2a6ebf8e6ceb19e7caf2174d60529f9))
+* **campaigns:** react.email layout for campaign emails + editor preview ([90782a7](https://github.com/pdovhomilja/nextcrm-app/commit/90782a73c73f40942bdebc16c350c6c82870afcc))
+* **campaigns:** wrap campaign emails in react.email layout ([57d4578](https://github.com/pdovhomilja/nextcrm-app/commit/57d457886508100ade9e39dd6481ad98a72d2d92))
+
+
+### Fixed
+
+* **campaigns:** sanitize template HTML and escape merge-tag values ([6ab4c86](https://github.com/pdovhomilja/nextcrm-app/commit/6ab4c866a954a84572a8cb3198b3d4ecb8c93c70))
+
+## [0.20.2](https://github.com/pdovhomilja/nextcrm-app/compare/v0.20.1...v0.20.2) (2026-07-23)
+
+
+### Fixed
+
+* **deps:** resolve all 65 Dependabot security alerts ([29efcd7](https://github.com/pdovhomilja/nextcrm-app/commit/29efcd79c6386f1510563c124bcf4a99e5c42d7d))
+* **deps:** resolve all 65 Dependabot security alerts (one PR) ([2647733](https://github.com/pdovhomilja/nextcrm-app/commit/2647733eb536d807adef070b719a95c0f8d7870f))
+* **deps:** resolve all 65 Dependabot security alerts via pnpm overrides ([3412d9a](https://github.com/pdovhomilja/nextcrm-app/commit/3412d9ac05963f58c6f5708f863ad45b349e2039))
+
+## [0.20.1](https://github.com/pdovhomilja/nextcrm-app/compare/v0.20.0...v0.20.1) (2026-07-23)
+
+
+### Fixed
+
+* **crm:** blank-UUID + create-in-context UX; ci(e2e): pin inngest-cli ([2e75f1c](https://github.com/pdovhomilja/nextcrm-app/commit/2e75f1cd11462a30b81a3fbd42c240597605fb2d))
+* **crm:** normalize blank UUID fields in createAccount ([6123855](https://github.com/pdovhomilja/nextcrm-app/commit/612385540a259868ecfe1ea81e02d7ea6da0960c))
+* **crm:** normalize blank UUID inputs and auto-fill account/assignee on create ([a5b0a78](https://github.com/pdovhomilja/nextcrm-app/commit/a5b0a782f327aadb21c7ccc8faeae63e1de818fa))
+
+## [0.20.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.19.0...v0.20.0) (2026-07-22)
+
+
+### Added
+
+* **mcp:** reassignment on accounts, contacts and leads; scope CRM lead tools ([0591426](https://github.com/pdovhomilja/nextcrm-app/commit/05914261d7236370237d50edde9d3474d91ea4f3))
+* **mcp:** reassignment on accounts, contacts and leads; scope CRM lead tools ([2e7220a](https://github.com/pdovhomilja/nextcrm-app/commit/2e7220a50d1b98d668192299a1e42ba90099b1c9))
+
+## [0.19.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.18.0...v0.19.0) (2026-07-22)
+
+
+### Added
+
+* **mcp:** add crm_list_users and opportunity reassignment ([d2adc62](https://github.com/pdovhomilja/nextcrm-app/commit/d2adc6262086a975369cc71411e81fd166d89490))
+
+
+### Fixed
+
+* **mcp:** role-aware read scoping and account/contact linking in CRM tools ([3a89d55](https://github.com/pdovhomilja/nextcrm-app/commit/3a89d5555277c1c5a1fbb83826f91c6a9ee2ce12))
+* **mcp:** role-aware read scoping, FK linking, and user lookup for CRM tools ([4575e9d](https://github.com/pdovhomilja/nextcrm-app/commit/4575e9d7dec10a9f689a910ded518a0797cfe2f3))
+
+## [0.18.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.17.0...v0.18.0) (2026-07-22)
+
+
+### Added
+
+* **admin:** mount Resend service card at /admin/services ([3c552db](https://github.com/pdovhomilja/nextcrm-app/commit/3c552dba846415cbaeb267474f56afa95d84cac5))
+* **authz:** object-level authorization on account write actions ([69edcfe](https://github.com/pdovhomilja/nextcrm-app/commit/69edcfea75ec2af1565a54424b93ac17fae72621))
+* **authz:** object-level authorization on contact write actions ([c08d61b](https://github.com/pdovhomilja/nextcrm-app/commit/c08d61be5782aa452c1516facea8c98ecccc110c))
+* **authz:** object-level authorization on contract write actions ([12750da](https://github.com/pdovhomilja/nextcrm-app/commit/12750dae561e15add52ef62d0bdfefd55b6288eb))
+* **authz:** object-level authorization on CRM task write actions ([8be1abb](https://github.com/pdovhomilja/nextcrm-app/commit/8be1abb88516555c8779fdca0cbe4c7adaf15a36))
+* **authz:** object-level authorization on lead write actions ([747d9dc](https://github.com/pdovhomilja/nextcrm-app/commit/747d9dc3c56ee97fd278758e79f6744a8fd6ebec))
+* **authz:** object-level authorization on opportunity write actions ([c0c8379](https://github.com/pdovhomilja/nextcrm-app/commit/c0c837913aff65ccaede4deb36c4dc5611c564ff))
+* **authz:** object-level authorization on target write actions ([522ac83](https://github.com/pdovhomilja/nextcrm-app/commit/522ac832b9bf5b8b4fcf13cbeb12685596e09e53))
+* **authz:** object-level authorization on target-list write actions ([a748ef1](https://github.com/pdovhomilja/nextcrm-app/commit/a748ef1f124ebde27a5e07aeac0d65b4084d262b))
+* **authz:** parent-scoped authorization on contract line-items ([cad5741](https://github.com/pdovhomilja/nextcrm-app/commit/cad57416c5cefe2a723adf7c7c74b3b296a101fc))
+* **authz:** parent-scoped authorization on opportunity line-items ([a973962](https://github.com/pdovhomilja/nextcrm-app/commit/a973962deb106897e591169aa98312fd830cec15))
+* **authz:** write-scope asserts for lead, opportunity, contract, target-list, crm-task, line-items ([4eead0e](https://github.com/pdovhomilja/nextcrm-app/commit/4eead0e6ee22e5112e3dcf548bc7854f02624de9))
+* **dev:** Inngest dev server via docker-compose.dev.yml for host development ([7596978](https://github.com/pdovhomilja/nextcrm-app/commit/7596978289202d402246f27b47c2e3c15bc786c8))
+* **dev:** local pgvector Postgres service for host development ([c28e2d4](https://github.com/pdovhomilja/nextcrm-app/commit/c28e2d41394889682b56f8f8210174cfd8375c20))
+* **dev:** point DATABASE_URL at local Postgres, add db:migrate ([0e9b69c](https://github.com/pdovhomilja/nextcrm-app/commit/0e9b69c1268a1081c98a7dd7c921556bf22e6485))
+* **dev:** seed local database, add db:seed and db:reset ([8f4f415](https://github.com/pdovhomilja/nextcrm-app/commit/8f4f41520df2350bee74640209d8bac70be85c14))
+* **mcp:** assertScopeOrNotFound adapter for object-level tool authorization ([d9e12d2](https://github.com/pdovhomilja/nextcrm-app/commit/d9e12d270a0b01477421d44a335ff52a517ce7b9))
+* **mcp:** object-level authorization on project board tools ([df19c69](https://github.com/pdovhomilja/nextcrm-app/commit/df19c69fc49a2829dc04baae812a4bfe5a2cde14))
+* **mcp:** object-level authorization on project comment + document-link tools ([b8d967c](https://github.com/pdovhomilja/nextcrm-app/commit/b8d967cf2bc7b078e289ccb94280a300c3de9d78))
+* **mcp:** object-level authorization on project section tools ([a5faf98](https://github.com/pdovhomilja/nextcrm-app/commit/a5faf98d8362f10a5f7ae2ca5877ae47bd28ff0e))
+* **mcp:** object-level authorization on project task tools; drop userBoardWhere ([f36e85a](https://github.com/pdovhomilja/nextcrm-app/commit/f36e85a2dc0f96c8af19bd68cf6818fd440ee462))
+* **mcp:** read-scoped authorization on project watch_board (escalation fix) ([7f6d2f8](https://github.com/pdovhomilja/nextcrm-app/commit/7f6d2f83a2b1e6f19fc9445cdb4989141ab5e1fb))
+* **net:** assertPublicHost — resolve-validate-pin guard against SSRF/DNS-rebinding ([e4f8e95](https://github.com/pdovhomilja/nextcrm-app/commit/e4f8e954248f2484341c31f5bfc8d0bb9f01ac90))
+* **net:** ip-rules — refuse non-public-unicast addresses (SSRF) ([17cbb28](https://github.com/pdovhomilja/nextcrm-app/commit/17cbb28de85aa29192b4a66837372a148aaf794c))
+* **security:** SSRF host-guard on IMAP test/discover/create sinks ([a775e0d](https://github.com/pdovhomilja/nextcrm-app/commit/a775e0d0498362b7240e82b6543cdf25e9c1249e))
+* **security:** SSRF host-guard on SMTP send and background IMAP connect ([53eeac4](https://github.com/pdovhomilja/nextcrm-app/commit/53eeac43eb4ec9aa3ba57777d88a01504f6c570c))
+
+
+### Fixed
+
+* **authz:** guard directly-callable convertTarget action ([8b9f291](https://github.com/pdovhomilja/nextcrm-app/commit/8b9f291cdccdcf51c31562d8ceed072205845566))
+* **authz:** use shared opportunity write-scope in setInactiveOpportunity ([30f9544](https://github.com/pdovhomilja/nextcrm-app/commit/30f95446bb825ded9105604a39c2c81b5ad86a58))
+* **db-guard:** block empty/unresolvable host instead of passing it ([521137f](https://github.com/pdovhomilja/nextcrm-app/commit/521137f93129f3af146b4ee2fc7faf10c6a4390d))
+* **db-guard:** close query-string [@localhost](https://github.com/localhost) bypass, fix bracketed IPv6 ([8909bc3](https://github.com/pdovhomilja/nextcrm-app/commit/8909bc3f631cc007bfdd21e76c6f94a35a9aa8cf))
+* **dev:** bind local Postgres to loopback and bound db:wait retries ([989e2ed](https://github.com/pdovhomilja/nextcrm-app/commit/989e2ed9ccdf8b621147db962121b9b5a18721b0))
+* **dev:** guard db scripts against remote DB and correct local Postgres docs ([3482cd0](https://github.com/pdovhomilja/nextcrm-app/commit/3482cd0936de273d6ce24cf28018ac8ff965cd7b))
+* **security:** authorize Resend key action, harden IMAP/SMTP connect surface ([648160f](https://github.com/pdovhomilja/nextcrm-app/commit/648160f0dfdaa235d45ec8b3806f4552277244f3))
+
+## [0.17.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.16.0...v0.17.0) (2026-07-20)
+
+
+### Added
+
+* **calendar:** emit outbound sync events from activity writers ([de3c34b](https://github.com/pdovhomilja/nextcrm-app/commit/de3c34b5ad903ab654930c7c5982949456737b4d))
+* **calendar:** two-way sync upgrade button + scope level in profile UI ([2cf2f1d](https://github.com/pdovhomilja/nextcrm-app/commit/2cf2f1d68ef5727bfd22c1213d242b9437012e66))
+
+
+### Fixed
+
+* **calendar:** close unrelated-connection guard gap for disconnected accounts ([1c13839](https://github.com/pdovhomilja/nextcrm-app/commit/1c138396ed6b2132509b3ca3ce6e4c3c0cb7556b))
+* **calendar:** harden outbound push against guest-list wipes, false revocations, and unauthorized writes ([03e3f60](https://github.com/pdovhomilja/nextcrm-app/commit/03e3f60e75aa6d577b2c76588c0c00b06d328d9c))
+* **calendar:** harden outbound sync emit against slow sends and fix write/emit ordering ([55845a1](https://github.com/pdovhomilja/nextcrm-app/commit/55845a1a7cf32d9c268775c2328f9c234c5e5be2))
+* **calendar:** keep stored scopeLevel truthful, kill race duplicates, patch back-dated meetings ([e0729cc](https://github.com/pdovhomilja/nextcrm-app/commit/e0729cc3920aa3415f5bde05140d3c14ac0a9da7))
+* **calendar:** stop notes edits on past meetings from emailing customers ([9eb4344](https://github.com/pdovhomilja/nextcrm-app/commit/9eb4344a52e5e1af8c0e1dfddc64f5d2eddaeb47))
+
+## [0.16.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.15.0...v0.16.0) (2026-07-19)
+
+
+### Added
+
+* **calendar:** CalendarConnection + crm_CalendarEvents models for Phase 4 sync ([816a5c0](https://github.com/pdovhomilja/nextcrm-app/commit/816a5c045f876f456418a0bd28a19fee62a73784))
+* **calendar:** Calendly admin settings page + org webhook subscription ([bdede85](https://github.com/pdovhomilja/nextcrm-app/commit/bdede854b6e26242f76cdd7ef16312605f293a3e))
+* **calendar:** Calendly settings storage + signed webhook endpoint ([f92c728](https://github.com/pdovhomilja/nextcrm-app/commit/f92c7283359dae3cdf63f4c7c9050de64fa04131))
+* **calendar:** Calendly webhook HMAC signature verification ([42d3142](https://github.com/pdovhomilja/nextcrm-app/commit/42d31424c7036187e7edd96741c7a7292306ea92))
+* **calendar:** counterparty email matcher (contact &gt; target &gt; lead) ([e942991](https://github.com/pdovhomilja/nextcrm-app/commit/e9429917eeb99ac3522dab7d79944bbdf37311b1))
+* **calendar:** dedicated Calendar tab on profile + OAuth result banner ([7240889](https://github.com/pdovhomilja/nextcrm-app/commit/724088999b2d139d6e09d993624df9c6441aaf94))
+* **calendar:** Google Calendar incremental polling sync via Inngest ([f70b663](https://github.com/pdovhomilja/nextcrm-app/commit/f70b66320de1b508f6207aa8f760496921cf4898))
+* **calendar:** Google Calendar OAuth connect flow (readonly scope) ([2e8b591](https://github.com/pdovhomilja/nextcrm-app/commit/2e8b59147bde47a176dee78da272591aecbd4d0d))
+* **calendar:** inngest processor for crm/calendar.event.received ([dc96cd1](https://github.com/pdovhomilja/nextcrm-app/commit/dc96cd1dcbedfe9a89c4eaf941c910ce330196bd))
+* **calendar:** profile UI for Google Calendar connections ([ea5e7c5](https://github.com/pdovhomilja/nextcrm-app/commit/ea5e7c5dc6bfed2ed7be97f7fe2b67ebcb3a1be3))
+* **calendar:** register calendar settings in admin sidebar ([7791ab2](https://github.com/pdovhomilja/nextcrm-app/commit/7791ab2d6ac62c1111a2ae1a875fdd1533b206d2))
+* **calendar:** shared idempotent calendar-event processor ([2e4aa70](https://github.com/pdovhomilja/nextcrm-app/commit/2e4aa70712cf45400544256bb0fe7a7b1160573d))
+* **crm:** AQUNAMA Phase 4 — calendar sync (Calendly + Google Calendar inbound) ([57fa4ec](https://github.com/pdovhomilja/nextcrm-app/commit/57fa4ec4c26b481c06a874db00a8f4f9503bfc93))
+
+
+### Fixed
+
+* **calendar:** classify Google auth-revocation vs rate-limit/token errors ([51cdbec](https://github.com/pdovhomilja/nextcrm-app/commit/51cdbecfbc5dbdcfcc6d4475ac2b8a51886ad345))
+* **calendar:** exception-safe Calendly subscription + shared authz in admin settings ([5a127ab](https://github.com/pdovhomilja/nextcrm-app/commit/5a127ab6db964a5d125ecd0ac366ff91e22064a9))
+* **calendar:** filter soft-deleted contacts/leads in matcher ([eba5ecd](https://github.com/pdovhomilja/nextcrm-app/commit/eba5ecd39595c6fbd32c4e0aec9d9071c423e3a2))
+* **calendar:** log dropped Calendly webhook events missing uri/start_time ([290f23f](https://github.com/pdovhomilja/nextcrm-app/commit/290f23f26d21672d7f5d05c29722a4674e2166a0))
+* **calendar:** OAuth state (CSRF) validation + narrowed error logging ([5978f82](https://github.com/pdovhomilja/nextcrm-app/commit/5978f82b072c2b1f2c7f06f542c6217a4a343695))
+* **calendar:** record lastSyncError for upsert-loop failures in google sync ([fc3dedd](https://github.com/pdovhomilja/nextcrm-app/commit/fc3deddd447c20b387755bf9f0001222d1fd7e47))
+* **calendar:** transactional upsert + P2002 race handling in calendar processor ([7b8c34a](https://github.com/pdovhomilja/nextcrm-app/commit/7b8c34a6a9f07b2713132df66d02df0735df87fe))
+* **crm:** exclude cancelled activities from the Phase 2 kill-clock query ([a2c8a2d](https://github.com/pdovhomilja/nextcrm-app/commit/a2c8a2dfdb2d01531e36116b4a37f75d6c740bb4))
+
+## [0.15.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.14.0...v0.15.0) (2026-07-19)
+
+
+### Added
+
+* AQUNAMA Phase 3 — SOW/quote approval workflow + case-study flags ([43f95bf](https://github.com/pdovhomilja/nextcrm-app/commit/43f95bfdac390298c70751ff462143f4987a312d))
+
+## [0.14.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.13.3...v0.14.0) (2026-07-19)
+
+
+### Added
+
+* **admin:** connect automation trigger kinds to sales stages in CRM settings ([49847ba](https://github.com/pdovhomilja/nextcrm-app/commit/49847bab3a41f5617530de09edd4e79ad3193d69))
+* **admin:** instance-grade funnel timing settings page ([e94d1da](https://github.com/pdovhomilja/nextcrm-app/commit/e94d1da373c2e84b68d72bb6104aea3f39958c2c))
+* AQUNAMA Phase 2 — funnel timer & task engine (kill rule, cadence, care, recycle, renewals) ([8d2a866](https://github.com/pdovhomilja/nextcrm-app/commit/8d2a866c703f950defc6517cd4411cb05de32a25))
+* **crm:** 45-day kill rule cron with inbound-email/activity clock ([aa591a1](https://github.com/pdovhomilja/nextcrm-app/commit/aa591a142ccda15e2304ecdbd62c21405cea41fa))
+* **crm:** auto-task helper and 5-touch qualified follow-up cadence ([366af8a](https://github.com/pdovhomilja/nextcrm-app/commit/366af8a7d8debb1acd37d77cbac087ee5a1e4a60))
+* **crm:** care touchpoint engine (check-in, referral, quarterly) ([ab9aff8](https://github.com/pdovhomilja/nextcrm-app/commit/ab9aff8fc39061dd474a26b16a8488ebdfe3324f))
+* **crm:** configurable timer logic — business days, cadence/care schedules, kill predicate, settings loader ([cd956fc](https://github.com/pdovhomilja/nextcrm-app/commit/cd956fce0934aeb9865ae64496d6c27b0f23c6ce))
+* **crm:** emit crm/opportunity.stage-changed from all stage-writing actions ([413bd48](https://github.com/pdovhomilja/nextcrm-app/commit/413bd48d558574d297e24f24d0eb0bb8323c577c))
+* **crm:** stage_kind on sales stages, task-opportunity link, stage_entered_at ([8eff98c](https://github.com/pdovhomilja/nextcrm-app/commit/8eff98c4ea8b493ff7a3847450498caa3977fbae))
+* **crm:** target recycle cron with Recycled list and admin digest ([8c83243](https://github.com/pdovhomilja/nextcrm-app/commit/8c8324357bd011aae849daab8ec14b8930aeb3c8))
+* **crm:** weekly renewal reminder sweep for contracts and account products ([18da8de](https://github.com/pdovhomilja/nextcrm-app/commit/18da8de91bac437ca271cf4585aa94da96d4a905))
+
+
+### Fixed
+
+* **crm:** final-review fixes — protect re-engaged targets and completed renewals ([f2a7434](https://github.com/pdovhomilja/nextcrm-app/commit/f2a743412d657a8ac99782595790ab9e8b37c937))
+
+## [0.13.3](https://github.com/pdovhomilja/nextcrm-app/compare/v0.13.2...v0.13.3) (2026-07-17)
+
+
+### Fixed
+
+* **ci:** make migration chain replayable on a fresh database ([2c34ebb](https://github.com/pdovhomilja/nextcrm-app/commit/2c34ebbe203ffa620535eaf3437d2db5ed067d15))
+* **crm:** drop empty currency on opportunity update; e2e round 2 ([bbac5ea](https://github.com/pdovhomilja/nextcrm-app/commit/bbac5ea7a9e57b66346101f678806a4cfc8766f1))
+
+## [0.13.2](https://github.com/pdovhomilja/nextcrm-app/compare/v0.13.1...v0.13.2) (2026-07-17)
+
+
+### Fixed
+
+* **crm:** align lead/contract table display schemas with DB nullability ([c1c8ef4](https://github.com/pdovhomilja/nextcrm-app/commit/c1c8ef42be008c4e4951efa336a5450b9fbaeb28))
+* **crm:** align table display schemas with DB nullability (close_date, leads, contracts) ([37cfbef](https://github.com/pdovhomilja/nextcrm-app/commit/37cfbefd7df79c36bfebb04cc8aaa01581002a1b))
+
+## [0.13.1](https://github.com/pdovhomilja/nextcrm-app/compare/v0.13.0...v0.13.1) (2026-07-17)
+
+
+### Fixed
+
+* **crm:** serialize Prisma Decimals in opportunities/contracts fetches (RSC boundary error) ([48a6bb0](https://github.com/pdovhomilja/nextcrm-app/commit/48a6bb0550d9fafc174c55911e5aff7215b794e3))
+* **crm:** serialize Prisma Decimals in opportunities/contracts list fetches ([ffba94a](https://github.com/pdovhomilja/nextcrm-app/commit/ffba94aebec29c2bdad101a6d6d6875073cc3583))
+
+## [0.13.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.12.3...v0.13.0) (2026-07-17)
+
+
+### Added
+
+* add Mailtrap email provider helper ([562aeb9](https://github.com/pdovhomilja/nextcrm-app/commit/562aeb947f5f5c2038d29753176fb871562e19a7))
+* add Mailtrap sandbox email testing provider ([9dd0a7d](https://github.com/pdovhomilja/nextcrm-app/commit/9dd0a7db078334d418576c5eea1ccad04e8758d9))
+* add real sending capability to Mailtrap helper ([7229e90](https://github.com/pdovhomilja/nextcrm-app/commit/7229e903c494efed6aed4987066da8cbe079a0af))
+* AQUNAMA Phase 1 — global email opt-out, target-to-deal conversion, delivery deadline, XLSX import ([f8dacb3](https://github.com/pdovhomilja/nextcrm-app/commit/f8dacb3b3ab3e2c6626e8d9019233785d468f792))
+* **campaigns:** enforce global do_not_email across send pipeline and import ([4471454](https://github.com/pdovhomilja/nextcrm-app/commit/44714549f46acbe1f2f03ecc4b8f581180ce4887))
+* **campaigns:** unsubscribe sets global do_not_email suppression on targets ([6a97c5b](https://github.com/pdovhomilja/nextcrm-app/commit/6a97c5b43da924d4961e6d0648ab154d598f5c82))
+* **crm:** add delivery_deadline field to opportunities (PO-stage requirement) ([fba530b](https://github.com/pdovhomilja/nextcrm-app/commit/fba530b9354f2a3dc626300b380a6d00870902b5))
+* **crm:** add global do_not_email flag on targets and delivery_deadline on opportunities ([8a7c8a6](https://github.com/pdovhomilja/nextcrm-app/commit/8a7c8a6ff525d9f04ad3d9c2ed2ef2e25b62aab6))
+* **crm:** convert target to deal with campaign attribution and entry stage ([2d79035](https://github.com/pdovhomilja/nextcrm-app/commit/2d79035315263eaae9c1f009c3def7c76f74158b))
+* **crm:** support XLSX target imports via shared spreadsheet parser ([4dabb29](https://github.com/pdovhomilja/nextcrm-app/commit/4dabb29b2e0a35a2f150cc45c0dd0e2e96b61180))
+
+
+### Fixed
+
+* **campaigns:** case-insensitive suppression matching and send-step last-gate guard ([f9df822](https://github.com/pdovhomilja/nextcrm-app/commit/f9df822c230c5da8b1c2dbb31a2d53301e0b9b4e))
+* **campaigns:** keep unsubscribe confirmation on suppression write failure ([2bee7dc](https://github.com/pdovhomilja/nextcrm-app/commit/2bee7dc07fd15fc516592131476aa2fea561b77d))
+* **crm:** make target-to-deal conversion idempotent and honor error contract ([a27cf00](https://github.com/pdovhomilja/nextcrm-app/commit/a27cf00c1740c8f69cb0474dd1f365d1ff28670c))
+* **deploy:** pin pnpm 11 via packageManager so nixpacks doesn't build with pnpm 9 ([aedeab3](https://github.com/pdovhomilja/nextcrm-app/commit/aedeab33fd90f10f22e3c842daf8d59819b553b4))
+* **deploy:** use current corepack in nixpacks and migrate to pnpm 11 allowBuilds ([82ccda4](https://github.com/pdovhomilja/nextcrm-app/commit/82ccda4b2b577cb46cf9f911fbac7d34ee26ff7c))
+* **deps:** pin kysely 0.28 — restore main deployability (better-auth 1.6.13 adapter breakage) ([b7392ac](https://github.com/pdovhomilja/nextcrm-app/commit/b7392acc5d0e42ff0465e0db0b9a20c14deafbfd))
+* **deps:** pin kysely to 0.28 line — better-auth 1.6.13 adapter incompatible with kysely 0.29 ([284a305](https://github.com/pdovhomilja/nextcrm-app/commit/284a30519f12cc95a53bb56dbc43ac70f8629478))
+
+## [0.12.3](https://github.com/pdovhomilja/nextcrm-app/compare/v0.12.2...v0.12.3) (2026-06-13)
+
+
+### Bug Fixes
+
+* **security:** enforce manager/admin RBAC in MCP product tools (GHSA-wv63-cq38-qg58) ([02e7a22](https://github.com/pdovhomilja/nextcrm-app/commit/02e7a226e1363a060013cc16bb4d26d4c190bc27))
+* **security:** enforce manager/admin RBAC in MCP product tools (GHSA-wv63-cq38-qg58) ([1c41d58](https://github.com/pdovhomilja/nextcrm-app/commit/1c41d5832629f50e658fb64a884c98e846830549))
+
+## [0.12.2](https://github.com/pdovhomilja/nextcrm-app/compare/v0.12.1...v0.12.2) (2026-06-13)
+
+
+### Bug Fixes
+
+* **security:** enforce object-level authz in MCP campaign tools (GHSA-c9vg-c532-ppqx) ([d219b7b](https://github.com/pdovhomilja/nextcrm-app/commit/d219b7b47291e52cd200fba193f4da68c6dde75a))
+* **security:** enforce object-level authz in MCP campaign tools (GHSA-c9vg-c532-ppqx) ([88258b1](https://github.com/pdovhomilja/nextcrm-app/commit/88258b1cce63f42e9399b1ce9575a72dc89b72c5))
+
+## [0.12.1](https://github.com/pdovhomilja/nextcrm-app/compare/v0.12.0...v0.12.1) (2026-05-11)
+
+
+### Bug Fixes
+
+* **mcp:** set basePath so /api/mcp/{mcp,sse} actually route ([16fb5be](https://github.com/pdovhomilja/nextcrm-app/commit/16fb5be137fb54b5de324f659dd8b48881004aad))
+* **mcp:** set basePath so /api/mcp/{mcp,sse} actually route ([3c36be2](https://github.com/pdovhomilja/nextcrm-app/commit/3c36be22658d27092606e32dea3d083fcc0b1bfd))
+
+## [0.12.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.11.1...v0.12.0) (2026-05-08)
+
+
+### Features
+
+* **authz:** add account read-scope helpers ([6fdff66](https://github.com/pdovhomilja/nextcrm-app/commit/6fdff669fdd1db42789b106e0e4f8939a98f6ff0))
+* **authz:** add account write-scope assertion helper ([fb4b8f6](https://github.com/pdovhomilja/nextcrm-app/commit/fb4b8f66052d62097bea9c66c1d0c8bf9ae4c05c))
+* **authz:** add account/lead/opportunity id-filter helpers (similarity post-filter) ([98b32f1](https://github.com/pdovhomilja/nextcrm-app/commit/98b32f17eb2c11e9237f95eddc85d0bf89d8206b))
+* **authz:** add activity-for-entity scope dispatch helper ([db08f51](https://github.com/pdovhomilja/nextcrm-app/commit/db08f51b8b943ffac1a755029a27c352e6ac7a6f))
+* **authz:** add AuthenticationError and AuthorizationError ([47e4980](https://github.com/pdovhomilja/nextcrm-app/commit/47e49805928975b8a0932c380871c0e174c287c1))
+* **authz:** add barrel export ([48a2a5e](https://github.com/pdovhomilja/nextcrm-app/commit/48a2a5e379f8a634ebd322603c139c2cf715a399))
+* **authz:** add board and task read/write scope helpers ([380e6a5](https://github.com/pdovhomilja/nextcrm-app/commit/380e6a59f636416ef1650ef849b947b6edab7a4a))
+* **authz:** add bulk-id authorization filters for contacts and targets ([388d29d](https://github.com/pdovhomilja/nextcrm-app/commit/388d29dcbea52c6dfcfe2e3720ed2bb3fc515cb7))
+* **authz:** add campaign and template read/write scope helpers ([6af7af0](https://github.com/pdovhomilja/nextcrm-app/commit/6af7af033f6d49df1844fb07e2687401d110c7c0))
+* **authz:** add canonical AppRole type and legacy role mapper ([1350ed3](https://github.com/pdovhomilja/nextcrm-app/commit/1350ed39623a61aa31ed2e9220fa66b7782796a4))
+* **authz:** add document read/write scope helpers (linked-entity aware) ([f2122a2](https://github.com/pdovhomilja/nextcrm-app/commit/f2122a23eec404e431445d7645ef9c3431e5bdce))
+* **authz:** add enrichment cancel permission helpers ([6acbfec](https://github.com/pdovhomilja/nextcrm-app/commit/6acbfec765d0bc68748a20f8b3df75602220bd5c))
+* **authz:** add lead/contact/opportunity/contract read-scope helpers (linked-account aware) ([bfaef87](https://github.com/pdovhomilja/nextcrm-app/commit/bfaef8756686eb2c07236b1250e67032cbaafbb4))
+* **authz:** add read/write assertion helpers for contacts and targets ([e0fff6b](https://github.com/pdovhomilja/nextcrm-app/commit/e0fff6b911f145fe1878de9d3969657b897bb2f9))
+* **authz:** add ReportScope builder for per-role report data filtering ([0035bf0](https://github.com/pdovhomilja/nextcrm-app/commit/0035bf0cb3047a5a54c7caf7eb898b2037306d79))
+* **authz:** add requireAuthenticated, requireRole, role predicates ([30c3472](https://github.com/pdovhomilja/nextcrm-app/commit/30c3472f94e6e2555ad2ca9109f793c795b7c497))
+* **authz:** add route response helpers (401/403/404) ([7ad29ae](https://github.com/pdovhomilja/nextcrm-app/commit/7ad29aea1639d3c403d1283698c65c74aef164ed))
+* **authz:** add scoped contact and target update helpers ([071cb2c](https://github.com/pdovhomilja/nextcrm-app/commit/071cb2ceab48858c505a3ed7e3b0ae47119e7b1e))
+* **authz:** add target and target-list read-scope helpers ([45b82a8](https://github.com/pdovhomilja/nextcrm-app/commit/45b82a87538d54921cbb370b9d873cb42cc68a35))
+* **authz:** align UI/action callers to canonical role names ([1dc5618](https://github.com/pdovhomilja/nextcrm-app/commit/1dc5618c6c17d3e5b96295c9c38ff2324fd91447))
+* **authz:** switch Users.role to Prisma enum AppRole ([d598305](https://github.com/pdovhomilja/nextcrm-app/commit/d598305ebc97b15852f41d5cc5f1807836302cfe))
+* **authz:** validate setUserRole against canonical AppRole ([77241b7](https://github.com/pdovhomilja/nextcrm-app/commit/77241b726b748a5191c5acb6c331888672eac947))
+* **db:** backfill canonical roles (admin/manager/user) and sync is_admin ([f7475f5](https://github.com/pdovhomilja/nextcrm-app/commit/f7475f5d081a1cba0ae76c9af962c10f5209648b))
+* **reports:** per-category functions accept ReportScope to filter data by role ([87d73e0](https://github.com/pdovhomilja/nextcrm-app/commit/87d73e0c982b11c259bbdeef298641e087fd4251))
+* **security:** permission-driven authorization migration (Phases A → F.1) ([e06478f](https://github.com/pdovhomilja/nextcrm-app/commit/e06478ff16f9a7472c6d16cd0ef6e96c5c409446))
+
+
+### Bug Fixes
+
+* **account-products:** require account read scope on get-account-products ([36f2d0d](https://github.com/pdovhomilja/nextcrm-app/commit/36f2d0d073adcab04729e15395d1f1b1d0273890))
+* **account-products:** require account write scope on assignment mutations ([dfa1850](https://github.com/pdovhomilja/nextcrm-app/commit/dfa18506a9d96eacb31c7014ca39d17cf46c1c56))
+* **admin:** require admin role on activate/deactivate user (close audit gap) ([8215af2](https://github.com/pdovhomilja/nextcrm-app/commit/8215af27d86575b3a094e554dbe4e401810fc5e4))
+* **admin:** require admin role on CRM-settings server actions ([be27db7](https://github.com/pdovhomilja/nextcrm-app/commit/be27db7b31c6e65796bed7d73d1ba8433173a561))
+* **admin:** require admin role on currency server actions ([8dfc9ad](https://github.com/pdovhomilja/nextcrm-app/commit/8dfc9ad99c3c5224675f9d11046f014a98c1115c))
+* **api:** filter contact bulk enrichment ids by user scope ([5014d9a](https://github.com/pdovhomilja/nextcrm-app/commit/5014d9ad747c75e0278950a361e30073d09c7c17))
+* **api:** filter target bulk enrichment ids by user scope ([4af94fe](https://github.com/pdovhomilja/nextcrm-app/commit/4af94fe910f9eb3b0290fe519eae0e7efde1a72e))
+* **api:** require contact write scope on enrich POST/DELETE ([b1530c0](https://github.com/pdovhomilja/nextcrm-app/commit/b1530c091ebc15e255ccce47e220b755bae8db17))
+* **api:** require invoice read scope on PDF route ([a35d7d0](https://github.com/pdovhomilja/nextcrm-app/commit/a35d7d0c0c7d12a58b4567bb3fa62fe1dc324508))
+* **api:** require parent target write scope on target-contact create ([28912b4](https://github.com/pdovhomilja/nextcrm-app/commit/28912b43aed27a08243c066ed644d57c195fe817))
+* **api:** require target write scope and contact linkage on per-target-contact enrich ([80f9ee4](https://github.com/pdovhomilja/nextcrm-app/commit/80f9ee4dadaff611cbd4fc578e2d7048e371ca76))
+* **api:** require target write scope on enrich POST/DELETE (auto-fixes campaign re-export) ([18a0b56](https://github.com/pdovhomilja/nextcrm-app/commit/18a0b562a14b36f3b6137a18a856fb8f616f3414))
+* **api:** require target write scope on per-target enrich (auto-fixes campaign re-export) ([85cfe72](https://github.com/pdovhomilja/nextcrm-app/commit/85cfe720fb2281eb73d74ec737d3c7037442b37f))
+* **api:** scope reports/export by role; gate users-directory report ([571fbf3](https://github.com/pdovhomilja/nextcrm-app/commit/571fbf37caf71a7a2f66980cf28c6e1a710141e7))
+* **api:** scoped contact PATCH closes BOLA/IDOR (GHSA-mg5f-m89f-4gmc) ([c80d3ec](https://github.com/pdovhomilja/nextcrm-app/commit/c80d3ec564ddb5f3bf38aec54ff5fb5aa3e7e90c))
+* **api:** scoped target PATCH closes BOLA/IDOR (auto-fixes campaign re-export) ([cd0ed0a](https://github.com/pdovhomilja/nextcrm-app/commit/cd0ed0a4139398cf003505c44e9bc8a91a9def76))
+* **auth:** align auth-client roles with renamed manager/user ([66e0e84](https://github.com/pdovhomilja/nextcrm-app/commit/66e0e8428556c9c75da28f601ef33d38cf94a674))
+* **authz:** drop readonly tuple from accountUserScopeOR for Prisma compat ([39bcebe](https://github.com/pdovhomilja/nextcrm-app/commit/39bcebe70acfe17a391b1d0ad06178c7752b0a43))
+* **authz:** include deletedAt:null in target read scope (crm_Targets has soft-delete) ([7a8fc2e](https://github.com/pdovhomilja/nextcrm-app/commit/7a8fc2e620c11e3abd9c3b1456703eced05eb61d))
+* **authz:** replace is_admin checks with requireRole on admin invoice routes ([a54ed98](https://github.com/pdovhomilja/nextcrm-app/commit/a54ed9836deb11b7ba8714fc15a0248d36824ab3))
+* **authz:** use lowercase prismadb.documents accessor ([a816361](https://github.com/pdovhomilja/nextcrm-app/commit/a816361a0029165294d1e201423a10fdc4e570d8))
+* **campaign-templates:** scope template reads/mutations by role and ownership ([417ae5a](https://github.com/pdovhomilja/nextcrm-app/commit/417ae5a8e7ad6049397af2a03997d27b81cc2bfe))
+* **campaigns:** narrow createCampaign result before using campaign.id ([1794a88](https://github.com/pdovhomilja/nextcrm-app/commit/1794a88ebde37b491a532865229c78175e5f65f4))
+* **campaigns:** require auth + ownership on create/update/delete/pause ([6f2b02e](https://github.com/pdovhomilja/nextcrm-app/commit/6f2b02e1b35823c87a5a9d6a15e751bc90064c23))
+* **campaigns:** require manager/admin role on schedule and send-now ([7361442](https://github.com/pdovhomilja/nextcrm-app/commit/7361442c5226030125ede66cb45ba6ea5c4a9aab))
+* **campaigns:** scope campaign reads by role ([146d5b4](https://github.com/pdovhomilja/nextcrm-app/commit/146d5b4b224bd887dacb50e69b954ea7bdbb8795))
+* **crm:** require account read scope on getAccountById ([edb9b9b](https://github.com/pdovhomilja/nextcrm-app/commit/edb9b9b821b10cc5271560b73caf8efaba02c59c))
+* **crm:** require entity-scoped read access on activity feed ([568a7cc](https://github.com/pdovhomilja/nextcrm-app/commit/568a7cc8c56e0eb10f97442bb43ea3206978a4d6))
+* **crm:** scope account list by user/manager/admin role ([a9f9a6f](https://github.com/pdovhomilja/nextcrm-app/commit/a9f9a6fa3755e561678361d91af6bae8e239fa2e))
+* **crm:** scope account search by user/manager/admin role ([3fd6673](https://github.com/pdovhomilja/nextcrm-app/commit/3fd6673879f88ffff8c50dd5801d02b141cecc89))
+* **crm:** scope audit-log-by-entity and normalize audit-log-admin to canonical helper ([ea45503](https://github.com/pdovhomilja/nextcrm-app/commit/ea45503d576a6fc3181f742adaff58e58b735936))
+* **crm:** scope contact reads by role and linked-account/opportunity access ([be7e186](https://github.com/pdovhomilja/nextcrm-app/commit/be7e186236b2eef48b0915428cc75eca1c6f0667))
+* **crm:** scope contract reads by role and linked-account access ([9b39448](https://github.com/pdovhomilja/nextcrm-app/commit/9b39448178c3d6ed241aadf60894ea1fd9479a9f))
+* **crm:** scope lead reads by role and linked-account access ([b5d088b](https://github.com/pdovhomilja/nextcrm-app/commit/b5d088bbb63d69e5bc79fd62c32f37edf46eabbc))
+* **crm:** scope opportunity reads by role; cache key respects user scope ([16c64fb](https://github.com/pdovhomilja/nextcrm-app/commit/16c64fbfb063ae0ea41678fa059e74357e296561))
+* **crm:** scope pgvector similarity results by user/manager/admin ([a1fb3a8](https://github.com/pdovhomilja/nextcrm-app/commit/a1fb3a84a6aab9913929d61d1b5b1bc54420e276))
+* **crm:** scope remaining opportunity read actions (by-account, by-contact, user-opps) ([e8bcfc9](https://github.com/pdovhomilja/nextcrm-app/commit/e8bcfc91192d6929c046d91456393c1b82f0d6b7))
+* **crm:** scope target and target-list reads by role ([9e326eb](https://github.com/pdovhomilja/nextcrm-app/commit/9e326ebf35c6596af27779a3faa3b366856f9101))
+* **documents:** filter bulk document operations by user scope (fail-closed) ([61132fe](https://github.com/pdovhomilja/nextcrm-app/commit/61132fee767cffbd9b4d81d9dc7b052bb969d3c0))
+* **documents:** require ownership/account scope on document mutations ([5bb9035](https://github.com/pdovhomilja/nextcrm-app/commit/5bb9035052326065cab5d5c56c57d959d60fce07))
+* **documents:** scope document reads by role and linked-entity access ([220cf23](https://github.com/pdovhomilja/nextcrm-app/commit/220cf231c5ddcda9905e556f92aefa4268d6015b))
+* **invoices:** require account read scope on get-invoices-by-accountId ([c8cbf66](https://github.com/pdovhomilja/nextcrm-app/commit/c8cbf669e34e651eb65e9799f25491480eef52f2))
+* **invoices:** require account write scope on create and on accountId reassignment ([f8282e5](https://github.com/pdovhomilja/nextcrm-app/commit/f8282e5ec64f7f469502173d1d28af34b81f7bae))
+* **invoices:** require read scope on source and write scope on accountId for duplicateInvoice ([eb792a7](https://github.com/pdovhomilja/nextcrm-app/commit/eb792a76dd05dfba7bf9db855e27f6d293db5ce9))
+* **migration:** scrub orphan creator FK refs before adding new FK constraint ([7fa5196](https://github.com/pdovhomilja/nextcrm-app/commit/7fa5196b04d594386ce17bd23049207a556e581e))
+* **products:** require authentication on product read actions ([b2a860f](https://github.com/pdovhomilja/nextcrm-app/commit/b2a860fcbff5cd84bbd73faf574c1f3079653ce2))
+* **products:** require manager/admin role on product mutations ([61ed918](https://github.com/pdovhomilja/nextcrm-app/commit/61ed918e65629661f9818ca2a4dcf6bc3f46a4cb))
+* **projects:** require board write/read scope on board mutations ([522ca13](https://github.com/pdovhomilja/nextcrm-app/commit/522ca1323f45b38f5c78fdd64116d5c6c8f07206))
+* **projects:** require parent board write scope on section mutations ([65e208f](https://github.com/pdovhomilja/nextcrm-app/commit/65e208fcff948eca80e3380fb599dc585f63b0e7))
+* **projects:** scope project read actions by board access ([5ddaa97](https://github.com/pdovhomilja/nextcrm-app/commit/5ddaa976f853b88b526c129e0787939aa4567a9b))
+* **projects:** scope task mutations (board strict + assignee soft) ([27f0cf8](https://github.com/pdovhomilja/nextcrm-app/commit/27f0cf8dfd7999599397d4f65a7f9d082900c848))
+* **reports:** gate users-directory report behind manager/admin ([20aeeaf](https://github.com/pdovhomilja/nextcrm-app/commit/20aeeafec24b3d6f02ad3f69e1d0d2d68c88f4f8))
+* **reports:** scope config and schedule reads/mutations by role and ownership ([932de36](https://github.com/pdovhomilja/nextcrm-app/commit/932de36cd3dd84c20fae20d49f72badd76a970e0))
+* **reports:** scope dashboard tasks count and unified search by role ([d17a880](https://github.com/pdovhomilja/nextcrm-app/commit/d17a880eb6b8ac06097756d6006fcf11b44b1138))
+* **reports:** scope scheduled-report data by schedule owner role ([7f7c7b6](https://github.com/pdovhomilja/nextcrm-app/commit/7f7c7b63f1cf6fd550454b3040981f1bbef13b5d))
+* **security:** admin server action lockdown (Phase C) ([5a555fe](https://github.com/pdovhomilja/nextcrm-app/commit/5a555febe929bb3d477704914756737a04f3d3fd))
+* **security:** authz cleanup — drop is_admin, role enum (Phase F) ([c22bf83](https://github.com/pdovhomilja/nextcrm-app/commit/c22bf837e83b10487641fcfc458629fa0fedf5d6))
+* **security:** close enrichment BOLA/IDOR (Phase B1) ([726be4c](https://github.com/pdovhomilja/nextcrm-app/commit/726be4cb48c60620a15c3a3a850e8bde379a6e54))
+* **security:** close GHSA-mg5f-m89f-4gmc + permission-driven authz foundation ([e6987aa](https://github.com/pdovhomilja/nextcrm-app/commit/e6987aa049dc6816a25c45436556960893c9c15d))
+* **security:** close invoice IDOR (Phase B2) ([88d488b](https://github.com/pdovhomilja/nextcrm-app/commit/88d488b939057f4769d22f6ce00442738d73792b))
+* **security:** scope campaigns + templates (Phase E2) ([99effa9](https://github.com/pdovhomilja/nextcrm-app/commit/99effa90d2154a930933b58bf64105fd70e0f52a))
+* **security:** scope CRM account reads by role (Phase D1) ([cbc3a30](https://github.com/pdovhomilja/nextcrm-app/commit/cbc3a30a9b16ef3bd3e85ea7cc5bec234eba17f6))
+* **security:** scope CRM accounts list by user authz read scope ([08c0ec7](https://github.com/pdovhomilja/nextcrm-app/commit/08c0ec7c521d44c02e7978aaf1744d9229e049df))
+* **security:** scope CRM accounts list by user authz read scope ([8e86e03](https://github.com/pdovhomilja/nextcrm-app/commit/8e86e03894e4cb4b9d9c5d2265a915fd9ce775bb))
+* **security:** scope CRM lead/contact/opportunity/contract reads by role (Phase D2) ([d795b00](https://github.com/pdovhomilja/nextcrm-app/commit/d795b00f6558777f3019a830069561fccb4de4f5))
+* **security:** scope documents + bulk ops (Phase E3) ([12ac3df](https://github.com/pdovhomilja/nextcrm-app/commit/12ac3df7218d9512a5b6f0cf33cc750cc9ffe4d1))
+* **security:** scope products + account-products + invoice list (Phase E1) ([4ecfc56](https://github.com/pdovhomilja/nextcrm-app/commit/4ecfc565c7b40c2b038f418971fc292a2c596663))
+* **security:** scope projects (boards/sections/tasks) (Phase E4) ([bc2a72a](https://github.com/pdovhomilja/nextcrm-app/commit/bc2a72a23c6ae4895c7c9cdf74f45ccaeb915bf2))
+* **security:** scope reports + dashboard + unified search by role (Phase B3) ([477dcf6](https://github.com/pdovhomilja/nextcrm-app/commit/477dcf6b31db740bfb3e875f972c63ba2cd19bba))
+* **security:** scope targets, activities, audit log, similarity (Phase D3) ([07a03f9](https://github.com/pdovhomilja/nextcrm-app/commit/07a03f9f23b09b29994c1ccacd16fb3e520308c6))
+* **tests:** merge duplicate prismadb.documents mock keys after lowercase fix ([3446bc9](https://github.com/pdovhomilja/nextcrm-app/commit/3446bc96e08d28457dee09d014297ef42370e91a))
+
+## [0.11.1](https://github.com/pdovhomilja/nextcrm-app/compare/v0.11.0...v0.11.1) (2026-04-24)
+
+
+### Bug Fixes
+
+* **deps:** patch Dependabot advisories via pnpm overrides ([42eba8e](https://github.com/pdovhomilja/nextcrm-app/commit/42eba8e1b83cbe87b7f3a21f5d7df096f051e3d1))
+* **deps:** patch Dependabot security advisories ([6002241](https://github.com/pdovhomilja/nextcrm-app/commit/60022410b56eab12abd4b10615e1602ade8c159f))
+* **deps:** patch Dependabot security advisories via pnpm overrides ([22b2ecf](https://github.com/pdovhomilja/nextcrm-app/commit/22b2ecf2f09528a3219e740df36b7399ad967298))
+
+## [0.11.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.10.3...v0.11.0) (2026-04-23)
+
+
+### Features
+
+* **crm:** show invoices on account detail page ([a207314](https://github.com/pdovhomilja/nextcrm-app/commit/a207314aded4b706b6fca9b537a603cbb55a9972))
+
+## [0.10.3](https://github.com/pdovhomilja/nextcrm-app/compare/v0.10.2...v0.10.3) (2026-04-21)
+
+
+### Bug Fixes
+
+* **invoices:** add supplier company details, PDF regeneration, admin route guard ([31e2b29](https://github.com/pdovhomilja/nextcrm-app/commit/31e2b29c0d99d5a86429eeb5b03de38c45586cd2))
+* **invoices:** supplier company details, PDF regeneration, admin route guard ([4c45b8e](https://github.com/pdovhomilja/nextcrm-app/commit/4c45b8e48ca60741c39d54ff2744a93242e1fabe))
+
+## [0.10.2](https://github.com/pdovhomilja/nextcrm-app/compare/v0.10.1...v0.10.2) (2026-04-20)
+
+
+### Bug Fixes
+
+* **crm-settings:** allow creating industry, opportunity type, and sales stage values ([dc111f0](https://github.com/pdovhomilja/nextcrm-app/commit/dc111f03541e3724e1483e832f39dbc0411b58fd))
+* **invoices:** consolidate Invoice_Currencies into shared Currency table ([43f3814](https://github.com/pdovhomilja/nextcrm-app/commit/43f3814a57973d18a7d687ee153a7b108231f68b))
+* **invoices:** consolidate Invoice_Currencies into shared Currency table ([2c6820d](https://github.com/pdovhomilja/nextcrm-app/commit/2c6820d65e440906472f498b490f7c9fbdd73ea3))
+
+## [0.10.1](https://github.com/pdovhomilja/nextcrm-app/compare/v0.10.0...v0.10.1) (2026-04-19)
+
+
+### Bug Fixes
+
+* **prisma:** add missing crm_Target_Contact migration ([7d76537](https://github.com/pdovhomilja/nextcrm-app/commit/7d76537f9ae994430fd782b6c7a789eb4dac69a8))
+* **prisma:** add missing migration for crm_Target_Contact table ([792b8c3](https://github.com/pdovhomilja/nextcrm-app/commit/792b8c3ec24efeea963afdcbc71d4b2bf003bc72))
+
+## [0.10.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.9.0...v0.10.0) (2026-04-18)
+
+
+### Features
+
+* **dashboard:** add Invoices, Campaigns, Targets cards; remove Employee card ([df13534](https://github.com/pdovhomilja/nextcrm-app/commit/df1353496e128f0f6c7035a28391e9ec8c786b76))
+* **invoices:** add FKs, indexes, line-item trigger, money CHECK ([1496266](https://github.com/pdovhomilja/nextcrm-app/commit/1496266419db40292f2b0829eacafbc2c9457c4d))
+* **invoices:** add numbering format template + counter consumer ([e533aeb](https://github.com/pdovhomilja/nextcrm-app/commit/e533aeb4e7bbe55c1b5a4a5e77c8a6872ef2bc6f))
+* **invoices:** add PDF i18n string bundles (EN/CZ) ([02bcd7d](https://github.com/pdovhomilja/nextcrm-app/commit/02bcd7d04f3ffda004f8b2297038314ea0564dbd))
+* **invoices:** add permission guards ([cb12109](https://github.com/pdovhomilja/nextcrm-app/commit/cb121093ed0f49895fa079a8158ed02ba74810ef))
+* **invoices:** add Prisma schema, migration, tsvector trigger ([6b9f7f3](https://github.com/pdovhomilja/nextcrm-app/commit/6b9f7f366e8592a07d0ac534d0cc6b216762379c))
+* **invoices:** add search filter builder ([a37c5fb](https://github.com/pdovhomilja/nextcrm-app/commit/a37c5fb894101a9f1d30ab91651f3ece0707d109))
+* **invoices:** add totals computation with mixed VAT support ([cced002](https://github.com/pdovhomilja/nextcrm-app/commit/cced002054d70f3b6ccb26d6fca20d31bcf70584))
+* **invoices:** admin pages — tax rates, series, currencies, settings ([9ed05dc](https://github.com/pdovhomilja/nextcrm-app/commit/9ed05dc5f6518784e72f697e5ef0595d04eea5b9))
+* **invoices:** API routes for invoices CRUD, lifecycle, payments, search, admin config ([dcd47d0](https://github.com/pdovhomilja/nextcrm-app/commit/dcd47d09b367006c3fd467d817b7ef98969cc68c))
+* **invoices:** fetch FX rates via frankfurter.app ([04c4e0e](https://github.com/pdovhomilja/nextcrm-app/commit/04c4e0e208aba5eb5ad849736357fbca4223f708))
+* **invoices:** full invoicing module ([2b420ff](https://github.com/pdovhomilja/nextcrm-app/commit/2b420ff085211e321572a55e02a400662380fbc7))
+* **invoices:** invoice email template ([788252b](https://github.com/pdovhomilja/nextcrm-app/commit/788252b5f3e31692f90a965f4132c1147619d8db))
+* **invoices:** invoice UI — list, new, detail, edit pages ([40a09a6](https://github.com/pdovhomilja/nextcrm-app/commit/40a09a6e3e62da41d9b01bca8cbfab1bf687c4df))
+* **invoices:** MinIO storage wrapper for invoice PDFs ([028d4c2](https://github.com/pdovhomilja/nextcrm-app/commit/028d4c2ed35b1cc0a945d317263cf76f82d18bc2))
+* **invoices:** PDF render entry ([b9112c4](https://github.com/pdovhomilja/nextcrm-app/commit/b9112c426ad86b810d28a62a1faf723c4b7271ce))
+* **invoices:** PDF template (@react-pdf/renderer) ([11109f6](https://github.com/pdovhomilja/nextcrm-app/commit/11109f62c5fdc5754446862b1beffb285a476127))
+* **invoices:** seed currencies, default series, tax rates, settings ([68a8b80](https://github.com/pdovhomilja/nextcrm-app/commit/68a8b80793a5f989bd5ea031522e8e467d7459c0))
+* **invoices:** server actions for invoice lifecycle ([e698e71](https://github.com/pdovhomilja/nextcrm-app/commit/e698e716141f4dcd0d48e2bea7a0bb9ec7217e7e))
+* **invoices:** sidebar nav entry + i18n (EN/CZ) ([8c5f1d6](https://github.com/pdovhomilja/nextcrm-app/commit/8c5f1d609961e870b5823990695f75edbcd6a839))
+* **invoices:** Zod schemas + shared types ([103b2c8](https://github.com/pdovhomilja/nextcrm-app/commit/103b2c81517ae23eed2e01f7361c0b1d8acc7273))
+
+
+### Bug Fixes
+
+* **invoices:** add PROFORMA to Zod invoice type enum ([18d6e40](https://github.com/pdovhomilja/nextcrm-app/commit/18d6e40281ab8fb726f21c6c4b99ddb92ea79ff6))
+* **invoices:** fix Set type annotation in permissions for strict tsc ([1132616](https://github.com/pdovhomilja/nextcrm-app/commit/1132616272afd08368884862a2ef436bf24dfb12))
+* **invoices:** hydration mismatches, decimal serialization, server action refactor ([75368f4](https://github.com/pdovhomilja/nextcrm-app/commit/75368f409bf61792ca0997492448b30ab4a3cd36))
+* **invoices:** redirect to /invoices after creating new invoice ([2dd2d5e](https://github.com/pdovhomilja/nextcrm-app/commit/2dd2d5ecbee40f515a1f5d77153acffcea519600))
+* **invoices:** redirect to invoice detail page after create/edit ([d58c35d](https://github.com/pdovhomilja/nextcrm-app/commit/d58c35db10e4ab03d88aec9fa0be7297d915db58))
+* **invoices:** remove unused imports and prefix unused params ([b3e4ccc](https://github.com/pdovhomilja/nextcrm-app/commit/b3e4cccdabf580dedd4329afd3d2133eba38a436))
+* **invoices:** remove unused React import from PDF template ([b851ece](https://github.com/pdovhomilja/nextcrm-app/commit/b851ece3b534acfbc4d628ad6fb10227679ee7c1))
+* **invoices:** replace Account select with searchable combobox ([08e9b3d](https://github.com/pdovhomilja/nextcrm-app/commit/08e9b3d61f87113e6254fae2f48da15f6c2b42b5))
+* **invoices:** review fixes — balanceDue, FX outside tx, permissions, search column, email template ([dde9dfa](https://github.com/pdovhomilja/nextcrm-app/commit/dde9dfaba15274c910329a71ad299585407c47f8))
+
+## [0.9.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.8.0...v0.9.0) (2026-04-12)
+
+
+### Features
+
+* **crm:** add assign/disconnect document server actions for CRM tasks ([26f234a](https://github.com/pdovhomilja/nextcrm-app/commit/26f234a4837014b6ce8d8d3ae2f128367a7ec6c2))
+
+
+### Bug Fixes
+
+* **crm:** expand getCrMTask document select and clean up junction on delete ([b6d2f6b](https://github.com/pdovhomilja/nextcrm-app/commit/b6d2f6b4197999af116ae2165d80c7feb4cefd42))
+* **crm:** remove task-specific filters from document table toolbar ([5cca3d1](https://github.com/pdovhomilja/nextcrm-app/commit/5cca3d1e4e25caef5b6b09056575495ec77c9a64))
+* **crm:** switch CRM task document actions from broken axios calls to server actions ([efae73e](https://github.com/pdovhomilja/nextcrm-app/commit/efae73e56c78d80fcfa7b1358a3bf78df32e8f43))
+* **crm:** uncomment assigned_to_user in task document schema and remove ts-ignore ([46c2868](https://github.com/pdovhomilja/nextcrm-app/commit/46c2868b34779d0924f578ae94dc3eb9cd303d7b))
+* **crm:** wire CRM task documents to correct junction table + cleanup ([d4c503c](https://github.com/pdovhomilja/nextcrm-app/commit/d4c503c598a6905b6be826d311beb3fac2218bfa))
+* **crm:** wire task comments to correct FK column (assigned_crm_account_task) ([c60ea57](https://github.com/pdovhomilja/nextcrm-app/commit/c60ea57dd2f45d800ead11466a32a5696d1c3754))
+* **deps:** patch 2 Dependabot vulnerabilities ([0e2746c](https://github.com/pdovhomilja/nextcrm-app/commit/0e2746c2dd504e7e6a8c0d5e86ef9186e5b3c8f7))
+
+## [0.8.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.7.1...v0.8.0) (2026-04-10)
+
+
+### Features
+
+* add Docker entrypoint script for auto-initialization ([1acba0a](https://github.com/pdovhomilja/nextcrm-app/commit/1acba0a5311dc99181075e61da92d59b099aff1c))
+* add docker-compose.yml with all services ([c045ebb](https://github.com/pdovhomilja/nextcrm-app/commit/c045ebbfb0d07c25fa3e5c09c44b4ace7467b067))
+* add multi-stage Dockerfile for NextCRM ([70a1b45](https://github.com/pdovhomilja/nextcrm-app/commit/70a1b45937af818df1a6b1c99f7d774f49af2796))
+* Docker self-hosting setup with full automation ([bff363e](https://github.com/pdovhomilja/nextcrm-app/commit/bff363e646f0bfa55178922f4af05234515a0920))
+* enable Next.js standalone output for Docker ([d8d1056](https://github.com/pdovhomilja/nextcrm-app/commit/d8d10565fb0fbb425f5d9bb2a41c3fe06a24cf83))
+
+
+### Bug Fixes
+
+* Docker e2e verification fixes ([e1ae699](https://github.com/pdovhomilja/nextcrm-app/commit/e1ae699cf8ce0e767bacdd3034f14bf3b4bf304b))
+* **docker:** make admin email configurable via ADMIN_EMAIL ([7427b0a](https://github.com/pdovhomilja/nextcrm-app/commit/7427b0a3277b8fff83635cd1cf339eab92d442f1))
+* **docker:** replace hardcoded credentials with env-driven placeholders ([255b11e](https://github.com/pdovhomilja/nextcrm-app/commit/255b11e882d4e6bdcb4172f8905bd65556ee22df))
+
+## [0.7.1](https://github.com/pdovhomilja/nextcrm-app/compare/v0.7.0...v0.7.1) (2026-04-08)
+
+
+### Bug Fixes
+
+* merge dependabot vulnerability patches to main ([db6975a](https://github.com/pdovhomilja/nextcrm-app/commit/db6975a43a23fded9abb53bbdf6e9c45aa6c165d))
+* patch 9 open dependabot vulnerabilities ([4c659fa](https://github.com/pdovhomilja/nextcrm-app/commit/4c659fa89d180933ef6ddc4df161e12e025d35a4))
+
+## [0.7.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.6.1...v0.7.0) (2026-04-08)
+
+
+### Features
+
+* add SKILL.md download to Developer tab ([b1f528d](https://github.com/pdovhomilja/nextcrm-app/commit/b1f528d03b26ca4332f4d673c60cf51a8f303cab))
+* add SKILL.md for Claude Code MCP integration ([b3a57b8](https://github.com/pdovhomilja/nextcrm-app/commit/b3a57b870403285efb883fafd1a4306db19fc5c2))
+
+## [0.6.1](https://github.com/pdovhomilja/nextcrm-app/compare/v0.6.0...v0.6.1) (2026-04-07)
+
+
+### Bug Fixes
+
+* allow null description in opportunities table schema ([662e6bd](https://github.com/pdovhomilja/nextcrm-app/commit/662e6bd7992537a3f7c31e708f1b89d1d4399e96))
+* allow null description in opportunities table schema ([8b414ac](https://github.com/pdovhomilja/nextcrm-app/commit/8b414acbe81bc327ffa7ff6a23fbc21436b817b0))
+
+## [0.6.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.5.1...v0.6.0) (2026-04-07)
+
+
+### Features
+
+* align activity actions with deletedAt soft delete ([95de688](https://github.com/pdovhomilja/nextcrm-app/commit/95de688b97f712271e4ae771423aaadea627d104))
+* align board/project actions with deletedAt soft delete ([df3fe1e](https://github.com/pdovhomilja/nextcrm-app/commit/df3fe1eb1a222cec130c1abd92918cfdbcc76c09))
+* align campaign template actions with deletedAt soft delete ([a95ac24](https://github.com/pdovhomilja/nextcrm-app/commit/a95ac246e784cb3748a676126beefbd6b7e20d37))
+* align crm-data and target-list actions with deletedAt soft delete ([eaa6a15](https://github.com/pdovhomilja/nextcrm-app/commit/eaa6a15ab8d76867100bb28bc84892180e583434))
+* align target actions with deletedAt soft delete ([bbdad13](https://github.com/pdovhomilja/nextcrm-app/commit/bbdad13defcf45a9756cf055ea977cf156d66fab))
+* MCP full parity (104 tools) + universal deletedAt soft-delete ([a164dcb](https://github.com/pdovhomilja/nextcrm-app/commit/a164dcb458a99a423a30357111c2068136973dc1))
+* **mcp:** accounts delete uses deletedAt instead of status ([f565523](https://github.com/pdovhomilja/nextcrm-app/commit/f5655230775e703c0390811c0f9e7a4b77c2af25))
+* **mcp:** add activities tools (5 tools, with entity links) ([7298d63](https://github.com/pdovhomilja/nextcrm-app/commit/7298d632b1ed1f87e32a911b216bbbae60f93425))
+* **mcp:** add barrel export and update route handler with new error codes ([bec7bbd](https://github.com/pdovhomilja/nextcrm-app/commit/bec7bbd4a3eb832795c0485df508a1c88085cb4b))
+* **mcp:** add campaigns tools (19 tools, full lifecycle + templates + steps + stats) ([7155053](https://github.com/pdovhomilja/nextcrm-app/commit/7155053f44598eb5db45b5f4460a370578ee2bf7))
+* **mcp:** add contracts tools (5 tools, with line items) ([79c3013](https://github.com/pdovhomilja/nextcrm-app/commit/79c301311e0c1873941bb40d4af231aeec56e19a))
+* **mcp:** add documents tools (8 tools, presigned URLs, entity linking) ([756d2be](https://github.com/pdovhomilja/nextcrm-app/commit/756d2bea8630cbd1196df6e14884139fe22fa465))
+* **mcp:** add enrichment tools (4 tools, single + bulk for contacts and targets) ([2067f21](https://github.com/pdovhomilja/nextcrm-app/commit/2067f21ba57c61594cffa0ace229e3843a8bf9c4))
+* **mcp:** add products tools (5 tools, org-wide catalog) ([7038bf2](https://github.com/pdovhomilja/nextcrm-app/commit/7038bf2dac23b7a12ad23cc0213f2aeb49ba56f1))
+* **mcp:** add projects tools (18 tools, boards/sections/tasks/comments/watchers) ([b40f3ae](https://github.com/pdovhomilja/nextcrm-app/commit/b40f3ae572c61ad62de8b8c2ce0477535f2c6849))
+* **mcp:** add reports tools (2) and email accounts tool (1) ([efe9cc7](https://github.com/pdovhomilja/nextcrm-app/commit/efe9cc719ac15ed1f3d99f8496eee9e5bb39adf4))
+* **mcp:** add shared helpers for pagination, search, soft-delete, errors ([a8a0eb0](https://github.com/pdovhomilja/nextcrm-app/commit/a8a0eb0dd40375242c167c4f1a7f398286cfd683))
+* **mcp:** add target lists tools (7 tools, membership management) ([4cdd748](https://github.com/pdovhomilja/nextcrm-app/commit/4cdd748582733be4f63f7382a6717cfb70a0cf62))
+* **mcp:** campaigns use deletedAt instead of status for soft-delete ([0fac95e](https://github.com/pdovhomilja/nextcrm-app/commit/0fac95e803ff1bcd07a22e0af68e1da4ad76b8bd))
+* **mcp:** documents use deletedAt instead of status for soft-delete ([440c629](https://github.com/pdovhomilja/nextcrm-app/commit/440c629f31a4af548640fd18ba66fc36ea9b2eb3))
+* **mcp:** enable board soft-delete, add deletedAt filters to board queries ([8973d34](https://github.com/pdovhomilja/nextcrm-app/commit/8973d343ef5bc2bd7828f36b90fcf65f8cd2fabe))
+* **mcp:** enable opportunities soft-delete, add deletedAt filters ([3805ab2](https://github.com/pdovhomilja/nextcrm-app/commit/3805ab298afb1f0c14848af12c503025ce472ad5))
+* **mcp:** enable soft-delete for contacts, leads, targets, activities ([75217e4](https://github.com/pdovhomilja/nextcrm-app/commit/75217e431146a4a6871f17445a67c178c0e01405))
+* **mcp:** rename account tools with crm_ prefix, add soft-delete, use helpers ([288204b](https://github.com/pdovhomilja/nextcrm-app/commit/288204bf7e870a7cc2b560c3994f7823ad311eb2))
+* **mcp:** rename contacts/leads/opportunities/targets with crm_ prefix, add delete stubs ([24bfdcd](https://github.com/pdovhomilja/nextcrm-app/commit/24bfdcd7bbebdb164a25305438f566557995bb9e))
+* **mcp:** target lists use deletedAt instead of boolean status ([1e917ed](https://github.com/pdovhomilja/nextcrm-app/commit/1e917edf1ba029648bee72cd9aa9c81aba907450))
+* **mcp:** update helpers to use deletedAt-based soft delete ([41433ce](https://github.com/pdovhomilja/nextcrm-app/commit/41433ce7d26ac6b2ae6a31b7865b3da9007539db))
+
+
+### Bug Fixes
+
+* **mcp:** add explicit ReportFilters type annotation to fix date type mismatch ([68414eb](https://github.com/pdovhomilja/nextcrm-app/commit/68414eb4001ce2e0c35ea1e690db58c99960f510))
+* **mcp:** fix campaign status filter collision and document unlink auth ([fc6f8a9](https://github.com/pdovhomilja/nextcrm-app/commit/fc6f8a91a24098a21b1f1a9ad454fa7c14d6c0e4))
+* **mcp:** fix remaining status:true in target lists, update soft-delete report ([3037daf](https://github.com/pdovhomilja/nextcrm-app/commit/3037daf3dbc6a06360096f5934efab835a7401cb))
+* **mcp:** prefix unused entity param in notFound helper ([e76305f](https://github.com/pdovhomilja/nextcrm-app/commit/e76305f4ff439c27c76f1cfedff31ae1296ef405))
+* **mcp:** remove isNotDeleted from opportunities (enum type mismatch), fix unused import in products ([3792d51](https://github.com/pdovhomilja/nextcrm-app/commit/3792d515a0c05f97ea6f2c37749adcdafda8c3bc))
+
+## [0.5.1](https://github.com/pdovhomilja/nextcrm-app/compare/v0.5.0...v0.5.1) (2026-04-06)
+
+
+### Bug Fixes
+
+* close pg pool on seed completion ([8193219](https://github.com/pdovhomilja/nextcrm-app/commit/81932196b5988495e329313b01c2f2e8a50b3ca6))
+
+## [0.5.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.4.2...v0.5.0) (2026-04-05)
+
+
+### Features
+
+* **line-items:** add line items section to Contract detail page with copy-from-opportunity ([e3235fe](https://github.com/pdovhomilja/nextcrm-app/commit/e3235fe0f8c4c1e468ed239668dcb1d60a46a1ac))
+* **line-items:** add line items section to Opportunity detail page ([24436e1](https://github.com/pdovhomilja/nextcrm-app/commit/24436e17a3d043ac1cefed2269cb6bebcf008323))
+* **line-items:** add Prisma schema for Opportunity and Contract line items ([f3b1f30](https://github.com/pdovhomilja/nextcrm-app/commit/f3b1f301e464760780dea6402192e71cbfb90de8))
+* **line-items:** add server actions for Contract line items with copy-from-opportunity ([baa83d1](https://github.com/pdovhomilja/nextcrm-app/commit/baa83d1b2bcc8401dd895f54c98402727ad8568b))
+* **line-items:** add server actions for Opportunity line items ([680fa93](https://github.com/pdovhomilja/nextcrm-app/commit/680fa93ef4d2631b7f71d035804f954966b629a9))
+* **line-items:** add shared calculation helper ([825c733](https://github.com/pdovhomilja/nextcrm-app/commit/825c7339302d995094ef595722f5c4f0718e6383))
+* **line-items:** add shared LineItemsTable, AddLineItemForm, and EditLineItemForm components ([e839227](https://github.com/pdovhomilja/nextcrm-app/commit/e839227a731660b4c1bd32d9c6206f6ac03c6543))
+* Products module, Line Items, and E2E test coverage ([cdb4498](https://github.com/pdovhomilja/nextcrm-app/commit/cdb4498460b2081c8609370a79e19ae7e9d4f6fc))
+* **products:** add create and update product form components ([98c4e60](https://github.com/pdovhomilja/nextcrm-app/commit/98c4e60128ce5c983e48056197d6c69615d4ad56))
+* **products:** add CSV bulk import server action ([3ed188a](https://github.com/pdovhomilja/nextcrm-app/commit/3ed188aee12bc9d9b98b00b1c0481a0acb569888))
+* **products:** add CSV import dialog with preview and template download ([c9b7388](https://github.com/pdovhomilja/nextcrm-app/commit/c9b7388e0319c425716489a28a4a71bb1638a6dc))
+* **products:** add Prisma schema for Products, ProductCategories, AccountProducts ([2c51b70](https://github.com/pdovhomilja/nextcrm-app/commit/2c51b70350dcede4e3ef2ec4e64993477916f79c))
+* **products:** add product categories to CRM data fetching ([eba0ea6](https://github.com/pdovhomilja/nextcrm-app/commit/eba0ea653b3872c1288b8c1c40f83f7198e18d74))
+* **products:** add product detail page with basic view, accounts tab, and history ([53d0d1f](https://github.com/pdovhomilja/nextcrm-app/commit/53d0d1f3fb6be30b08b5487e8c5996e74893dbc6))
+* **products:** add products list page and view component ([9b33aa7](https://github.com/pdovhomilja/nextcrm-app/commit/9b33aa7440a4f7acb3a5eaba6d47f38b66d0a0fd))
+* **products:** add server actions for Account-Product assignments ([ea3bc87](https://github.com/pdovhomilja/nextcrm-app/commit/ea3bc8746f4fa3bd3225ed47818d345a8f8e4d4c))
+* **products:** add server actions for Product CRUD and data fetching ([e84ea83](https://github.com/pdovhomilja/nextcrm-app/commit/e84ea835663c59cef8021b86f3fd3afb9b64655b))
+* **products:** add sidebar nav, account detail products tab with assign form ([3c1ab8b](https://github.com/pdovhomilja/nextcrm-app/commit/3c1ab8b1ceec1616362676b1cf6de7968d5aeb22))
+* **products:** add table components with columns, filters, and row actions ([7fe5c4c](https://github.com/pdovhomilja/nextcrm-app/commit/7fe5c4ce5e1dfbfe196a55d2245e473952162ee4))
+
+
+### Bug Fixes
+
+* add currency field to contracts table schema ([ed6a675](https://github.com/pdovhomilja/nextcrm-app/commit/ed6a675648110d30aaf57920d9439c0f4c3f88fb))
+* add line items migration and resolve migration drift ([1b6f483](https://github.com/pdovhomilja/nextcrm-app/commit/1b6f48392cf3801551ed918fd7b379aefe6b4513))
+* default accounts prop to empty array in UpdateContractForm ([3e21eac](https://github.com/pdovhomilja/nextcrm-app/commit/3e21eac5fba06aed2e718964995a0b06f7f3ef50))
+* guard FormSelect against undefined data and pass safe defaults ([91f1a45](https://github.com/pdovhomilja/nextcrm-app/commit/91f1a457083794e2301dda4863376acbc37e7584))
+* **line-items:** resolve build and type issues ([211ab7c](https://github.com/pdovhomilja/nextcrm-app/commit/211ab7cf3cc496d08cc522c123323d9159426ecf))
+* make FormSelect fully controlled to show defaultValue correctly ([0c926fc](https://github.com/pdovhomilja/nextcrm-app/commit/0c926fc80a7851d780dd62611b3f63e3596d8d3f))
+* **products:** resolve audit log type errors and build issues ([784c444](https://github.com/pdovhomilja/nextcrm-app/commit/784c444267f635594402f0528be6679e3e9d37d2))
+* refactor UpdateContractForm to self-fetch accounts and currencies ([23e1dab](https://github.com/pdovhomilja/nextcrm-app/commit/23e1dabcc8185deb0f93c161d08aa6347a972636))
+* remove conflicting defaultValue from controlled FormDatePicker input ([326f995](https://github.com/pdovhomilja/nextcrm-app/commit/326f995857da1294a86ebb45420c9affc0d579b5))
+* replace getEnabledCurrencies with proper server action ([614162d](https://github.com/pdovhomilja/nextcrm-app/commit/614162d9a2a70941cf6d338e5ad6c85243d04caf))
+* serialize Decimal fields in getAllCrmData for client components ([8451299](https://github.com/pdovhomilja/nextcrm-app/commit/845129965078a0260c7cdc2a82a5a326104e38f4))
+* serialize opportunity Decimal fields before passing to client component ([bed1604](https://github.com/pdovhomilja/nextcrm-app/commit/bed16042018525b18b9e2c59ace7f74568e1e574))
+* stabilize flaky e2e tests across CRM modules ([dbb88b6](https://github.com/pdovhomilja/nextcrm-app/commit/dbb88b69fbe5dd013d7ea61d0da0c72036fbe3b2))
+
+## [0.4.2](https://github.com/pdovhomilja/nextcrm-app/compare/v0.4.1...v0.4.2) (2026-04-04)
+
+
+### Bug Fixes
+
+* **security:** override defu&lt;=6.1.4 to 6.1.5 for prototype pollution CVE-2026-35209 ([507a866](https://github.com/pdovhomilja/nextcrm-app/commit/507a866326a3920e04e38afefdc60bd4140f9de7))
+* **security:** patch defu prototype pollution CVE-2026-35209 ([29d187d](https://github.com/pdovhomilja/nextcrm-app/commit/29d187d2ab56fc7ec78913563864c2f7093c9c1b))
+
+## [0.4.1](https://github.com/pdovhomilja/nextcrm-app/compare/v0.4.0...v0.4.1) (2026-04-04)
+
+
+### Bug Fixes
+
+* **build:** resolve failed migration before deploy ([d063791](https://github.com/pdovhomilja/nextcrm-app/commit/d0637914f2f296e079afd3fd280be204540c8b60))
+* **migration:** rename and make idempotent for failed deploy recovery ([3393859](https://github.com/pdovhomilja/nextcrm-app/commit/339385928a7005ff36fbc6a3df64eaf678fa600b))
+* **migration:** seed currencies and clean data before VARCHAR cast ([6ca3dcc](https://github.com/pdovhomilja/nextcrm-app/commit/6ca3dccf08960b8cf6c2d1e83c8a8a2632acb75a))
+
+## [0.4.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.3.1...v0.4.0) (2026-04-04)
+
+
+### Features
+
+* add currency conversion library with unit tests ([b2eb41c](https://github.com/pdovhomilja/nextcrm-app/commit/b2eb41cdea7381c3aa513b785ef22a4410b8de90))
+* add CurrencyProvider context and header CurrencySwitcher ([4851c56](https://github.com/pdovhomilja/nextcrm-app/commit/4851c562ee47116890bd414448ee2ecfa55f0b7f))
+* **admin:** add currencies management page with table, rates, and ECB toggle ([6011159](https://github.com/pdovhomilja/nextcrm-app/commit/60111591311e525f2d5857f73ce40cd9e7aca231))
+* **contracts:** add currency and snapshot rate to create/update actions ([1a6a4c8](https://github.com/pdovhomilja/nextcrm-app/commit/1a6a4c8010f7561985e2b865c20bae5d77e81082))
+* **contracts:** add currency dropdown to create/update forms ([f0e961d](https://github.com/pdovhomilja/nextcrm-app/commit/f0e961d184c98acb39b4edb2d598e2e78ea651d7))
+* **contracts:** display contract value with dynamic currency formatting ([d2c7308](https://github.com/pdovhomilja/nextcrm-app/commit/d2c7308d76ae70d6f5838bf33474d2bfb1f59b38))
+* convert opportunity detail budget to display currency ([aa82933](https://github.com/pdovhomilja/nextcrm-app/commit/aa82933d27d3b5a960232c679f98fe451947786a))
+* convert opportunity table budget to display currency ([030ca11](https://github.com/pdovhomilja/nextcrm-app/commit/030ca11feb1427455d33d1143b8ab1bf7cbb1e36))
+* convert reports dashboard KPIs to display currency ([a564588](https://github.com/pdovhomilja/nextcrm-app/commit/a5645887b2f4ec14ee4db19a62bde43c25a85295))
+* **dashboard:** display expected revenue in selected display currency ([7a2fa8f](https://github.com/pdovhomilja/nextcrm-app/commit/7a2fa8fece3fc5a10b35eabc1ebcf5b4dce2a9ff))
+* **inngest:** add daily ECB exchange rate sync function ([61e0819](https://github.com/pdovhomilja/nextcrm-app/commit/61e08199f0bf783f7ebbb5230e298b8feafb0c56))
+* **migration:** add currency support migration ([86b7663](https://github.com/pdovhomilja/nextcrm-app/commit/86b76636742c8bc4860de078f3731ac0e36886f9))
+* multi-currency support for Sales module ([19848b0](https://github.com/pdovhomilja/nextcrm-app/commit/19848b0b050cf7f76e1694cc1a608c1f7a558eb2))
+* **opportunities:** add currency dropdown to create/update forms ([49cb1b7](https://github.com/pdovhomilja/nextcrm-app/commit/49cb1b78e2595ee86651fe5ab6c0471856034d50))
+* **opportunities:** add snapshot rate lookup on create/update ([f0f8380](https://github.com/pdovhomilja/nextcrm-app/commit/f0f8380a2cc72cac4ede8304a737129ec4f93313))
+* **opportunities:** display budget and revenue with currency formatting ([664c096](https://github.com/pdovhomilja/nextcrm-app/commit/664c09645f9f161499e1e3486afda7b6700eeced))
+* **reports:** convert sales report values to display currency ([3784f7d](https://github.com/pdovhomilja/nextcrm-app/commit/3784f7df9df29567cfe4a443f2fc9fdfefadd1d2))
+* **schema:** add Currency, ExchangeRate, SystemSettings models and migrate money fields to Decimal ([bf3f16d](https://github.com/pdovhomilja/nextcrm-app/commit/bf3f16d29532af16e8cd9dae46bb2d570fa6d0fd))
+* **seed:** add currency and exchange rate seed data ([3da4975](https://github.com/pdovhomilja/nextcrm-app/commit/3da4975b75029a1b7134c875e8f6656849cd73df))
+
+
+### Bug Fixes
+
+* add currency to Opportunity schema type and fix implicit any ([a7ab752](https://github.com/pdovhomilja/nextcrm-app/commit/a7ab752aa9c5879ee13600e7565852e0d251f2c6))
+* add explicit types to currency map callbacks ([7d4d5a4](https://github.com/pdovhomilja/nextcrm-app/commit/7d4d5a4912b285c7f84974fd08fadef3855c3aa1))
+* add explicit types to currency map callbacks in layout ([33e74f4](https://github.com/pdovhomilja/nextcrm-app/commit/33e74f44d2bf16a28a880986803e1247034e294d))
+* remove any casts from serializeDecimalsList call sites ([10a5fe9](https://github.com/pdovhomilja/nextcrm-app/commit/10a5fe9e8d0530d8993d080cf5b78555840b4709))
+* resolve build errors - type casts and Inngest function signature ([0e3bf0f](https://github.com/pdovhomilja/nextcrm-app/commit/0e3bf0f0ae5abed134d9319d460985c4dae7c782))
+* resolve type issues in ECB sync function ([79b2663](https://github.com/pdovhomilja/nextcrm-app/commit/79b266346fada836cb16c971224bc4a9ee502b9b))
+* **schema:** add [@db](https://github.com/db).VarChar(3) to crm_Opportunities.currency field ([0ef0b8b](https://github.com/pdovhomilja/nextcrm-app/commit/0ef0b8ba54251aed2900f8dc03558c315025869e))
+* serialize Decimal fields before passing to client components ([ff68db2](https://github.com/pdovhomilja/nextcrm-app/commit/ff68db28f40b01111cf56ccd4b6d822f3e69cf24))
+* split currency lib into client-safe and server-only modules ([1a61be3](https://github.com/pdovhomilja/nextcrm-app/commit/1a61be3b404ce10b85e50769b76dba1a8037477c))
+* **tests:** update sales report tests for currency-aware aggregation ([c02d752](https://github.com/pdovhomilja/nextcrm-app/commit/c02d7524a9636eb1ea2f2e81f27cb303833db81e))
+* wire currencies prop through opportunity and contract components ([dba0036](https://github.com/pdovhomilja/nextcrm-app/commit/dba0036335819f598ec430f165cad8edf55b8213))
+
+## [0.3.1](https://github.com/pdovhomilja/nextcrm-app/compare/v0.3.0...v0.3.1) (2026-04-04)
+
+
+### Bug Fixes
+
+* **auth:** resolve Google OAuth user creation failures ([844389a](https://github.com/pdovhomilja/nextcrm-app/commit/844389a689c0f20ab8d75bdf10648beeb829c5e3))
+* **auth:** resolve Google OAuth user creation failures ([094e7ee](https://github.com/pdovhomilja/nextcrm-app/commit/094e7ee715c034b7c023a574241871690cee68ad))
+
+## [0.3.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.2.0...v0.3.0) (2026-04-04)
+
+
+### Features
+
+* **documents:** add batch actions bar for bulk delete, type change, and account linking ([7ed7cfa](https://github.com/pdovhomilja/nextcrm-app/commit/7ed7cfa0ef97bd7281605a390a7b212fc3aa1324))
+* **documents:** add bulk actions, versioning, and account linking server actions ([6a8908a](https://github.com/pdovhomilja/nextcrm-app/commit/6a8908a39580f20e99e232fc03f944d381b1265f))
+* **documents:** add document detail panel with summary, metadata, and version history ([9fd00f1](https://github.com/pdovhomilja/nextcrm-app/commit/9fd00f1a0785e7715aaf4e4e6c70457e7256efee))
+* **documents:** add enrichment fields, chunks table, and embeddings model ([c58a1e6](https://github.com/pdovhomilja/nextcrm-app/commit/c58a1e657b23795504cdc9708682ab6e5d69178c))
+* **documents:** add Inngest enrichment orchestrator with text extraction, embedding, summary, classification ([a7216cb](https://github.com/pdovhomilja/nextcrm-app/commit/a7216cbb1a0a5370096560a5a513ec0e732b1743))
+* **documents:** add name/content search toggle on documents page ([8043818](https://github.com/pdovhomilja/nextcrm-app/commit/8043818bc1c2756ceb4cf7d3dd19f0fabe8de461))
+* **documents:** add processing status badge component ([514fa69](https://github.com/pdovhomilja/nextcrm-app/commit/514fa6963c9c4c7946bd4f08ac4d634110f68dc2))
+* **documents:** add thumbnail generator and register Inngest functions ([b0b406e](https://github.com/pdovhomilja/nextcrm-app/commit/b0b406ea4be6e75d865b0f85f1f21ccb5a693365))
+* **documents:** add upload-from-account-context with auto-linking ([cb3a096](https://github.com/pdovhomilja/nextcrm-app/commit/cb3a0963573e6ca5d38e4bb2d731b639dce09ee0))
+* **documents:** redesign columns with type badges, summaries, status, and filters ([9ecd298](https://github.com/pdovhomilja/nextcrm-app/commit/9ecd2984127f91fdcbe50616a5ae21afcf8eb64d))
+* **documents:** replace 3 upload buttons with single bulk upload modal ([dde3a47](https://github.com/pdovhomilja/nextcrm-app/commit/dde3a477e01ded54ba52953ed80da2baa8099e4e))
+* **documents:** update createDocument with Inngest event, add checkDuplicate action ([90c2bbc](https://github.com/pdovhomilja/nextcrm-app/commit/90c2bbc3021ba54eb3133a89fe6df9c9c8ecdfef))
+* **documents:** update Zod schema and static filter data for enrichment fields ([4ce71b3](https://github.com/pdovhomilja/nextcrm-app/commit/4ce71b37a63ab09999ba4d7283a8d1a4850fb6bc))
+* **search:** add document search to command palette ([a0a5bbe](https://github.com/pdovhomilja/nextcrm-app/commit/a0a5bbe064b358933f33fa8ad1b43c039c64659d))
+* **search:** add documents to unified search with keyword + vector similarity ([299736f](https://github.com/pdovhomilja/nextcrm-app/commit/299736fd74c539b65472db021cc8cfe0f1335abd))
+
+
+### Bug Fixes
+
+* **documents:** check upload response status in bulk upload modal ([d71dbf5](https://github.com/pdovhomilja/nextcrm-app/commit/d71dbf52edb03144ba89f3b20e2dc5b4ef9deca1))
+* **documents:** exclude pdf-parse and pdfjs-dist from Turbopack server bundle ([6ea7e4b](https://github.com/pdovhomilja/nextcrm-app/commit/6ea7e4bec671046ea396e29930d132dcbe10d6f0))
+* **documents:** replace next/image with img tag in DocumentViewModal ([3d2dafd](https://github.com/pdovhomilja/nextcrm-app/commit/3d2dafdae168a2dccc6826d0b897a99351d0c901))
+* **documents:** use pdf-parse v2 class-based API for text extraction ([2825f90](https://github.com/pdovhomilja/nextcrm-app/commit/2825f90efc4f2cf97c65901f7c1f7d9f4125db25))
+* **documents:** use row.original directly instead of Zod parse in row actions ([20a6016](https://github.com/pdovhomilja/nextcrm-app/commit/20a601665e0e7b24b6a9555eeb298460c4468505))
+* update @vercel/mcp-adapter to v1.0.0 and add to trusted builds ([e1583c2](https://github.com/pdovhomilja/nextcrm-app/commit/e1583c2a7d87f6fc1790f0e0432d4812308988a7))
+
+## [0.2.0](https://github.com/pdovhomilja/nextcrm-app/compare/v0.1.0...v0.2.0) (2026-04-03)
+
+
+### Features
+
+* **footer:** read app version from package.json ([0052e17](https://github.com/pdovhomilja/nextcrm-app/commit/0052e17aadf5283299da88bc695c4b4124fa48fd))
+* **footer:** read app version from package.json instead of env var ([003a728](https://github.com/pdovhomilja/nextcrm-app/commit/003a728b56429230d40058622e7d0f6fb925e150))
+
+## [0.1.0] - 2026-04-03
+
+This release is a major milestone — it replaces the entire authentication system, adds a full reporting module, CRM activity tracking, audit logging, soft delete, configurable CRM settings, and AI-powered contact enrichment via E2B sandboxes.
+
+### Added
+
+#### Authentication (better-auth)
+- Replaced next-auth with better-auth (Google OAuth + Email OTP login)
+- Role-based access control (RBAC) — admin / member / viewer roles
+- Server-side `getSession` helper and admin plugins
+- Email OTP authentication flow with magic link support
+- Admin UI for role management (replaces activate/deactivate toggles)
+- Idempotent role backfill migration script
+- better-auth session, account, and verification tables in database
+
+#### Reports Module
+- Full reporting dashboard with KPI cards (sales, leads, accounts, activity, campaigns, users)
+- Sub-pages: Sales, Leads, Accounts, Activity, Campaigns, Users
+- Date range picker and filter bar
+- CSV export via API route
+- PDF export with Inngest-scheduled email delivery
+- Save report configurations and schedule recurring reports
+- shadcn/ui chart components replacing Tremor
+
+#### CRM Activities
+- Activity tracking on all 5 CRM entity detail pages (accounts, contacts, leads, opportunities, contracts)
+- `ActivityForm` sheet for creating/editing activities
+- `ActivitiesView` paginated feed with compound cursor pagination
+- `crm_Activities` and `crm_ActivityLinks` database models
+
+#### CRM Audit Log & Soft Delete
+- Soft delete on accounts, contacts, leads, opportunities, contracts
+- `crm_AuditLog` model tracking all field changes with before/after diffs
+- History tab on all CRM entity detail pages
+- Admin audit log page with global filterable table and restore actions
+
+#### CRM Settings (Admin)
+- Admin page with 7-tab configuration UI for CRM field values
+- Configurable: Contact Types, Lead Sources, Lead Statuses, Lead Types
+- CRUD dialogs for each config category
+- CRM Settings link in admin sidebar
+
+#### AI Enrichment (E2B Agent)
+- E2B sandbox agent enrichment for campaign targets
+- Multi-field enrichment with preset selector
+- Company-name-only enrichment path (no email required)
+- Bulk enrichment modal with field selector
+- `crm_Target_Contact` model for multi-contact per target
+- 8 new enrichment fields: personal email, LinkedIn, Twitter, phone, title, department, location, bio
+- Skip-list cache (5-min TTL) to avoid re-enriching recently processed targets
+
+#### Target Enrichment & Conversion
+- Convert Target → Account/Contact flow
+- Conversion tracking fields in `crm_Targets`
+- Gmail quick-connect with App Password guide and folder discovery
+- `TargetContactsTable` with add-contact and enrich actions
+
+#### Contracts
+- Contracts detail page with BasicView
+- Contracts listed in admin audit log
+
+### Fixed
+
+- Auth: Critical authorization bypass patched
+- Auth: Operator precedence bugs in session checks
+- Auth: Redirect to sign-in after sign-out
+- Auth: better-auth schema compatibility and modelName mapping for Users table
+- Reports: Chart colors using `hsl()` wrapper and purple palette
+- Reports: Prisma field names aligned across all report actions
+- Reports: `created_on` vs `createdAt` field name in campaigns action
+- CRM: `assigned_to_user` null guard in account BasicView
+- CRM: UUID constraints in update forms (`z.uuid()` replacing `max(30)`)
+- CRM: Operator precedence in leads name column cell
+- CRM: Soft-delete columns migration made idempotent
+- Campaigns: Targets import validation relaxed (last_name or company required)
+- Enrichment: Company domain discovery before agent runs
+- Enrichment: Personal email vs company domain routing
+- Enrichment: Null upsert key guard and DB updates wrapped in `step.run`
+- Inngest: `gen_random_uuid()` added to embedding INSERT statements
+- Inngest: v4 API compatibility fixes
+- Build: All TypeScript errors resolved (operator precedence, missing imports, type safety)
+
+### Changed
+
+- Login page rewritten — credentials/register flow removed, Google OAuth + Email OTP only
+- All server actions migrated from next-auth to better-auth session
+- All API routes migrated to better-auth session
+- Admin `isAdmin`/`is_admin` checks replaced with role-based RBAC
+- CRM lead/contact forms now use DB-backed FK select values
+- Reports page replaced static view with live KPI dashboard
+- Tremor chart library removed — replaced with shadcn/ui charts
+
+### Security
+
+- Critical authorization bypass fixed in auth middleware
+- Password removed from invite email template
+- Session token strategy updated to better-auth cookie-based auth
+
+### Removed
+
+- next-auth package and all type definitions
+- Register page and password reset flow
+- Credentials-based login
+- Tremor (`@tremor/react`) dependency
+
+---
+
+## [0.0.3-beta] - 2024
+
+- Initial beta releases with MongoDB → PostgreSQL migration
+- Basic CRM modules: Accounts, Contacts, Leads, Opportunities
+- Campaign management with target lists
+- AI document processing (OCR, PDF, DOCX)
+- Vector embeddings with pgvector
+
+[0.1.0]: https://github.com/pdovhomilja/nextcrm-app/compare/v0.0.3-beta...v0.1.0
+[0.0.3-beta]: https://github.com/pdovhomilja/nextcrm-app/releases/tag/v0.0.3-beta

@@ -1,0 +1,93 @@
+import type { AuthzUser } from "../session";
+import { isManagerOrAdmin } from "../roles";
+import { NO_ROWS, isUnhandledRole } from "./unhandled-role";
+import { partnerAccountWhere, partnerVisibleAccountWhere } from "./partner";
+
+export interface ReportScope {
+  opportunity: Record<string, unknown>;
+  lead: Record<string, unknown>;
+  account: Record<string, unknown>;
+  contact: Record<string, unknown>;
+  task: Record<string, unknown>;
+  campaign: Record<string, unknown>;
+  targetList: Record<string, unknown>;
+  activity: Record<string, unknown>;
+  contract: Record<string, unknown>;
+  allowUserDirectory: boolean;
+}
+
+const EMPTY: ReportScope = {
+  opportunity: {},
+  lead: {},
+  account: {},
+  contact: {},
+  task: {},
+  campaign: {},
+  targetList: {},
+  activity: {},
+  contract: {},
+  allowUserDirectory: true,
+};
+
+export function getReportScope(user: AuthzUser): ReportScope {
+  if (isManagerOrAdmin(user)) return EMPTY;
+  if (user.role === "partner") {
+    // CRM records through his accounts only; `task` is the projects module,
+    // campaigns and target lists are internal, and activities have no read
+    // scope outside a record's feed: none for a partner.
+    const account = partnerAccountWhere(user.id);
+    const visible = partnerVisibleAccountWhere(user.id);
+    return {
+      opportunity: { assigned_account: account },
+      lead: { assigned_accounts: account },
+      account: visible,
+      contact: { assigned_accounts: visible },
+      task: { ...NO_ROWS },
+      campaign: { ...NO_ROWS },
+      targetList: { ...NO_ROWS },
+      activity: { ...NO_ROWS },
+      contract: { assigned_account: account },
+      allowUserDirectory: false,
+    };
+  }
+  if (isUnhandledRole(user)) {
+    return {
+      opportunity: { ...NO_ROWS },
+      lead: { ...NO_ROWS },
+      account: { ...NO_ROWS },
+      contact: { ...NO_ROWS },
+      task: { ...NO_ROWS },
+      campaign: { ...NO_ROWS },
+      targetList: { ...NO_ROWS },
+      activity: { ...NO_ROWS },
+      contract: { ...NO_ROWS },
+      allowUserDirectory: false,
+    };
+  }
+  return {
+    opportunity: {
+      OR: [{ assigned_to: user.id }, { createdBy: user.id }],
+    },
+    lead: { OR: [{ assigned_to: user.id }, { createdBy: user.id }] },
+    account: {
+      OR: [
+        { assigned_to: user.id },
+        { createdBy: user.id },
+        { watchers: { some: { user_id: user.id } } },
+      ],
+    },
+    contact: {
+      OR: [
+        { assigned_to: user.id },
+        { createdBy: user.id },
+      ],
+    },
+    task: { user: user.id },
+    campaign: { created_by: user.id },
+    // Same owners as targetListReadScopeWhere and crm_list_activities.
+    targetList: { created_by: user.id },
+    activity: { createdBy: user.id },
+    contract: { OR: [{ assigned_to: user.id }, { createdBy: user.id }] },
+    allowUserDirectory: false,
+  };
+}

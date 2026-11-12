@@ -1,0 +1,124 @@
+import { getTranslations } from "next-intl/server";
+import Container from "@/app/[locale]/(routes)/components/ui/Container";
+import { Badge } from "@/components/ui/badge";
+import { requireAuthenticated } from "@/lib/authz";
+import { getProductPanels } from "@/lib/plugins/slots";
+import { PluginSlot } from "@/lib/plugins/ui/PluginSlot";
+import { getProduct } from "@/actions/crm/products/get-product";
+import { getProductCategories } from "@/actions/crm/products/get-product-categories";
+import { getAllCrmData } from "@/actions/crm/get-crm-data";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { serializeDecimals, serializeDecimalsList } from "@/lib/serialize-decimals";
+
+import { BasicView } from "./components/BasicView";
+import { AccountsTab } from "./components/AccountsTab";
+import { HistoryTab } from "./components/HistoryTab";
+import { EditProductButton } from "./components/EditProductButton";
+
+interface ProductDetailPageProps {
+  params: Promise<{ productId: string }>;
+}
+
+const ProductPage = async (props: ProductDetailPageProps) => {
+  const params = await props.params;
+  const { productId } = params;
+  const t = await getTranslations("ProductsPage");
+  const user = await requireAuthenticated();
+  const panels = await getProductPanels(user.role);
+
+  const [product, categories, crmData] = await Promise.all([
+    getProduct(productId),
+    getProductCategories(),
+    getAllCrmData(),
+  ]);
+
+  if (!product) return <div>Product not found</div>;
+
+  // Serialize decimal values for client components
+  const serializedProduct = serializeDecimals(product);
+  const serializedAssignments = serializeDecimalsList(
+    product.accountProducts ?? []
+  );
+
+  const currencies = crmData.currencies.map(
+    (c: { code: string; name: string; symbol: string }) => ({
+      code: c.code,
+      name: c.name,
+      symbol: c.symbol,
+    })
+  );
+
+  const productForEdit = {
+    id: serializedProduct.id,
+    name: serializedProduct.name,
+    description: serializedProduct.description,
+    sku: serializedProduct.sku,
+    type: serializedProduct.type,
+    status: serializedProduct.status,
+    unit_price: serializedProduct.unit_price as unknown as number,
+    unit_cost: serializedProduct.unit_cost as unknown as number | null,
+    currency: serializedProduct.currency,
+    tax_rate: serializedProduct.tax_rate as unknown as number | null,
+    unit: serializedProduct.unit,
+    is_recurring: serializedProduct.is_recurring,
+    billing_period: serializedProduct.billing_period,
+    category: serializedProduct.category,
+  };
+
+  return (
+    <Container
+      title={`Product: ${product.name}`}
+      description={`Status: ${product.status}`}
+    >
+      <div className="mb-4 flex items-center justify-end gap-3">
+        {product.source === "EXTERNAL" ? (
+          <Badge variant="secondary">{t("external")}</Badge>
+        ) : (
+          <EditProductButton
+            product={productForEdit}
+            categories={categories}
+            currencies={currencies}
+          />
+        )}
+      </div>
+      <Tabs defaultValue="basic">
+        <TabsList>
+          <TabsTrigger value="basic">Basic</TabsTrigger>
+          <TabsTrigger value="accounts">
+            Accounts ({serializedAssignments.length})
+          </TabsTrigger>
+          <TabsTrigger value="history">History</TabsTrigger>
+        </TabsList>
+        <TabsContent value="basic">
+          <BasicView
+            data={{
+              ...serializedProduct,
+              unit_price: serializedProduct.unit_price as unknown as number,
+              unit_cost: serializedProduct.unit_cost as unknown as number | null,
+              tax_rate: serializedProduct.tax_rate as unknown as number | null,
+            }}
+          />
+          {panels.length > 0 && (
+            <section className="mt-4 space-y-2">
+              {panels.map(({ plugin, panel }) => (
+                <PluginSlot key={`${plugin.definition.id}:${panel.id}`} plugin={plugin} actor={{ type: "user", userId: user.id, role: user.role }} render={(ctx) => panel.component({ productId, ctx })} />
+              ))}
+            </section>
+          )}
+        </TabsContent>
+        <TabsContent value="accounts">
+          <AccountsTab
+            assignments={serializedAssignments as any}
+            productPrice={serializedProduct.unit_price as unknown as number}
+            productCurrency={serializedProduct.currency}
+          />
+        </TabsContent>
+        <TabsContent value="history">
+          <HistoryTab productId={productId} />
+        </TabsContent>
+      </Tabs>
+    </Container>
+  );
+};
+
+export default ProductPage;

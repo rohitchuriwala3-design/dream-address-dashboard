@@ -1,0 +1,466 @@
+import { z } from "zod";
+import { prismadb } from "@/lib/prisma";
+import { inngest } from "@/inngest/client";
+import type { AuthzUser } from "@/lib/authz";
+import { isManagerOrAdmin } from "@/lib/authz/roles";
+import {
+  assertCanReadTargetList,
+  assertCanReadTemplate,
+  campaignReadScopeWhere,
+  campaignTemplateReadScopeWhere,
+} from "@/lib/authz/scopes/crm";
+import {
+  paginationSchema,
+  paginationArgs,
+  listResponse,
+  itemResponse,
+  notFound,
+  forbidden,
+  conflict,
+  softDeleteData,
+  assertScopeOrNotFound,
+} from "../helpers";
+import { campaignHasFirstStep, NO_FIRST_STEP_MESSAGE } from "@/lib/campaigns/first-step";
+
+// Sending emails real people, so it is manager/admin-only, matching the server
+// actions' requireRole(["manager", "admin"]). Checked before the scope lookup,
+// as they do: a plain user gets FORBIDDEN whether or not the campaign exists.
+function assertCanSendCampaign(user: AuthzUser): void {
+  if (!isManagerOrAdmin(user)) forbidden();
+}
+
+// Object-level authorization for campaign tools (GHSA-c9vg-c532-ppqx).
+// Normal users are scoped to campaigns/templates they created; managers and
+// admins see all. Out-of-scope access returns NOT_FOUND (no existence leak),
+// consistent with the owner-scoped CRM tools.
+async function assertCampaignInScope(user: AuthzUser, campaignId: string): Promise<void> {
+  const row = await prismadb.crm_campaigns.findFirst({
+    where: { id: campaignId, ...campaignReadScopeWhere(user) },
+    select: { id: true },
+  });
+  if (!row) notFound("Campaign");
+}
+
+// Every send starts from step 0 (schedule-send, send-now, follow-ups, resume),
+// so only a draft may lose it.
+async function assertStep0Removable(campaignId: string): Promise<void> {
+  const campaign = await prismadb.crm_campaigns.findUnique({ where: { id: campaignId }, select: { status: true } });
+  if (campaign?.status !== "draft") conflict("Step 0 can only be deleted or moved while the campaign is a draft");
+}
+
+// A template used by a campaign or step must be one the caller can read
+// (same rule as the createCampaign action).
+async function assertTemplateInScope(user: AuthzUser, templateId: string | undefined): Promise<void> {
+  if (templateId) await assertScopeOrNotFound(() => assertCanReadTemplate(user, templateId), "Template");
+}
+
+export const campaignTools = [
+  // ── Campaigns CRUD ────────────────────────────────────
+  {
+    name: "campaigns_list",
+    description: "List campaigns the caller is allowed to see",
+    schema: z.object({
+      status: z.enum(["draft", "scheduled", "sending", "sent", "paused"]).optional(),
+      ...paginationSchema,
+    }),
+    async handler(args: { status?: string; limit: number; offset: number }, _userId: string, user: AuthzUser) {
+      const where: any = {
+        deletedAt: null,
+        ...campaignReadScopeWhere(user),
+        ...(args.status && { status: args.status }),
+      };
+      const [data, total] = await Promise.all([
+        prismadb.crm_campaigns.findMany({
+          where,
+          ...paginationArgs(args),
+          orderBy: [{ created_on: "desc" }, { id: "desc" }],
+          include: { _count: { select: { steps: true, sends: true } } },
+        }),
+        prismadb.crm_campaigns.count({ where }),
+      ]);
+      return listResponse(data, total, args.offset);
+    },
+  },
+  {
+    name: "campaigns_get",
+    description: "Get a campaign by ID with steps and stats summary",
+    schema: z.object({ id: z.string().uuid() }),
+    async handler(args: { id: string }, _userId: string, user: AuthzUser) {
+      const campaign = await prismadb.crm_campaigns.findFirst({
+        where: { id: args.id, deletedAt: null, ...campaignReadScopeWhere(user) },
+        include: {
+          steps: { orderBy: { order: "asc" }, include: { template: true } },
+          target_lists: { include: { target_list: true } },
+          _count: { select: { sends: true } },
+        },
+      });
+      if (!campaign) notFound("Campaign");
+      return itemResponse(campaign);
+    },
+  },
+  {
+    name: "campaigns_create",
+    description: "Create a new campaign",
+    schema: z.object({
+      name: z.string().min(1),
+      description: z.string().optional(),
+      from_name: z.string().optional(),
+      reply_to: z.string().email().optional(),
+      template_id: z.string().uuid().optional(),
+    }),
+    async handler(
+      args: { name: string; description?: string; from_name?: string; reply_to?: string; template_id?: string },
+      userId: string,
+      user: AuthzUser
+    ) {
+      await assertTemplateInScope(user, args.template_id);
+      const campaign = await prismadb.crm_campaigns.create({
+        data: {
+          v: 0,
+          name: args.name,
+          description: args.description,
+          from_name: args.from_name,
+          reply_to: args.reply_to,
+          template_id: args.template_id,
+          status: "draft",
+          created_by: userId,
+        },
+      });
+      return itemResponse(campaign);
+    },
+  },
+  {
+    name: "campaigns_update",
+    description: "Update a campaign by ID",
+    schema: z.object({
+      id: z.string().uuid(),
+      name: z.string().min(1).optional(),
+      description: z.string().optional(),
+      from_name: z.string().optional(),
+      reply_to: z.string().email().optional(),
+      template_id: z.string().uuid().optional(),
+    }),
+    async handler(args: Record<string, any>, _userId: string, user: AuthzUser) {
+      const existing = await prismadb.crm_campaigns.findFirst({
+        where: { id: args.id, deletedAt: null, ...campaignReadScopeWhere(user) },
+      });
+      if (!existing) notFound("Campaign");
+      if (existing.status === "sending") conflict("Cannot update a campaign that is currently sending");
+      await assertTemplateInScope(user, args.template_id);
+      const { id, ...updateData } = args;
+      const campaign = await prismadb.crm_campaigns.update({ where: { id }, data: updateData });
+      return itemResponse(campaign);
+    },
+  },
+  {
+    name: "campaigns_delete",
+    description: "Soft-delete a campaign (sets deletedAt timestamp)",
+    schema: z.object({ id: z.string().uuid() }),
+    async handler(args: { id: string }, userId: string, user: AuthzUser) {
+      const existing = await prismadb.crm_campaigns.findFirst({
+        where: { id: args.id, deletedAt: null, ...campaignReadScopeWhere(user) },
+      });
+      if (!existing) notFound("Campaign");
+      if (existing.status === "sending") conflict("Cannot delete a campaign that is currently sending");
+      await prismadb.crm_campaigns.update({
+        where: { id: args.id },
+        data: softDeleteData(userId),
+      });
+      await inngest.send({ name: "campaigns/deleted", data: { campaignId: args.id } });
+      return itemResponse({ id: args.id, deletedAt: new Date().toISOString() });
+    },
+  },
+
+  // ── Send / Pause / Resume ─────────────────────────────
+  {
+    name: "campaigns_send",
+    description: "Trigger sending a campaign (manager or admin). Campaign must be in draft or scheduled status.",
+    schema: z.object({ id: z.string().uuid() }),
+    async handler(args: { id: string }, _userId: string, user: AuthzUser) {
+      assertCanSendCampaign(user);
+      const campaign = await prismadb.crm_campaigns.findFirst({
+        where: { id: args.id, deletedAt: null, ...campaignReadScopeWhere(user) },
+      });
+      if (!campaign) notFound("Campaign");
+      if (!["draft", "scheduled"].includes(campaign.status ?? "")) {
+        conflict(`Cannot send campaign in status: ${campaign.status}`);
+      }
+      if (!(await campaignHasFirstStep(args.id))) conflict(NO_FIRST_STEP_MESSAGE);
+      const now = new Date();
+      // Conditional write: of two simultaneous calls only one moves the campaign and emits.
+      const { count } = await prismadb.crm_campaigns.updateMany({
+        where: { id: args.id, status: { in: ["draft", "scheduled"] } },
+        data: { status: "sending", scheduled_at: now },
+      });
+      if (count === 0) conflict("Cannot send campaign in status: sending");
+      await inngest.send({ name: "campaigns/send-now", data: { campaignId: args.id } });
+      return itemResponse({ id: args.id, status: "sending" });
+    },
+  },
+  {
+    name: "campaigns_pause",
+    description: "Pause an active/sending campaign",
+    schema: z.object({ id: z.string().uuid() }),
+    async handler(args: { id: string }, _userId: string, user: AuthzUser) {
+      const campaign = await prismadb.crm_campaigns.findFirst({
+        where: { id: args.id, ...campaignReadScopeWhere(user) },
+      });
+      if (!campaign) notFound("Campaign");
+      if (campaign.status !== "sending") conflict(`Cannot pause campaign in status: ${campaign.status}`);
+      await prismadb.crm_campaigns.update({ where: { id: args.id }, data: { status: "paused" } });
+      await inngest.send({ name: "campaigns/paused", data: { campaignId: args.id } });
+      return itemResponse({ id: args.id, status: "paused" });
+    },
+  },
+  {
+    name: "campaigns_resume",
+    description: "Resume a paused campaign (manager or admin)",
+    schema: z.object({ id: z.string().uuid() }),
+    async handler(args: { id: string }, _userId: string, user: AuthzUser) {
+      assertCanSendCampaign(user);
+      const campaign = await prismadb.crm_campaigns.findFirst({
+        where: { id: args.id, ...campaignReadScopeWhere(user) },
+      });
+      if (!campaign) notFound("Campaign");
+      if (campaign.status !== "paused") conflict(`Cannot resume campaign in status: ${campaign.status}`);
+      if (!(await campaignHasFirstStep(args.id))) conflict(NO_FIRST_STEP_MESSAGE);
+      // A run that died holding a claim (cancelled, so no onFailure) leaves its send
+      // in "sending", which would hold the campaign in sending forever. Release it for
+      // the fan-out; if the run is alive after all, the Resend key stops a second mail.
+      await prismadb.crm_campaign_sends.updateMany({
+        where: { campaign_id: args.id, status: "sending" },
+        data: { status: "queued" },
+      });
+      await prismadb.crm_campaigns.update({ where: { id: args.id }, data: { status: "sending" } });
+      await inngest.send({ name: "campaigns/send-now", data: { campaignId: args.id } });
+      return itemResponse({ id: args.id, status: "sending" });
+    },
+  },
+
+  // ── Templates ─────────────────────────────────────────
+  {
+    name: "campaigns_list_templates",
+    description: "List campaign email templates the caller is allowed to see",
+    schema: z.object({ ...paginationSchema }),
+    async handler(args: { limit: number; offset: number }, _userId: string, user: AuthzUser) {
+      const where = { ...campaignTemplateReadScopeWhere(user) };
+      const [data, total] = await Promise.all([
+        prismadb.crm_campaign_templates.findMany({
+          where,
+          ...paginationArgs(args),
+          orderBy: [{ created_on: "desc" }, { id: "desc" }],
+        }),
+        prismadb.crm_campaign_templates.count({ where }),
+      ]);
+      return listResponse(data, total, args.offset);
+    },
+  },
+  {
+    name: "campaigns_get_template",
+    description: "Get a campaign template by ID",
+    schema: z.object({ id: z.string().uuid() }),
+    async handler(args: { id: string }, _userId: string, user: AuthzUser) {
+      const template = await prismadb.crm_campaign_templates.findFirst({
+        where: { id: args.id, ...campaignTemplateReadScopeWhere(user) },
+      });
+      if (!template) notFound("Template");
+      return itemResponse(template);
+    },
+  },
+  {
+    name: "campaigns_create_template",
+    description: "Create a campaign email template",
+    schema: z.object({
+      name: z.string().min(1),
+      description: z.string().optional(),
+      subject_default: z.string().optional(),
+      content_html: z.string().min(1),
+      content_json: z.any(),
+    }),
+    async handler(
+      args: { name: string; description?: string; subject_default?: string; content_html: string; content_json: any },
+      userId: string
+    ) {
+      const template = await prismadb.crm_campaign_templates.create({
+        data: {
+          name: args.name,
+          description: args.description,
+          subject_default: args.subject_default,
+          content_html: args.content_html,
+          content_json: args.content_json,
+          created_by: userId,
+        },
+      });
+      return itemResponse(template);
+    },
+  },
+  {
+    name: "campaigns_update_template",
+    description: "Update a campaign template by ID",
+    schema: z.object({
+      id: z.string().uuid(),
+      name: z.string().min(1).optional(),
+      description: z.string().optional(),
+      subject_default: z.string().optional(),
+      content_html: z.string().optional(),
+      content_json: z.any().optional(),
+    }),
+    async handler(args: Record<string, any>, _userId: string, user: AuthzUser) {
+      const existing = await prismadb.crm_campaign_templates.findFirst({
+        where: { id: args.id, ...campaignTemplateReadScopeWhere(user) },
+      });
+      if (!existing) notFound("Template");
+      const { id, ...updateData } = args;
+      const template = await prismadb.crm_campaign_templates.update({ where: { id }, data: updateData });
+      return itemResponse(template);
+    },
+  },
+  {
+    name: "campaigns_delete_template",
+    description: "Soft-delete a campaign template (sets deletedAt timestamp)",
+    schema: z.object({ id: z.string().uuid() }),
+    async handler(args: { id: string }, userId: string, user: AuthzUser) {
+      const existing = await prismadb.crm_campaign_templates.findFirst({
+        where: { id: args.id, ...campaignTemplateReadScopeWhere(user) },
+      });
+      if (!existing) notFound("Template");
+      await prismadb.crm_campaign_templates.update({
+        where: { id: args.id },
+        data: softDeleteData(userId),
+      });
+      return itemResponse({ id: args.id, deletedAt: new Date().toISOString() });
+    },
+  },
+
+  // ── Steps ─────────────────────────────────────────────
+  {
+    name: "campaigns_create_step",
+    description: "Add a step to a campaign sequence",
+    schema: z.object({
+      campaign_id: z.string().uuid(),
+      order: z.number().int().min(1),
+      template_id: z.string().uuid(),
+      subject: z.string().min(1),
+      delay_days: z.number().int().min(0).default(0),
+      send_to: z.enum(["all", "non_openers"]).default("all"),
+    }),
+    async handler(
+      args: { campaign_id: string; order: number; template_id: string; subject: string; delay_days: number; send_to: string },
+      _userId: string,
+      user: AuthzUser
+    ) {
+      const campaign = await prismadb.crm_campaigns.findFirst({
+        where: { id: args.campaign_id, deletedAt: null, ...campaignReadScopeWhere(user) },
+      });
+      if (!campaign) notFound("Campaign");
+      await assertTemplateInScope(user, args.template_id);
+      const step = await prismadb.crm_campaign_steps.create({ data: args });
+      return itemResponse(step);
+    },
+  },
+  {
+    name: "campaigns_update_step",
+    description: "Update a campaign step by ID",
+    schema: z.object({
+      id: z.string().uuid(),
+      order: z.number().int().min(1).optional(),
+      template_id: z.string().uuid().optional(),
+      subject: z.string().min(1).optional(),
+      delay_days: z.number().int().min(0).optional(),
+      send_to: z.enum(["all", "non_openers"]).optional(),
+    }),
+    async handler(args: Record<string, any>, _userId: string, user: AuthzUser) {
+      const existing = await prismadb.crm_campaign_steps.findUnique({ where: { id: args.id } });
+      if (!existing) notFound("CampaignStep");
+      await assertCampaignInScope(user, existing.campaign_id);
+      if (existing.order === 0 && args.order !== undefined) await assertStep0Removable(existing.campaign_id);
+      await assertTemplateInScope(user, args.template_id);
+      const { id, ...updateData } = args;
+      const step = await prismadb.crm_campaign_steps.update({ where: { id }, data: updateData });
+      return itemResponse(step);
+    },
+  },
+  {
+    name: "campaigns_delete_step",
+    description: "Delete a campaign step by ID (hard delete — step has no status field)",
+    schema: z.object({ id: z.string().uuid() }),
+    async handler(args: { id: string }, _userId: string, user: AuthzUser) {
+      const existing = await prismadb.crm_campaign_steps.findUnique({ where: { id: args.id } });
+      if (!existing) notFound("CampaignStep");
+      await assertCampaignInScope(user, existing.campaign_id);
+      if (existing.order === 0) await assertStep0Removable(existing.campaign_id);
+      await prismadb.crm_campaign_steps.delete({ where: { id: args.id } });
+      return itemResponse({ id: args.id, deleted: true });
+    },
+  },
+
+  // ── Target List Assignment ────────────────────────────
+  {
+    name: "campaigns_assign_target_list",
+    description: "Assign a target list to a campaign",
+    schema: z.object({
+      campaign_id: z.string().uuid(),
+      target_list_id: z.string().uuid(),
+    }),
+    async handler(args: { campaign_id: string; target_list_id: string }, _userId: string, user: AuthzUser) {
+      const campaign = await prismadb.crm_campaigns.findFirst({
+        where: { id: args.campaign_id, deletedAt: null, ...campaignReadScopeWhere(user) },
+      });
+      if (!campaign) notFound("Campaign");
+      // Same rule as the createCampaign action: only target lists the caller can read.
+      await assertScopeOrNotFound(() => assertCanReadTargetList(user, args.target_list_id), "TargetList");
+      await prismadb.campaignToTargetLists.create({
+        data: { campaign_id: args.campaign_id, target_list_id: args.target_list_id },
+      });
+      return itemResponse({ campaign_id: args.campaign_id, target_list_id: args.target_list_id });
+    },
+  },
+  {
+    name: "campaigns_remove_target_list",
+    description: "Remove a target list from a campaign",
+    schema: z.object({
+      campaign_id: z.string().uuid(),
+      target_list_id: z.string().uuid(),
+    }),
+    async handler(args: { campaign_id: string; target_list_id: string }, _userId: string, user: AuthzUser) {
+      await assertCampaignInScope(user, args.campaign_id);
+      await prismadb.campaignToTargetLists.delete({
+        where: {
+          campaign_id_target_list_id: {
+            campaign_id: args.campaign_id,
+            target_list_id: args.target_list_id,
+          },
+        },
+      });
+      return itemResponse({ campaign_id: args.campaign_id, target_list_id: args.target_list_id, removed: true });
+    },
+  },
+
+  // ── Stats ─────────────────────────────────────────────
+  {
+    name: "campaigns_get_stats",
+    description: "Get send/open/click/unsubscribe stats for a campaign",
+    schema: z.object({ id: z.string().uuid() }),
+    async handler(args: { id: string }, _userId: string, user: AuthzUser) {
+      const campaign = await prismadb.crm_campaigns.findFirst({
+        where: { id: args.id, deletedAt: null, ...campaignReadScopeWhere(user) },
+      });
+      if (!campaign) notFound("Campaign");
+      const sends = await prismadb.crm_campaign_sends.findMany({
+        where: { campaign_id: args.id },
+        select: { status: true, opened_at: true, clicked_at: true, unsubscribed_at: true },
+      });
+      const stats = {
+        total: sends.length,
+        sent: sends.filter((s) => s.status === "sent" || s.status === "delivered").length,
+        delivered: sends.filter((s) => s.status === "delivered").length,
+        bounced: sends.filter((s) => s.status === "bounced").length,
+        failed: sends.filter((s) => s.status === "failed").length,
+        opened: sends.filter((s) => s.opened_at).length,
+        clicked: sends.filter((s) => s.clicked_at).length,
+        unsubscribed: sends.filter((s) => s.unsubscribed_at).length,
+      };
+      return itemResponse(stats);
+    },
+  },
+];
