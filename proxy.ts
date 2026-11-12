@@ -39,6 +39,9 @@ function sanitizeRedirect(response: NextResponse) {
   const location = response.headers.get("location");
   const configuredOrigin = process.env.NEXT_PUBLIC_APP_URL || process.env.BETTER_AUTH_URL;
   if (!location || !configuredOrigin) return response;
+  // Locale middleware can return a same-origin path. It is already safe and
+  // must not be passed through URL parsing without a base on all runtimes.
+  if (location.startsWith("/") && !location.startsWith("//")) return response;
   const publicUrl = new URL(configuredOrigin);
   if (publicUrl.port === process.env.PORT) publicUrl.port = "";
   const destination = new URL(location, publicUrl);
