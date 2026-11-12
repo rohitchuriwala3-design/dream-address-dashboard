@@ -7,53 +7,13 @@ import { isPartnerAllowedPath } from "@/lib/partner-routes";
 
 const intlMiddleware = createMiddleware(routing);
 
-/**
- * Render proxies public HTTPS traffic to the container's internal PORT. Keep
- * that port out of absolute redirects emitted by next-intl by normalizing
- * page requests to the configured public origin before locale handling.
- */
-function normalizePublicPageRequest(req: NextRequest) {
-  const configuredOrigin = process.env.NEXT_PUBLIC_APP_URL || process.env.BETTER_AUTH_URL;
-  if (
-    !configuredOrigin ||
-    !["GET", "HEAD"].includes(req.method)
-  ) {
-    return req;
-  }
-
-  const publicUrl = new URL(configuredOrigin);
-  const requestUrl = req.nextUrl.clone();
-  requestUrl.protocol = publicUrl.protocol;
-  requestUrl.host = publicUrl.host;
-
-  const headers = new Headers(req.headers);
-  headers.set("host", publicUrl.host);
-  headers.set("x-forwarded-host", publicUrl.host);
-  headers.set("x-forwarded-proto", publicUrl.protocol.slice(0, -1));
-  headers.set("x-forwarded-port", publicUrl.port || (publicUrl.protocol === "https:" ? "443" : "80"));
-
-  return new NextRequest(requestUrl, { headers, method: req.method });
-}
-
 function sanitizeRedirect(response: NextResponse) {
   const location = response.headers.get("location");
-  const configuredOrigin = process.env.NEXT_PUBLIC_APP_URL || process.env.BETTER_AUTH_URL;
-  if (!location || !configuredOrigin) return response;
-  // Locale middleware can return a same-origin path. It is already safe and
-  // must not be passed through URL parsing without a base on all runtimes.
-  if (location.startsWith("/") && !location.startsWith("//")) return response;
-  const publicUrl = new URL(configuredOrigin);
-  if (publicUrl.port === process.env.PORT) publicUrl.port = "";
-  const destination = new URL(location, publicUrl);
-  destination.protocol = publicUrl.protocol;
-  destination.host = publicUrl.host;
-  // Same-origin redirects should remain relative. This avoids leaking the
-  // container's internal Render port even if an upstream middleware has
-  // already materialized an absolute URL from the forwarded request.
-  response.headers.set(
-    "location",
-    `${destination.pathname}${destination.search}${destination.hash}`,
-  );
+  if (!location || (location.startsWith("/") && !location.startsWith("//"))) return response;
+  // Redirects produced by Next middleware may contain Render's internal port.
+  // Keep only the URL path/query; downstream navigation then stays same-origin.
+  const absoluteLocation = location.match(/^(?:https?:)?\/\/[^/?#]*(\/[^#]*)?(?:#.*)?$/i);
+  if (absoluteLocation) response.headers.set("location", absoluteLocation[1] || "/");
   return response;
 }
 
@@ -118,7 +78,9 @@ export async function proxy(req: NextRequest) {
       if (path.startsWith("/api")) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });
       }
-      return sanitizeRedirect(NextResponse.redirect(new URL("/", req.nextUrl)));
+      const redirect = new NextResponse(null, { status: 307 });
+      redirect.headers.set("location", "/");
+      return redirect;
     }
   }
 
@@ -141,9 +103,11 @@ export async function proxy(req: NextRequest) {
       const authPaths = ["/sign-in", "/register", "/pending", "/inactive"];
       const isAuthPage = authPaths.some((p) => path.includes(p));
       if (!isAuthPage) {
-        const signInUrl = new URL("/sign-in", req.nextUrl);
-        signInUrl.searchParams.set("callbackUrl", `${path}${req.nextUrl.search}`);
-        return sanitizeRedirect(NextResponse.redirect(signInUrl));
+          const callbackUrl = `${path}${req.nextUrl.search}`;
+          const signInUrl = `/sign-in?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+          const redirect = new NextResponse(null, { status: 307 });
+          redirect.headers.set("location", signInUrl);
+          return redirect;
       }
     }
   }
@@ -154,7 +118,7 @@ export async function proxy(req: NextRequest) {
   }
 
   // Non-API routes — delegate to next-intl
-  return sanitizeRedirect(intlMiddleware(normalizePublicPageRequest(req)));
+  return sanitizeRedirect(intlMiddleware(req));
 }
 
 export const config = {
