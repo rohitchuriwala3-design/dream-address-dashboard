@@ -1,9 +1,10 @@
 import { prismadb } from "@/lib/prisma";
 import { requireAuthenticated, type AuthzUser } from "./session";
 import { AuthorizationError } from "./errors";
-import { type NexusPermission } from "./permission-catalog";
+import { NEXUS_PERMISSIONS, type NexusPermission } from "./permission-catalog";
 
 export { parseNexusPermissions } from "./permission-catalog";
+const validKeys = new Set<string>(NEXUS_PERMISSIONS.map(({ key }) => key));
 
 export async function getUserPermissions(userId: string): Promise<NexusPermission[]> {
   const rows = await prismadb.nexusUserPermission.findMany({ where: { userId }, select: { key: true } });
