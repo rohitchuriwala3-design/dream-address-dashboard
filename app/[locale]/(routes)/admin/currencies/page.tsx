@@ -1,34 +1,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getCurrencies, getExchangeRatesAdmin, getEcbAutoUpdate } from "./_actions/currencies";
-import { CurrencyTable } from "./_components/CurrencyTable";
-import { ExchangeRatesTable } from "./_components/ExchangeRatesTable";
-import { ECBToggle } from "./_components/ECBToggle";
+import { getCurrencies } from "./_actions/currencies";
 
 export default async function CurrenciesPage() {
-  const [currencies, rates, ecbEnabled] = await Promise.all([
-    getCurrencies(),
-    getExchangeRatesAdmin(),
-    getEcbAutoUpdate(),
-  ]);
+  const currencies = await getCurrencies();
 
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader>
-          <CardTitle>Currencies</CardTitle>
-        </CardHeader>
+        <CardHeader><CardTitle>Regional settings</CardTitle></CardHeader>
         <CardContent>
-          <CurrencyTable currencies={currencies} />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Exchange Rates</CardTitle>
-          <ECBToggle initialEnabled={ecbEnabled} />
-        </CardHeader>
-        <CardContent>
-          <ExchangeRatesTable rates={rates} ecbEnabled={ecbEnabled} />
+          <p className="mb-4 text-sm text-muted-foreground">MARK IV V1 uses Indian rupees (INR) for active work. Historic records in other currencies are retained as recorded.</p>
+          <div className="rounded-lg border p-4 text-sm"><span className="font-semibold">Active currency: INR</span>{currencies.find((c) => c.code === "INR")?.isEnabled ? " · Enabled" : " · Not enabled in the database yet"}</div>
         </CardContent>
       </Card>
     </div>

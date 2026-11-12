@@ -7,7 +7,7 @@ import { createVendorAccount, createVendorBill, markVendorBillPaid, reviewVendor
 
 const vendorSchema = z.object({
   name: z.string().trim().min(2).max(100), email: z.union([z.string().trim().email().max(254), z.literal("")]).optional(),
-  phone: z.string().trim().max(50).optional(), vat: z.string().trim().max(40).optional(), city: z.string().trim().max(100).optional(),
+  phone: z.string().trim().max(50).optional(), city: z.string().trim().max(100).optional(),
 });
 const billSchema = z.object({
   vendorAccountId: z.string().uuid(), projectId: z.union([z.string().uuid(), z.literal("")]).optional(),

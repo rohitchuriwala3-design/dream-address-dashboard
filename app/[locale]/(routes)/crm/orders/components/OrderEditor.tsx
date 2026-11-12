@@ -103,7 +103,7 @@ export function OrderEditor(props: Props) {
           <TableHeader>
             <TableRow>
               <TableHead>{t("product")}</TableHead><TableHead>{t("quantity")}</TableHead><TableHead>{t("listPrice")}</TableHead>
-              <TableHead>{t("unitPrice")}</TableHead><TableHead>{t("vat")}</TableHead><TableHead className="text-right">{t("lineTotal")}</TableHead><TableHead />
+              <TableHead>{t("unitPrice")}</TableHead><TableHead className="text-right">{t("lineTotal")}</TableHead><TableHead />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -124,7 +124,6 @@ export function OrderEditor(props: Props) {
                   {r.unitPrice !== "" && <button type="button" className="text-xs underline" onClick={() => patch(r.key, { unitPrice: "" })}>{t("followList")}</button>}
                   {r.productId && lineIsBelow(r) && <Badge variant="destructive">{t("belowList")}</Badge>}
                 </TableCell>
-                <TableCell>{r.vatRate}</TableCell>
                 <TableCell className="text-right">{r.productId ? lineTotal(r) : ""}</TableCell>
                 <TableCell><Button size="sm" variant="ghost" onClick={() => setRows((rs) => rs.filter((x) => x.key !== r.key))}>{t("removeLine")}</Button></TableCell>
               </TableRow>
@@ -136,7 +135,6 @@ export function OrderEditor(props: Props) {
 
       <div className="ml-auto w-64 space-y-1 text-sm">
         <div className="flex justify-between"><span>{t("subtotal")}</span><span>{totals.subtotal} {props.currency}</span></div>
-        <div className="flex justify-between"><span>{t("vatTotal")}</span><span>{totals.vatTotal} {props.currency}</span></div>
         <div className="flex justify-between font-semibold"><span>{t("grandTotal")}</span><span>{totals.grandTotal} {props.currency}</span></div>
       </div>
 

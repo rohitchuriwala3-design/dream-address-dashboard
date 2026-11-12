@@ -15,7 +15,6 @@ export const productsSchema = z.object({
   unit_price: decimalLike,
   unit_cost: decimalLike.nullable(),
   currency: z.string(),
-  tax_rate: decimalLike.nullable(),
   unit: z.string().nullable(),
   is_recurring: z.boolean(),
   billing_period: z.string().nullable(),

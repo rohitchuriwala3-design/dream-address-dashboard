@@ -32,7 +32,6 @@ interface UpdateProductFormProps {
     unit_price: number;
     unit_cost: number | null;
     currency: string;
-    tax_rate: number | null;
     unit: string | null;
     is_recurring: boolean;
     billing_period: string | null;
@@ -74,8 +73,7 @@ const UpdateProductForm = ({
       | undefined;
     const unit_price = (formData.get("unit_price") as string) || undefined;
     const unit_cost = (formData.get("unit_cost") as string) || undefined;
-    const currency = (formData.get("currency") as string) || undefined;
-    const tax_rate = (formData.get("tax_rate") as string) || undefined;
+    const currency = (formData.get("currency") as "INR" | "") || undefined;
     const unit = (formData.get("unit") as string) || undefined;
     const categoryId = (formData.get("categoryId") as string) || null;
     const description = (formData.get("description") as string) || undefined;
@@ -97,7 +95,6 @@ const UpdateProductForm = ({
       unit_price,
       unit_cost,
       currency,
-      tax_rate,
       unit,
       is_recurring: isRecurring,
       billing_period,
@@ -173,21 +170,11 @@ const UpdateProductForm = ({
           id="currency"
           label="Currency"
           type="hidden"
-          data={currencies.map((c) => ({
-            id: c.code,
-            name: `${c.symbol} ${c.code} — ${c.name}`,
-          }))}
+          data={currencies.filter((c) => c.code === "INR").map((c) => ({ id: c.code, name: `${c.symbol} ${c.code} — ${c.name}` }))}
           errors={fieldErrors}
-          defaultValue={product.currency}
+          defaultValue="INR"
         />
         <div className="grid grid-cols-2 gap-4">
-          <FormInput
-            id="tax_rate"
-            label="Tax Rate (%)"
-            type="text"
-            errors={fieldErrors}
-            defaultValue={product.tax_rate != null ? String(product.tax_rate) : ""}
-          />
           <FormInput
             id="unit"
             label="Unit"

@@ -9,6 +9,8 @@ import {
 } from "@/lib/authz";
 import { canReadInvoice, type InvoiceStatus } from "@/lib/invoices/permissions";
 import { serializeDecimals } from "@/lib/serialize-decimals";
+import { computeLineTotal, computeInvoiceTotals } from "@/lib/invoices/totals";
+import { Decimal } from "decimal.js";
 
 export async function duplicateInvoice(invoiceId: string) {
   let user;
@@ -40,6 +42,28 @@ export async function duplicateInvoice(invoiceId: string) {
     throw e;
   }
 
+  if (source.currency !== "INR") {
+    throw new Error("Only INR invoices can be duplicated in MARK IV V1; historical currency values are preserved without conversion");
+  }
+
+  // A duplicate is a new V1 document. Recalculate it with zero tax even when
+  // its source is a historical tax-bearing invoice.
+  const lines = source.lineItems.map((li) => {
+    const amounts = computeLineTotal({
+      quantity: new Decimal(String(li.quantity)),
+      unitPrice: new Decimal(String(li.unitPrice)),
+      discountPercent: new Decimal(String(li.discountPercent)),
+      taxRate: new Decimal(0),
+    });
+    return { li, amounts };
+  });
+  const totals = computeInvoiceTotals(lines.map(({ li }) => ({
+    quantity: new Decimal(String(li.quantity)),
+    unitPrice: new Decimal(String(li.unitPrice)),
+    discountPercent: new Decimal(String(li.discountPercent)),
+    taxRate: new Decimal(0),
+  })));
+
   const invoice = await prismadb.invoices.create({
     data: {
       type: source.type,
@@ -57,23 +81,23 @@ export async function duplicateInvoice(invoiceId: string) {
       swift: source.swift,
       variableSymbol: source.variableSymbol,
       originalInvoiceId: source.id,
-      subtotal: source.subtotal,
-      discountTotal: source.discountTotal,
-      vatTotal: source.vatTotal,
-      grandTotal: source.grandTotal,
-      balanceDue: source.grandTotal,
+      subtotal: totals.subtotal.toString(),
+      discountTotal: totals.discountTotal.toString(),
+      vatTotal: "0",
+      grandTotal: totals.grandTotal.toString(),
+      balanceDue: totals.grandTotal.toString(),
       lineItems: {
-        create: source.lineItems.map((li) => ({
+        create: lines.map(({ li, amounts }) => ({
           position: li.position,
           productId: li.productId,
           description: li.description,
           quantity: li.quantity,
           unitPrice: li.unitPrice,
           discountPercent: li.discountPercent,
-          taxRateId: li.taxRateId,
-          lineSubtotal: li.lineSubtotal,
-          lineVat: li.lineVat,
-          lineTotal: li.lineTotal,
+          taxRateId: null,
+          lineSubtotal: amounts.lineSubtotal.toString(),
+          lineVat: "0",
+          lineTotal: amounts.lineTotal.toString(),
         })),
       },
       activity: {

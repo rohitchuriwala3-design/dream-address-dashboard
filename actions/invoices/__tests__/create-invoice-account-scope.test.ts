@@ -22,7 +22,7 @@ const ACCOUNT_ID = "11111111-1111-4111-8111-111111111111";
 const validInput = {
   type: "INVOICE",
   accountId: ACCOUNT_ID,
-  currency: "USD",
+  currency: "INR",
   lineItems: [
     { position: 0, description: "x", quantity: 1, unitPrice: 100, discountPercent: 0 },
   ],

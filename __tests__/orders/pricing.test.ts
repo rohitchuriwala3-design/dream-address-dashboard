@@ -14,12 +14,12 @@ it("flags only prices strictly below the list", () => {
   expect(isBelowList({ unitPrice: d("50"), listPrice: d("49") })).toBe(false);
 });
 
-it("computes line and order totals with VAT", () => {
+it("computes V1 line and order totals without applying legacy VAT rates", () => {
   const a = lineAmounts({ quantity: d(3), unitPrice: d("10.10"), vatRate: d(21) });
-  expect([a.lineSubtotal.toFixed(2), a.lineVat.toFixed(2), a.lineTotal.toFixed(2)]).toEqual(["30.30", "6.36", "36.66"]);
+  expect([a.lineSubtotal.toFixed(2), a.lineVat.toFixed(2), a.lineTotal.toFixed(2)]).toEqual(["30.30", "0.00", "30.30"]);
   const b = lineAmounts({ quantity: d("0.5"), unitPrice: d(100), vatRate: d(0) });
   const t = orderTotals([a, b]);
-  expect([t.subtotal.toFixed(2), t.vatTotal.toFixed(2), t.grandTotal.toFixed(2)]).toEqual(["80.30", "6.36", "86.66"]);
+  expect([t.subtotal.toFixed(2), t.vatTotal.toFixed(2), t.grandTotal.toFixed(2)]).toEqual(["80.30", "0.00", "80.30"]);
   expect(orderTotals([]).grandTotal.toFixed(2)).toBe("0.00");
 });
 

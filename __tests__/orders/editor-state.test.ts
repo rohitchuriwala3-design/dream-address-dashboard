@@ -12,7 +12,7 @@ it("sends unitPrice only for typed prices", () => {
 
 it("totals the editor rows like the server", () => {
   const t = editorTotals([row(), row({ unitPrice: "45" })]);
-  expect([t.subtotal, t.vatTotal, t.grandTotal, t.belowList]).toEqual(["188.00", "22.56", "210.56", true]);
+  expect([t.subtotal, t.vatTotal, t.grandTotal, t.belowList]).toEqual(["188.00", "0.00", "188.00", true]);
 });
 
 it("keeps Submit inside an open editor so unsaved edits are saved first (review I7)", () => {

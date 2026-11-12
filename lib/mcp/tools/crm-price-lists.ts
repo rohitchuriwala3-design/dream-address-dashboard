@@ -16,10 +16,6 @@ async function writableList(user: AuthzUser, id: string | null) {
   return list;
 }
 
-async function assertCurrency(code: string) {
-  if (!(await prismadb.currency.findFirst({ where: { code, isEnabled: true } }))) validationError("currency is not enabled");
-}
-
 const ruleSchema = z.object({
   priceListId: z.string(),
   ruleId: z.string().optional(),
@@ -78,6 +74,7 @@ export const crmPriceListTools = [
       }
       try {
         const r = await getPrice({ priceListId, productId: args.productId, quantity: args.quantity, date: args.date ? new Date(args.date) : undefined });
+        if (r.currency !== "INR") validationError("MARK IV V1 supports INR prices only");
         return itemResponse({ price: r.price.toFixed(2), listPrice: r.listPrice.toFixed(2), currency: r.currency, ruleId: r.ruleId, priceListId,
           steps: r.steps.map((s) => ({ label: s.label, value: s.value.toFixed(2) })) });
       } catch (e) {
@@ -89,22 +86,20 @@ export const crmPriceListTools = [
   {
     name: "crm_create_price_list",
     description: "Create a price list (manager or admin)",
-    schema: z.object({ name: z.string().min(1), currency: z.string().length(3) }),
-    async handler(args: { name: string; currency: string }, userId: string, user: AuthzUser) {
+    schema: z.object({ name: z.string().min(1), currency: z.literal("INR").default("INR") }),
+    async handler(args: { name: string; currency?: string }, userId: string, user: AuthzUser) {
       await writableList(user, null);
-      await assertCurrency(args.currency);
-      const row = await prismadb.crm_PriceLists.create({ data: { name: args.name, currency: args.currency, createdBy: userId, updatedBy: userId } });
+      const row = await prismadb.crm_PriceLists.create({ data: { name: args.name, currency: "INR", createdBy: userId, updatedBy: userId } });
       await writeAuditLog({ entityType: "price_list", entityId: row.id, action: "created", changes: null, userId });
       return itemResponse(row);
     },
   },
   {
     name: "crm_update_price_list",
-    description: "Rename a price list, change its currency or (de)activate it (manager or admin; not external lists)",
-    schema: z.object({ id: z.string(), name: z.string().min(1).optional(), currency: z.string().length(3).optional(), isActive: z.boolean().optional() }),
-    async handler(args: { id: string; name?: string; currency?: string; isActive?: boolean }, userId: string, user: AuthzUser) {
+    description: "Rename an INR price list or (de)activate it (manager or admin; not external lists)",
+    schema: z.object({ id: z.string(), name: z.string().min(1).optional(), currency: z.literal("INR").optional(), isActive: z.boolean().optional() }),
+    async handler(args: { id: string; name?: string; currency?: "INR"; isActive?: boolean }, userId: string, user: AuthzUser) {
       await writableList(user, args.id);
-      if (args.currency) await assertCurrency(args.currency);
       const { id, ...data } = args;
       const row = await prismadb.crm_PriceLists.update({ where: { id }, data: { ...data, updatedBy: userId } });
       await writeAuditLog({ entityType: "price_list", entityId: id, action: "updated", changes: null, userId });

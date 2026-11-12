@@ -52,6 +52,15 @@ export async function regenerateInvoicePdf(
       };
     }
 
+    // Keep the original stored PDF as the authoritative historic artifact.
+    // The V1 renderer is tax-free and must not silently replace an old taxed PDF.
+    if (Number(invoice.vatTotal) > 0 || invoice.lineItems.some((line) => Number(line.lineVat) > 0)) {
+      return {
+        ok: false,
+        error: "Historical tax-bearing invoices cannot be regenerated with the V1 document template",
+      };
+    }
+
     if (!invoice.number || !invoice.issueDate) {
       return {
         ok: false,

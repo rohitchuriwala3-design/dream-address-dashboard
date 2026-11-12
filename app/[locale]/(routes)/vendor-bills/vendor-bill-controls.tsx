@@ -25,7 +25,7 @@ export function VendorBillForm({ vendors, projects }: { vendors: Vendor[]; proje
     <label className="space-y-1 text-xs font-medium">Invoice date<Input name="invoiceDate" type="date" required defaultValue={new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Kolkata",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date())}/></label>
     <label className="space-y-1 text-xs font-medium">Due date<Input name="dueDate" type="date"/></label>
     <label className="space-y-1 text-xs font-medium md:col-span-2 lg:col-span-3">Description<Input name="description" required minLength={2} maxLength={1000} placeholder="Materials, work, or service billed"/></label>
-    <p className="text-xs text-muted-foreground md:col-span-2 lg:col-span-3">Enter the supplier’s gross payable amount. Tax components and bill-file evidence are not configured yet; this record does not post to a bank ledger.</p>
+    <p className="text-xs text-muted-foreground md:col-span-2 lg:col-span-3">Enter the supplier’s gross payable amount. This record does not post to a bank ledger.</p>
     <div className="flex gap-2 md:col-span-2 lg:col-span-3"><Button disabled={pending}>{pending?"Submitting…":"Submit for review"}</Button><Button type="button" variant="ghost" disabled={pending} onClick={()=>setOpen(false)}>Cancel</Button></div>
   </form>;
 }

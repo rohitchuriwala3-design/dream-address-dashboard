@@ -80,21 +80,24 @@ export async function getExchangeRatesAdmin(): Promise<ExchangeRateValue[]> {
 export async function createCurrency(data: { code: string; name: string; symbol: string }) {
   const denied = await ensureAdmin();
   if (denied) throw new Error(denied.error);
-  const parsed = currencySchema.parse(data);
-  await prismadb.currency.create({ data: { ...parsed, isEnabled: true, isDefault: false } });
-  revalidatePath("/", "layout");
+  currencySchema.parse(data);
+  throw new Error("MARK IV V1 supports INR only; additional currencies are deferred");
 }
 
 export async function toggleCurrency(code: string, isEnabled: boolean) {
   const denied = await ensureAdmin();
   if (denied) throw new Error(denied.error);
-  await prismadb.currency.update({ where: { code }, data: { isEnabled } });
+  if (code !== "INR" || !isEnabled) {
+    throw new Error("INR is the only active V1 currency and cannot be disabled");
+  }
+  await prismadb.currency.update({ where: { code: "INR" }, data: { isEnabled: true } });
   revalidatePath("/", "layout");
 }
 
 export async function setDefaultCurrency(code: string) {
   const denied = await ensureAdmin();
   if (denied) throw new Error(denied.error);
+  if (code !== "INR") throw new Error("MARK IV V1 supports INR as its only default currency");
   await prismadb.$transaction([
     prismadb.currency.updateMany({ data: { isDefault: false } }),
     prismadb.currency.update({ where: { code }, data: { isDefault: true, isEnabled: true } }),
@@ -114,28 +117,8 @@ export async function updateExchangeRate(data: {
 }) {
   const denied = await ensureAdmin();
   if (denied) throw new Error(denied.error);
-  const parsed = rateSchema.parse(data);
-  await prismadb.exchangeRate.upsert({
-    where: {
-      fromCurrency_toCurrency: {
-        fromCurrency: parsed.fromCurrency,
-        toCurrency: parsed.toCurrency,
-      },
-    },
-    update: {
-      rate: parseFloat(parsed.rate),
-      source: ExchangeRateSource.MANUAL,
-      effectiveDate: new Date(),
-    },
-    create: {
-      fromCurrency: parsed.fromCurrency,
-      toCurrency: parsed.toCurrency,
-      rate: parseFloat(parsed.rate),
-      source: ExchangeRateSource.MANUAL,
-      effectiveDate: new Date(),
-    },
-  });
-  revalidatePath("/", "layout");
+  rateSchema.parse(data);
+  throw new Error("Exchange rates are not used in MARK IV V1");
 }
 
 export async function getEcbAutoUpdate(): Promise<boolean> {
@@ -150,6 +133,7 @@ export async function getEcbAutoUpdate(): Promise<boolean> {
 export async function setEcbAutoUpdate(enabled: boolean) {
   const denied = await ensureAdmin();
   if (denied) throw new Error(denied.error);
+  if (enabled) throw new Error("Exchange-rate updates are disabled in MARK IV V1");
   await prismadb.crm_SystemSettings.upsert({
     where: { key: "ecb_auto_update" },
     update: { value: enabled ? "true" : "false" },

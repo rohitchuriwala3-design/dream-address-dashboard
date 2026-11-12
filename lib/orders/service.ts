@@ -6,7 +6,7 @@ import { assertCanReadAccount, assertCanWriteAccount } from "@/lib/authz/scopes/
 import { orderReadScopeWhere } from "@/lib/authz/scopes/orders";
 import { writeAuditLog } from "@/lib/audit-log";
 import { getDefaultCurrency } from "@/lib/currency";
-import { getPrice, rateLookup, resolvePriceListId } from "@/lib/pricing/get-price";
+import { getPrice, resolvePriceListId } from "@/lib/pricing/get-price";
 import { PricingError } from "@/lib/pricing/errors";
 import { allocateNumber } from "./numbering";
 import { lineAmounts, orderTotals, round2 } from "./pricing";
@@ -32,7 +32,9 @@ async function guardAccount(check: () => Promise<void>) {
 export async function pricingContextForAccount(accountId: string): Promise<PricingContext> {
   const priceListId = await resolvePriceListId(accountId);
   const list = priceListId ? await prismadb.crm_PriceLists.findUnique({ where: { id: priceListId }, select: { currency: true } }) : null;
-  return { priceListId: list ? priceListId : null, currency: list?.currency ?? (await getDefaultCurrency()) };
+  const currency = list?.currency ?? (await getDefaultCurrency());
+  if (currency !== "INR") throw new OrderError("pricing", "MARK IV V1 supports INR only; set this price list to INR before creating an order");
+  return { priceListId: list ? priceListId : null, currency: "INR" };
 }
 
 export async function priceLine(ctx: PricingContext, input: LineInput, position: number, date: Date = new Date()) {
@@ -45,8 +47,10 @@ export async function priceLine(ctx: PricingContext, input: LineInput, position:
   let priceRuleId: string | null;
   try {
     const r = await getPrice({ priceListId: ctx.priceListId, productId: product.id, quantity, date });
-    const rate = r.currency === ctx.currency ? new Decimal(1) : rateLookup(await prismadb.exchangeRate.findMany())(r.currency, ctx.currency);
-    listPrice = round2(r.price.mul(rate));
+    if (r.currency !== "INR" || ctx.currency !== "INR") {
+      throw new PricingError("MARK IV V1 supports INR prices only");
+    }
+    listPrice = round2(r.price);
     priceRuleId = r.ruleId;
   } catch (e) {
     if (e instanceof PricingError) throw new OrderError("pricing", e.message);
@@ -58,7 +62,8 @@ export async function priceLine(ctx: PricingContext, input: LineInput, position:
     try { unitPrice = round2(new Decimal(String(input.unitPrice))); } catch { throw new OrderError("invalid"); }
   }
   if (unitPrice.lt(0)) throw new OrderError("invalid");
-  const vatRate = new Decimal(String(product.tax_rate ?? 0));
+  // New MARK IV V1 orders are tax-free. Keep the product field for legacy data.
+  const vatRate = new Decimal(0);
   return {
     position, productId: product.id, productName: product.name, sku: product.sku ?? null, unit: product.unit ?? null,
     quantity, listPrice, priceRuleId, unitPrice, unitPriceOverridden, vatRate,
@@ -206,5 +211,5 @@ export async function quoteLine(user: AuthzUser, input: { accountId?: string; or
     ctx = await pricingContextForAccount(input.accountId);
   }
   const line = await priceLine(ctx, { productId: input.productId, quantity: input.quantity }, 0);
-  return { productName: line.productName, sku: line.sku, unit: line.unit, listPrice: line.listPrice.toFixed(2), vatRate: line.vatRate.toFixed(2), currency: ctx.currency };
+  return { productName: line.productName, sku: line.sku, unit: line.unit, listPrice: line.listPrice.toFixed(2), vatRate: "0.00", currency: ctx.currency };
 }

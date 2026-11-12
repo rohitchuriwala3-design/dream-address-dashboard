@@ -22,10 +22,11 @@ export async function upsertExternalCategory(pluginId: string, ref: string, f: {
 }
 
 export async function upsertExternalProduct(pluginId: string, ref: string, f: ExternalProductInput, opts: { adoptBySku?: boolean } = {}) {
+  if (f.currency !== "INR") throw new Error("MARK IV V1 supports INR products only");
   const catId = await categoryId(f.categoryRef);
   const existing = await prismadb.crm_Products.findUnique({ where: ext(ref) });
   const { categoryRef: _c, ...fields } = f;
-  const data = { ...fields, categoryId: catId };
+  const data = { ...fields, tax_rate: null, categoryId: catId };
   if (f.sku) {
     const clash = await prismadb.crm_Products.findFirst({ where: { sku: f.sku, NOT: { source: "EXTERNAL", externalRef: ref } } });
     // SDK 0.2.5: a live CRM product with the same SKU becomes this plugin's product (same id, so orders and rules keep pointing at it).
@@ -46,6 +47,7 @@ export async function upsertExternalProduct(pluginId: string, ref: string, f: Ex
 }
 
 export async function replaceExternalPriceList(pluginId: string, ref: string, list: { name: string; currency: string; isActive: boolean }, rules: ExternalRuleInput[]) {
+  if (list.currency !== "INR") throw new Error("MARK IV V1 supports INR price lists only");
   const existing = await prismadb.crm_PriceLists.findUnique({ where: ext(ref) });
   // Resolve every reference before writing, so a bad rule leaves the list as it was.
   const resolved: Prisma.crm_PriceListRulesCreateManyInput[] = [];

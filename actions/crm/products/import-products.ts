@@ -36,7 +36,7 @@ export async function importProducts(
 
   const [categories, currencies, existingSkus] = await Promise.all([
     prismadb.crm_ProductCategories.findMany({ where: { isActive: true } }),
-    prismadb.currency.findMany({ where: { isEnabled: true } }),
+    prismadb.currency.findMany({ where: { code: "INR", isEnabled: true } }),
     prismadb.crm_Products.findMany({
       where: { sku: { not: null } },
       select: { sku: true },
@@ -87,15 +87,6 @@ export async function importProducts(
       }
     }
 
-    let taxRate: number | undefined;
-    if (row.tax_rate?.trim()) {
-      taxRate = parseFloat(row.tax_rate);
-      if (isNaN(taxRate) || taxRate < 0 || taxRate > 100) {
-        errors.push(`Row ${rowNum}: invalid tax_rate "${row.tax_rate}" (must be 0-100)`);
-        return;
-      }
-    }
-
     const sku = row.sku?.trim() || null;
     if (sku) {
       const skuLower = sku.toLowerCase();
@@ -138,7 +129,7 @@ export async function importProducts(
       unit_price: unitPrice,
       unit_cost: unitCost ?? null,
       currency,
-      tax_rate: taxRate ?? null,
+      tax_rate: null,
       unit: row.unit?.trim() || null,
       is_recurring: isRecurring,
       billing_period: isRecurring ? billingPeriod : null,

@@ -20,17 +20,17 @@ export async function listVendorAccounts() {
   await financeUser();
   return prismadb.crm_Accounts.findMany({
     where: { type: "Vendor", status: "Active", deletedAt: null },
-    select: { id: true, name: true, email: true, office_phone: true, vat: true, billing_city: true },
+    select: { id: true, name: true, email: true, office_phone: true, billing_city: true },
     orderBy: { name: "asc" }, take: 500,
   });
 }
 
-export async function createVendorAccount(input: { name: string; email?: string; phone?: string; vat?: string; city?: string }) {
+export async function createVendorAccount(input: { name: string; email?: string; phone?: string; city?: string }) {
   const user = await financeUser();
   const account = await prismadb.crm_Accounts.create({ data: {
     v: 0, name: input.name.trim(), type: "Vendor", status: "Active", createdBy: user.id, updatedBy: user.id,
     email: input.email?.trim() || null, office_phone: input.phone?.trim() || null,
-    vat: input.vat?.trim() || null, billing_city: input.city?.trim() || null,
+    billing_city: input.city?.trim() || null,
   } });
   try { await writeAuditLog({ entityType: "account", entityId: account.id, action: "created", changes: [
     { field: "type", old: null, new: "Vendor" },

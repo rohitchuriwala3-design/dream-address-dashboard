@@ -23,9 +23,9 @@ import {
 
 import { importProducts } from "@/actions/crm/products/import-products";
 
-const CSV_TEMPLATE = `name,sku,type,category,description,unit_price,unit_cost,currency,tax_rate,unit,is_recurring,billing_period
-"Carpentry Labour","DSS-001","SERVICE","Execution","Carpentry labour for approved interior work",850.00,600.00,"INR",0,"per day",false,
-"BWR Plywood 18mm","DSS-002","PRODUCT","Materials","Board material; final rate confirmed per vendor quote",3200.00,2500.00,"INR",0,"per sheet",false,`;
+const CSV_TEMPLATE = `name,sku,type,category,description,unit_price,unit_cost,currency,unit,is_recurring,billing_period
+"Carpentry Labour","DSS-001","SERVICE","Execution","Carpentry labour for approved interior work",850.00,600.00,"INR","per day",false,
+"BWR Plywood 18mm","DSS-002","PRODUCT","Materials","Board material; final rate confirmed per vendor quote",3200.00,2500.00,"INR","per sheet",false,`;
 
 type ImportResult = {
   imported: number;

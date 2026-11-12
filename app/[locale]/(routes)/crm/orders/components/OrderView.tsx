@@ -20,7 +20,7 @@ export function OrderView({ order }: { order: OrderDetail }) {
         <TableHeader>
           <TableRow>
             <TableHead>{t("product")}</TableHead><TableHead>{t("quantity")}</TableHead><TableHead>{t("listPrice")}</TableHead>
-            <TableHead>{t("unitPrice")}</TableHead><TableHead>{t("vat")}</TableHead><TableHead className="text-right">{t("lineTotal")}</TableHead>
+            <TableHead>{t("unitPrice")}</TableHead>{Number(order.vatTotal) > 0 && <TableHead>{t("vat")}</TableHead>}<TableHead className="text-right">{t("lineTotal")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -30,7 +30,7 @@ export function OrderView({ order }: { order: OrderDetail }) {
               <TableCell>{l.quantity} {l.unit ?? ""}</TableCell>
               <TableCell>{l.listPrice}</TableCell>
               <TableCell>{l.unitPrice} {l.belowList && <Badge variant="destructive">{t("belowList")} −{l.discountPercent} %</Badge>}</TableCell>
-              <TableCell>{l.vatRate}</TableCell>
+              {Number(order.vatTotal) > 0 && <TableCell>{l.vatRate}</TableCell>}
               <TableCell className="text-right">{l.lineTotal}</TableCell>
             </TableRow>
           ))}
@@ -39,7 +39,7 @@ export function OrderView({ order }: { order: OrderDetail }) {
       {order.belowListTotal !== "0.00" && <p className="text-destructive">{t("belowListTotal", { amount: `${order.belowListTotal} ${order.currency}` })}</p>}
       <div className="ml-auto w-64 space-y-1">
         <div className="flex justify-between"><span>{t("subtotal")}</span><span>{order.subtotal} {order.currency}</span></div>
-        <div className="flex justify-between"><span>{t("vatTotal")}</span><span>{order.vatTotal} {order.currency}</span></div>
+        {Number(order.vatTotal) > 0 && <div className="flex justify-between"><span>{t("vatTotal")}</span><span>{order.vatTotal} {order.currency}</span></div>}
         <div className="flex justify-between font-semibold"><span>{t("grandTotal")}</span><span>{order.grandTotal} {order.currency}</span></div>
       </div>
     </div>

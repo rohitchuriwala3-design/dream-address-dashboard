@@ -58,7 +58,6 @@ const ProductPage = async (props: ProductDetailPageProps) => {
     unit_price: serializedProduct.unit_price as unknown as number,
     unit_cost: serializedProduct.unit_cost as unknown as number | null,
     currency: serializedProduct.currency,
-    tax_rate: serializedProduct.tax_rate as unknown as number | null,
     unit: serializedProduct.unit,
     is_recurring: serializedProduct.is_recurring,
     billing_period: serializedProduct.billing_period,
@@ -95,7 +94,6 @@ const ProductPage = async (props: ProductDetailPageProps) => {
               ...serializedProduct,
               unit_price: serializedProduct.unit_price as unknown as number,
               unit_cost: serializedProduct.unit_cost as unknown as number | null,
-              tax_rate: serializedProduct.tax_rate as unknown as number | null,
             }}
           />
           {panels.length > 0 && (

@@ -68,8 +68,7 @@ export const crmProductTools = [
       type: z.enum(["PRODUCT", "SERVICE"]),
       unit_price: z.number().min(0),
       unit_cost: z.number().min(0).optional(),
-      currency: z.string().length(3),
-      tax_rate: z.number().min(0).max(100).optional(),
+      currency: z.literal("INR"),
       unit: z.string().optional(),
       is_recurring: z.boolean().optional(),
       billing_period: z.enum(["MONTHLY", "QUARTERLY", "SEMIANNUALLY", "ANNUALLY"]).optional(),
@@ -84,7 +83,6 @@ export const crmProductTools = [
         unit_price: number;
         unit_cost?: number;
         currency: string;
-        tax_rate?: number;
         unit?: string;
         is_recurring?: boolean;
         billing_period?: string;
@@ -104,7 +102,7 @@ export const crmProductTools = [
           unit_price: args.unit_price,
           unit_cost: args.unit_cost,
           currency: args.currency,
-          tax_rate: args.tax_rate,
+          tax_rate: null,
           unit: args.unit,
           is_recurring: args.is_recurring ?? false,
           billing_period: args.billing_period as any,
@@ -128,8 +126,7 @@ export const crmProductTools = [
       status: z.enum(["DRAFT", "ACTIVE", "ARCHIVED"]).optional(),
       unit_price: z.number().min(0).optional(),
       unit_cost: z.number().min(0).optional(),
-      currency: z.string().length(3).optional(),
-      tax_rate: z.number().min(0).max(100).optional(),
+      currency: z.literal("INR").optional(),
       unit: z.string().optional(),
       is_recurring: z.boolean().optional(),
       billing_period: z.enum(["MONTHLY", "QUARTERLY", "SEMIANNUALLY", "ANNUALLY"]).optional(),

@@ -1,6 +1,6 @@
 # MARK IV V1 workflow and delivery checklist
 
-Updated: 2026-11-12 (Asia/Kolkata)
+Updated: 2026-11-13 (Asia/Kolkata)
 
 ## Product decisions
 
@@ -12,6 +12,12 @@ Updated: 2026-11-12 (Asia/Kolkata)
 - Google Sheets remains usable by staff, but sync is not considered connected until a staged round trip is reconciled.
 
 ## Phased delivery plan
+
+## Phase exit and regression gate
+
+After implementing each phase, re-run that phase's acceptance checks and all previously completed phase checks before moving forward. Use unit/integration tests for critical server behavior and staging smoke/browser checks for the actual user journeys. Record the commit, environment, test evidence, failed or blocked checks, and known limitations. Do not mark a phase complete while any required gate is blocked or failing.
+
+Each phase report must include a 0–100 health score with a short breakdown for functionality, data correctness, access control, usability/mobile, integration and deployment. A score is an evidence-based estimate, not a test pass rate. Carry earlier-phase scores forward and change them when regressions appear; report unverified areas as unverified rather than counting them as passing.
 
 ### Phase 0 — Scope and safety baseline (done)
 
@@ -27,23 +33,40 @@ Updated: 2026-11-12 (Asia/Kolkata)
 - [x] Trace the source profile-creation path. The action forwarded current-session headers to Better Auth's admin create-user endpoint, but configured app roles intentionally have no Better Auth endpoint grants. A local change now relies on the app action's own `requireRole(["admin"])` authorization and omits those headers.
 - [x] Prevent a false failed-profile message after the profile itself exists: user status/language are supplied at creation; a later permission-write failure returns a partial-success warning. Preserve the form on errors. Three focused regression tests and TypeScript validation pass locally.
 - [x] Make failed profile submission preserve entered values and use a controlled English-only language selector. New profile creation is covered by focused tests; the live staging login/reset/role flow is still pending.
-- [ ] Deploy this fix only to the isolated staging service and verify profile creation, selected role/language/permissions, sign-in and reset with a test profile. The local branch points at the production repository remote, so do not push/deploy until a verified isolated staging Git target is established. Capture safe diagnostics only.
+- [x] Deploy the Phase 1 code batch to the separate `nexus360-rebuild-staging` Render service/branch. `/api/health` returned HTTP 200 with database `ok`; `/en/login` returned HTTP 200 with MARK IV branding. Production `main` and the legacy Render service were not changed.
+- [ ] Use a test administrator to verify profile creation, selected role/language/permissions, sign-in, reset and server-side role boundaries. The public health/login smoke checks do not verify these authenticated workflows. Render continued to report `build_in_progress` after the new app answered requests; confirm the final deployment state.
 - [ ] Make profile creation retry-safe for partial permission failures and verify no duplicate user/account is created.
 - [ ] Verify admin creates profiles with every intended role, permissions, initial password, and admin reset; verify the user can sign in and role boundaries are enforced server-side.
 - [ ] Make user-visible profile-creation failures actionable without logging passwords, tokens, or other secrets.
-- [ ] Confirm staging database and service remain isolated from legacy production. Back up before applying schema changes or touching live workbook records.
+- [x] Confirm the separate staging service uses the `nexus360-rebuild-staging` branch and startup logs identify `nexus360_test_db`; staging reported no pending migrations. Production `main` and the legacy Render service were not changed. The staging DB blocks external SQL inspection through Render MCP because its IP allowlist is empty, so its persisted settings were not inspected.
 - [ ] Use Dream Space Studios consistently in app branding, documents, invoice settings, and Sheet-facing labels.
 - [ ] Separate workspace brand from document issuer identity. Keep MARK IV under the selected Dream Space brand; allow quote/invoice settings to select the issuer name (with Impressive Creators available per owner instruction) and independently store address, contact, signatory and bank/remittance details. Confirm the authoritative brand spelling and issuer fields before rendering official outputs; preserve historical document identity.
-- [x] Remove active GST/VAT setup and rate selection from V1 invoice settings and invoice line entry. V1 invoice calculations force tax to zero server-side; historical tax fields/records remain untouched. Revisit only after the user's six-month deferral and professional review.
+- [x] Remove tax-rate selection and active tax configuration API from invoice V1. Invoice create/update/issue force tax to zero server-side; invoice settings, line editor, totals and new PDF layout omit tax UI; historical tax schema and rows remain.
+- [x] Finish the no-tax source audit: invoice duplicates recalculate as zero-tax drafts; regenerating a tax-bearing historic invoice is blocked so its existing PDF cannot be overwritten; new CRM Orders/plugin orders ignore legacy VAT fields and use INR-only pricing; the Orders editor omits tax and historic order views show tax only when stored historic tax exists. Preserve legacy rows without applying them to new transactions. Local regression coverage passes; staging recheck is pending.
 - [x] Owner reports written CA confirmation that GST registration is not required now; the letter has not been independently reviewed. Keep the written advice on file and revisit with the CA at six months or sooner if facts change. Do not add tax collection or tax-invoice claims. [CBIC section 22](https://taxinformation.cbic.gov.in/content-page/explore-act/1000291/1000001), [CBIC invoice FAQ](https://cbic-gst.gov.in/hindi/sectoral-faq.html)
 - [x] Set the application fallback currency/formatting to INR, seed INR as the sole enabled/default currency without deleting other currency records, and disable ECB refresh. Core CRM/invoice fallbacks and Treasury account creation use INR. Runtime persisted settings still need staging verification.
 - [ ] Finish the active V1 localization sweep across locale routes, account/campaign country examples, document templates, settings and deployed staging data. Remove Czech/CZK/Russian assumptions from active V1 surfaces while preserving historical records and clearly isolated integration/test fixtures.
 - [x] Begin the code-level localization pass: INR is now the no-setting currency fallback; new seed setup enables INR as the only currency, disables other currency records without deleting them, and turns off ECB refresh; core invoice/opportunity/contract fallbacks and the Treasury account form use INR; product-import examples use Indian interior work and INR; profile language choices show English only.
 - [ ] Finish the India-default sweep across settings/admin pages, persisted staging values, date formatting, invoice/quote document templates, active locale routes, CRM forms, plugin/configuration surfaces and any legacy/demo content. Preserve old records and verify no persisted values are silently converted.
-- [ ] Hide or retire unused foreign-currency and region controls from V1 while preserving historical records and clearly isolated test fixtures. Do not rewrite amounts or infer exchange rates.
-- [ ] Keep GST fully out of V1: no GST calculation, GSTIN prompts, tax codes or GST invoice claims. Revisit the GST phase after six months with the firm's accountant before enabling any GST-specific workflow.
+- [x] Retire active foreign-currency administration from V1 while preserving historical records and clearly isolated test fixtures. Admin → Currencies is read-only; server actions enforce INR-only and disable exchange-rate changes. New CRM Orders reject non-INR price lists or product prices instead of silently converting them. Do not rewrite amounts or infer exchange rates.
+- [ ] Keep GST fully out of V1: source now removes tax fields from product create/edit/import, product and price-list MCP writes, vendor creation, new invoice inputs, and new order/plugin paths; the master workbook and current reusable invoice/quotation templates contain no GST/IGST/tax workflow labels. Revisit after six months with the firm's accountant before enabling any GST-specific workflow. Recheck this on staging after the current source batch deploys. Preserve client-specific historical invoice/quotation files that contain old tax wording or amounts; do not rewrite issued documents.
 - [ ] Keep client/project photos, floor plans, invoices and identity details private; require authenticated, project-authorized access, use audit trails, and set clear retention/deletion controls. Treat photos of private homes and precise addresses as confidential operational data.
 - [ ] Apply mobile usability as an acceptance requirement in every phase: CRM create/edit/search, tasks/reminders, project updates, expense capture, invoice/receipt review, design upload/approval and notifications must work on phones as well as desktop. Use responsive navigation/tables, readable forms, touch-sized actions, camera/file upload, clear loading/error states, and no desktop-only completion steps.
+
+#### Phase 1 audit — 2026-11-13
+
+**Status: incomplete. Estimated health: 55/100.** This is a weighted engineering assessment, not a test pass percentage. It combines the previously live staging baseline with the current, locally validated but not yet deployed source batch and directly verified Sheets edits. Do not treat local code as live verification.
+
+| Area | Score | Evidence and remaining gap |
+|---|---:|---|
+| Source implementation | 86 | Adds admin-profile fix, INR defaults, tax-free invoice/order/product/vendor/MCP paths, historical PDF protection, and INR-only controls; local tests, typecheck, lint and production build pass. This batch is not yet deployed. Issuer selection and the wider locale sweep remain. |
+| Authentication and permissions | 40 | Three focused profile-action tests pass; no staging profile creation, sign-in, reset or role-boundary journey has been executed. |
+| India/tax data behavior | 78 | 25 master tabs, 11 invoice workbook tabs, and 8 quotation workbook tabs were scanned: active master/template workflow has no GST, IGST or tax matches. Historical customer files with tax language/amounts remain unchanged. Runtime currency settings and remaining country/locale defaults need staging verification. |
+| Brand and document setup | 30 | MARK IV/Dream Space appears on login; quote/invoice issuer profiles and authoritative business details are not yet selectable/configured. |
+| Mobile and privacy acceptance | 20 | No phone-sized browser review or end-to-end private-file access check was performed. |
+| Staging/deployment | 60 | Previously deployed staging baseline `52ba252` returned `/api/health` and `/en/login` successfully and used `nexus360_test_db`; this new source batch still awaits deployment and health recheck. |
+
+The cumulative focused profile/invoice/tax/Orders/product/vendor regression batch passed **48 tests across 9 suites**. TypeScript, ESLint on touched files, production build (using build-only local placeholder credentials), and `git diff --check` pass. Sheets readback confirmed the repaired labels/formulas; historical quote/invoice worksheets still contain old tax wording and were preserved. The full Phase 1 exit gate remains open until this batch is live and rechecked, authenticated staging profile/login/reset/permissions, persisted settings, issuer setup, remaining locale sweep, mobile usability/privacy and final Render state are verified.
 
 ### Phase 2 — Build dependable finance and expense accounting
 

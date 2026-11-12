@@ -26,7 +26,8 @@ async function externalLines(lines: OrderLineInput[]) {
     if (!product) throw new Error(`Product not found: ${l.productId}`);
     const quantity = new Decimal(String(l.quantity));
     const price = round2(new Decimal(String(l.unitPrice)));
-    const vatRate = new Decimal(String(product.tax_rate ?? 0));
+    // Ignore legacy product tax settings for new V1 order transactions.
+    const vatRate = new Decimal(0);
     return {
       position, productId: product.id, productName: product.name, sku: product.sku ?? null, unit: product.unit ?? null,
       quantity, listPrice: price, priceRuleId: null, unitPrice: price, unitPriceOverridden: false, vatRate,
@@ -37,11 +38,12 @@ async function externalLines(lines: OrderLineInput[]) {
 
 export async function pluginCreateOrder(pluginId: string, input: ExternalOrderInput) {
   if (!CREATE_STATUSES.has(input.status)) throw new Error(`Plugins cannot create an order as ${input.status}`);
+  const currency = input.currency ?? (await getDefaultCurrency());
+  if (currency !== "INR") throw new Error("MARK IV V1 supports INR orders only");
   const orderDate = input.orderDate !== undefined ? orderDay(input.orderDate) : undefined;
   const account = await prismadb.crm_Accounts.findFirst({ where: { id: input.accountId, deletedAt: null } });
   if (!account) throw new Error(`Account not found: ${input.accountId}`);
   const lines = await externalLines(input.lines);
-  const currency = input.currency ?? (await getDefaultCurrency());
   const order = await prismadb.$transaction(async (tx) => {
     const { number, seriesId } = await allocateNumber(tx, "order");
     return tx.crm_Orders.create({

@@ -32,7 +32,6 @@ interface BasicViewProps {
     unit_price: number;
     unit_cost: number | null;
     currency: string;
-    tax_rate: number | null;
     unit: string | null;
     is_recurring: boolean;
     billing_period: string | null;
@@ -194,16 +193,6 @@ export function BasicView({ data }: BasicViewProps) {
                   <p className="text-sm font-medium leading-none">Margin</p>
                   <p className="text-sm text-muted-foreground">
                     {marginPercentage != null ? `${marginPercentage}%` : "N/A"}
-                  </p>
-                </div>
-              </div>
-
-              <div className="-mx-2 flex items-start space-x-4 rounded-md p-2 transition-all hover:bg-accent hover:text-accent-foreground">
-                <Percent className="mt-px h-5 w-5" />
-                <div className="space-y-1">
-                  <p className="text-sm font-medium leading-none">Tax Rate</p>
-                  <p className="text-sm text-muted-foreground">
-                    {data.tax_rate != null ? `${data.tax_rate}%` : "N/A"}
                   </p>
                 </div>
               </div>

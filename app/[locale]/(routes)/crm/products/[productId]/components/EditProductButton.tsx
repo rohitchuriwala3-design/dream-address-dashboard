@@ -17,7 +17,6 @@ interface EditProductButtonProps {
     unit_price: number;
     unit_cost: number | null;
     currency: string;
-    tax_rate: number | null;
     unit: string | null;
     is_recurring: boolean;
     billing_period: string | null;

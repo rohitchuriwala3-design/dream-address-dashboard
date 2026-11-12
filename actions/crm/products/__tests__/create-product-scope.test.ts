@@ -14,6 +14,7 @@ jest.mock("@/lib/audit-log", () => ({ writeAuditLog: jest.fn() }));
 import { getSession } from "@/lib/auth-server";
 import { prismadb } from "@/lib/prisma";
 import { createProduct } from "../create-product";
+import { CreateProduct } from "../create-product/schema";
 
 const gs = getSession as jest.MockedFunction<typeof getSession>;
 const fu = prismadb.users.findUnique as jest.MockedFunction<typeof prismadb.users.findUnique>;
@@ -25,7 +26,7 @@ const validInput = {
   type: "PRODUCT" as const,
   status: "DRAFT" as const,
   unit_price: "10.00",
-  currency: "USD",
+  currency: "INR" as const,
   is_recurring: false,
 };
 
@@ -33,6 +34,11 @@ beforeEach(() => {
   jest.clearAllMocks();
   findProd.mockResolvedValue(null as any);
   create.mockResolvedValue({ id: "p1", name: "Widget" } as any);
+});
+
+it("validates the product catalog as INR-only for V1", () => {
+  expect(CreateProduct.safeParse(validInput).success).toBe(true);
+  expect(CreateProduct.safeParse({ ...validInput, currency: "USD" }).success).toBe(false);
 });
 
 describe("createProduct role gate", () => {

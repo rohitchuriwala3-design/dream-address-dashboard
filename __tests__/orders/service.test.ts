@@ -12,7 +12,7 @@ const db: Record<string, any> = {
 db.$transaction = jest.fn(async (fn: (tx: unknown) => unknown) => fn(db));
 jest.mock("@/lib/prisma", () => ({ prismadb: db }));
 jest.mock("@/lib/audit-log", () => ({ writeAuditLog: jest.fn() }));
-jest.mock("@/lib/currency", () => ({ getDefaultCurrency: jest.fn().mockResolvedValue("CZK") }));
+jest.mock("@/lib/currency", () => ({ getDefaultCurrency: jest.fn().mockResolvedValue("INR") }));
 jest.mock("@/lib/pricing/get-price", () => ({
   ...jest.requireActual("@/lib/pricing/get-price"),
   getPrice: jest.fn(),
@@ -26,7 +26,6 @@ jest.mock("@/lib/authz/scopes/crm", () => ({
 
 import { Decimal } from "decimal.js";
 import { getPrice, resolvePriceListId } from "@/lib/pricing/get-price";
-import { MissingRateError } from "@/lib/pricing/errors";
 import { assertCanWriteAccount } from "@/lib/authz/scopes/crm";
 import { AuthorizationError } from "@/lib/authz/errors";
 import { writeAuditLog } from "@/lib/audit-log";
@@ -35,16 +34,16 @@ import { OrderError } from "@/lib/orders/types";
 
 const rep = { id: "rep", role: "user" as const };
 const product = { id: "p1", name: "Green tea", sku: "GT", unit: "pcs", status: "ACTIVE", tax_rate: new Decimal(12), deletedAt: null };
-const account = { id: "acc", name: "Café", assigned_to: "rep", deletedAt: null, shipping_street: null, shipping_city: null, shipping_state: null, shipping_postal_code: null, shipping_country: null, billing_street: "Main 1", billing_city: "Praha", billing_state: null, billing_postal_code: "11000", billing_country: "CZ" };
-const draft = (over = {}) => ({ id: "o1", number: "ORD-2026-0001", status: "DRAFT", source: "CRM", createdBy: "rep", externalRef: null, accountId: "acc", priceListId: "L", currency: "CZK", lines: [], ...over });
+const account = { id: "acc", name: "Studio client", assigned_to: "rep", deletedAt: null, shipping_street: null, shipping_city: null, shipping_state: null, shipping_postal_code: null, shipping_country: null, billing_street: "MG Road", billing_city: "Jaipur", billing_state: "Rajasthan", billing_postal_code: "302001", billing_country: "India" };
+const draft = (over = {}) => ({ id: "o1", number: "ORD-2026-0001", status: "DRAFT", source: "CRM", createdBy: "rep", externalRef: null, accountId: "acc", priceListId: "L", currency: "INR", lines: [], ...over });
 
 beforeEach(() => {
   jest.clearAllMocks();
   db.crm_Products.findFirst.mockResolvedValue(product);
   db.crm_Accounts.findFirst.mockResolvedValue(account);
-  db.crm_PriceLists.findUnique.mockResolvedValue({ currency: "CZK" });
+  db.crm_PriceLists.findUnique.mockResolvedValue({ currency: "INR" });
   (resolvePriceListId as jest.Mock).mockResolvedValue("L");
-  (getPrice as jest.Mock).mockResolvedValue({ price: new Decimal("49.004"), currency: "CZK", listPrice: new Decimal(100), ruleId: "r1", steps: [] });
+  (getPrice as jest.Mock).mockResolvedValue({ price: new Decimal("49.004"), currency: "INR", listPrice: new Decimal(100), ruleId: "r1", steps: [] });
   db.$queryRaw.mockResolvedValue([{ id: "s1", template: "ORD-{YYYY}-{####}", counter: 1, currentYear: 2026 }]);
   db.crm_Orders.create.mockImplementation(async ({ data }: any) => ({ id: "o1", ...data }));
   db.crm_Orders.updateMany.mockResolvedValue({ count: 1 });
@@ -52,36 +51,32 @@ beforeEach(() => {
 });
 
 it("prices a line from the list and follows it unless a price was typed", async () => {
-  const ctx = { priceListId: "L", currency: "CZK" };
+  const ctx = { priceListId: "L", currency: "INR" };
   const follow = await priceLine(ctx, { productId: "p1", quantity: 3 }, 0);
   expect([follow.listPrice.toFixed(2), follow.unitPrice.toFixed(2), follow.unitPriceOverridden, follow.priceRuleId]).toEqual(["49.00", "49.00", false, "r1"]);
-  expect([follow.vatRate.toFixed(2), follow.lineSubtotal.toFixed(2), follow.lineVat.toFixed(2)]).toEqual(["12.00", "147.00", "17.64"]);
+  expect([follow.vatRate.toFixed(2), follow.lineSubtotal.toFixed(2), follow.lineVat.toFixed(2)]).toEqual(["0.00", "147.00", "0.00"]);
   expect([follow.productName, follow.sku, follow.unit]).toEqual(["Green tea", "GT", "pcs"]);
   const typed = await priceLine(ctx, { productId: "p1", quantity: 3, unitPrice: "45" }, 1);
   expect([typed.unitPrice.toFixed(2), typed.unitPriceOverridden]).toEqual(["45.00", true]);
 });
 
-it("converts a product price into the order currency (Review Focus 5)", async () => {
+it("rejects non-INR product prices in the India-only V1 order flow", async () => {
   (getPrice as jest.Mock).mockResolvedValue({ price: new Decimal(4), currency: "EUR", listPrice: new Decimal(4), ruleId: null, steps: [] });
-  db.exchangeRate.findMany.mockResolvedValue([{ fromCurrency: "CZK", toCurrency: "EUR", rate: "0.04" }]);
-  const line = await priceLine({ priceListId: null, currency: "CZK" }, { productId: "p1", quantity: 1 }, 0);
-  expect(line.listPrice.toFixed(2)).toBe("100.00");
-  db.exchangeRate.findMany.mockResolvedValue([]);
-  await expect(priceLine({ priceListId: null, currency: "CZK" }, { productId: "p1", quantity: 1 }, 0)).rejects.toEqual(new OrderError("pricing", new MissingRateError("EUR", "CZK").message));
+  await expect(priceLine({ priceListId: null, currency: "INR" }, { productId: "p1", quantity: 1 }, 0)).rejects.toEqual(new OrderError("pricing", "MARK IV V1 supports INR prices only"));
 });
 
 it("refuses inactive products, bad quantities and negative prices", async () => {
   db.crm_Products.findFirst.mockResolvedValue({ ...product, status: "DRAFT" });
-  await expect(priceLine({ priceListId: "L", currency: "CZK" }, { productId: "p1", quantity: 1 }, 0)).rejects.toMatchObject({ code: "productInactive" });
+  await expect(priceLine({ priceListId: "L", currency: "INR" }, { productId: "p1", quantity: 1 }, 0)).rejects.toMatchObject({ code: "productInactive" });
   db.crm_Products.findFirst.mockResolvedValue(product);
-  await expect(priceLine({ priceListId: "L", currency: "CZK" }, { productId: "p1", quantity: 0 }, 0)).rejects.toMatchObject({ code: "invalid" });
-  await expect(priceLine({ priceListId: "L", currency: "CZK" }, { productId: "p1", quantity: 1, unitPrice: -1 }, 0)).rejects.toMatchObject({ code: "invalid" });
+  await expect(priceLine({ priceListId: "L", currency: "INR" }, { productId: "p1", quantity: 0 }, 0)).rejects.toMatchObject({ code: "invalid" });
+  await expect(priceLine({ priceListId: "L", currency: "INR" }, { productId: "p1", quantity: 1, unitPrice: -1 }, 0)).rejects.toMatchObject({ code: "invalid" });
 });
 
 it("creates a numbered draft with the owner, list, currency and billing address fallback", async () => {
   await expect(createOrder(rep, { accountId: "acc", lines: [{ productId: "p1", quantity: 2 }] })).resolves.toEqual({ id: "o1", number: "ORD-2026-0001" });
   const data = db.crm_Orders.create.mock.calls[0][0].data;
-  expect(data).toMatchObject({ number: "ORD-2026-0001", seriesId: "s1", accountId: "acc", ownerId: "rep", priceListId: "L", currency: "CZK", createdBy: "rep", shipping_street: "Main 1", shipping_city: "Praha", shipping_postal_code: "11000", shipping_country: "CZ" });
+  expect(data).toMatchObject({ number: "ORD-2026-0001", seriesId: "s1", accountId: "acc", ownerId: "rep", priceListId: "L", currency: "INR", createdBy: "rep", shipping_street: "MG Road", shipping_city: "Jaipur", shipping_postal_code: "302001", shipping_country: "India" });
   expect(data.subtotal.toFixed(2)).toBe("98.00");
   expect(data.lines.create).toHaveLength(1);
   expect(writeAuditLog).toHaveBeenCalledWith(expect.objectContaining({ entityType: "order", action: "created", entityId: "o1" }));

@@ -20,7 +20,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
   const userId = actor.id;
   const {
     name, description, sku, type, status, unit_price, unit_cost,
-    currency, tax_rate, unit, is_recurring, billing_period, categoryId,
+    currency, unit, is_recurring, billing_period, categoryId,
   } = data;
 
   if (is_recurring && !billing_period) {
@@ -45,7 +45,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
         unit_price: parseFloat(unit_price),
         unit_cost: unit_cost ? parseFloat(unit_cost) : undefined,
         currency,
-        tax_rate: tax_rate ? parseFloat(tax_rate) : undefined,
+        tax_rate: null,
         unit: unit || undefined,
         is_recurring: is_recurring || false,
         billing_period: is_recurring ? billing_period : undefined,
