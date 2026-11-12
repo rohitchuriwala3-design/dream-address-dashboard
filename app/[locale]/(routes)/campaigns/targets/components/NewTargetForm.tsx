@@ -296,7 +296,7 @@ export function NewTargetForm({ onFinish }: NewTargetFormProps) {
           )} />
           <FormField control={form.control} name="country" render={({ field }) => (
             <FormItem><FormLabel>Country</FormLabel>
-              <FormControl><Input placeholder="Czech Republic" {...field} value={field.value ?? ''} /></FormControl>
+              <FormControl><Input placeholder="India" {...field} value={field.value ?? ''} /></FormControl>
               <FormMessage />
             </FormItem>
           )} />

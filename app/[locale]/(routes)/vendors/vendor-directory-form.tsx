@@ -24,7 +24,6 @@ export function VendorDirectoryForm() {
     <label className="space-y-1 text-xs font-medium">Vendor name<Input name="name" required minLength={2} maxLength={100}/></label>
     <label className="space-y-1 text-xs font-medium">Email<Input name="email" type="email" maxLength={254}/></label>
     <label className="space-y-1 text-xs font-medium">Phone<Input name="phone" maxLength={50}/></label>
-    <label className="space-y-1 text-xs font-medium">GST / tax ID<Input name="vat" maxLength={40}/></label>
     <label className="space-y-1 text-xs font-medium">City<Input name="city" maxLength={100}/></label>
     <div className="flex items-end gap-2"><Button disabled={pending}>{pending?"Saving…":"Save vendor"}</Button><Button type="button" variant="ghost" onClick={()=>setOpen(false)}>Cancel</Button></div>
   </form>;

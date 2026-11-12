@@ -53,7 +53,7 @@ export async function BasicView({ data }: OppsViewProps) {
   const rates = await getExchangeRates();
   if (!data) return <div>Opportunity not found</div>;
 
-  const fromCurrency = data.currency || "EUR";
+  const fromCurrency = data.currency || "INR";
   const budgetAmount = new Decimal(data.budget?.toString() ?? "0");
   const displayBudget = displayCurrency !== fromCurrency
     ? convertAmount(budgetAmount, fromCurrency, displayCurrency, rates)

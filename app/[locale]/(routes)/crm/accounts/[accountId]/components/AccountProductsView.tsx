@@ -66,7 +66,7 @@ const AccountProductsView = ({
     const price = item.custom_price ?? item.product?.unit_price;
     if (price == null) return "-";
     const num = typeof price === "number" ? price : Number(price);
-    const curr = item.currency || item.product?.currency || "EUR";
+    const curr = item.currency || item.product?.currency || "INR";
     return `${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${curr}`;
   };
 

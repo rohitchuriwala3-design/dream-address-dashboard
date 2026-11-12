@@ -118,7 +118,7 @@ export default async function AppLayout({
         dict={translations}
         session={session}
         pluginNav={pluginNav}
-        appName={process.env.NEXT_PUBLIC_APP_NAME || "NextCRM"}
+        appName={process.env.NEXT_PUBLIC_APP_NAME || "MARK IV"}
       />
       <SidebarInset>
         <Header

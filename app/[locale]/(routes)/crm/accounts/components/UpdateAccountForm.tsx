@@ -33,7 +33,6 @@ import { UserSearchCombobox } from "@/components/ui/user-search-combobox";
 import { updateAccount } from "@/actions/crm/accounts/update-account";
 import { getIndustries } from "@/actions/crm/get-industries";
 import { getPriceListOptions } from "@/actions/crm/price-lists/queries";
-import { VatCheckButton } from "./VatCheckButton";
 
 interface UpdateAccountFormProps {
   //TODO: fix this any
@@ -72,7 +71,6 @@ export function UpdateAccountForm({
     website: z.string().url(t("websiteInvalid")).optional().nullable().or(z.literal("")),
     fax: z.string().max(50).optional().nullable(),
     company_id: z.string().max(20).optional().nullable(),
-    vat: z.string().max(20).optional().nullable(),
     email: z.string().email(t("emailInvalid")).optional().nullable().or(z.literal("")),
     billing_street: z.string().max(100).optional().nullable(),
     billing_postal_code: z.string().max(20).optional().nullable(),
@@ -111,7 +109,6 @@ export function UpdateAccountForm({
           website: "",
           fax: "",
           company_id: "",
-          vat: "",
           email: "",
           billing_street: "",
           billing_postal_code: "",
@@ -252,24 +249,6 @@ export function UpdateAccountForm({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="vat"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("vatNumber")}</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={form.formState.isSubmitting}
-                      placeholder="CZ1234567890"
-                      {...field}
-                    />
-                  </FormControl>
-                  <VatCheckButton vat={field.value} />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-5">
             <div className="space-y-2">
@@ -346,7 +325,7 @@ export function UpdateAccountForm({
                     <FormControl>
                       <Input
                         disabled={form.formState.isSubmitting}
-                        placeholder="Czechia"
+                        placeholder="India"
                         {...field}
                       />
                     </FormControl>
@@ -429,7 +408,7 @@ export function UpdateAccountForm({
                     <FormControl>
                       <Input
                         disabled={form.formState.isSubmitting}
-                        placeholder="Czechia"
+                        placeholder="India"
                         {...field}
                       />
                     </FormControl>

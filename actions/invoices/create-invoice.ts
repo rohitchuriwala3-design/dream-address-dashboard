@@ -37,26 +37,11 @@ export async function createInvoice(raw: unknown) {
     if (!project) throw new Error("Project not found or does not belong to the selected account");
   }
 
-  const taxRates = await prismadb.invoice_TaxRates.findMany({
-    where: {
-      id: {
-        in: input.lineItems
-          .map((l) => l.taxRateId)
-          .filter(Boolean) as string[],
-      },
-    },
-  });
-  const rateMap = new Map(
-    taxRates.map((t) => [t.id, new Decimal(t.rate.toString())])
-  );
-
   const lineInputs = input.lineItems.map((l) => ({
     quantity: new Decimal(l.quantity),
     unitPrice: new Decimal(l.unitPrice),
     discountPercent: new Decimal(l.discountPercent),
-    taxRate: l.taxRateId
-      ? (rateMap.get(l.taxRateId) ?? new Decimal(0))
-      : new Decimal(0),
+    taxRate: new Decimal(0),
   }));
   const totals = computeInvoiceTotals(lineInputs);
 
@@ -93,7 +78,7 @@ export async function createInvoice(raw: unknown) {
             quantity: l.quantity,
             unitPrice: l.unitPrice,
             discountPercent: l.discountPercent,
-            taxRateId: l.taxRateId ?? null,
+            taxRateId: null,
             lineSubtotal: lt.lineSubtotal.toString(),
             lineVat: lt.lineVat.toString(),
             lineTotal: lt.lineTotal.toString(),

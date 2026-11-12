@@ -27,17 +27,10 @@ interface Series {
   name: string;
 }
 
-interface TaxRate {
-  id: string;
-  name: string;
-  rate: string;
-}
-
 interface Settings {
   id: string;
   baseCurrency: string;
   defaultSeriesId: string | null;
-  defaultTaxRateId: string | null;
   defaultDueDays: number;
   bankName: string | null;
   bankAccount: string | null;
@@ -61,14 +54,12 @@ interface Props {
   settings: Settings | null;
   currencies: Currency[];
   series: Series[];
-  taxRates: TaxRate[];
 }
 
 export function InvoiceSettingsForm({
   settings,
   currencies,
   series,
-  taxRates,
 }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -81,13 +72,10 @@ export function InvoiceSettingsForm({
     });
 
   const [baseCurrency, setBaseCurrency] = useState(
-    settings?.baseCurrency ?? "CZK"
+    settings?.baseCurrency ?? "INR"
   );
   const [defaultSeriesId, setDefaultSeriesId] = useState(
     settings?.defaultSeriesId ?? ""
-  );
-  const [defaultTaxRateId, setDefaultTaxRateId] = useState(
-    settings?.defaultTaxRateId ?? ""
   );
   const [defaultDueDays, setDefaultDueDays] = useState(
     settings?.defaultDueDays?.toString() ?? "14"
@@ -103,9 +91,7 @@ export function InvoiceSettingsForm({
   const [companyAddress, setCompanyAddress] = useState(settings?.companyAddress ?? "");
   const [companyCity, setCompanyCity] = useState(settings?.companyCity ?? "");
   const [companyZip, setCompanyZip] = useState(settings?.companyZip ?? "");
-  const [companyCountry, setCompanyCountry] = useState(settings?.companyCountry ?? "");
-  const [companyVatId, setCompanyVatId] = useState(settings?.companyVatId ?? "");
-  const [companyTaxId, setCompanyTaxId] = useState(settings?.companyTaxId ?? "");
+  const [companyCountry, setCompanyCountry] = useState(settings?.companyCountry ?? "India");
   const [companyRegNo, setCompanyRegNo] = useState(settings?.companyRegNo ?? "");
   const [companyEmail, setCompanyEmail] = useState(settings?.companyEmail ?? "");
   const [companyPhone, setCompanyPhone] = useState(settings?.companyPhone ?? "");
@@ -115,7 +101,7 @@ export function InvoiceSettingsForm({
     const payload: InvoiceSettingsInput = {
       baseCurrency,
       defaultSeriesId: defaultSeriesId || null,
-      defaultTaxRateId: defaultTaxRateId || null,
+      defaultTaxRateId: null,
       defaultDueDays: parseInt(defaultDueDays) || 14,
       bankName: bankName || null,
       bankAccount: bankAccount || null,
@@ -128,8 +114,8 @@ export function InvoiceSettingsForm({
       companyZip,
       companyCountry,
       companyRegNo,
-      companyVatId: companyVatId || null,
-      companyTaxId: companyTaxId || null,
+      companyVatId: settings?.companyVatId ?? null,
+      companyTaxId: settings?.companyTaxId ?? null,
       companyEmail: companyEmail || null,
       companyPhone: companyPhone || null,
       companyWebsite: companyWebsite || null,
@@ -162,7 +148,7 @@ export function InvoiceSettingsForm({
               setCompanyName(e.target.value);
               clearError("companyName");
             }}
-            placeholder="e.g. Acme s.r.o."
+            placeholder="e.g. Impressive Creators"
             aria-invalid={!!errors.companyName}
           />
           {errors.companyName && (
@@ -177,7 +163,7 @@ export function InvoiceSettingsForm({
               setCompanyAddress(e.target.value);
               clearError("companyAddress");
             }}
-            placeholder="e.g. Wenceslas Square 1"
+            placeholder="Street address"
             aria-invalid={!!errors.companyAddress}
           />
           {errors.companyAddress && (
@@ -221,7 +207,7 @@ export function InvoiceSettingsForm({
                 setCompanyCountry(e.target.value);
                 clearError("companyCountry");
               }}
-              placeholder="e.g. Czech Republic"
+              placeholder="India"
               aria-invalid={!!errors.companyCountry}
             />
             {errors.companyCountry && (
@@ -231,29 +217,13 @@ export function InvoiceSettingsForm({
         </div>
         <div className="grid grid-cols-3 gap-4">
           <div className="space-y-2">
-            <Label>VAT ID (DIČ)</Label>
-            <Input
-              value={companyVatId}
-              onChange={(e) => setCompanyVatId(e.target.value)}
-              placeholder="e.g. CZ12345678"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Tax ID</Label>
-            <Input
-              value={companyTaxId}
-              onChange={(e) => setCompanyTaxId(e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Registration No. (IČO) <span className="text-destructive">*</span></Label>
+            <Label>Business registration number (optional)</Label>
             <Input
               value={companyRegNo}
               onChange={(e) => {
                 setCompanyRegNo(e.target.value);
                 clearError("companyRegNo");
               }}
-              placeholder="e.g. 12345678"
               aria-invalid={!!errors.companyRegNo}
             />
             {errors.companyRegNo && (
@@ -344,21 +314,6 @@ export function InvoiceSettingsForm({
           </Select>
         </div>
 
-        <div className="space-y-2">
-          <Label>Default Tax Rate</Label>
-          <Select value={defaultTaxRateId} onValueChange={setDefaultTaxRateId}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select tax rate..." />
-            </SelectTrigger>
-            <SelectContent>
-              {taxRates.map((t) => (
-                <SelectItem key={t.id} value={t.id}>
-                  {t.name} ({t.rate}%)
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -367,7 +322,7 @@ export function InvoiceSettingsForm({
           <Input
             value={bankName}
             onChange={(e) => setBankName(e.target.value)}
-            placeholder="e.g. Komercni banka"
+          placeholder="Bank name"
           />
         </div>
         <div className="space-y-2">
@@ -375,7 +330,7 @@ export function InvoiceSettingsForm({
           <Input
             value={bankAccount}
             onChange={(e) => setBankAccount(e.target.value)}
-            placeholder="e.g. 123456789/0100"
+          placeholder="Bank account number"
           />
         </div>
       </div>
@@ -386,7 +341,7 @@ export function InvoiceSettingsForm({
           <Input
             value={iban}
             onChange={(e) => setIban(e.target.value)}
-            placeholder="e.g. CZ6508000000192000145399"
+          placeholder="IBAN, if applicable"
           />
         </div>
         <div className="space-y-2">
@@ -394,7 +349,7 @@ export function InvoiceSettingsForm({
           <Input
             value={swift}
             onChange={(e) => setSwift(e.target.value)}
-            placeholder="e.g. KOMBCZPP"
+          placeholder="SWIFT code, if applicable"
           />
         </div>
       </div>

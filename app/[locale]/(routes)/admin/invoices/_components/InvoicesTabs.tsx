@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 const tabs = [
   { label: "Settings", href: "/admin/invoices/settings" },
   { label: "Series", href: "/admin/invoices/series" },
-  { label: "Tax Rates", href: "/admin/invoices/tax-rates" },
 ];
 
 export function InvoicesTabs() {

@@ -2,24 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Trash2 } from "lucide-react";
 
 interface Product {
   id: string;
   name: string;
-}
-
-interface TaxRate {
-  id: string;
-  name: string;
-  rate: string;
 }
 
 export interface LineItemRow {
@@ -35,14 +23,12 @@ interface LineItemsEditorProps {
   items: LineItemRow[];
   onChange: (items: LineItemRow[]) => void;
   products: Product[];
-  taxRates: TaxRate[];
   labels?: {
     product?: string;
     description?: string;
     quantity?: string;
     unitPrice?: string;
     discount?: string;
-    taxRate?: string;
     total?: string;
     addLine?: string;
   };
@@ -52,20 +38,17 @@ function computeLineTotal(
   qty: number,
   price: number,
   discount: number,
-  taxRate: number
 ) {
   const gross = qty * price;
   const disc = (gross * discount) / 100;
   const sub = gross - disc;
-  const vat = (sub * taxRate) / 100;
-  return Math.round((sub + vat) * 100) / 100;
+  return Math.round(sub * 100) / 100;
 }
 
 export function LineItemsEditor({
   items,
   onChange,
   products,
-  taxRates,
   labels,
 }: LineItemsEditorProps) {
   const updateItem = (index: number, patch: Partial<LineItemRow>) => {
@@ -101,22 +84,16 @@ export function LineItemsEditor({
     });
   };
 
-  const getTaxRateValue = (taxRateId: string) => {
-    const tr = taxRates.find((t) => t.id === taxRateId);
-    return tr ? parseFloat(tr.rate) : 0;
-  };
-
   const l = labels ?? {};
 
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-[1fr_2fr_80px_100px_80px_120px_80px_40px] gap-2 text-xs font-medium text-muted-foreground">
+      <div className="grid grid-cols-[1fr_2fr_80px_100px_80px_80px_40px] gap-2 text-xs font-medium text-muted-foreground">
         <span>{l.product ?? "Product"}</span>
         <span>{l.description ?? "Description"}</span>
         <span>{l.quantity ?? "Qty"}</span>
         <span>{l.unitPrice ?? "Unit Price"}</span>
         <span>{l.discount ?? "Disc %"}</span>
-        <span>{l.taxRate ?? "Tax Rate"}</span>
         <span>{l.total ?? "Total"}</span>
         <span />
       </div>
@@ -126,13 +103,12 @@ export function LineItemsEditor({
           item.quantity,
           item.unitPrice,
           item.discountPercent,
-          getTaxRateValue(item.taxRateId)
         );
 
         return (
           <div
             key={index}
-            className="grid grid-cols-[1fr_2fr_80px_100px_80px_120px_80px_40px] gap-2 items-center"
+            className="grid grid-cols-[1fr_2fr_80px_100px_80px_80px_40px] gap-2 items-center"
           >
             <Select
               value={item.productId || "none"}
@@ -201,25 +177,6 @@ export function LineItemsEditor({
                 })
               }
             />
-
-            <Select
-              value={item.taxRateId || "none"}
-              onValueChange={(v) =>
-                updateItem(index, { taxRateId: v === "none" ? "" : v })
-              }
-            >
-              <SelectTrigger className="h-9 text-xs">
-                <SelectValue placeholder="Tax..." />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">None</SelectItem>
-                {taxRates.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>
-                    {t.name} ({t.rate}%)
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
 
             <span className="text-sm font-mono text-right">
               {lineTotal.toFixed(2)}

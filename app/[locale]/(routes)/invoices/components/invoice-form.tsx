@@ -27,12 +27,6 @@ interface Product {
   name: string;
 }
 
-interface TaxRate {
-  id: string;
-  name: string;
-  rate: string;
-}
-
 interface Series {
   id: string;
   name: string;
@@ -46,7 +40,6 @@ interface Currency {
 interface Settings {
   baseCurrency: string;
   defaultSeriesId: string | null;
-  defaultTaxRateId: string | null;
   defaultDueDays: number;
   bankName: string | null;
   iban: string | null;
@@ -63,7 +56,6 @@ interface InvoiceProjectOption {
 
 interface InvoiceFormProps {
   products: Product[];
-  taxRates: TaxRate[];
   series: Series[];
   currencies: Currency[];
   settings: Settings | null;
@@ -97,7 +89,6 @@ interface InvoiceFormProps {
 
 export function InvoiceForm({
   products,
-  taxRates,
   series,
   currencies,
   settings,
@@ -119,7 +110,7 @@ export function InvoiceForm({
     initialData?.seriesId ?? settings?.defaultSeriesId ?? ""
   );
   const [currency, setCurrency] = useState(
-    initialData?.currency ?? settings?.baseCurrency ?? "CZK"
+    initialData?.currency ?? settings?.baseCurrency ?? "INR"
   );
   const [dueDate, setDueDate] = useState(() => {
     if (initialData?.dueDate) {
@@ -151,7 +142,6 @@ export function InvoiceForm({
     initialData?.internalNotes ?? ""
   );
 
-  const defaultTaxRateId = settings?.defaultTaxRateId ?? "";
 
   const [lineItems, setLineItems] = useState<LineItemRow[]>(() => {
     if (initialData?.lineItems?.length) {
@@ -171,21 +161,16 @@ export function InvoiceForm({
         quantity: 1,
         unitPrice: 0,
         discountPercent: 0,
-        taxRateId: defaultTaxRateId,
+        taxRateId: "",
       },
     ];
   });
-
-  const getTaxRateValue = (taxRateId: string) => {
-    const tr = taxRates.find((t) => t.id === taxRateId);
-    return tr ? parseFloat(tr.rate) : 0;
-  };
 
   const totalsInput = lineItems.map((li) => ({
     quantity: li.quantity,
     unitPrice: li.unitPrice,
     discountPercent: li.discountPercent,
-    taxRate: getTaxRateValue(li.taxRateId),
+    taxRate: 0,
   }));
 
   const handleSubmit = async () => {
@@ -222,7 +207,7 @@ export function InvoiceForm({
             quantity: l.quantity,
             unitPrice: l.unitPrice,
             discountPercent: l.discountPercent,
-            taxRateId: l.taxRateId || null,
+            taxRateId: null,
           })),
       };
 
@@ -378,14 +363,12 @@ export function InvoiceForm({
             items={lineItems}
             onChange={setLineItems}
             products={products}
-            taxRates={taxRates}
             labels={{
               product: l.product,
               description: l.description,
               quantity: l.quantity,
               unitPrice: l.unitPrice,
               discount: l.discount,
-              taxRate: l.taxRate,
               total: l.total,
               addLine: l.addLine,
             }}

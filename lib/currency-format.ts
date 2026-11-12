@@ -3,10 +3,7 @@ import { Decimal } from "@prisma/client/runtime/client";
 type Rate = { fromCurrency: string; toCurrency: string; rate: Decimal };
 
 const currencyLocaleMap: Record<string, string> = {
-  EUR: "fr-FR",
-  USD: "en-US",
-  CZK: "cs-CZ",
-  GBP: "en-GB",
+  INR: "en-IN",
 };
 
 export type { Rate };
@@ -36,7 +33,7 @@ export function convertAmount(
 
 export function formatCurrency(amount: Decimal, currencyCode: string): string {
   const num = amount.toNumber();
-  const locale = currencyLocaleMap[currencyCode] || "en-US";
+  const locale = currencyLocaleMap[currencyCode] || "en-IN";
   const isWhole = num % 1 === 0;
   const formatted = new Intl.NumberFormat(locale, {
     style: "currency",

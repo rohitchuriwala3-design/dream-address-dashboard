@@ -65,7 +65,7 @@ export function TotalsPanel({ lineItems, currency, locale }: TotalsPanelProps) {
   const fmt = (n: number) =>
     new Intl.NumberFormat(locale, {
       style: "currency",
-      currency: currency || "CZK",
+      currency: currency || "INR",
       minimumFractionDigits: 2,
     }).format(n);
 
@@ -87,12 +87,6 @@ export function TotalsPanel({ lineItems, currency, locale }: TotalsPanelProps) {
             </span>
           </div>
         )}
-        {totals.vatBreakdown.map((b) => (
-          <div key={b.rate} className="flex justify-between">
-            <span className="text-muted-foreground">VAT {b.rate}%</span>
-            <span className="font-mono">{fmt(b.vat)}</span>
-          </div>
-        ))}
         <Separator />
         <div className="flex justify-between font-semibold text-base">
           <span>Total</span>

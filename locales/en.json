@@ -1,7 +1,7 @@
 {
   "RootLayout": {
-    "title": "MARK IV | Dream Address Studio",
-    "description": "MARK IV is the Dream Address Studio workspace for Nexus 360 CRM, finance, projects, and operations."
+    "title": "MARK IV | Dream Space",
+    "description": "MARK IV is the Dream Space operations workspace for Nexus 360 CRM, finance, projects, and studio delivery."
   },
   "ModuleMenu": {
     "plugins": "Plugins",

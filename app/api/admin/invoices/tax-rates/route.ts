@@ -4,7 +4,6 @@ import {
   AuthenticationError,
   AuthorizationError,
 } from "@/lib/authz";
-import { prismadb } from "@/lib/prisma";
 
 async function ensureAdmin(): Promise<NextResponse | null> {
   try {
@@ -23,32 +22,13 @@ export async function GET() {
   const denied = await ensureAdmin();
   if (denied) return denied;
 
-  const taxRates = await prismadb.invoice_TaxRates.findMany({
-    orderBy: { name: "asc" },
-  });
-
-  return NextResponse.json({ data: taxRates });
+  return NextResponse.json({ error: "Tax configuration is disabled in MARK IV V1." }, { status: 410 });
 }
 
 export async function POST(request: NextRequest) {
   const denied = await ensureAdmin();
   if (denied) return denied;
 
-  const body = await request.json();
-  const { name, rate, isDefault, active } = body;
-
-  if (!name || rate == null) {
-    return NextResponse.json({ error: "name and rate are required" }, { status: 400 });
-  }
-
-  const taxRate = await prismadb.invoice_TaxRates.create({
-    data: {
-      name,
-      rate,
-      isDefault: isDefault ?? false,
-      active: active ?? true,
-    },
-  });
-
-  return NextResponse.json({ data: taxRate }, { status: 201 });
+  void request;
+  return NextResponse.json({ error: "Tax configuration is disabled in MARK IV V1." }, { status: 410 });
 }

@@ -60,20 +60,14 @@ export function InviteForm() {
       if (result.error) {
         toast.error(result.error);
       } else {
-        toast.success("Profile created. Share the temporary password securely.");
+        if (result.warning) toast.warning(result.warning);
+        else toast.success("Profile created. Share the temporary password securely.");
+        form.reset({ name: "", email: "", password: "", role: "user", language: "en", permissions: [] });
+        router.refresh();
       }
     } catch (error) {
       toast.error("Profile creation failed. Please try again.");
     } finally {
-      form.reset({
-        name: "",
-        email: "",
-        password: "",
-        role: "user",
-        language: "en",
-        permissions: [],
-      });
-      router.refresh();
       setIsLoading(false);
     }
   }
@@ -161,7 +155,7 @@ export function InviteForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Language</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a user language" />
@@ -169,7 +163,6 @@ export function InviteForm() {
                 </FormControl>
                 <SelectContent>
                   <SelectItem value="en">English</SelectItem>
-                  <SelectItem value="cz">Czech</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />

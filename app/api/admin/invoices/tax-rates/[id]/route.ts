@@ -4,7 +4,6 @@ import {
   AuthenticationError,
   AuthorizationError,
 } from "@/lib/authz";
-import { prismadb } from "@/lib/prisma";
 
 async function ensureAdmin(): Promise<NextResponse | null> {
   try {
@@ -23,32 +22,21 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
+  await params;
   const denied = await ensureAdmin();
   if (denied) return denied;
 
-  const body = await request.json();
-  const taxRate = await prismadb.invoice_TaxRates.update({
-    where: { id },
-    data: {
-      ...(body.name !== undefined && { name: body.name }),
-      ...(body.rate !== undefined && { rate: body.rate }),
-      ...(body.isDefault !== undefined && { isDefault: body.isDefault }),
-      ...(body.active !== undefined && { active: body.active }),
-    },
-  });
-
-  return NextResponse.json({ data: taxRate });
+  void request;
+  return NextResponse.json({ error: "Tax configuration is disabled in MARK IV V1." }, { status: 410 });
 }
 
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
+  await params;
   const denied = await ensureAdmin();
   if (denied) return denied;
 
-  await prismadb.invoice_TaxRates.delete({ where: { id } });
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ error: "Tax configuration is disabled in MARK IV V1." }, { status: 410 });
 }

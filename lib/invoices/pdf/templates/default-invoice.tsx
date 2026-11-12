@@ -98,11 +98,10 @@ const s = StyleSheet.create({
     borderBottomColor: "#ddd",
   },
   colPos: { width: "5%" },
-  colDesc: { width: "30%" },
+  colDesc: { width: "40%" },
   colQty: { width: "10%", textAlign: "right" },
   colPrice: { width: "15%", textAlign: "right" },
   colDisc: { width: "10%", textAlign: "right" },
-  colVat: { width: "10%", textAlign: "right" },
   colTotal: { width: "20%", textAlign: "right" },
   totalsBox: { alignSelf: "flex-end", width: "40%", marginTop: 8 },
   totalsRow: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 2 },
@@ -150,7 +149,6 @@ function PartyBlock({ party, label }: { party: PdfParty; label: string }) {
       )}
       {party.country && <Text style={s.partyLine}>{party.country}</Text>}
       {party.regId && <Text style={s.partyLine}>ID: {party.regId}</Text>}
-      {party.vatId && <Text style={s.partyLine}>VAT: {party.vatId}</Text>}
     </View>
   );
 }
@@ -203,7 +201,6 @@ export function InvoicePdf({ data }: { data: InvoicePdfData }) {
             <Text style={s.colQty}>{t.qty}</Text>
             <Text style={s.colPrice}>{t.unitPrice}</Text>
             <Text style={s.colDisc}>{t.discount}</Text>
-            <Text style={s.colVat}>{t.vat}</Text>
             <Text style={s.colTotal}>{t.lineTotal}</Text>
           </View>
           {data.lineItems.map((li) => (
@@ -213,7 +210,6 @@ export function InvoicePdf({ data }: { data: InvoicePdfData }) {
               <Text style={s.colQty}>{li.quantity}</Text>
               <Text style={s.colPrice}>{li.unitPrice}</Text>
               <Text style={s.colDisc}>{li.discountPercent}%</Text>
-              <Text style={s.colVat}>{li.taxRate}%</Text>
               <Text style={s.colTotal}>{li.lineTotal} {data.currency}</Text>
             </View>
           ))}
@@ -224,16 +220,6 @@ export function InvoicePdf({ data }: { data: InvoicePdfData }) {
           <View style={s.totalsRow}>
             <Text style={s.totalsLabel}>{t.subtotal}</Text>
             <Text style={s.totalsValue}>{data.subtotal} {data.currency}</Text>
-          </View>
-          {data.vatBreakdown.map((vb) => (
-            <View style={s.totalsRow} key={vb.rate}>
-              <Text style={s.totalsLabel}>{t.vat} {vb.rate}%</Text>
-              <Text style={s.totalsValue}>{vb.vat} {data.currency}</Text>
-            </View>
-          ))}
-          <View style={s.totalsRow}>
-            <Text style={s.totalsLabel}>{t.vatTotal}</Text>
-            <Text style={s.totalsValue}>{data.vatTotal} {data.currency}</Text>
           </View>
           <View style={s.grandRow}>
             <Text style={s.grandLabel}>{t.grandTotal}</Text>

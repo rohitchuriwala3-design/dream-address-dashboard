@@ -31,12 +31,12 @@ export async function getDefaultCurrency(): Promise<string> {
   const setting = await prismadb.crm_SystemSettings.findUnique({
     where: { key: "default_currency" },
   });
-  return setting?.value || "EUR";
+  return setting?.value || "INR";
 }
 
 export async function getEnabledCurrencies() {
   return prismadb.currency.findMany({
-    where: { isEnabled: true },
+    where: { isEnabled: true, code: "INR" },
     orderBy: { code: "asc" },
   });
 }

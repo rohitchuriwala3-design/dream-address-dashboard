@@ -23,7 +23,7 @@ const optionalStr = (max: number) =>
 const settingsSchema = z.object({
   baseCurrency: z.string().length(3, "Currency must be a 3-letter code"),
   defaultSeriesId: z.uuid().nullable(),
-  defaultTaxRateId: z.uuid().nullable(),
+  defaultTaxRateId: z.uuid().nullable().optional().default(null),
   defaultDueDays: z
     .number({ error: "Default due days is required" })
     .int("Must be a whole number")
@@ -42,11 +42,11 @@ const settingsSchema = z.object({
   companyCity: requiredStr("City", 100),
   companyZip: requiredStr("ZIP / postal code", 20),
   companyCountry: requiredStr("Country", 100),
-  companyRegNo: requiredStr("Registration number", 50),
+  companyRegNo: optionalStr(50),
 
   // Optional company fields
-  companyVatId: optionalStr(50),
-  companyTaxId: optionalStr(50),
+  companyVatId: optionalStr(50).optional().default(null),
+  companyTaxId: optionalStr(50).optional().default(null),
   companyEmail: z
     .email("Invalid email")
     .max(200)

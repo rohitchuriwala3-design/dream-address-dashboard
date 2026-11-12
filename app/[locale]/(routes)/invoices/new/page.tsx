@@ -8,23 +8,19 @@ export default async function NewInvoicePage({ searchParams }: { searchParams: P
   const query = await searchParams;
   const t = await getTranslations("InvoicesPage");
 
-  const [products, taxRates, series, currencies, settings, projects] =
+  const [products, series, currencies, settings, projects] =
     await Promise.all([
       prismadb.crm_Products.findMany({
         select: { id: true, name: true },
         where: { status: "ACTIVE" },
         orderBy: { name: "asc" },
       }),
-      prismadb.invoice_TaxRates.findMany({
-        where: { active: true },
-        orderBy: { rate: "desc" },
-      }),
       prismadb.invoice_Series.findMany({
         where: { active: true },
         orderBy: { name: "asc" },
       }),
       prismadb.currency.findMany({
-        where: { isEnabled: true },
+        where: { isEnabled: true, code: "INR" },
         orderBy: { code: "asc" },
       }),
       prismadb.invoice_Settings.findFirst(),
@@ -44,7 +40,6 @@ export default async function NewInvoicePage({ searchParams }: { searchParams: P
     quantity: t("form.quantity"),
     unitPrice: t("form.unitPrice"),
     discount: t("form.discount"),
-    taxRate: t("form.taxRate"),
     total: t("form.total"),
     publicNotes: t("form.publicNotes"),
     internalNotes: t("form.internalNotes"),
@@ -60,7 +55,6 @@ export default async function NewInvoicePage({ searchParams }: { searchParams: P
     <Container title={t("new")} description={t("description")}>
       <InvoiceForm
         products={JSON.parse(JSON.stringify(products))}
-        taxRates={JSON.parse(JSON.stringify(taxRates))}
         series={JSON.parse(JSON.stringify(series))}
         currencies={JSON.parse(JSON.stringify(currencies))}
         settings={settings ? JSON.parse(JSON.stringify(settings)) : null}

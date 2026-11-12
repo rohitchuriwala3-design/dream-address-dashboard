@@ -23,7 +23,7 @@ function prevPeriod(filters: ReportFilters): { dateFrom: Date; dateTo: Date } {
 
 export async function getDashboardKPIs(
   filters: ReportFilters,
-  displayCurrency: string = "EUR",
+  displayCurrency: string = "INR",
   scope: ReportScope = DEFAULT_SCOPE,
 ): Promise<KPIData[]> {
   const prev = prevPeriod(filters);

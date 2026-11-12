@@ -32,7 +32,7 @@ function formatCurrency(amount: string | number, currency: string, locale: strin
   if (isNaN(num)) return String(amount);
   return new Intl.NumberFormat(locale, {
     style: "currency",
-    currency: currency || "CZK",
+    currency: currency || "INR",
     minimumFractionDigits: 2,
   }).format(num);
 }
@@ -177,16 +177,6 @@ export default async function InvoiceDetailPage({ params }: Props) {
                 </span>
               </div>
             )}
-            <div className="grid grid-cols-2 gap-2">
-              <span className="text-muted-foreground">VAT</span>
-              <span className="font-mono">
-                {formatCurrency(
-                  invoice.vatTotal.toString(),
-                  invoice.currency,
-                  locale
-                )}
-              </span>
-            </div>
             <Separator />
             <div className="grid grid-cols-2 gap-2 font-semibold">
               <span>Grand Total</span>

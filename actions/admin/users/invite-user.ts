@@ -1,6 +1,5 @@
 "use server";
 
-import { headers } from "next/headers";
 import { AppRole, Language } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { prismadb } from "@/lib/prisma";
@@ -48,23 +47,34 @@ export const inviteUser = async (data: {
     return { error: "A profile with this email already exists." };
   }
 
+  let createdUserId: string | undefined;
+  let phase = "create_user";
   try {
+    // This server action has already authorized the caller with requireRole.
+    // Do not forward browser headers into Better Auth's admin endpoint: the
+    // configured Better Auth roles intentionally have no endpoint grants,
+    // while this app's server action is the user-management boundary.
     const result = await auth.api.createUser({
-      body: { name, email, password: data.password, role: data.role },
-      headers: await headers(),
+      body: {
+        name,
+        email,
+        password: data.password,
+        role: data.role,
+        data: { userStatus: "ACTIVE", userLanguage: data.language as Language },
+      },
     });
-    await prismadb.users.update({
-      where: { id: result.user.id },
-      data: { userStatus: "ACTIVE", userLanguage: data.language as Language },
-    });
+    const userId = result.user.id;
+    createdUserId = userId;
+    phase = "save_permissions";
     if (permissions.length) {
       await prismadb.nexusUserPermission.createMany({
-        data: permissions.map((key) => ({ userId: result.user.id, key })),
+        data: permissions.map((key) => ({ userId, key })),
       });
     }
+    phase = "write_audit";
     await writeAuditLog({
       entityType: "user",
-      entityId: result.user.id,
+      entityId: userId,
       action: "created",
       changes: [
         { field: "name", old: null, new: name },
@@ -76,9 +86,13 @@ export const inviteUser = async (data: {
       userId: actor.id,
     });
     revalidatePath("/[locale]/(routes)/admin/users", "page");
-    return { data: { id: result.user.id } };
+    return { data: { id: userId } };
   } catch (error) {
-    console.error("[ADMIN_CREATE_PROFILE] Profile creation failed.");
+    const errorType = error instanceof Error ? error.name : "UnknownError";
+    console.error("[ADMIN_CREATE_PROFILE] Profile operation failed.", { phase, errorType, profileCreated: Boolean(createdUserId) });
+    if (createdUserId) {
+      return { data: { id: createdUserId }, warning: "Profile created, but some selected permissions may not have saved. Review the profile before sharing its login." };
+    }
     return { error: "Profile creation failed. Please retry or contact support." };
   }
 };

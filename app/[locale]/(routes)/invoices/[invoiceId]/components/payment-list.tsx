@@ -28,7 +28,7 @@ export function PaymentList({ payments, currency, locale }: PaymentListProps) {
   const fmt = (n: string) =>
     new Intl.NumberFormat(locale, {
       style: "currency",
-      currency: currency || "CZK",
+      currency: currency || "INR",
       minimumFractionDigits: 2,
     }).format(parseFloat(n));
 

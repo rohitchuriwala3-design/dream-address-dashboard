@@ -121,7 +121,7 @@ export const createColumns = (config: OpportunityConfig): ColumnDef<Opportunity>
 
     cell: ({ row }) => {
       const budget = row.original.budget;
-      const fromCurrency = row.original.currency || "EUR";
+      const fromCurrency = row.original.currency || "INR";
       if (!budget) return <div>—</div>;
       const amount = new Decimal(budget.toString());
       const targetCurrency = config.displayCurrency || fromCurrency;

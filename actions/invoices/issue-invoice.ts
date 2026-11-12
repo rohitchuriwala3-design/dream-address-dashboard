@@ -75,16 +75,15 @@ export async function issueInvoice(raw: unknown) {
         quantity: new Decimal(li.quantity.toString()),
         unitPrice: new Decimal(li.unitPrice.toString()),
         discountPercent: new Decimal(li.discountPercent.toString()),
-        taxRate: li.taxRate ? new Decimal(li.taxRate.rate.toString()) : new Decimal(0),
+        taxRate: new Decimal(0),
       }));
       const totals = computeInvoiceTotals(lineInputs);
 
       // Update each line item with taxRateSnapshot
       for (const li of invoice.lineItems) {
-        const snapshotRate = li.taxRate ? li.taxRate.rate : null;
         await tx.invoice_LineItems.update({
           where: { id: li.id },
-          data: { taxRateSnapshot: snapshotRate },
+          data: { taxRateId: null, taxRateSnapshot: null },
         });
       }
 
@@ -171,7 +170,7 @@ export async function issueInvoice(raw: unknown) {
         quantity: li.quantity.toString(),
         unitPrice: li.unitPrice.toString(),
         discountPercent: li.discountPercent.toString(),
-        taxRate: li.taxRate ? li.taxRate.rate.toString() : "0",
+        taxRate: "0",
         lineTotal: li.lineTotal.toString(),
       })),
       subtotal: result.subtotal.toString(),
@@ -182,7 +181,7 @@ export async function issueInvoice(raw: unknown) {
           quantity: new Decimal(li.quantity.toString()),
           unitPrice: new Decimal(li.unitPrice.toString()),
           discountPercent: new Decimal(li.discountPercent.toString()),
-          taxRate: li.taxRate ? new Decimal(li.taxRate.rate.toString()) : new Decimal(0),
+          taxRate: new Decimal(0),
         }))
       ).vatBreakdown,
       payment: {
