@@ -13,11 +13,8 @@ const intlMiddleware = createMiddleware(routing);
  * page requests to the configured public origin before locale handling.
  */
 function normalizePublicPageRequest(req: NextRequest) {
-  const renderPort = process.env.PORT;
   const configuredOrigin = process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL;
   if (
-    !renderPort ||
-    req.nextUrl.port !== renderPort ||
     !configuredOrigin ||
     !["GET", "HEAD"].includes(req.method)
   ) {
@@ -30,6 +27,7 @@ function normalizePublicPageRequest(req: NextRequest) {
   requestUrl.host = publicUrl.host;
 
   const headers = new Headers(req.headers);
+  headers.set("host", publicUrl.host);
   headers.set("x-forwarded-host", publicUrl.host);
   headers.set("x-forwarded-proto", publicUrl.protocol.slice(0, -1));
 

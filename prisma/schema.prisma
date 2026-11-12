@@ -1011,6 +1011,7 @@ model Users {
   emailVerified    Boolean       @default(false)
   image            String?
   role             AppRole       @default(user)
+  permissions      NexusUserPermission[]
   created_on       DateTime      @default(now())
   updated_at       DateTime?     @updatedAt
   lastLoginAt      DateTime?
@@ -2246,6 +2247,21 @@ model NexusSheetSyncRun {
   @@index([startedAt])
   @@index([actorId, startedAt])
   @@index([status, startedAt])
+}
+
+/// Granular module capabilities assigned by an administrator to a profile.
+/// Existing roles remain the broad legacy gate; these grants enable additive
+/// fine-grained controls as each module adopts requirePermission.
+model NexusUserPermission {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  key       String   @db.VarChar(80)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      Users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, key])
+  @@index([key, userId])
 }
 
 model NexusSheetCrosswalk {

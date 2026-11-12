@@ -21,7 +21,7 @@ import AlertModal from "@/components/modals/alert-modal";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { Building2, Copy, Edit, KeyRound, MoreHorizontal, Shield, Trash, UserCheck, UserX } from "lucide-react";
+import { Building2, Copy, Edit, KeyRound, MoreHorizontal, Shield, ShieldCheck, Trash, UserCheck, UserX } from "lucide-react";
 import { deleteUser } from "@/actions/admin/users/delete-user";
 import { activateUser } from "@/actions/admin/users/activate-user";
 import { deactivateUser } from "@/actions/admin/users/deactivate-user";
@@ -30,6 +30,7 @@ import { revokeUserApiTokens } from "@/actions/admin/users/revoke-api-tokens";
 import type { AppRole } from "@/lib/authz";
 import { PartnerAccountDialog } from "../components/partner-account-dialog";
 import { ResetUserPasswordDialog } from "../components/reset-user-password-dialog";
+import { ProfilePermissionsDialog } from "../components/profile-permissions";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -44,6 +45,7 @@ export function DataTableRowActions<TData>({
   const [open, setOpen] = useState(false);
   const [partnerAccountOpen, setPartnerAccountOpen] = useState(false);
   const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
+  const [permissionsOpen, setPermissionsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const onCopy = (id: string) => {
@@ -158,6 +160,7 @@ export function DataTableRowActions<TData>({
         open={resetPasswordOpen}
         onOpenChange={setResetPasswordOpen}
       />
+      <ProfilePermissionsDialog userId={data.id} email={data.email} initialPermissions={data.permissionKeys ?? []} open={permissionsOpen} onOpenChange={setPermissionsOpen} />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant={"ghost"} className="h-8 w-8 p-0">
@@ -187,6 +190,10 @@ export function DataTableRowActions<TData>({
           <DropdownMenuItem onClick={() => setResetPasswordOpen(true)}>
             <KeyRound className="mr-2 w-4 h-4" />
             Reset password
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setPermissionsOpen(true)}>
+            <ShieldCheck className="mr-2 w-4 h-4" />
+            Edit permissions
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuSub>

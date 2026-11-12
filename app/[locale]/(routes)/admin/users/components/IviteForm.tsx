@@ -26,6 +26,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icons } from "@/components/ui/icons";
 import { inviteUser } from "@/actions/admin/users/invite-user";
+import { Checkbox } from "@/components/ui/checkbox";
+import { NEXUS_PERMISSIONS, type NexusPermission } from "@/lib/authz/permissions";
 
 const FormSchema = z.object({
   name: z.string().min(3).max(50),
@@ -37,6 +39,7 @@ const FormSchema = z.object({
       message: "Please select a user language.",
     })
     .min(2),
+    permissions: z.array(z.enum(["dashboard.view", "crm.view", "crm.manage", "projects.view", "projects.manage", "finance.view", "finance.manage", "reports.view", "sheets.audit"])),
 });
 
 export function InviteForm() {
@@ -46,7 +49,7 @@ export function InviteForm() {
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    defaultValues: { name: "", email: "", password: "", role: "user", language: "en" },
+    defaultValues: { name: "", email: "", password: "", role: "user", language: "en", permissions: [] },
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
@@ -68,6 +71,7 @@ export function InviteForm() {
         password: "",
         role: "user",
         language: "en",
+        permissions: [],
       });
       router.refresh();
       setIsLoading(false);
@@ -172,6 +176,18 @@ export function InviteForm() {
             </FormItem>
           )}
         />
+        <FormField control={form.control} name="permissions" render={({ field }) => <FormItem className="md:col-span-3 xl:col-span-6">
+          <FormLabel>Additional permissions</FormLabel>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {NEXUS_PERMISSIONS.map(({ key, label, description }) => <label key={key} htmlFor={`new-user-${key}`} className="flex cursor-pointer items-start gap-3 rounded-lg border p-3 hover:bg-muted/50">
+              <Checkbox id={`new-user-${key}`} checked={field.value.includes(key)} disabled={isLoading} onCheckedChange={(value) => {
+                const current = field.value as NexusPermission[];
+                field.onChange(value === true ? [...new Set([...current, key])] : current.filter((permission) => permission !== key));
+              }} />
+              <span className="grid gap-1"><span className="text-sm font-medium">{label}</span><span className="text-xs text-muted-foreground">{description}</span></span>
+            </label>)}
+          </div>
+        </FormItem>} />
         <Button className="w-full" type="submit" disabled={isLoading}>
           {isLoading ? (
             <Icons.spinner className="animate-spin" />

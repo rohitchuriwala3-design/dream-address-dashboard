@@ -9,8 +9,9 @@ export const getUsers = async () => {
     orderBy: {
       created_on: "desc",
     },
+    include: { permissions: { select: { key: true } } },
   });
-  return data;
+  return data.map(({ permissions, ...user }) => ({ ...user, permissionKeys: permissions.map(({ key }) => key) }));
 };
 
 //Get active users for Selects in app etc

@@ -12,6 +12,7 @@ import {
   AuthenticationError,
   AuthorizationError,
 } from "@/lib/authz";
+import { parseNexusPermissions } from "@/lib/authz/permissions";
 
 const allowedRoles = new Set<AppRole>(["admin", "manager", "user", "partner"]);
 
@@ -21,6 +22,7 @@ export const inviteUser = async (data: {
   password: string;
   role: AppRole;
   language: string;
+  permissions: string[];
 }) => {
   let actor: AuthzUser;
   try {
@@ -37,6 +39,8 @@ export const inviteUser = async (data: {
     return { error: "Enter a name, email, and password with at least 12 characters." };
   }
   if (!allowedRoles.has(data.role)) return { error: "Choose a valid access role." };
+  const permissions = parseNexusPermissions(data.permissions);
+  if (!permissions) return { error: "Choose only valid profile permissions." };
   if (!Object.values(Language).includes(data.language as Language)) {
     return { error: "Choose a valid language." };
   }
@@ -53,6 +57,11 @@ export const inviteUser = async (data: {
       where: { id: result.user.id },
       data: { userStatus: "ACTIVE", userLanguage: data.language as Language },
     });
+    if (permissions.length) {
+      await prismadb.nexusUserPermission.createMany({
+        data: permissions.map((key) => ({ userId: result.user.id, key })),
+      });
+    }
     await writeAuditLog({
       entityType: "user",
       entityId: result.user.id,
@@ -62,6 +71,7 @@ export const inviteUser = async (data: {
         { field: "email", old: null, new: email },
         { field: "role", old: null, new: data.role },
         { field: "userLanguage", old: null, new: data.language },
+        { field: "permissions", old: [], new: permissions },
       ],
       userId: actor.id,
     });
