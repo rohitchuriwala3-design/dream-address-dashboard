@@ -25,6 +25,33 @@ const adapter = new PrismaPg(pool);
 
 const prisma = new PrismaClient({ adapter });
 
+async function waitForDatabase() {
+  const attempts = 10;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      return;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      const code = error && typeof error === "object" && "code" in error
+        ? String(error.code)
+        : "";
+      const isConnectionError =
+        code === "ECONNREFUSED" ||
+        code === "P1001" ||
+        message.includes("ECONNREFUSED") ||
+        message.includes("Can't reach database server");
+
+      if (!isConnectionError || attempt === attempts) {
+        throw error;
+      }
+
+      console.warn(`Database connection not ready (attempt ${attempt}/${attempts}); retrying in 2 seconds.`);
+      await new Promise((resolve) => setTimeout(resolve, 2_000));
+    }
+  }
+}
+
 async function upsertByName(
   model: any,
   items: { name: string; [key: string]: any }[]
@@ -40,6 +67,7 @@ async function upsertByName(
 
 async function main() {
   console.log("-------- Seeding DB --------");
+  await waitForDatabase();
 
   // CRM Opportunity Types (no unique on name — use findFirst + create/update)
   for (const item of crmOpportunityTypeData) {
