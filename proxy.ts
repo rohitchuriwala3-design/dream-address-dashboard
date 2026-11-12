@@ -44,7 +44,13 @@ function sanitizeRedirect(response: NextResponse) {
   const destination = new URL(location, publicUrl);
   destination.protocol = publicUrl.protocol;
   destination.host = publicUrl.host;
-  response.headers.set("location", destination.toString());
+  // Same-origin redirects should remain relative. This avoids leaking the
+  // container's internal Render port even if an upstream middleware has
+  // already materialized an absolute URL from the forwarded request.
+  response.headers.set(
+    "location",
+    `${destination.pathname}${destination.search}${destination.hash}`,
+  );
   return response;
 }
 
