@@ -66,8 +66,7 @@ RUN apk add --no-cache curl postgresql-client
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     PORT=3000 \
-    HOSTNAME="0.0.0.0" \
-    NODE_OPTIONS="--dns-result-order=ipv4first"
+    HOSTNAME="0.0.0.0"
 
 # Create non-root user before copying files (enables --chown in COPY)
 RUN addgroup --system --gid 1001 nodejs && \
