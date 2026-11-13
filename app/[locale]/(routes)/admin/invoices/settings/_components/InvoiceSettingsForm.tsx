@@ -1,15 +1,15 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { saveInvoiceSettings } from "../_actions/invoice-settings";
-import type { InvoiceSettingsInput, FieldErrors } from "../_actions/invoice-settings";
+import type { InvoiceSettingsInput } from "../_actions/invoice-settings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import type { TEST_ISSUER_DEFAULTS } from "@/lib/invoices/test-issuer-defaults";
 import {
   Select,
   SelectContent,
@@ -38,42 +38,21 @@ interface Settings {
   iban: string | null;
   swift: string | null;
   footerText: string | null;
-  companyName: string | null;
-  companyAddress: string | null;
-  companyCity: string | null;
-  companyZip: string | null;
-  companyCountry: string | null;
-  companyVatId: string | null;
-  companyTaxId: string | null;
-  companyRegNo: string | null;
-  companyEmail: string | null;
-  companyPhone: string | null;
-  companyWebsite: string | null;
 }
 
 interface Props {
   settings: Settings | null;
   currencies: Currency[];
   series: Series[];
-  testIssuerDefaults: typeof TEST_ISSUER_DEFAULTS | null;
 }
 
 export function InvoiceSettingsForm({
   settings,
   currencies,
   series,
-  testIssuerDefaults,
 }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [errors, setErrors] = useState<FieldErrors>({});
-  const clearError = (field: string) =>
-    setErrors((prev) => {
-      if (!prev[field]) return prev;
-      const { [field]: _, ...rest } = prev;
-      return rest;
-    });
-
   const [baseCurrency] = useState<"INR">("INR");
   const [defaultSeriesId, setDefaultSeriesId] = useState(
     settings?.defaultSeriesId ?? ""
@@ -88,16 +67,6 @@ export function InvoiceSettingsForm({
   const [iban, setIban] = useState(settings?.iban ?? "");
   const [swift, setSwift] = useState(settings?.swift ?? "");
   const [footerText, setFooterText] = useState(settings?.footerText ?? "");
-  const [companyName, setCompanyName] = useState(settings?.companyName?.trim() || testIssuerDefaults?.companyName || "");
-  const [companyAddress, setCompanyAddress] = useState(settings?.companyAddress?.trim() || testIssuerDefaults?.companyAddress || "");
-  const [companyCity, setCompanyCity] = useState(settings?.companyCity?.trim() || testIssuerDefaults?.companyCity || "");
-  const [companyZip, setCompanyZip] = useState(settings?.companyZip?.trim() || testIssuerDefaults?.companyZip || "");
-  const [companyCountry, setCompanyCountry] = useState(settings?.companyCountry?.trim() || testIssuerDefaults?.companyCountry || "India");
-  const [companyRegNo, setCompanyRegNo] = useState(settings?.companyRegNo ?? "");
-  const [companyEmail, setCompanyEmail] = useState(settings?.companyEmail?.trim() || testIssuerDefaults?.companyEmail || "");
-  const [companyPhone, setCompanyPhone] = useState(settings?.companyPhone ?? "");
-  const [companyWebsite, setCompanyWebsite] = useState(settings?.companyWebsite?.trim() || testIssuerDefaults?.companyWebsite || "");
-
   const handleSave = () => {
     const payload: InvoiceSettingsInput = {
       baseCurrency,
@@ -109,20 +78,8 @@ export function InvoiceSettingsForm({
       iban: iban || null,
       swift: swift || null,
       footerText: footerText || null,
-      companyName,
-      companyAddress,
-      companyCity,
-      companyZip,
-      companyCountry,
-      companyRegNo,
-      companyVatId: settings?.companyVatId ?? null,
-      companyTaxId: settings?.companyTaxId ?? null,
-      companyEmail: companyEmail || null,
-      companyPhone: companyPhone || null,
-      companyWebsite: companyWebsite || null,
     };
 
-    setErrors({});
     startTransition(async () => {
       const res = await saveInvoiceSettings(payload);
       if (res.ok) {
@@ -130,148 +87,20 @@ export function InvoiceSettingsForm({
         router.refresh();
       } else {
         toast.error(res.error);
-        if (res.fieldErrors) setErrors(res.fieldErrors);
       }
     });
   };
 
   return (
-    <div className="space-y-6 max-w-2xl">
-      <div className="space-y-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-          Company Details
-        </h3>
-        <p className="text-sm text-muted-foreground">
-          A fictional test issuer is prefilled in staging so you can test documents now. Replace these values with your business details whenever you are ready; saved values are used on invoices and approved quotation PDFs. Do not send PDFs carrying the TEST identity to clients.
-        </p>
-        <div className="space-y-2">
-          <Label>Business name <span className="text-destructive">*</span></Label>
-          <Input
-            required
-            value={companyName}
-            onChange={(e) => {
-              setCompanyName(e.target.value);
-              clearError("companyName");
-            }}
-            placeholder="e.g. Impressive Creators"
-            aria-invalid={!!errors.companyName}
-          />
-          {errors.companyName && (
-            <p className="text-xs text-destructive">{errors.companyName}</p>
-          )}
+    <div className="w-full max-w-2xl min-w-0 space-y-6">
+      <div className="flex min-w-0 flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+        <div className="min-w-0 space-y-1">
+          <h3 className="font-semibold">Shared business identity</h3>
+          <p className="break-words text-sm text-muted-foreground">Manage the company details used by invoices and approved quotations from the Business Profile page.</p>
         </div>
-        <div className="space-y-2">
-          <Label>Street address <span className="text-destructive">*</span></Label>
-          <Input
-            required
-            value={companyAddress}
-            onChange={(e) => {
-              setCompanyAddress(e.target.value);
-              clearError("companyAddress");
-            }}
-            placeholder="Street address"
-            aria-invalid={!!errors.companyAddress}
-          />
-          {errors.companyAddress && (
-            <p className="text-xs text-destructive">{errors.companyAddress}</p>
-          )}
-        </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="space-y-2">
-            <Label>City <span className="text-destructive">*</span></Label>
-            <Input
-              required
-              value={companyCity}
-              onChange={(e) => {
-                setCompanyCity(e.target.value);
-                clearError("companyCity");
-              }}
-              aria-invalid={!!errors.companyCity}
-            />
-            {errors.companyCity && (
-              <p className="text-xs text-destructive">{errors.companyCity}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label>PIN code <span className="text-destructive">*</span></Label>
-            <Input
-              required
-              value={companyZip}
-              onChange={(e) => {
-                setCompanyZip(e.target.value);
-                clearError("companyZip");
-              }}
-              aria-invalid={!!errors.companyZip}
-            />
-            {errors.companyZip && (
-              <p className="text-xs text-destructive">{errors.companyZip}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label>Country <span className="text-destructive">*</span></Label>
-            <Input
-              required
-              value={companyCountry}
-              onChange={(e) => {
-                setCompanyCountry(e.target.value);
-                clearError("companyCountry");
-              }}
-              placeholder="India"
-              aria-invalid={!!errors.companyCountry}
-            />
-            {errors.companyCountry && (
-              <p className="text-xs text-destructive">{errors.companyCountry}</p>
-            )}
-          </div>
-        </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label>Business registration number (optional)</Label>
-            <Input
-              value={companyRegNo}
-              onChange={(e) => {
-                setCompanyRegNo(e.target.value);
-                clearError("companyRegNo");
-              }}
-              aria-invalid={!!errors.companyRegNo}
-            />
-            {errors.companyRegNo && (
-              <p className="text-xs text-destructive">{errors.companyRegNo}</p>
-            )}
-          </div>
-        </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="space-y-2">
-            <Label>Email</Label>
-            <Input
-              type="email"
-              value={companyEmail}
-              onChange={(e) => {
-                setCompanyEmail(e.target.value);
-                clearError("companyEmail");
-              }}
-              aria-invalid={!!errors.companyEmail}
-            />
-            {errors.companyEmail && (
-              <p className="text-xs text-destructive">{errors.companyEmail}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label>Phone</Label>
-            <Input
-              value={companyPhone}
-              onChange={(e) => setCompanyPhone(e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Website</Label>
-            <Input
-              value={companyWebsite}
-              onChange={(e) => setCompanyWebsite(e.target.value)}
-            placeholder={testIssuerDefaults?.companyWebsite || "e.g. https://example.com"}
-            />
-          </div>
-        </div>
+        <Button asChild variant="outline" className="w-full shrink-0 sm:w-auto">
+          <Link href="/admin/business-profile">Open Business Profile</Link>
+        </Button>
       </div>
 
       <div className="space-y-4 pt-4 border-t">

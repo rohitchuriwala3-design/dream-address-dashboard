@@ -17,9 +17,6 @@ const optionalStr = (max: number) =>
     .nullable()
     .or(z.literal("").transform(() => null));
 
-const requiredStr = (label: string, max: number) =>
-  z.string().trim().min(1, `${label} is required`).max(max, `${label} must be ≤ ${max} chars`);
-
 const settingsSchema = z.object({
   baseCurrency: z.literal("INR"),
   defaultSeriesId: z.uuid().nullable(),
@@ -35,25 +32,6 @@ const settingsSchema = z.object({
   iban: optionalStr(50),
   swift: optionalStr(20),
   footerText: optionalStr(1000),
-
-  // Required profile fields use a clearly fictional staging default until replaced.
-  companyName: requiredStr("Business name", 200),
-  companyAddress: requiredStr("Street address", 300),
-  companyCity: requiredStr("City", 100),
-  companyZip: requiredStr("PIN code", 20),
-  companyCountry: requiredStr("Country", 100),
-  companyRegNo: optionalStr(50),
-
-  // Optional company fields
-  companyVatId: optionalStr(50).optional().default(null),
-  companyTaxId: optionalStr(50).optional().default(null),
-  companyEmail: z
-    .email("Invalid email")
-    .max(200)
-    .nullable()
-    .or(z.literal("").transform(() => null)),
-  companyPhone: optionalStr(50),
-  companyWebsite: optionalStr(300),
 });
 
 export type InvoiceSettingsInput = z.infer<typeof settingsSchema>;

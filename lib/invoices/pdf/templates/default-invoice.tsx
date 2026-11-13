@@ -19,6 +19,9 @@ export interface PdfParty {
   country?: string;
   vatId?: string;
   regId?: string;
+  email?: string;
+  phone?: string;
+  website?: string;
 }
 
 export interface PdfLineItem {
@@ -149,6 +152,9 @@ function PartyBlock({ party, label }: { party: PdfParty; label: string }) {
       )}
       {party.country && <Text style={s.partyLine}>{party.country}</Text>}
       {party.regId && <Text style={s.partyLine}>ID: {party.regId}</Text>}
+      {party.email && <Text style={s.partyLine}>{party.email}</Text>}
+      {party.phone && <Text style={s.partyLine}>{party.phone}</Text>}
+      {party.website && <Text style={s.partyLine}>{party.website}</Text>}
     </View>
   );
 }

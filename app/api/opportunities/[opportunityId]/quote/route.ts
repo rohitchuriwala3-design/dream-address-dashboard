@@ -31,7 +31,18 @@ export async function GET(_request: Request, { params }: { params: Promise<{ opp
       where: { opportunityId, status: "APPROVED" }, orderBy: { revisionNo: "desc" },
       select: { revisionNo: true, snapshot: true, submittedAt: true, reviewedAt: true },
     }),
-    prismadb.invoice_Settings.findFirst({ select: { companyName: true } }),
+    prismadb.invoice_Settings.findFirst({
+      select: {
+        companyName: true,
+        companyAddress: true,
+        companyCity: true,
+        companyZip: true,
+        companyCountry: true,
+        companyEmail: true,
+        companyPhone: true,
+        companyWebsite: true,
+      },
+    }),
   ]);
   if (!opportunity || !revision) {
     return NextResponse.json({ error: "An approved quote revision is required before downloading." }, { status: 404 });
@@ -51,6 +62,13 @@ export async function GET(_request: Request, { params }: { params: Promise<{ opp
   }
   const pdf = await renderApprovedQuotePdf({
     issuerName: invoiceSettings?.companyName?.trim() || testIssuer?.companyName || "Dream Space Studios",
+    issuerDetails: [
+      [invoiceSettings?.companyAddress?.trim() || testIssuer?.companyAddress,
+        [invoiceSettings?.companyCity?.trim() || testIssuer?.companyCity, invoiceSettings?.companyZip?.trim() || testIssuer?.companyZip].filter(Boolean).join(" "),
+        invoiceSettings?.companyCountry?.trim() || testIssuer?.companyCountry].filter(Boolean).join(", "),
+      [invoiceSettings?.companyEmail?.trim() || testIssuer?.companyEmail,
+        invoiceSettings?.companyPhone?.trim(), invoiceSettings?.companyWebsite?.trim() || testIssuer?.companyWebsite].filter(Boolean).join(" · "),
+    ].filter(Boolean).join("\n"),
     revisionNo: revision.revisionNo,
     submittedAt: revision.submittedAt,
     reviewedAt: revision.reviewedAt,

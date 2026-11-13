@@ -61,6 +61,9 @@ type SettingsForPdf = {
   companyCountry: string | null;
   companyVatId: string | null;
   companyRegNo: string | null;
+  companyEmail: string | null;
+  companyPhone: string | null;
+  companyWebsite: string | null;
   bankName: string | null;
   iban: string | null;
   swift: string | null;
@@ -80,6 +83,9 @@ function buildSupplier(settings: SettingsForPdf): PdfParty {
     country: settings?.companyCountry?.trim() || testDefaults?.companyCountry,
     vatId: settings?.companyVatId ?? undefined,
     regId: settings?.companyRegNo ?? undefined,
+    email: settings?.companyEmail?.trim() || testDefaults?.companyEmail,
+    phone: settings?.companyPhone?.trim() || undefined,
+    website: settings?.companyWebsite?.trim() || testDefaults?.companyWebsite,
   };
 }
 

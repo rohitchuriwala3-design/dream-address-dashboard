@@ -14,6 +14,7 @@ type QuoteLine = {
 
 export type ApprovedQuotePdfData = {
   issuerName: string;
+  issuerDetails?: string;
   revisionNo: number;
   submittedAt: Date;
   reviewedAt: Date | null;
@@ -27,6 +28,7 @@ export type ApprovedQuotePdfData = {
 const styles = StyleSheet.create({
   page: { padding: 42, fontFamily: "Helvetica", fontSize: 9, color: "#172033" },
   brand: { fontSize: 10, color: "#64748b", marginBottom: 8 },
+  issuerDetails: { color: "#64748b", fontSize: 8, lineHeight: 1.4, marginBottom: 16 },
   title: { fontSize: 23, fontFamily: "Helvetica-Bold", marginBottom: 6 },
   subtitle: { color: "#64748b", fontSize: 10, marginBottom: 22 },
   metadata: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 11, borderTopWidth: 1, borderBottomWidth: 1, borderColor: "#e2e8f0", marginBottom: 20 },
@@ -59,6 +61,7 @@ function ApprovedQuotePdf({ data }: { data: ApprovedQuotePdfData }) {
   return React.createElement(Document, null,
     React.createElement(Page, { size: "A4", style: styles.page, wrap: true },
       React.createElement(Text, { style: styles.brand }, `${data.issuerName} · APPROVED QUOTATION`),
+      data.issuerDetails ? React.createElement(Text, { style: styles.issuerDetails }, data.issuerDetails) : null,
       React.createElement(Text, { style: styles.title }, data.opportunityName || "Interior Design Proposal"),
       React.createElement(Text, { style: styles.subtitle }, `Revision ${data.revisionNo} · Approved quote snapshot`),
       React.createElement(View, { style: styles.metadata },

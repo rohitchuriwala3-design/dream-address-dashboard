@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Key, Users, Settings, SlidersHorizontal, ClipboardList, Coins, FileText, CalendarClock, Puzzle, Tags, ShoppingCart, Sheet } from "lucide-react";
+import { Key, Users, Settings, SlidersHorizontal, ClipboardList, Coins, FileText, CalendarClock, Puzzle, Tags, ShoppingCart, Sheet, Building2 } from "lucide-react";
 
 const navItems = [
   { label: "LLM Keys",     href: "/admin/llm-keys",     icon: Key },
   { label: "Users",        href: "/admin/users",        icon: Users },
+  { label: "Business Profile", href: "/admin/business-profile", icon: Building2 },
   { label: "Services",     href: "/admin/services",     icon: Settings },
   { label: "CRM Settings", href: "/admin/crm-settings", icon: SlidersHorizontal },
   { label: "Funnel Settings", href: "/admin/funnel-settings", icon: SlidersHorizontal },
@@ -21,22 +22,28 @@ const navItems = [
   { label: "Plugins",      href: "/admin/plugins",      icon: Puzzle },
 ];
 
-export function AdminSidebarNav() {
+export function AdminSidebarNav({ orientation = "vertical" }: { orientation?: "vertical" | "horizontal" }) {
   const pathname = usePathname();
+  const horizontal = orientation === "horizontal";
 
   return (
-    <nav className="flex flex-col gap-1">
-      <p className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+    <nav aria-label="Administration sections" className={horizontal ? "min-w-0 overflow-x-auto" : "flex flex-col gap-1"}>
+      <div className={horizontal ? "flex min-w-max items-center gap-1 pb-1" : "flex flex-col gap-1"}>
+      <p className={horizontal
+        ? "sticky left-0 z-10 bg-card px-2 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+        : "px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground"}>
         Admin
       </p>
       {navItems.map(({ label, href, icon: Icon }) => {
-        const isActive = pathname.includes(href);
+        const isActive = pathname.endsWith(href) || pathname.includes(`${href}/`);
         return (
           <Link
             key={href}
             href={href}
+            aria-current={isActive ? "page" : undefined}
             className={cn(
-              "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+              "flex shrink-0 items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+              horizontal && "whitespace-nowrap",
               isActive
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -47,6 +54,7 @@ export function AdminSidebarNav() {
           </Link>
         );
       })}
+      </div>
     </nav>
   );
 }

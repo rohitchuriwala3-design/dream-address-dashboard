@@ -50,6 +50,25 @@ describe("GET approved quotation PDF", () => {
     expect(assertCanReadOpportunity).toHaveBeenCalledWith({ id: "u1", role: "manager" }, "o1");
   });
 
+  it("puts the saved shared business contact details on approved quotation PDFs", async () => {
+    (prismadb.invoice_Settings.findFirst as jest.Mock).mockResolvedValue({
+      companyName: "Rainbow Space Studio — TEST",
+      companyAddress: "TEST ADDRESS — NOT A REAL BUSINESS",
+      companyCity: "Kolkata (TEST)",
+      companyZip: "000000",
+      companyCountry: "India",
+      companyEmail: "test@example.com",
+      companyPhone: "9876543210",
+      companyWebsite: "https://example.com",
+    });
+    const response = await GET(new Request("http://localhost/api/opportunities/o1/quote"), { params });
+    expect(response.status).toBe(200);
+    expect(renderApprovedQuotePdf).toHaveBeenCalledWith(expect.objectContaining({
+      issuerName: "Rainbow Space Studio — TEST",
+      issuerDetails: "TEST ADDRESS — NOT A REAL BUSINESS, Kolkata (TEST) 000000, India\ntest@example.com · 9876543210 · https://example.com",
+    }));
+  });
+
   it("does not render or download a quote that lacks an approved revision", async () => {
     (prismadb.opportunityQuoteRevision.findFirst as jest.Mock).mockResolvedValue(null);
     const response = await GET(new Request("http://localhost/api/opportunities/o1/quote"), { params });
