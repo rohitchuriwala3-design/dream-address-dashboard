@@ -124,9 +124,8 @@ function buildUpdateData(input: Record<string, unknown>) {
     "dueDate",
     "bankName",
     "bankAccount",
-    "iban",
-    "swift",
-    "variableSymbol",
+    "bankAccountHolder",
+    "bankIfsc",
     "publicNotes",
     "internalNotes",
   ] as const;

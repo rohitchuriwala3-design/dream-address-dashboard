@@ -45,9 +45,9 @@ export default async function NewInvoicePage({ searchParams }: { searchParams: P
     internalNotes: t("form.internalNotes"),
     save: t("form.save"),
     bankName: t("form.bankName"),
-    iban: t("form.iban"),
-    swift: t("form.swift"),
-    variableSymbol: t("form.variableSymbol"),
+    bankAccount: "Account Number",
+    bankAccountHolder: "Account Holder Name",
+    bankIfsc: "IFSC Code",
   };
   const selectedProject = projects.find((project) => project.id === query.projectId);
 

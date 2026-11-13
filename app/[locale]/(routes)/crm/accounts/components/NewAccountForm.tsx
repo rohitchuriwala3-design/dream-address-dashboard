@@ -80,6 +80,10 @@ export function NewAccountForm({ industries, onFinish }: Props) {
   const form = useForm<NewAccountFormValues>({
     resolver: zodResolver(formSchema),
     mode: "onBlur",
+    defaultValues: {
+      billing_country: "India",
+      shipping_country: "India",
+    },
   });
 
   useEffect(() => {

@@ -42,9 +42,9 @@ export interface PdfVatBucket {
 
 export interface PdfPaymentInfo {
   bankName?: string;
-  iban?: string;
-  swift?: string;
-  variableSymbol?: string;
+  bankAccount?: string;
+  bankAccountHolder?: string;
+  bankIfsc?: string;
 }
 
 export interface InvoicePdfData {
@@ -240,14 +240,14 @@ export function InvoicePdf({ data }: { data: InvoicePdfData }) {
             {data.payment.bankName && (
               <Text style={s.paymentLine}>{t.bank}: {data.payment.bankName}</Text>
             )}
-            {data.payment.iban && (
-              <Text style={s.paymentLine}>{t.iban}: {data.payment.iban}</Text>
+            {data.payment.bankAccountHolder && (
+              <Text style={s.paymentLine}>{t.accountHolder}: {data.payment.bankAccountHolder}</Text>
             )}
-            {data.payment.swift && (
-              <Text style={s.paymentLine}>{t.swift}: {data.payment.swift}</Text>
+            {data.payment.bankAccount && (
+              <Text style={s.paymentLine}>{t.accountNumber}: {data.payment.bankAccount}</Text>
             )}
-            {data.payment.variableSymbol && (
-              <Text style={s.paymentLine}>{t.variableSymbol}: {data.payment.variableSymbol}</Text>
+            {data.payment.bankIfsc && (
+              <Text style={s.paymentLine}>{t.ifsc}: {data.payment.bankIfsc}</Text>
             )}
           </View>
         )}

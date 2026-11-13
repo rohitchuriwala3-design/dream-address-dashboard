@@ -131,14 +131,6 @@ export default async function InvoiceDetailPage({ params }: Props) {
               </span>
               <span>{formatDate(invoice.dueDate, locale)}</span>
             </div>
-            {invoice.variableSymbol && (
-              <div className="grid grid-cols-2 gap-2">
-                <span className="text-muted-foreground">
-                  {t("form.variableSymbol")}
-                </span>
-                <span>{invoice.variableSymbol}</span>
-              </div>
-            )}
             {invoice.series && (
               <div className="grid grid-cols-2 gap-2">
                 <span className="text-muted-foreground">
@@ -210,25 +202,31 @@ export default async function InvoiceDetailPage({ params }: Props) {
                 )}
               </span>
             </div>
-            {invoice.bankName && (
+            {(invoice.bankName || invoice.bankAccountHolder || invoice.bankAccount || invoice.bankIfsc) && (
               <>
                 <Separator />
-                <div className="grid grid-cols-2 gap-2">
-                  <span className="text-muted-foreground">Bank</span>
-                  <span>{invoice.bankName}</span>
-                </div>
-                {invoice.iban && (
+                {invoice.bankName && (
                   <div className="grid grid-cols-2 gap-2">
-                    <span className="text-muted-foreground">IBAN</span>
-                    <span className="font-mono text-xs">{invoice.iban}</span>
+                    <span className="text-muted-foreground">Bank</span>
+                    <span>{invoice.bankName}</span>
                   </div>
                 )}
-                {invoice.swift && (
+                {invoice.bankAccountHolder && (
                   <div className="grid grid-cols-2 gap-2">
-                    <span className="text-muted-foreground">SWIFT</span>
-                    <span className="font-mono text-xs">
-                      {invoice.swift}
-                    </span>
+                    <span className="text-muted-foreground">Account Holder</span>
+                    <span>{invoice.bankAccountHolder}</span>
+                  </div>
+                )}
+                {invoice.bankAccount && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <span className="text-muted-foreground">Account Number</span>
+                    <span className="font-mono text-xs">{invoice.bankAccount}</span>
+                  </div>
+                )}
+                {invoice.bankIfsc && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <span className="text-muted-foreground">IFSC</span>
+                    <span className="font-mono text-xs">{invoice.bankIfsc}</span>
                   </div>
                 )}
               </>

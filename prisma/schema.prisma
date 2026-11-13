@@ -1919,10 +1919,12 @@ model Invoices {
   paidTotal     Decimal @default(0) @db.Decimal(14, 2)
   balanceDue    Decimal @default(0) @db.Decimal(14, 2)
 
-  bankName       String?
-  bankAccount    String?
-  iban           String?
-  swift          String?
+  bankName          String?
+  bankAccount       String?
+  bankAccountHolder String?
+  bankIfsc          String?
+  iban              String?
+  swift             String?
   variableSymbol String?
 
   publicNotes   String?
@@ -2332,10 +2334,12 @@ model Invoice_Settings {
   defaultTaxRateId String?           @db.Uuid
   defaultTaxRate   Invoice_TaxRates? @relation(fields: [defaultTaxRateId], references: [id], onDelete: SetNull)
   defaultDueDays   Int               @default(14)
-  bankName         String?
-  bankAccount      String?
-  iban             String?
-  swift            String?
+  bankName          String?
+  bankAccount       String?
+  bankAccountHolder String?
+  bankIfsc         String?
+  iban              String?
+  swift             String?
   footerText       String?
   companyName      String?
   companyAddress   String?

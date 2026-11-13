@@ -29,8 +29,9 @@ const settingsSchema = z.object({
 
   bankName: optionalStr(200),
   bankAccount: optionalStr(100),
-  iban: optionalStr(50),
-  swift: optionalStr(20),
+  bankAccountHolder: optionalStr(200),
+  bankIfsc: optionalStr(11).transform((value) => value?.toUpperCase() ?? null)
+    .refine((value) => !value || /^[A-Z]{4}0[A-Z0-9]{6}$/.test(value), "Enter a valid 11-character IFSC code"),
   footerText: optionalStr(1000),
 });
 

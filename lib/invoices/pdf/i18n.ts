@@ -20,9 +20,9 @@ export interface PdfStrings {
   grandTotal: string;
   paymentInstructions: string;
   bank: string;
-  iban: string;
-  swift: string;
-  variableSymbol: string;
+  accountHolder: string;
+  accountNumber: string;
+  ifsc: string;
   page: string;
   of: string;
 }
@@ -49,9 +49,9 @@ const EN: PdfStrings = {
   grandTotal: "Grand Total",
   paymentInstructions: "Payment Instructions",
   bank: "Bank",
-  iban: "IBAN",
-  swift: "SWIFT",
-  variableSymbol: "Variable Symbol",
+  accountHolder: "Account Holder",
+  accountNumber: "Account Number",
+  ifsc: "IFSC",
   page: "Page",
   of: "of",
 };
@@ -78,9 +78,9 @@ const CZ: PdfStrings = {
   grandTotal: "Celkem k uhrade",
   paymentInstructions: "Platebni udaje",
   bank: "Banka",
-  iban: "IBAN",
-  swift: "SWIFT",
-  variableSymbol: "Variabilni symbol",
+  accountHolder: "Majitel uctu",
+  accountNumber: "Cislo uctu",
+  ifsc: "IFSC",
   page: "Strana",
   of: "z",
 };

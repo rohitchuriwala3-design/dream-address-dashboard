@@ -58,9 +58,9 @@ export default async function EditInvoicePage({ params }: Props) {
     internalNotes: t("form.internalNotes"),
     save: t("form.save"),
     bankName: t("form.bankName"),
-    iban: t("form.iban"),
-    swift: t("form.swift"),
-    variableSymbol: t("form.variableSymbol"),
+    bankAccount: "Account Number",
+    bankAccountHolder: "Account Holder Name",
+    bankIfsc: "IFSC Code",
   };
 
   const initialData = {
@@ -71,9 +71,9 @@ export default async function EditInvoicePage({ params }: Props) {
     currency: invoice.currency,
     dueDate: invoice.dueDate?.toISOString() ?? null,
     bankName: invoice.bankName,
-    iban: invoice.iban,
-    swift: invoice.swift,
-    variableSymbol: invoice.variableSymbol,
+    bankAccount: invoice.bankAccount,
+    bankAccountHolder: invoice.bankAccountHolder,
+    bankIfsc: invoice.bankIfsc,
     publicNotes: invoice.publicNotes,
     internalNotes: invoice.internalNotes,
     lineItems: invoice.lineItems.map((li) => ({

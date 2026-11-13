@@ -35,8 +35,8 @@ interface Settings {
   defaultDueDays: number;
   bankName: string | null;
   bankAccount: string | null;
-  iban: string | null;
-  swift: string | null;
+  bankAccountHolder: string | null;
+  bankIfsc: string | null;
   footerText: string | null;
 }
 
@@ -64,8 +64,8 @@ export function InvoiceSettingsForm({
   const [bankAccount, setBankAccount] = useState(
     settings?.bankAccount ?? ""
   );
-  const [iban, setIban] = useState(settings?.iban ?? "");
-  const [swift, setSwift] = useState(settings?.swift ?? "");
+  const [bankAccountHolder, setBankAccountHolder] = useState(settings?.bankAccountHolder ?? "");
+  const [bankIfsc, setBankIfsc] = useState(settings?.bankIfsc ?? "");
   const [footerText, setFooterText] = useState(settings?.footerText ?? "");
   const handleSave = () => {
     const payload: InvoiceSettingsInput = {
@@ -75,8 +75,8 @@ export function InvoiceSettingsForm({
       defaultDueDays: parseInt(defaultDueDays) || 14,
       bankName: bankName || null,
       bankAccount: bankAccount || null,
-      iban: iban || null,
-      swift: swift || null,
+      bankAccountHolder: bankAccountHolder || null,
+      bankIfsc: bankIfsc || null,
       footerText: footerText || null,
     };
 
@@ -150,6 +150,11 @@ export function InvoiceSettingsForm({
 
       </div>
 
+      <div className="space-y-1 border-t pt-4">
+        <h3 className="text-sm font-semibold">Payment details (optional)</h3>
+        <p className="text-sm text-muted-foreground">Add these only if you want bank-transfer instructions printed on invoices.</p>
+      </div>
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label>Bank Name</Label>
@@ -160,30 +165,31 @@ export function InvoiceSettingsForm({
           />
         </div>
         <div className="space-y-2">
-          <Label>Bank Account</Label>
+          <Label>Account Number</Label>
           <Input
             value={bankAccount}
             onChange={(e) => setBankAccount(e.target.value)}
-          placeholder="Bank account number"
+          placeholder="Account number (optional)"
           />
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label>IBAN</Label>
+          <Label>Account Holder Name</Label>
           <Input
-            value={iban}
-            onChange={(e) => setIban(e.target.value)}
-          placeholder="IBAN, if applicable"
+            value={bankAccountHolder}
+            onChange={(e) => setBankAccountHolder(e.target.value)}
+          placeholder="Name on bank account (optional)"
           />
         </div>
         <div className="space-y-2">
-          <Label>SWIFT</Label>
+          <Label>IFSC Code</Label>
           <Input
-            value={swift}
-            onChange={(e) => setSwift(e.target.value)}
-          placeholder="SWIFT code, if applicable"
+            value={bankIfsc}
+            onChange={(e) => setBankIfsc(e.target.value.toUpperCase())}
+            maxLength={11}
+            placeholder="11-character IFSC (optional)"
           />
         </div>
       </div>

@@ -42,8 +42,9 @@ interface Settings {
   defaultSeriesId: string | null;
   defaultDueDays: number;
   bankName: string | null;
-  iban: string | null;
-  swift: string | null;
+  bankAccount: string | null;
+  bankAccountHolder: string | null;
+  bankIfsc: string | null;
 }
 
 interface InvoiceProjectOption {
@@ -71,9 +72,9 @@ interface InvoiceFormProps {
     currency: string;
     dueDate: string | null;
     bankName: string | null;
-    iban: string | null;
-    swift: string | null;
-    variableSymbol: string | null;
+    bankAccount: string | null;
+    bankAccountHolder: string | null;
+    bankIfsc: string | null;
     publicNotes: string | null;
     internalNotes: string | null;
     lineItems: Array<{
@@ -126,14 +127,14 @@ export function InvoiceForm({
   const [bankName, setBankName] = useState(
     initialData?.bankName ?? settings?.bankName ?? ""
   );
-  const [iban, setIban] = useState(
-    initialData?.iban ?? settings?.iban ?? ""
+  const [bankAccount, setBankAccount] = useState(
+    initialData?.bankAccount ?? settings?.bankAccount ?? ""
   );
-  const [swift, setSwift] = useState(
-    initialData?.swift ?? settings?.swift ?? ""
+  const [bankAccountHolder, setBankAccountHolder] = useState(
+    initialData?.bankAccountHolder ?? settings?.bankAccountHolder ?? ""
   );
-  const [variableSymbol, setVariableSymbol] = useState(
-    initialData?.variableSymbol ?? ""
+  const [bankIfsc, setBankIfsc] = useState(
+    initialData?.bankIfsc ?? settings?.bankIfsc ?? ""
   );
   const [publicNotes, setPublicNotes] = useState(
     initialData?.publicNotes ?? ""
@@ -193,9 +194,9 @@ export function InvoiceForm({
         currency,
         dueDate: dueDate ? new Date(dueDate).toISOString() : null,
         bankName: bankName || null,
-        iban: iban || null,
-        swift: swift || null,
-        variableSymbol: variableSymbol || null,
+        bankAccount: bankAccount || null,
+        bankAccountHolder: bankAccountHolder || null,
+        bankIfsc: bankIfsc || null,
         publicNotes: publicNotes || null,
         internalNotes: internalNotes || null,
         lineItems: lineItems
@@ -321,37 +322,47 @@ export function InvoiceForm({
             />
           </div>
 
-          <div className="space-y-2">
-            <Label>{l.variableSymbol ?? "Variable Symbol"}</Label>
-            <Input
-              value={variableSymbol}
-              onChange={(e) => setVariableSymbol(e.target.value)}
-              placeholder="Variable symbol"
-            />
-          </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <Label>{l.bankName ?? "Bank Name"}</Label>
-            <Input
-              value={bankName}
-              onChange={(e) => setBankName(e.target.value)}
-            />
+        <div className="space-y-2">
+          <div className="space-y-1">
+            <h3 className="text-sm font-semibold">Payment details (optional)</h3>
+            <p className="text-sm text-muted-foreground">Shown on the invoice only when provided.</p>
           </div>
-          <div className="space-y-2">
-            <Label>{l.iban ?? "IBAN"}</Label>
-            <Input
-              value={iban}
-              onChange={(e) => setIban(e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>{l.swift ?? "SWIFT"}</Label>
-            <Input
-              value={swift}
-              onChange={(e) => setSwift(e.target.value)}
-            />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="space-y-2">
+              <Label>{l.bankName ?? "Bank Name"}</Label>
+              <Input
+                value={bankName}
+                onChange={(e) => setBankName(e.target.value)}
+                placeholder="Optional"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{l.bankAccount ?? "Account Number"}</Label>
+              <Input
+                value={bankAccount}
+                onChange={(e) => setBankAccount(e.target.value)}
+                placeholder="Optional"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{l.bankAccountHolder ?? "Account Holder Name"}</Label>
+              <Input
+                value={bankAccountHolder}
+                onChange={(e) => setBankAccountHolder(e.target.value)}
+                placeholder="Optional"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{l.bankIfsc ?? "IFSC Code"}</Label>
+              <Input
+                value={bankIfsc}
+                onChange={(e) => setBankIfsc(e.target.value.toUpperCase())}
+                maxLength={11}
+                placeholder="Optional"
+              />
+            </div>
           </div>
         </div>
 

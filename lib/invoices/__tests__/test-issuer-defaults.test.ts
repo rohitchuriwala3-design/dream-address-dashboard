@@ -14,9 +14,9 @@ const invoice = {
   grandTotal: "100.00",
   billingSnapshot: null,
   bankName: null,
-  iban: null,
-  swift: null,
-  variableSymbol: null,
+  bankAccount: null,
+  bankAccountHolder: null,
+  bankIfsc: null,
   publicNotes: null,
   account: {
     name: "Test Client",

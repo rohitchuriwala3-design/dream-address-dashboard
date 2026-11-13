@@ -29,9 +29,9 @@ type InvoiceForPdf = {
   grandTotal: unknown;
   billingSnapshot: unknown;
   bankName: string | null;
-  iban: string | null;
-  swift: string | null;
-  variableSymbol: string | null;
+  bankAccount: string | null;
+  bankAccountHolder: string | null;
+  bankIfsc: string | null;
   publicNotes: string | null;
   account: {
     name: string;
@@ -65,8 +65,9 @@ type SettingsForPdf = {
   companyPhone: string | null;
   companyWebsite: string | null;
   bankName: string | null;
-  iban: string | null;
-  swift: string | null;
+  bankAccount: string | null;
+  bankAccountHolder: string | null;
+  bankIfsc: string | null;
 } | null;
 
 function buildSupplier(settings: SettingsForPdf): PdfParty {
@@ -156,9 +157,9 @@ export function buildInvoicePdfData(
     vatBreakdown,
     payment: {
       bankName: invoice.bankName ?? settings?.bankName ?? undefined,
-      iban: invoice.iban ?? settings?.iban ?? undefined,
-      swift: invoice.swift ?? settings?.swift ?? undefined,
-      variableSymbol: invoice.variableSymbol ?? undefined,
+      bankAccount: invoice.bankAccount ?? settings?.bankAccount ?? undefined,
+      bankAccountHolder: invoice.bankAccountHolder ?? settings?.bankAccountHolder ?? undefined,
+      bankIfsc: invoice.bankIfsc ?? settings?.bankIfsc ?? undefined,
     },
     publicNotes: invoice.publicNotes ?? undefined,
   };

@@ -192,9 +192,9 @@ export async function issueInvoice(raw: unknown) {
       ).vatBreakdown,
       payment: {
         bankName: result.bankName ?? settings?.bankName ?? undefined,
-        iban: result.iban ?? settings?.iban ?? undefined,
-        swift: result.swift ?? settings?.swift ?? undefined,
-        variableSymbol: result.variableSymbol ?? undefined,
+        bankAccount: result.bankAccount ?? settings?.bankAccount ?? undefined,
+        bankAccountHolder: result.bankAccountHolder ?? settings?.bankAccountHolder ?? undefined,
+        bankIfsc: result.bankIfsc ?? settings?.bankIfsc ?? undefined,
       },
       publicNotes: result.publicNotes ?? undefined,
     };
