@@ -39,7 +39,7 @@ const FormSchema = z.object({
       message: "Please select a user language.",
     })
     .min(2),
-    permissions: z.array(z.enum(["dashboard.view", "crm.view", "crm.manage", "projects.view", "projects.manage", "finance.view", "finance.manage", "reports.view", "sheets.audit"])),
+    permissions: z.array(z.enum(["dashboard.view", "crm.view", "crm.manage", "projects.view", "projects.manage", "finance.view", "finance.manage", "reports.view", "reports.manage", "sheets.audit"])),
 });
 
 export function InviteForm() {

@@ -3,7 +3,7 @@ jest.mock("@/lib/audit-log", () => ({ writeAuditLog: jest.fn(), diffObjects: jes
 const requireRole = jest.fn();
 jest.mock("@/lib/authz", () => {
   const actual = jest.requireActual("@/lib/authz/errors");
-  return { requireRole: (...a: unknown[]) => requireRole(...a), AuthenticationError: actual.AuthenticationError, AuthorizationError: actual.AuthorizationError };
+  return { requireRole: (...a: unknown[]) => requireRole(...a), requirePermission: jest.fn().mockResolvedValue({ id: "m1", role: "manager" }), AuthenticationError: actual.AuthenticationError, AuthorizationError: actual.AuthorizationError };
 });
 const db: Record<string, any> = {
   crm_Products: { findUnique: jest.fn(), findFirst: jest.fn(), update: jest.fn(), findMany: jest.fn().mockResolvedValue([]), createMany: jest.fn() },

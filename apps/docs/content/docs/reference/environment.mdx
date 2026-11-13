@@ -7,7 +7,7 @@ description: "Every environment variable the app reads, from .env.example and th
 
 Every variable listed in `.env.example` or read as `process.env.NAME` in the app code (tests, scripts and the docs app excluded). **Required** is "yes" when the `.env.example` comment says so and empty when it says nothing; **Purpose** is that comment. Variables read under a computed name are not listed. What each variable does and when you need it: [Configuration reference](/docs/admins/configuration).
 
-57 variables.
+63 variables.
 
 | Variable | Required | In `.env.example` | Purpose | Read in |
 | --- | --- | --- | --- | --- |
@@ -21,15 +21,15 @@ Every variable listed in `.env.example` or read as `process.env.NAME` in the app
 | `E2B_API_KEY` |  | no |  | `inngest/functions/enrich-target-contact.ts`, `inngest/functions/enrich-target.ts`, `lib/enrichment/target-enrichment-keys.ts` |
 | `E2B_ENRICHMENT_TEMPLATE` |  | no |  | `inngest/functions/enrich-target-contact.ts`, `inngest/functions/enrich-target.ts` |
 | `EMAIL_ENCRYPTION_KEY` |  | yes | Encrypts stored mailbox passwords and API keys — generate with: openssl rand -hex 32 Set once and never change it, or the stored values become unreadable. | `lib/email-crypto.ts` |
-| `EMAIL_FROM` |  | yes | verified sender for login codes, e.g. noreply@yourdomain.com | `actions/admin/send-mail-to-all/index.ts`, `actions/admin/users/activate-user.ts`, `actions/admin/users/invite-user.ts` +15 more |
+| `EMAIL_FROM` |  | yes | verified sender for login codes, e.g. noreply@yourdomain.com | `actions/admin/send-mail-to-all/index.ts`, `actions/admin/users/activate-user.ts`, `actions/crm/accounts/create-task.ts` +13 more |
 | `EMAIL_HOST` |  | no |  | `lib/sendmail.ts` |
 | `EMAIL_PASSWORD` |  | no |  | `lib/sendmail.ts` |
 | `EMAIL_USERNAME` |  | no |  | `lib/sendmail.ts` |
 | `FIRECRAWL_API_KEY` |  | yes | get from https://firecrawl.dev |  |
 | `GOOGLE_CALENDAR_CLIENT_ID` |  | yes | Google Calendar sync — Workspace-internal OAuth app | `lib/crm/calendar/google.ts` |
 | `GOOGLE_CALENDAR_CLIENT_SECRET` |  | yes | Google Calendar sync — Workspace-internal OAuth app | `lib/crm/calendar/google.ts` |
-| `GOOGLE_ID` |  | yes | Google OAuth | `lib/auth.ts` |
-| `GOOGLE_SECRET` |  | yes | Google OAuth | `lib/auth.ts` |
+| `GOOGLE_ID` |  | yes | Google OAuth |  |
+| `GOOGLE_SECRET` |  | yes | Google OAuth |  |
 | `INNGEST_APP_NAME` |  | no |  | `inngest/client.ts` |
 | `INNGEST_EVENT_KEY` |  | no |  | `inngest/client.ts` |
 | `INNGEST_ID` |  | no |  | `inngest/client.ts` |
@@ -45,16 +45,21 @@ Every variable listed in `.env.example` or read as `process.env.NAME` in the app
 | `MINIO_SECRET_KEY` |  | yes | MinIO / S3 object storage MINIO_ENDPOINT is what the server uses; MINIO_PUBLIC_ENDPOINT is what browsers use (presigned uploads and file links). Leave it empty when both are the same URL. | `lib/minio.ts` |
 | `NEXTCRM_TOKEN` |  | no |  | `app/api/crm/contacts/create-from-remote/route.ts`, `app/api/crm/leads/create-lead-from-web/route.ts` |
 | `NEXT_PUBLIC_APP_DOMAIN` |  | no |  | `actions/invoices/send-invoice-email.ts` |
-| `NEXT_PUBLIC_APP_NAME` |  | no |  | `actions/admin/send-mail-to-all/index.ts`, `actions/admin/users/activate-user.ts`, `actions/admin/users/invite-user.ts` +27 more |
-| `NEXT_PUBLIC_APP_URL` |  | no |  | `actions/admin/users/activate-user.ts`, `actions/crm/contacts/create-contact.ts`, `actions/crm/opportunities/approval.ts` +26 more |
+| `NEXT_PUBLIC_APP_NAME` |  | no |  | `actions/admin/send-mail-to-all/index.ts`, `actions/admin/users/activate-user.ts`, `actions/crm/accounts/create-task.ts` +25 more |
+| `NEXT_PUBLIC_APP_URL` |  | no |  | `actions/admin/users/activate-user.ts`, `actions/crm/contacts/create-contact.ts`, `actions/crm/opportunities/approval.ts` +27 more |
 | `NEXT_PUBLIC_DISCORD_INVITE_URL` |  | no |  | `components/support.tsx` |
 | `NEXT_PUBLIC_GITHUB_ISSUES_URL` |  | no |  | `components/support.tsx` |
 | `NEXT_PUBLIC_GITHUB_REPO_API` |  | no |  | `actions/github/get-repo-stars.ts` |
-| `NEXT_PUBLIC_GITHUB_REPO_URL` |  | no |  | `app/[locale]/(auth)/layout.tsx` |
 | `NEXT_PUBLIC_GITHUB_TOKEN` |  | no |  | `actions/github/get-repo-stars.ts` |
 | `NEXT_PUBLIC_NEXT_VERSION` |  | no |  | `app/[locale]/(routes)/components/Footer.tsx` |
 | `NEXT_RUNTIME` |  | no |  | `instrumentation.ts` |
-| `NODE_ENV` |  | no |  | `app/api/auth/test-otp/route.ts`, `app/api/profile/calendar-connections/google/authorize/route.ts`, `app/api/profile/calendar-connections/google/callback/route.ts` +4 more |
+| `NEXUS360_BOOTSTRAP_ADMIN_EMAIL` |  | yes | Render production bootstrap owner. Set these once before first database seed; never commit real values. The password is used only when the owner profile is first created, and later admin password resets do not get overwritten. | `prisma/seeds/seed.ts` |
+| `NEXUS360_BOOTSTRAP_ADMIN_NAME` |  | yes | Render production bootstrap owner. Set these once before first database seed; never commit real values. The password is used only when the owner profile is first created, and later admin password resets do not get overwritten. | `prisma/seeds/seed.ts` |
+| `NEXUS360_BOOTSTRAP_ADMIN_PASSWORD` |  | yes | Render production bootstrap owner. Set these once before first database seed; never commit real values. The password is used only when the owner profile is first created, and later admin password resets do not get overwritten. | `prisma/seeds/seed.ts` |
+| `NEXUS360_SHEETS_PRIVATE_KEY` |  | yes | Nexus 360 Google Sheets read-only audit. Share the master workbook with this service-account email as Viewer. Keep the private key in the deployment's secret manager; store newlines as literal \\n | `lib/nexus-sheets/read-only-audit.ts` |
+| `NEXUS360_SHEETS_SERVICE_ACCOUNT_EMAIL` |  | yes | Nexus 360 Google Sheets read-only audit. Share the master workbook with this service-account email as Viewer. Keep the private key in the deployment's secret manager; store newlines as literal \\n | `lib/nexus-sheets/read-only-audit.ts` |
+| `NEXUS360_SHEETS_SPREADSHEET_ID` |  | yes | Nexus 360 Google Sheets read-only audit. Share the master workbook with this service-account email as Viewer. Keep the private key in the deployment's secret manager; store newlines as literal \\n | `lib/nexus-sheets/read-only-audit.ts` |
+| `NODE_ENV` |  | no |  | `app/api/profile/calendar-connections/google/authorize/route.ts`, `app/api/profile/calendar-connections/google/callback/route.ts`, `lib/enrichment/rate-limit.ts` +3 more |
 | `OPENAI_API_KEY` |  | yes | AI. Leave empty to use keys saved in the admin panel. | `inngest/functions/documents/enrich-document.ts`, `inngest/lib/embedding-utils.ts` |
 | `PLUGIN_HTTP_ALLOW_PRIVATE_HOSTS` |  | no |  | `lib/plugins/http.ts` |
 | `REDIS_URL` |  | no |  | `app/api/mcp/[transport]/route.ts` |
@@ -67,4 +72,5 @@ Every variable listed in `.env.example` or read as `process.env.NAME` in the app
 | `TARGET_EMAIL` |  | no |  | `lib/enrichment/e2b/agent-script.ts` |
 | `TARGET_NAME` |  | no |  | `lib/enrichment/e2b/agent-script.ts` |
 | `TEST_USER_EMAIL` |  | no |  | `prisma/seeds/seed.ts` |
+| `TEST_USER_PASSWORD` |  | no |  | `prisma/seeds/seed.ts` |
 | `UPSTASH_REDIS_REST_URL` |  | no |  | `lib/enrichment/rate-limit.ts` |

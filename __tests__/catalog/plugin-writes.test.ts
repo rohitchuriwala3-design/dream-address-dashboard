@@ -10,7 +10,7 @@ jest.mock("@/lib/audit-log", () => ({ writeAuditLog: jest.fn() }));
 
 import { replaceExternalPriceList, upsertExternalCategory, upsertExternalProduct } from "@/lib/catalog/plugin-writes";
 
-const product = { name: "Cup", sku: "800004", description: null, type: "PRODUCT" as const, status: "ACTIVE" as const, unit_price: "1.89", unit_cost: "0.9", currency: "CCC", tax_rate: "21", unit: "ks", categoryRef: "7" };
+const product = { name: "Cup", sku: "800004", description: null, type: "PRODUCT" as const, status: "ACTIVE" as const, unit_price: "1.89", unit_cost: "0.9", currency: "INR", tax_rate: "21", unit: "pcs", categoryRef: "7" };
 const key = (ref: string) => ({ source_externalRef: { source: "EXTERNAL", externalRef: ref } });
 
 beforeEach(() => jest.clearAllMocks());
@@ -60,7 +60,7 @@ it("replaces a list and all its rules in one transaction", async () => {
   db.crm_PriceLists.findUnique.mockResolvedValue({ id: "L1", source: "EXTERNAL" });
   db.crm_Products.findUnique.mockResolvedValue({ id: "p1", source: "EXTERNAL" });
   db.crm_PriceLists.update.mockResolvedValue({ id: "L1" });
-  expect(await replaceExternalPriceList("odoo", "245", { name: "Gold", currency: "CCC", isActive: true }, [rule])).toEqual({ id: "L1" });
+  expect(await replaceExternalPriceList("odoo", "245", { name: "Gold", currency: "INR", isActive: true }, [rule])).toEqual({ id: "L1" });
   expect(db.$transaction).toHaveBeenCalledTimes(1);
   expect(db.crm_PriceListRules.deleteMany).toHaveBeenCalledWith({ where: { priceListId: "L1" } });
   expect(db.crm_PriceListRules.createMany.mock.calls[0][0].data[0]).toMatchObject({ priceListId: "L1", productId: "p1", appliesTo: "PRODUCT", minQuantity: "1000", fixedPrice: "1.51", externalRef: "1285" });
@@ -69,7 +69,7 @@ it("replaces a list and all its rules in one transaction", async () => {
 it("fails the whole replace on an unknown product ref, before writing", async () => {
   db.crm_PriceLists.findUnique.mockResolvedValue({ id: "L1", source: "EXTERNAL" });
   db.crm_Products.findUnique.mockResolvedValue(null);
-  await expect(replaceExternalPriceList("odoo", "245", { name: "Gold", currency: "CCC", isActive: true }, [rule])).rejects.toThrow("Unknown product ref: 332");
+  await expect(replaceExternalPriceList("odoo", "245", { name: "Gold", currency: "INR", isActive: true }, [rule])).rejects.toThrow("Unknown product ref: 332");
   expect(db.crm_PriceListRules.deleteMany).not.toHaveBeenCalled();
 });
 
@@ -77,7 +77,7 @@ it("refuses a base list that is not EXTERNAL", async () => {
   // Ref 234 is not an EXTERNAL list (a CRM list can never be found by external ref).
   db.crm_PriceLists.findUnique.mockImplementation(async ({ where }: any) => (where.source_externalRef.externalRef === "245" ? { id: "L1", source: "EXTERNAL" } : null));
   const r = { ...rule, appliesTo: "ALL" as const, productRef: null, base: "PRICE_LIST" as const, basePriceListRef: "234" };
-  await expect(replaceExternalPriceList("odoo", "245", { name: "Gold", currency: "CCC", isActive: true }, [r])).rejects.toThrow("Unknown base price list ref: 234");
+  await expect(replaceExternalPriceList("odoo", "245", { name: "Gold", currency: "INR", isActive: true }, [r])).rejects.toThrow("Unknown base price list ref: 234");
   expect(db.crm_PriceListRules.deleteMany).not.toHaveBeenCalled();
 });
 
@@ -85,7 +85,7 @@ it("stamps rules in array order so later rules win ties, like Odoo's id desc (re
   db.crm_PriceLists.findUnique.mockResolvedValue({ id: "L1", source: "EXTERNAL" });
   db.crm_PriceLists.update.mockResolvedValue({ id: "L1" });
   const all = { ...rule, appliesTo: "ALL" as const, productRef: null };
-  await replaceExternalPriceList("odoo", "245", { name: "Gold", currency: "CCC", isActive: true }, [{ ...all, externalRef: "7" }, { ...all, externalRef: "12" }]);
+  await replaceExternalPriceList("odoo", "245", { name: "Gold", currency: "INR", isActive: true }, [{ ...all, externalRef: "7" }, { ...all, externalRef: "12" }]);
   const [a, b] = db.crm_PriceListRules.createMany.mock.calls[0][0].data;
   expect(b.createdAt.getTime()).toBeGreaterThan(a.createdAt.getTime());
 });

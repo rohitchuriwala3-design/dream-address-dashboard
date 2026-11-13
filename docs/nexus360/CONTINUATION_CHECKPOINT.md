@@ -1,6 +1,18 @@
 # Nexus 360 continuation checkpoint
 
-Updated: 2026-11-13 (Asia/Kolkata)
+Updated: 2026-11-14 (Asia/Kolkata)
+
+## Latest continuation — Phase 1 local regression complete — 2026-11-14
+
+- Continue Phase 1 only. Checklist is 17/27 (63%), health 81/100; do not claim the required 95-point release gate. Phase 4 Sheet business-record sync is paused at 22%.
+- Docker Desktop now runs the isolated local PostgreSQL 17/pgvector test DB on loopback port 5433. All 72 migrations were applied locally. Set `DATABASE_URL=postgresql://nextcrm:nextcrm@127.0.0.1:5433/nextcrm`, plus `INNGEST_ID=mark4-jest` and `INNGEST_APP_NAME=MARK IV tests`, for Jest. The previous DB host `base` error was missing test-process config; never target staging for local tests.
+- Latest full Jest: 422/426 suites, 3,163/3,168 tests pass. Five known failures remain in deferred Odoo timezone tests (3) and E2B enrichment shell-path test (1). Jest `--forceExit` is needed due to async handles left by unrelated enrichment tests. Phase 1 focused regressions pass; details and commands are recorded in `V1_WORKFLOW_CHECKLIST.md` and `BUILD_STATUS.md`.
+- After the full run, targeted suites passed for semantic search, campaign concurrency, CRM price-list and plugin data fixtures, upload-signature validation with dummy local MinIO variables, CRM import, generated docs, and the authz/report/user gates. Do not add overlapping targeted totals.
+- `pnpm lint`, `pnpm exec tsc --noEmit`, `pnpm i18n:check`, `pnpm docs:reference --check` (with Inngest ID set), and `git diff --check` pass.
+- Worktree: `work/nexus360-live-integration`, branch `nexus360-rebuild-staging`. Local Phase 1 and earlier Phase 4 edits remain uncommitted. Latest verified live staging remains `3b04c31`; no push/deploy, Sheet mutation, credential change, profile/role edit, or production change occurred here.
+- Sheet connection has a verified log-only write/read round trip; no CRM, project, invoice or finance business records sync either way. Do not resume Phase 4 yet.
+- Render free-tier health recheck: the first request timed out while waking. Logs show PostgreSQL ready, no pending migrations, five existing users and Next.js ready; login returned 200 and the warm health request returned 200/database `ok`.
+- Next gates: authenticated disposable-user login/reset/reuse and role-change/negative-access browser checks; verify persisted India/INR and company issuer settings; private-file authorization; phone-sized workflow review. Reconfirm company identity/address fields with owner before saving or issuing official documents. Then run the Phase 1 acceptance suite and deploy only to isolated staging for live verification. Stop at Phase 1; do not start Phase 1B/Phase 2.
 
 ## Latest continuation — 2026-11-13 19:28 IST
 
@@ -151,6 +163,24 @@ Follow `V1_WORKFLOW_CHECKLIST.md` in order and use its cumulative regression gat
 - No deployment, commit/push, Sheet edit, staging account/role/password mutation, or production change. Current local code batch is not deployed; preserve unrelated Phase 4 files and do not stage/push/deploy unless the user explicitly resumes that step.
 - Remaining Phase 1 gates: authenticated disposable-user create/retry/reset/reuse/sign-in and negative permission/role boundaries; runtime persisted INR and issuer review; remaining active locale surfaces outside the scanned runtime directories; phone-size task completion and private-file authorization; staging verification of this batch. Once available, rerun cumulative Phase 1 and earlier-phase gates, update the score, and stop at Phase 1 completion.
 
+## Staging rollout and recheck — commit `4cad86d`
+
+- Phase 1-only access batch was committed and pushed to `nexus360-rebuild-staging`; Render deploy `dep-dbrh60p42hec73bl8q9g` succeeded. Only Phase 1 code/docs were staged; the paused Sheets business-sync source files were explicitly excluded. Production `main`/legacy Render service were not changed.
+- Render startup: `nexus360_test_db`, 72 migrations found, no pending migrations; five existing users, so seeding skipped. App became ready. `/api/health` returned 200/database OK. Sign-in route returned 200; unauthenticated admin pages redirected to sign-in.
+- Live anonymous safety probes: CRM contact PATCH, target PATCH, reports export, and protected document-file endpoint each returned 401 Unauthorized. No app records were written.
+- Current tracker: Phase 1 17/27 (63%); overall 30/90 (33%); health 77/100 (weighted breakdown in `PROJECT_PROGRESS.html`). The 95-point exit gate is not met. Current health breakdown: functionality 84, data 75, access 90, mobile/usability 44, integrations 55, deployment 85.
+- Local cumulative checks: 1,131 tests across 173 suites; TypeScript, focused campaign lint, `git diff --check`, and production build pass. The build warns that `metadataBase` is unset; this is non-fatal.
+- External Render SQL remains unavailable because the database IP allowlist is empty. Do not change it. Persisted currency/issuer values are therefore unconfirmed; the read-only runtime scan found no foreign currency/Czech/Russian references in active `app/actions/components/lib` source.
+- Remaining user-dependent verification: sign in with an authorized disposable admin and verify profile create/retry, password reset/reuse rejection and sign-in; verify role changes and restricted-user boundaries; visually inspect the updated invite form; inspect runtime INR/issuer settings, mobile workflows and authenticated private file access. Do not use or reset the owner's credential. Keep Phase 4 at 22% and stop after Phase 1 completion; do not begin Phase 1B or Phase 2.
+- The user has now advanced the prior pause and authorized Phase 1 continuation/staging upload. Next action: continue the above remaining Phase 1 checks; no new user input is required except an authenticated disposable-admin credential/session for protected workflows.
+- The local `PROJECT_PROGRESS.html` was updated with the 77/100 staging recheck. Chrome security policy blocked reading/reloading the `file:` dashboard URL, so the local dashboard tab may show stale content until the user refreshes it manually. Do not try an alternate browser/API to bypass that restriction.
+
+## Admin guidance correction — commit `669aefc`
+
+- Found the invite form still said module enforcement was incomplete even though the Phase 1 access batch was deployed. Updated its copy to say that selected permissions are enforced on the current CRM, Projects, Finance, Reports and Documents server workflows, with record-level restrictions and full Admin access retained.
+- Read-only audit: 228 `requirePermission` checks exist in production actions/API routes. Remaining `requireAuthenticated` references resolve to admin-only user lookup, a search action with per-module filters, price lists with view/manage guards, and opportunity-line-item reads with `crm.view` plus parent-opportunity record scope. Remaining extra matches are test fixtures/comments.
+- TypeScript, focused invite-form ESLint, and diff check pass. Commit `669aefc` deployed successfully; `/api/health` is 200/database OK. Unauthenticated Admin → Users redirects to sign-in. The dedicated Chrome tab remains at sign-in; no credentials were entered. If the owner signs in with a disposable admin, visually verify the copy and continue the remaining authenticated checks.
+
 ## Access-control continuation — 2026-11-13 18:02 IST
 
 - Status: PARTIAL. The local CRM permission-enforcement batch is uncommitted and must remain separate from the unrelated Phase 4 Sheets changes already present in the worktree.
@@ -158,3 +188,33 @@ Follow `V1_WORKFLOW_CHECKLIST.md` in order and use its cumulative regression gat
 - Evidence: 73 focused CRM/authz suites (394 tests), TypeScript, focused ESLint, and `git diff --check` passed locally.
 - Deployment check: a read-only `curl` request to `https://nexus360-rebuild-staging.onrender.com/api/health` timed out after 15 seconds with HTTP `000`. No deploy, account, role, password, database, Sheet, or production change was made.
 - Next safe action: establish why isolated staging is timing out, then use a disposable profile to test create/retry/reset/sign-in and negative role boundaries; stage only reviewed Phase 1 files.
+
+## Latest Phase 1 continuation — 2026-11-13 19:50 IST
+
+- Deployed quote issuer fix `eebf36f` to isolated staging; Render deploy `dep-dbrhlk942hec73bm0qqg` is live. Health is HTTP 200/database ok; anonymous quote API access is denied with 401; localized sign-in redirects as expected.
+- Focused quote tests (2), TypeScript, targeted ESLint and diff checks pass. Quotation PDF takes the issuer from Invoice Settings, fallback Dream Space Studios; no quote UI was visually verified due missing authenticated session.
+- Current Phase 1 health estimate is 78/100, below the 95 exit requirement. Stop after Phase 1; Phase 4 Sheet business sync remains paused at 22%; do not begin Phase 1B or Phase 2.
+- Active source has 8–128 character invite/reset limits; no 12-character source rule. Screenshot mismatch needs live visual verification.
+- Need a usable disposable admin sign-in for profile, password reuse, editable-role, permission, settings and private-file checks. Do not retry the rejected test password or reset accounts. Then run cumulative Phase 1 regression, mobile review and final score.
+
+## Phase 1 signed-in verification — 2026-11-13 19:53 IST
+
+- Signed-in admin session confirmed in staging Chrome. User management page layout is visibly improved; password reset displays low-strength guidance under 8 and disables submit; role-change dialog presents all four roles. QA role left unchanged; no password was reset.
+- Active currency page shows INR enabled. Invoice Settings shows India and INR defaults, but required company name/address/city/postal details are blank and were not saved. Issuer setup remains a release blocker.
+- Current health is 81/100 (functionality 89, data 82, access 90, desktop usability/mobile 50, integrations 55, deployment 90); below the 95 gate. Phone-sized checks, fresh login/live password-reuse checks, persisted role/permission tests, private-file read and cumulative Phase 1 regression remain open.
+- No production, Sheet, account, role or business-record changes made. Phase 4 remains paused at 22%; stay on Phase 1.
+
+## Phase 1 responsive settings follow-up — 2026-11-13 20:03 IST
+
+- `3b04c31` is deployed and live on isolated staging. Invoice Settings groups now collapse to one column on phone widths, show clear issuer-purpose text, and expand at desktop breakpoints. The signed-in page confirms INR base currency and India default; issuer company/address values remain blank and untouched.
+- Render build and TypeScript passed; no migrations pending. Health 200/database OK; login redirect expected. Targeted ESLint and diff checks pass. Phase 1 score remains 81/100; no phone viewport visual pass or full cumulative test yet.
+- Template editor accepted into Phase 2 checklist; no work from Phase 2 was started.
+
+## Phase 1 regression gate follow-up — 2026-11-13
+
+- Status: PARTIAL; still Phase 1 only. Repo `work/nexus360-live-integration`, branch `nexus360-rebuild-staging`, HEAD `3b04c31a526d65891a70b1a16603a4367534c048`; no source commit/deploy was made in this run. Phase 4 Sheets work remains preserved and paused at 22%.
+- Passed: Phase 1 user-management/currency/CRM settings regression, 9 suites / 59 tests; `pnpm exec tsc --noEmit`; full `pnpm lint`; `pnpm i18n:check`.
+- Full Jest attempted and blocked by unreachable configured test database hostname `base`; Docker Desktop is installed but its engine/API socket has not initialized. Stopped the run after confirming DB connection failures. No staging DB/migrations/seeds were touched.
+- Health remains 81/100 (gate 95). Remaining evidence: isolated DB-backed full regression; complete issuer/address particulars and saved settings; live password reset/reuse and persisted role/boundary checks on disposable profiles; private file access; phone viewport; readback of persisted issuer settings.
+- No credentials, roles, users, settings, business data, Sheet data, or production deployment changed. Existing staging deployment `3b04c31` remains the last verified live code state.
+- Next safe action: provide complete verified invoice issuer/address details and a safe disposable staging account for authorized password/role boundary checks; make an isolated Postgres test DB reachable for the full regression. Do not start Phase 1B, Phase 2, or Phase 4.

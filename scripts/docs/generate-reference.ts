@@ -1,7 +1,7 @@
 // Generates the reference pages in apps/docs/content/docs/reference/ from the code.
 // Usage: pnpm docs:reference [--check]
 // Output is deterministic (sorted, no timestamps) so CI can regenerate and diff.
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
@@ -98,7 +98,7 @@ function mcpPage(): string {
 
 // ── Roles ───────────────────────────────────────────────────────────────
 function rolesPage(): string {
-  const entryPoints = execSync("git ls-files -- '*.ts' '*.tsx'", { encoding: "utf8" })
+  const entryPoints = execFileSync("git", ["ls-files", "--", "*.ts", "*.tsx"], { encoding: "utf8" })
     .split("\n")
     .filter((f) => f && !f.includes("__tests__") && !f.startsWith("tests/"))
     .filter((f) => !["lib/auth-server.ts", "lib/authz/session.ts"].includes(f))
@@ -133,11 +133,15 @@ function rolesPage(): string {
 // ── Environment variables ───────────────────────────────────────────────
 function envPage(): string {
   const example = new Map<string, string>();
-  const lines = readFileSync(".env.example", "utf8").split("\n");
+  const lines = readFileSync(".env.example", "utf8").split(/\r?\n/);
   lines.forEach((line, i) => {
-    const m = line.match(/^([A-Z][A-Z0-9_]*)=(?:"[^"]*"|[^#\s]*)\s*(?:#\s*(.*))?$/);
+    // Allow an empty value padded with spaces before an inline comment, as in
+    // `EMAIL_FROM=                # verified sender`. The previous pattern
+    // treated those documented variables as absent.
+    const m = line.match(/^([A-Z][A-Z0-9_]*)=(.*)$/);
     if (!m) return;
-    let purpose = m[2]?.trim() ?? "";
+    const inlineComment = m[2].match(/\s+#\s*(.*)$/);
+    let purpose = inlineComment?.[1]?.trim() ?? "";
     if (!purpose) {
       // The comment block above this line or above its group of variables.
       let j = i - 1;
@@ -150,7 +154,7 @@ function envPage(): string {
   });
 
   const readIn = new Map<string, Set<string>>();
-  const files = execSync("git ls-files -- '*.ts' '*.tsx' '*.js' '*.mjs' '*.cjs'", { encoding: "utf8" })
+  const files = execFileSync("git", ["ls-files", "--", "*.ts", "*.tsx", "*.js", "*.mjs", "*.cjs"], { encoding: "utf8" })
     .split("\n")
     .filter((f) => f && !/^(apps|docs|scripts|tests|e2e|__mocks__)\//.test(f))
     .filter((f) => !/(__tests__\/|\.test\.|\.spec\.|^jest\.|^playwright\.)/.test(f));

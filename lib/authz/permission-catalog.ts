@@ -7,6 +7,7 @@ export const NEXUS_PERMISSIONS = [
   { key: "finance.view", label: "Finance", description: "View invoices, expenses and treasury" },
   { key: "finance.manage", label: "Manage finance", description: "Create and update financial records" },
   { key: "reports.view", label: "Analytics and reports", description: "View reports and performance analytics" },
+  { key: "reports.manage", label: "Manage reports", description: "Create, edit, share, schedule and delete report configurations" },
   { key: "sheets.audit", label: "Sheet audit", description: "Review spreadsheet connection and data quality" },
 ] as const;
 

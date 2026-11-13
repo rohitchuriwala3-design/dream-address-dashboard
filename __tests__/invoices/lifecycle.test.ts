@@ -70,6 +70,7 @@ import { cancelInvoice } from "@/actions/invoices/cancel-invoice";
 import { duplicateInvoice } from "@/actions/invoices/duplicate-invoice";
 import { addPayment } from "@/actions/invoices/add-payment";
 import { prismadb } from "@/lib/prisma";
+import { randomUUID } from "crypto";
 
 /* ------------------------------------------------------------------
  * Helpers
@@ -77,8 +78,8 @@ import { prismadb } from "@/lib/prisma";
 
 /** IDs populated in beforeAll */
 let testAccountId: string;
-let testTaxRateId: string | undefined;
 let testSeriesId: string | undefined;
+let testTreasuryAccountId: string;
 
 /** Track invoices created so we can clean up */
 const createdInvoiceIds: string[] = [];
@@ -90,7 +91,7 @@ function draftPayload(
 ) {
   return {
     accountId: testAccountId,
-    currency: "BBB",
+    currency: "INR",
     type: "INVOICE",
     lineItems: [
       {
@@ -99,7 +100,6 @@ function draftPayload(
         quantity: 1,
         unitPrice: 100,
         discountPercent: 0,
-        ...(testTaxRateId ? { taxRateId: testTaxRateId } : {}),
         ...lineOverrides,
       },
     ],
@@ -138,11 +138,10 @@ beforeAll(async () => {
   });
   testAccountId = account.id;
 
-  // Find an active tax rate (may not exist in test DB)
-  const taxRate = await prismadb.invoice_TaxRates.findFirst({
-    where: { active: true },
+  const treasuryAccount = await prismadb.treasuryAccount.create({
+    data: { name: "Lifecycle test cash account", currency: "INR", createdBy: existingUser.id },
   });
-  testTaxRateId = taxRate?.id;
+  testTreasuryAccountId = treasuryAccount.id;
 
   // Find or create a series + settings (required for issuing)
   let series = await prismadb.invoice_Series.findFirst();
@@ -164,13 +163,10 @@ beforeAll(async () => {
 
   let settings = await prismadb.invoice_Settings.findFirst();
   if (!settings) {
-    // Find a base currency
-    let currency = await prismadb.currency.findFirst({
-      where: { isEnabled: true },
-    });
+    let currency = await prismadb.currency.findUnique({ where: { code: "INR" } });
     if (!currency) {
       currency = await prismadb.currency.create({
-        data: { code: "BBB", name: "Currency B", symbol: "$", isEnabled: true },
+        data: { code: "INR", name: "Indian Rupee", symbol: "₹", isEnabled: true },
       });
     }
     await prismadb.invoice_Settings.create({
@@ -186,6 +182,18 @@ beforeAll(async () => {
 afterAll(async () => {
   // Clean up test invoices (payments + line items cascade in schema)
   if (createdInvoiceIds.length > 0) {
+    const payments = await prismadb.invoice_Payments.findMany({
+      where: { invoiceId: { in: createdInvoiceIds } },
+      select: { id: true },
+    });
+    const treasuryTransactions = await prismadb.treasuryTransaction.findMany({
+      where: { sourceType: "invoice_payment", sourceId: { in: payments.map(({ id }) => id) } },
+      select: { id: true },
+    });
+    if (treasuryTransactions.length) {
+      await prismadb.treasuryEntry.deleteMany({ where: { transactionId: { in: treasuryTransactions.map(({ id }) => id) } } });
+      await prismadb.treasuryTransaction.deleteMany({ where: { id: { in: treasuryTransactions.map(({ id }) => id) } } });
+    }
     // Delete payments first
     await prismadb.invoice_Payments.deleteMany({
       where: { invoiceId: { in: createdInvoiceIds } },
@@ -203,6 +211,7 @@ afterAll(async () => {
       where: { id: { in: createdInvoiceIds } },
     });
   }
+  await prismadb.treasuryAccount.delete({ where: { id: testTreasuryAccountId } });
   await prismadb.crm_Accounts.delete({ where: { id: testAccountId } });
   await prismadb.$disconnect();
 });
@@ -251,6 +260,8 @@ describe("Invoice lifecycle", () => {
     // Partial payment
     await addPayment({
       invoiceId: draft.id,
+      treasuryAccountId: testTreasuryAccountId,
+      idempotencyKey: randomUUID(),
       amount: 50,
       paidAt: new Date(),
       method: "Bank",
@@ -266,6 +277,8 @@ describe("Invoice lifecycle", () => {
 
     await addPayment({
       invoiceId: draft.id,
+      treasuryAccountId: testTreasuryAccountId,
+      idempotencyKey: randomUUID(),
       amount: remaining,
       paidAt: new Date(),
       method: "Bank",

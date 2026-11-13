@@ -25,6 +25,7 @@ export async function requirePermission(
     "crm.view": "crm.manage",
     "projects.view": "projects.manage",
     "finance.view": "finance.manage",
+    "reports.view": "reports.manage",
   };
   if (!permissions.includes(permission) && (!impliedBy[permission] || !permissions.includes(impliedBy[permission]!))) {
     throw new AuthorizationError();
@@ -44,6 +45,7 @@ export async function requireAnyPermission(
     "crm.view": "crm.manage",
     "projects.view": "projects.manage",
     "finance.view": "finance.manage",
+    "reports.view": "reports.manage",
   };
   if (!permissions.some((permission) => granted.has(permission) || (impliedBy[permission] && granted.has(impliedBy[permission]!)))) {
     throw new AuthorizationError();

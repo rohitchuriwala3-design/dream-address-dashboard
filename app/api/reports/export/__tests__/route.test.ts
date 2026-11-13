@@ -1,6 +1,9 @@
 jest.mock("@/lib/auth-server", () => ({ getSession: jest.fn() }));
 jest.mock("@/lib/prisma", () => ({
-  prismadb: { users: { findUnique: jest.fn() } },
+  prismadb: {
+    users: { findUnique: jest.fn() },
+    nexusUserPermission: { findMany: jest.fn().mockResolvedValue([{ key: "reports.view" }]) },
+  },
 }));
 
 jest.mock("@/actions/reports/sales", () => ({
@@ -38,7 +41,10 @@ const fu = prismadb.users.findUnique as jest.MockedFunction<
   typeof prismadb.users.findUnique
 >;
 
-beforeEach(() => jest.clearAllMocks());
+beforeEach(() => {
+  jest.clearAllMocks();
+  (prismadb.nexusUserPermission.findMany as jest.Mock).mockResolvedValue([{ key: "reports.view" }]);
+});
 
 describe("GET /api/reports/export", () => {
   it("401 unauth", async () => {

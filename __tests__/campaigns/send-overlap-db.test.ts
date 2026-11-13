@@ -15,6 +15,7 @@ jest.mock("@/lib/auth-server", () => ({ getSession: jest.fn() }));
 jest.mock("@/lib/authz", () => ({
   ...jest.requireActual("@/lib/authz"),
   requireRole: jest.fn(async () => ({ id: "admin", role: "admin" })),
+  requirePermission: jest.fn(async () => ({ id: "admin", role: "admin" })),
   assertCanReadCampaign: jest.fn(async () => undefined),
 }));
 let mockAtFirstStep: () => Promise<void> = async () => undefined;

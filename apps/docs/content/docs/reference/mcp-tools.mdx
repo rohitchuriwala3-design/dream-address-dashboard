@@ -414,7 +414,7 @@ Create a new CRM contract with optional line items
 | --- | --- | --- | --- | --- |
 | `account` | `string (uuid)` | no |  |  |
 | `assigned_to` | `string (uuid)` | no |  |  |
-| `currency` | `string` | no |  |  |
+| `currency` | `"INR"` | no |  |  |
 | `description` | `string` | no |  |  |
 | `endDate` | `string (date-time)` | no |  |  |
 | `lineItems` | `object[]` | no |  |  |
@@ -458,7 +458,7 @@ Update an existing CRM contract by ID (does not modify line items — use separa
 | --- | --- | --- | --- | --- |
 | `account` | `string (uuid)` | no |  |  |
 | `assigned_to` | `string (uuid)` | no |  |  |
-| `currency` | `string` | no |  |  |
+| `currency` | `"INR"` | no |  |  |
 | `description` | `string` | no |  |  |
 | `endDate` | `string (date-time)` | no |  |  |
 | `id` | `string (uuid)` | yes |  |  |
@@ -686,7 +686,7 @@ Create a new CRM opportunity
 | --- | --- | --- | --- | --- |
 | `budget` | `integer` | no |  |  |
 | `close_date` | `string (date-time)` | no |  |  |
-| `currency` | `string` | no |  |  |
+| `currency` | `"INR"` | no |  |  |
 | `description` | `string` | no |  |  |
 | `expected_revenue` | `integer` | no |  |  |
 | `name` | `string` | yes |  |  |
@@ -746,7 +746,7 @@ Update an existing CRM opportunity by ID
 | `budget` | `integer` | no |  |  |
 | `close_date` | `string (date-time)` | no |  |  |
 | `contact` | <code>{"string (uuid) \u007c null"}</code> | no |  |  |
-| `currency` | `string` | no |  |  |
+| `currency` | `"INR"` | no |  |  |
 | `description` | `string` | no |  |  |
 | `expected_revenue` | `integer` | no |  |  |
 | `id` | `string (uuid)` | yes |  |  |
@@ -864,7 +864,7 @@ Create a price list (manager or admin)
 
 | Field | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `currency` | `string` | yes |  |  |
+| `currency` | `"INR"` | no | `"INR"` |  |
 | `name` | `string` | yes |  |  |
 
 ### `crm_delete_price_list_rule`
@@ -908,11 +908,11 @@ List price lists (active by default)
 
 ### `crm_update_price_list`
 
-Rename a price list, change its currency or (de)activate it (manager or admin; not external lists)
+Rename an INR price list or (de)activate it (manager or admin; not external lists)
 
 | Field | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `currency` | `string` | no |  |  |
+| `currency` | `"INR"` | no |  |  |
 | `id` | `string` | yes |  |  |
 | `isActive` | `boolean` | no |  |  |
 | `name` | `string` | no |  |  |
@@ -952,12 +952,11 @@ Create a new CRM product
 | --- | --- | --- | --- | --- |
 | `billing_period` | <code>{"\"MONTHLY\" \u007c \"QUARTERLY\" \u007c \"SEMIANNUALLY\" \u007c \"ANNUALLY\""}</code> | no |  |  |
 | `categoryId` | `string (uuid)` | no |  |  |
-| `currency` | `string` | yes |  |  |
+| `currency` | `"INR"` | yes |  |  |
 | `description` | `string` | no |  |  |
 | `is_recurring` | `boolean` | no |  |  |
 | `name` | `string` | yes |  |  |
 | `sku` | `string` | no |  |  |
-| `tax_rate` | `number` | no |  |  |
 | `type` | <code>{"\"PRODUCT\" \u007c \"SERVICE\""}</code> | yes |  |  |
 | `unit` | `string` | no |  |  |
 | `unit_cost` | `number` | no |  |  |
@@ -997,14 +996,13 @@ Update an existing CRM product by ID
 | --- | --- | --- | --- | --- |
 | `billing_period` | <code>{"\"MONTHLY\" \u007c \"QUARTERLY\" \u007c \"SEMIANNUALLY\" \u007c \"ANNUALLY\""}</code> | no |  |  |
 | `categoryId` | `string (uuid)` | no |  |  |
-| `currency` | `string` | no |  |  |
+| `currency` | `"INR"` | no |  |  |
 | `description` | `string` | no |  |  |
 | `id` | `string (uuid)` | yes |  |  |
 | `is_recurring` | `boolean` | no |  |  |
 | `name` | `string` | no |  |  |
 | `sku` | `string` | no |  |  |
 | `status` | <code>{"\"DRAFT\" \u007c \"ACTIVE\" \u007c \"ARCHIVED\""}</code> | no |  |  |
-| `tax_rate` | `number` | no |  |  |
 | `type` | <code>{"\"PRODUCT\" \u007c \"SERVICE\""}</code> | no |  |  |
 | `unit` | `string` | no |  |  |
 | `unit_cost` | `number` | no |  |  |

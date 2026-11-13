@@ -44,6 +44,9 @@ beforeAll(async () => {
       { id: U.other, email: `other-${tag}@link.test`, name: `other-${tag}`, role: "user", userStatus: "ACTIVE" },
     ],
   });
+  await prismadb.nexusUserPermission.createMany({
+    data: [U.rep, U.other].map((userId) => ({ userId, key: "crm.manage" })),
+  });
   for (const k of ["rep", "other"] as const) {
     await prismadb.crm_Accounts.create({
       data: { id: ACC[k], v: 0, name: `${k}-${tag}`, assigned_to: U[k], createdBy: U[k] },

@@ -24,10 +24,6 @@ const REVIEWED: Record<string, string> = {
   "actions/emails/messages.ts#deleteEmail": "findFirst where { id, userId } before the write",
   "actions/emails/messages.ts#getEmail": "findFirst where { id, userId }; writes only the caller's own email",
   "actions/emails/messages.ts#sendEmail": "accountId: findFirst where { id, userId }",
-  "actions/reports/config.ts#deleteConfig": "loadAndAuthorize (owner, manager or admin)",
-  "actions/reports/config.ts#toggleShare": "loadAndAuthorize (owner, manager or admin)",
-  "actions/reports/schedule.ts#deleteSchedule": "loadAndAuthorizeSchedule (owner, manager or admin)",
-  "actions/reports/schedule.ts#updateSchedule": "loadAndAuthorizeSchedule (owner, manager or admin)",
   "actions/user/set-language.ts#setLanguage": "userId must be the caller unless admin",
   "actions/user/update-profile.ts#updateProfile": "userId must be the caller unless admin",
 };

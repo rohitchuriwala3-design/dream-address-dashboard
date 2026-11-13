@@ -44,6 +44,7 @@ import {
 } from "@/lib/authz";
 import { getSession } from "@/lib/auth-server";
 import { prismadb } from "@/lib/prisma";
+import resendHelper from "@/lib/resend";
 import { updateAccount } from "@/actions/crm/accounts/update-account";
 import { deleteAccount } from "@/actions/crm/accounts/delete-account";
 import { watchAccount } from "@/actions/crm/accounts/watch-account";
@@ -137,5 +138,15 @@ describe("createTask", () => {
     const arg = taskCreate.mock.calls[0][0].data;
     expect(arg.createdBy).toBe("owner"); // authenticated caller, NOT "assignee-id"
     expect(arg.user).toBe("assignee-id"); // input user is the assignee
+  });
+
+  it("creates a task when the optional email provider is not configured", async () => {
+    assertAccount.mockResolvedValue(undefined);
+    (resendHelper as jest.Mock).mockRejectedValueOnce(new Error("Resend is not configured"));
+
+    const res = await createTask({ ...input, account: "acc-1" } as any);
+
+    expect(res).toMatchObject({ data: { id: "task-1" } });
+    expect(taskCreate).toHaveBeenCalled();
   });
 });

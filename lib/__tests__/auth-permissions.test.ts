@@ -21,8 +21,8 @@ describe("BetterAuth access-control roles", () => {
     ["admin", admin],
     ["manager", manager],
     ["user", user],
-  ])("%s is granted no BetterAuth admin endpoint", (_, role) => {
+  ])("%s receives only its intended BetterAuth admin endpoint grants", (roleName, role) => {
     const grants = (role as any).grants as Record<string, readonly string[]>;
-    expect(Object.values(grants).flat()).toEqual([]);
+    expect(Object.values(grants).flat()).toEqual(roleName === "admin" ? ["set-password"] : []);
   });
 });

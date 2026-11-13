@@ -4,7 +4,7 @@ import { requirePermission, isManagerOrAdmin, AuthorizationError } from "@/lib/a
 import type { ExportFormat } from "./types";
 
 export async function createSchedule(input: { reportConfigId: string; cronExpression: string; recipients: string[]; format: ExportFormat }) {
-  const user = await requirePermission("reports.view");
+  const user = await requirePermission("reports.manage");
   // Verify the user can read the referenced config (own OR shared OR manager/admin)
   const cfg = await prismadb.crm_Report_Config.findUnique({ where: { id: input.reportConfigId } });
   if (!cfg) throw new Error("Not found");
@@ -42,13 +42,13 @@ async function loadAndAuthorizeSchedule(scheduleId: string, user: { id: string; 
 }
 
 export async function updateSchedule(scheduleId: string, data: { cronExpression?: string; recipients?: string[]; format?: ExportFormat; isActive?: boolean }) {
-  const user = await requirePermission("reports.view");
+  const user = await requirePermission("reports.manage");
   await loadAndAuthorizeSchedule(scheduleId, user);
   return prismadb.crm_Report_Schedule.update({ where: { id: scheduleId }, data });
 }
 
 export async function deleteSchedule(scheduleId: string) {
-  const user = await requirePermission("reports.view");
+  const user = await requirePermission("reports.manage");
   await loadAndAuthorizeSchedule(scheduleId, user);
   return prismadb.crm_Report_Schedule.delete({ where: { id: scheduleId } });
 }

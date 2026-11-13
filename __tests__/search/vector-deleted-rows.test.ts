@@ -89,6 +89,9 @@ beforeAll(async () => {
   await prismadb.users.create({
     data: { id: U, email: `vd-${tag}@search.test`, name: `vd-${tag}`, role: "manager", userStatus: "ACTIVE" },
   });
+  await prismadb.nexusUserPermission.createMany({
+    data: ["crm.view", "projects.view", "documents.view"].map((key) => ({ userId: U, key })),
+  });
   await prismadb.crm_Lead_Statuses.create({ data: { id: LEAD_STATUS, name: `vd-${tag}-status` } });
   for (const kind of Object.keys(IDS) as Kind[]) {
     const k = IDS[kind];
@@ -123,6 +126,7 @@ afterAll(async () => {
   await prismadb.crm_Opportunities.deleteMany({ where: { id: { in: all("opportunity") } } });
   await prismadb.documents.deleteMany({ where: { id: { in: docIds } } });
   await prismadb.crm_Lead_Statuses.deleteMany({ where: { id: LEAD_STATUS } });
+  await prismadb.nexusUserPermission.deleteMany({ where: { userId: U } });
   await prismadb.users.deleteMany({ where: { id: U } });
   await prismadb.$disconnect();
 });

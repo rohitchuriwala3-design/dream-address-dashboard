@@ -1,13 +1,31 @@
 # Nexus 360 rebuild status
 
-Updated: 2026-11-13 (Asia/Kolkata)
+Updated: 2026-11-14 (Asia/Kolkata)
 
-## Latest continuation — 2026-11-13 19:07 IST
+## Latest continuation — Phase 1 full local regression — 2026-11-14
+
+- Docker Desktop is installed and running. An isolated local PostgreSQL 17/pgvector container is bound to loopback port 5433; all 72 migrations were applied locally. The earlier Jest host `base` failure was a missing test-process `DATABASE_URL`, not a Render hostname issue. No staging or production DB was targeted.
+- Refreshed complete Jest run: **422/426 suites passed; 3,163/3,168 tests passed**. The five residual failures are three deferred Odoo connector timezone cases and one E2B enrichment shell-path case. No Phase 1-focused suite failed in this run. Jest required `--forceExit` because some unrelated enrichment tests leave asynchronous handles open.
+- Since the complete run, focused regressions passed: authz/report/user scope **25 suites / 321 tests**; lead, catalog and invoice **23/23**; semantic search and campaign concurrency **14/14**; plugin order/catalog, CRM price-list, upload-signing and Windows plugin-boundary **43/43**; CRM target imports and generated documentation **6/6**. These overlap and must not be added as a cumulative unique test count. Full ESLint, TypeScript and i18n checks passed; docs-reference check passes with the test-only `INNGEST_ID` environment set.
+- Corrected stale test fixtures for per-user module permissions, INR-only prices/orders, current docs generation, CRM import permission mocks, and Windows path separators. Production logic was not weakened. Dummy MinIO signing variables were used only in local tests; no storage request was made.
+- Phase 1 remains **incomplete at 17/27 checklist items (63%) and 81/100 health**, below the required 95-point exit gate. Live password reset/reuse, persisted role change and restricted-role boundaries, saved issuer details, authorized file access, and phone-sized workflows still need evidence. Company issuer particulars are not fully populated.
+- Staging remains at the last confirmed deployment (`3b04c31`); this local source/test batch has **not** been deployed or pushed. Production is unchanged. Sheet log-only write/read connectivity has been demonstrated, but CRM, projects, invoices and finance records are not synced; Phase 4 remains paused at **22%**.
+- Rechecked the free Render staging service: the first `/api/health` request timed out while the service woke from sleep. Render startup logs then showed PostgreSQL ready, all 72 migrations with none pending, database already seeded with five users, and Next.js ready. `/en/login` returned HTTP 200 and a warm `/api/health` retry returned HTTP 200 with `{"status":"ok","database":"ok"}`. This was a cold-start delay; no deploy or DB change occurred.
+- Next: complete the remaining Phase 1 authenticated/mobile/privacy/document-setting acceptance checks, then re-run the Phase 1 exit suite against this local state and verify the same source on isolated staging before claiming completion. Do not start Phase 1B, Phase 2 or resume Phase 4 business-record sync.
+
+## Latest continuation — after isolated staging deploy `4cad86d`
 
 - Phase 1 only; campaign/template actions were the remaining known server-action permission gap. Reads now require `crm.view`; mutations and generation require `crm.manage`; scheduling/sending retain the manager/admin restriction. Added denial coverage and updated campaign fixtures.
 - Cumulative local regression: **173 suites / 1,131 tests passed**. TypeScript, campaign/template ESLint, `git diff --check`, and optimized Next.js production build all pass. Build compiled and generated all 24 static pages; it emitted only the existing `metadataBase` warning.
-- Phase 1 estimate: **74/100** (weighted evidence estimate, not pass rate); checklist **17/27 (63%)**, overall **30/90 (33%)**. Still incomplete and below the required 95. Local source is not deployed. Authentication live flows, staging DB persistence/issuer verification, full locale review, mobile equivalence and private-file access checks remain open.
-- Phase 4 Google Sheets business-record sync remains paused at **22%**. Do not begin Phase 1B or Phase 2. No staging, production, profile, credential, role, or Sheet mutation was made.
+- Phase 1 estimate after isolated staging verification: **77/100** (weighted evidence estimate, not pass rate); checklist **17/27 (63%)**, overall **30/90 (33%)**. Still incomplete and below the required 95. Live password reset/reuse/sign-in, persisted settings/issuer verification, mobile equivalence and authenticated private-file access checks remain open.
+- Commit `4cad86d` is live on the separate staging service. Render reports deployment succeeded; startup found 72 migrations and no pending migrations, then started with five existing users. `/api/health` returned 200 with database OK. Unauthenticated CRM contact/target PATCH probes and protected report/file requests returned 401. Protected admin pages redirect to sign-in when unauthenticated.
+- Phase 4 Google Sheets business-record sync remains paused at **22%**. Do not begin Phase 1B or Phase 2. No production, profile, credential, role, or Sheet mutation was made; Phase 4 files were excluded from the commit.
+
+## Phase 1 access audit follow-up — commit `669aefc`
+
+- Source audit found 228 explicit `requirePermission` checks across production actions and APIs. Remaining production `requireAuthenticated` references are admin-gated user lookup or modules that additionally apply module and record-level access checks; other matches are test fixtures. The stale Admin → Users message claiming permission enforcement was incomplete was corrected to reflect current CRM, Projects, Finance, Reports and Documents guards and record scopes.
+- TypeScript, focused ESLint on the Admin invite form, and `git diff --check` pass. The one-line guidance change is deployed to staging as `669aefc`; `/api/health` remains 200/database OK and unauthenticated `/en/admin/users` redirects to sign-in.
+- Overall Phase 1 remains 77/100 and incomplete. Live per-role, reset/sign-in, mobile and authenticated file tests remain outstanding. No profile/password/role was changed and Phase 4 stays paused.
 
 ## Latest continuation — 2026-11-13 19:22 IST
 

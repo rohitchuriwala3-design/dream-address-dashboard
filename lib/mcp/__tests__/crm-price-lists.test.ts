@@ -43,7 +43,7 @@ it("lets reps read and price, but not write (Review Focus 2)", async () => {
   (getPrice as jest.Mock).mockResolvedValue({ price: new Decimal(85), listPrice: new Decimal(100), currency: "INR", ruleId: "r", steps: [] });
   await expect(tool("crm_get_price").handler({ productId: "p", quantity: 1, accountId: "acc" } as never, "u1", rep))
     .resolves.toEqual({ data: { price: "85.00", listPrice: "100.00", currency: "INR", ruleId: "r", priceListId: "L", steps: [] } });
-  (getPrice as jest.Mock).mockResolvedValue({ price: new Decimal(85), listPrice: new Decimal(100), currency: "INR", ruleId: "r", steps: [] });
+  (getPrice as jest.Mock).mockResolvedValue({ price: new Decimal(85), listPrice: new Decimal(100), currency: "UNSUPPORTED", ruleId: "r", steps: [] });
   await expect(tool("crm_get_price").handler({ productId: "p", quantity: 1, accountId: "acc" } as never, "u1", rep)).rejects.toThrow("VALIDATION_ERROR: MARK IV V1 supports INR prices only");
   await expect(tool("crm_create_price_list").handler({ name: "X", currency: "INR" } as never, "u1", rep)).rejects.toThrow("FORBIDDEN");
 });
@@ -57,8 +57,9 @@ it("refuses writes to external lists and validates rules", async () => {
 
 it("accepts only INR for V1 price list writes", async () => {
   expect(tool("crm_create_price_list").schema.safeParse({ name: "India", currency: "INR" }).success).toBe(true);
-  expect(tool("crm_create_price_list").schema.safeParse({ name: "Foreign", currency: "INR" }).success).toBe(false);
-  expect(tool("crm_update_price_list").schema.safeParse({ id: "L", currency: "INR" }).success).toBe(false);
+  expect(tool("crm_create_price_list").schema.safeParse({ name: "Unsupported", currency: "NOT_INR" }).success).toBe(false);
+  expect(tool("crm_update_price_list").schema.safeParse({ id: "L", currency: "INR" }).success).toBe(true);
+  expect(tool("crm_update_price_list").schema.safeParse({ id: "L", currency: "NOT_INR" }).success).toBe(false);
 });
 
 it("refuses to edit a rule through another list's id", async () => {

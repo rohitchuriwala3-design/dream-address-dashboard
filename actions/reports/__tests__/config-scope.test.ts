@@ -2,7 +2,7 @@ jest.mock("@/lib/auth-server", () => ({ getSession: jest.fn() }));
 jest.mock("@/lib/prisma", () => ({
   prismadb: {
     users: { findUnique: jest.fn() },
-    nexusUserPermission: { findMany: jest.fn().mockResolvedValue([{ key: "reports.view" }]) },
+    nexusUserPermission: { findMany: jest.fn().mockResolvedValue([{ key: "reports.view" }, { key: "reports.manage" }]) },
     crm_Report_Config: { create: jest.fn(), findMany: jest.fn(), findUnique: jest.fn(), delete: jest.fn(), update: jest.fn() },
   },
 }));
@@ -17,7 +17,10 @@ const mockUser = (role: "user" | "manager" | "admin", id = "u1") => {
 };
 
 describe("report config scope", () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (prismadb.nexusUserPermission.findMany as jest.Mock).mockResolvedValue([{ key: "reports.view" }, { key: "reports.manage" }]);
+  });
 
   describe("unauthenticated", () => {
     beforeEach(() => {
@@ -75,6 +78,13 @@ describe("report config scope", () => {
       expect(prismadb.crm_Report_Config.create).toHaveBeenCalledWith({
         data: expect.objectContaining({ createdBy: "u1" }),
       });
+    });
+
+    it("requires reports.manage even when the user can view reports", async () => {
+      mockUser("user", "u1");
+      (prismadb.nexusUserPermission.findMany as jest.Mock).mockResolvedValue([{ key: "reports.view" }]);
+      await expect(saveConfig({ name: "x", category: "sales", filters: {}, isShared: false })).rejects.toThrow(/Forbidden/i);
+      expect(prismadb.crm_Report_Config.create).not.toHaveBeenCalled();
     });
   });
 

@@ -5,7 +5,7 @@ import { requirePermission, isManagerOrAdmin, AuthorizationError } from "@/lib/a
 import type { ReportCategory } from "./types";
 
 export async function saveConfig(input: { name: string; category: ReportCategory; filters: Record<string, unknown>; isShared: boolean }) {
-  const user = await requirePermission("reports.view");
+  const user = await requirePermission("reports.manage");
   return prismadb.crm_Report_Config.create({
     data: {
       name: input.name,
@@ -35,13 +35,13 @@ async function loadAndAuthorize(configId: string, user: { id: string; role: stri
 }
 
 export async function deleteConfig(configId: string) {
-  const user = await requirePermission("reports.view");
+  const user = await requirePermission("reports.manage");
   await loadAndAuthorize(configId, user);
   return prismadb.crm_Report_Config.delete({ where: { id: configId } });
 }
 
 export async function duplicateConfig(configId: string, newName: string) {
-  const user = await requirePermission("reports.view");
+  const user = await requirePermission("reports.manage");
   const original = await prismadb.crm_Report_Config.findUnique({ where: { id: configId } });
   if (!original) throw new Error("Not found");
   // Read access: own OR shared OR manager/admin
@@ -64,7 +64,7 @@ export async function duplicateConfig(configId: string, newName: string) {
 }
 
 export async function toggleShare(configId: string, isShared: boolean) {
-  const user = await requirePermission("reports.view");
+  const user = await requirePermission("reports.manage");
   await loadAndAuthorize(configId, user);
   return prismadb.crm_Report_Config.update({ where: { id: configId }, data: { isShared } });
 }

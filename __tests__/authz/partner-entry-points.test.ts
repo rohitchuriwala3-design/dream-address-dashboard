@@ -6,10 +6,16 @@
  * door for partners is a deliberate, reviewed change. Opt in only code that
  * reads through the lib/authz scopes or writes through the PARTNER_EDIT asserts.
  */
-import { execSync } from "child_process";
+import { execFileSync } from "child_process";
 import { readFileSync } from "fs";
 
 const PARTNER_ENTRY_POINTS = [
+  "actions/crm/contract-line-items/add-line-item/index.ts",
+  "actions/crm/contract-line-items/copy-from-opportunity/index.ts",
+  "actions/crm/contract-line-items/get-line-items.ts",
+  "actions/crm/contract-line-items/remove-line-item/index.ts",
+  "actions/crm/contract-line-items/reorder-line-items/index.ts",
+  "actions/crm/contract-line-items/update-line-item/index.ts",
   "actions/crm/account/get-task.ts",
   "actions/crm/account/get-tasks.ts",
   "actions/crm/accounts/create-account.ts",
@@ -71,10 +77,20 @@ const PARTNER_ENTRY_POINTS = [
   "actions/documents/get-documents.ts",
   "actions/documents/get-storage-size.ts",
   "actions/documents/search-documents.ts",
-  "actions/get-users.ts",
+  "actions/dashboard/get-studio-finance-summary.ts",
+  "actions/dashboard/get-studio-pipeline-summary.ts",
+  "actions/crm/get-opportunities.ts",
+  "actions/crm/leads/convert-lead.ts",
+  "actions/crm/opportunity-line-items/add-line-item/index.ts",
+  "actions/crm/opportunity-line-items/get-line-items.ts",
+  "actions/crm/opportunity-line-items/remove-line-item/index.ts",
+  "actions/crm/opportunity-line-items/reorder-line-items/index.ts",
+  "actions/crm/opportunity-line-items/update-line-item/index.ts",
+  "actions/documents/check-duplicate.ts",
+  "actions/fulltext/unified-search.ts",
+  "actions/studio-projects/service.ts",
   "actions/invoices/get-invoices-by-accountId.ts",
   "actions/user/get-user-by-id.ts",
-  "actions/user/search-users.ts",
   "actions/user/set-language.ts",
   "app/[locale]/(routes)/crm/accounts/[accountId]/components/HistoryTab.tsx",
   "app/[locale]/(routes)/crm/accounts/[accountId]/page.tsx",
@@ -90,7 +106,7 @@ const PARTNER_ENTRY_POINTS = [
 const DEFINITIONS = ["lib/auth-server.ts", "lib/authz/session.ts"];
 
 it("only the listed files open a door for partners", () => {
-  const files = execSync("git ls-files -- '*.ts' '*.tsx'", { encoding: "utf8" })
+  const files = execFileSync("git", ["ls-files", "--", "*.ts", "*.tsx"], { encoding: "utf8" })
     .split("\n")
     .filter((f) => f && !f.includes("__tests__") && !f.startsWith("tests/") && !DEFINITIONS.includes(f))
     .filter((f) => /\bpartner: true\b/.test(readFileSync(f, "utf8")));

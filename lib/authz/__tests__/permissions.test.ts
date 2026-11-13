@@ -26,6 +26,16 @@ describe("requirePermission", () => {
     await expect(requirePermission("crm.view")).resolves.toEqual({ id: "u1", role: "user" });
   });
 
+  it("lets report management satisfy report viewing", async () => {
+    mockedFindMany.mockResolvedValue([{ key: "reports.manage" }] as any);
+    await expect(requirePermission("reports.view")).resolves.toEqual({ id: "u1", role: "user" });
+  });
+
+  it("does not let report viewing satisfy report management", async () => {
+    mockedFindMany.mockResolvedValue([{ key: "reports.view" }] as any);
+    await expect(requirePermission("reports.manage")).rejects.toBeInstanceOf(AuthorizationError);
+  });
+
   it("does not let a view permission satisfy its paired manage permission", async () => {
     mockedFindMany.mockResolvedValue([{ key: "crm.view" }] as any);
 

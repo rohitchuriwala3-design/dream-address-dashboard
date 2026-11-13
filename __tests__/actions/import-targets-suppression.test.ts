@@ -1,8 +1,8 @@
 jest.mock("@/lib/auth-server", () => ({ getSession: jest.fn() }));
-// importTargets now resolves the caller via requireAuthenticated; auth behavior
-// is out of this suite's scope, so pass it through.
+// Authentication is covered by the authorization suites; this test isolates
+// the import's suppression-inheritance behavior.
 jest.mock("@/lib/authz", () => ({
-  requireAuthenticated: jest.fn(),
+  requirePermission: jest.fn(),
   AuthenticationError: class AuthenticationError extends Error {},
 }));
 jest.mock("@/lib/prisma", () => ({
@@ -13,14 +13,14 @@ jest.mock("@/lib/prisma", () => ({
 
 import { prismadb } from "@/lib/prisma";
 import { getSession } from "@/lib/auth-server";
-import { requireAuthenticated } from "@/lib/authz";
+import { requirePermission } from "@/lib/authz";
 import { importTargets } from "@/actions/crm/targets/import-targets";
 
 describe("importTargets suppression inheritance", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (getSession as jest.Mock).mockResolvedValue({ user: { id: "u1" } });
-    (requireAuthenticated as jest.Mock).mockResolvedValue({ id: "u1", role: "admin" });
+    (requirePermission as jest.Mock).mockResolvedValue({ id: "u1", role: "admin" });
     (prismadb.crm_Targets.createMany as jest.Mock).mockResolvedValue({ count: 2 });
   });
 

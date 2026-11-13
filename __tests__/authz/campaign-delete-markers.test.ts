@@ -40,6 +40,9 @@ beforeAll(async () => {
       { id: U.rep, email: `r-${tag}@cdm.test`, name: `r-${tag}`, role: "user", userStatus: "ACTIVE" },
     ],
   });
+  await prismadb.nexusUserPermission.createMany({
+    data: [U.creator, U.manager, U.rep].flatMap((userId) => ["crm.manage", "dashboard.view"].map((key) => ({ userId, key }))),
+  });
   await prismadb.crm_campaigns.createMany({
     data: [
       { id: C.normal, name: `normal-${tag}`, status: "sent" },

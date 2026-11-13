@@ -4,6 +4,7 @@ jest.mock("@/lib/auth-server", () => ({ getSession: jest.fn() }));
 jest.mock("@/lib/prisma", () => ({
   prismadb: {
     users: { findUnique: jest.fn() },
+    nexusUserPermission: { findMany: jest.fn().mockResolvedValue([{ key: "finance.view" }]) },
     invoices: { findMany: jest.fn(), findFirst: jest.fn() },
   },
 }));
@@ -20,7 +21,10 @@ const mockUser = (role: "user" | "manager" | "admin", id = "u1") => {
   (prismadb.users.findUnique as jest.Mock).mockResolvedValue({ id, role });
 };
 
-beforeEach(() => jest.clearAllMocks());
+beforeEach(() => {
+  jest.clearAllMocks();
+  (prismadb.nexusUserPermission.findMany as jest.Mock).mockResolvedValue([{ key: "finance.view" }]);
+});
 
 describe("getInvoices scope", () => {
   it("unauthenticated throws and queries nothing", async () => {
@@ -34,7 +38,7 @@ describe("getInvoices scope", () => {
     (prismadb.invoices.findMany as jest.Mock).mockResolvedValue([]);
     await getInvoices();
     const call = (prismadb.invoices.findMany as jest.Mock).mock.calls[0][0];
-    expect(call.where).toEqual({ createdBy: "u1" });
+    expect(call.where).toEqual({ createdBy: "u1", currency: "INR" });
   });
 
   it("manager: unscoped", async () => {
@@ -42,7 +46,7 @@ describe("getInvoices scope", () => {
     (prismadb.invoices.findMany as jest.Mock).mockResolvedValue([]);
     await getInvoices();
     const call = (prismadb.invoices.findMany as jest.Mock).mock.calls[0][0];
-    expect(call.where).toEqual({});
+    expect(call.where).toEqual({ currency: "INR" });
   });
 });
 
@@ -53,7 +57,7 @@ describe("getInvoiceById scope", () => {
     const res = await getInvoiceById("inv-1");
     expect(res).toBeNull();
     const call = (prismadb.invoices.findFirst as jest.Mock).mock.calls[0][0];
-    expect(call.where).toEqual({ id: "inv-1", createdBy: "u1" });
+    expect(call.where).toEqual({ id: "inv-1", createdBy: "u1", currency: "INR" });
   });
 
   it("admin: lookup by id only", async () => {
@@ -61,6 +65,6 @@ describe("getInvoiceById scope", () => {
     (prismadb.invoices.findFirst as jest.Mock).mockResolvedValue(null);
     await getInvoiceById("inv-1");
     const call = (prismadb.invoices.findFirst as jest.Mock).mock.calls[0][0];
-    expect(call.where).toEqual({ id: "inv-1" });
+    expect(call.where).toEqual({ id: "inv-1", currency: "INR" });
   });
 });

@@ -38,9 +38,15 @@ beforeAll(async () => {
       role: k === "boss" ? "manager" : "user", userStatus: "ACTIVE",
     })),
   });
+  await prismadb.nexusUserPermission.createMany({
+    data: [U.rep, U.other, U.boss].flatMap((userId) => ["crm.manage", "projects.manage"].map((key) => ({ userId, key }))),
+  });
   for (const k of ["rep", "other"] as const) {
     await prismadb.crm_Opportunities.create({
-      data: { id: OPP[k], name: `${k}-${tag}`, assigned_to: U[k], createdBy: U[k] },
+      data: { id: OPP[k], name: `${k}-${tag}`, assigned_to: U[k], createdBy: U[k], currency: "INR", expected_revenue: 100 },
+    });
+    await prismadb.crm_OpportunityLineItems.create({
+      data: { opportunityId: OPP[k], name: `Quote line ${k}`, quantity: 1, unit_price: 100, line_total: 100, currency: "INR", createdBy: U[k] },
     });
   }
   for (const k of ["rep", "other"] as const) {
@@ -75,11 +81,15 @@ beforeAll(async () => {
   });
   // a second deal of other's, for the manager case
   await prismadb.crm_Opportunities.create({
-    data: { id: OPP.boss, name: `boss-${tag}`, assigned_to: U.other, createdBy: U.other },
+    data: { id: OPP.boss, name: `boss-${tag}`, assigned_to: U.other, createdBy: U.other, currency: "INR", expected_revenue: 100 },
+  });
+  await prismadb.crm_OpportunityLineItems.create({
+    data: { opportunityId: OPP.boss, name: "Quote line boss", quantity: 1, unit_price: 100, line_total: 100, currency: "INR", createdBy: U.other },
   });
 });
 
 afterAll(async () => {
+  await prismadb.crm_OpportunityLineItems.deleteMany({ where: { opportunityId: { in: Object.values(OPP) } } });
   await prismadb.crm_Opportunities.deleteMany({ where: { id: { in: Object.values(OPP) } } });
   await prismadb.crm_Accounts.deleteMany({ where: { id: { in: Object.values(ACC) } } });
   await prismadb.tasks.deleteMany({ where: { id: { in: Object.values(TASK) } } });

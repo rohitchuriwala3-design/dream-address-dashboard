@@ -2,6 +2,7 @@ jest.mock("@/lib/auth-server", () => ({ getSession: jest.fn() }));
 jest.mock("@/lib/prisma", () => ({
   prismadb: {
     users: { findUnique: jest.fn() },
+    nexusUserPermission: { findMany: jest.fn().mockResolvedValue([{ key: "projects.view" }]) },
     documents: { findFirst: jest.fn() },
   },
 }));
@@ -49,7 +50,10 @@ function signedIn(role = "user") {
   fu.mockResolvedValue({ id: "u", role } as any);
 }
 
-beforeEach(() => jest.clearAllMocks());
+beforeEach(() => {
+  jest.clearAllMocks();
+  (prismadb.nexusUserPermission.findMany as jest.Mock).mockResolvedValue([{ key: "projects.view" }]);
+});
 
 describe("GET /api/documents/[documentId]/file", () => {
   it("401 when not signed in", async () => {

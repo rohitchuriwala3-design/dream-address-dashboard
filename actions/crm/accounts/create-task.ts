@@ -55,8 +55,10 @@ export const createTask = async (data: {
   let resend;
   try {
     resend = await resendHelper();
-  } catch (error: any) {
-    return { error: error?.message || "Resend API key is not configured" };
+  } catch {
+    // Email is an optional notification channel. A missing provider must not
+    // prevent saving the CRM task itself.
+    resend = null;
   }
 
   try {
@@ -77,8 +79,9 @@ export const createTask = async (data: {
       },
     });
 
-    // Notification to user who is not a task creator
-    if (user !== session.user.id) {
+    if (resend) {
+      // Notification to user who is not a task creator
+      if (user !== session.user.id) {
       try {
         const notifyRecipient = await prismadb.users.findUnique({
           where: { id: user },
@@ -106,10 +109,10 @@ export const createTask = async (data: {
       } catch (error) {
         console.log(error);
       }
-    }
+      }
 
-    // Notification to account watchers
-    try {
+      // Notification to account watchers
+      try {
       const accountWatchers = await prismadb.accountWatchers.findMany({
         where: {
           account_id: account,
@@ -139,8 +142,9 @@ export const createTask = async (data: {
           }),
         });
       }
-    } catch (error) {
-      console.log(error);
+      } catch (error) {
+        console.log(error);
+      }
     }
 
     revalidatePath("/[locale]/(routes)/crm/accounts", "page");

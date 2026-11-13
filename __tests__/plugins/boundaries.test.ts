@@ -22,7 +22,7 @@ describe("plugin boundaries", () => {
     const offenders: string[] = [];
     for (const dir of ["app", "actions", "lib", "components", "inngest"]) {
       for (const f of files(join(ROOT, dir))) {
-        if (relative(ROOT, f) === "lib/plugins/plugins.generated.ts") continue;
+        if (relative(ROOT, f).replaceAll("\\", "/") === "lib/plugins/plugins.generated.ts") continue;
         for (const spec of importsOf(f)) {
           if (/^@\/plugins(-private)?\//.test(spec)) offenders.push(`${relative(ROOT, f)} → ${spec}`);
         }

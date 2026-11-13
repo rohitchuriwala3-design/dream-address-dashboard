@@ -14,6 +14,7 @@ jest.mock("@/lib/audit-log", () => ({
 jest.mock("@/lib/prisma", () => ({
   prismadb: {
     users: { findUnique: jest.fn(), findFirst: jest.fn() },
+    nexusUserPermission: { findMany: jest.fn() },
     crm_Leads: { create: jest.fn(), update: jest.fn(), findUnique: jest.fn(), findFirst: jest.fn() },
     crm_Lead_Statuses: { findUnique: jest.fn() },
     crm_Lead_Sources: { findUnique: jest.fn() },
@@ -63,6 +64,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   (getSession as jest.Mock).mockResolvedValue({ user: { id: OWNER.id } });
   db.users.findUnique.mockResolvedValue({ id: OWNER.id, role: "user" });
+  db.nexusUserPermission.findMany.mockResolvedValue([{ key: "crm.manage" }]);
   db.users.findFirst.mockResolvedValue({ id: REP, email: "rep@example.com", userLanguage: "en" });
   db.crm_Leads.findFirst.mockResolvedValue({ id: LEAD });
   db.crm_Leads.findUnique.mockResolvedValue(STORED);
@@ -135,6 +137,7 @@ it("delete: one audit row, no event, no email", async () => {
 });
 
 it("a denied write leaves no side effects on either path", async () => {
+  db.nexusUserPermission.findMany.mockResolvedValue([]);
   db.crm_Leads.findFirst.mockResolvedValue(null);
   await expect(updateLead({ id: LEAD, lastName: "X", assigned_to: REP })).resolves.toEqual({ error: "Forbidden" });
   await expect(mcp("crm_update_lead", { id: LEAD, assigned_to: REP })).rejects.toThrow("NOT_FOUND");

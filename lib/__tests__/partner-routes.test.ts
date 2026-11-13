@@ -11,10 +11,8 @@ describe("isPartnerAllowedPath (partner route allow-list, deny by default)", () 
   it.each([
     "/",
     "/en",
-    "/cz/",
     "/en/crm/accounts",
     "/en/crm/accounts/0f6c2b4e-1111-2222-3333-444444444444",
-    "/de/crm/contacts/abc",
     "/en/crm/leads",
     "/en/crm/opportunities/abc",
     "/en/crm/tasks/viewtask/abc",
@@ -29,6 +27,8 @@ describe("isPartnerAllowedPath (partner route allow-list, deny by default)", () 
 
   it.each([
     "/en/admin",
+    "/cz/",
+    "/de/crm/contacts/abc",
     "/en/admin/users",
     "/en/campaigns",
     "/en/projects/boards/abc",

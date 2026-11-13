@@ -2,7 +2,7 @@ jest.mock("@/lib/auth-server", () => ({ getSession: jest.fn() }));
 jest.mock("@/lib/prisma", () => ({
   prismadb: {
     users: { findUnique: jest.fn() },
-    nexusUserPermission: { findMany: jest.fn().mockResolvedValue([{ key: "reports.view" }]) },
+    nexusUserPermission: { findMany: jest.fn().mockResolvedValue([{ key: "reports.view" }, { key: "reports.manage" }]) },
     crm_Report_Config: { findUnique: jest.fn() },
     crm_Report_Schedule: { create: jest.fn(), findMany: jest.fn(), findUnique: jest.fn(), update: jest.fn(), delete: jest.fn() },
   },
@@ -18,7 +18,10 @@ const mockUser = (role: "user" | "manager" | "admin", id = "u1") => {
 };
 
 describe("report schedule scope", () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (prismadb.nexusUserPermission.findMany as jest.Mock).mockResolvedValue([{ key: "reports.view" }, { key: "reports.manage" }]);
+  });
 
   describe("unauthenticated", () => {
     beforeEach(() => {
@@ -119,6 +122,13 @@ describe("report schedule scope", () => {
       mockUser("user", "u1");
       (prismadb.crm_Report_Schedule.findUnique as jest.Mock).mockResolvedValue({ id: "s1", createdBy: "u2" });
       await expect(updateSchedule("s1", {})).rejects.toThrow(/Forbidden/i);
+    });
+
+    it("requires reports.manage even when the user can view reports", async () => {
+      mockUser("user", "u1");
+      (prismadb.nexusUserPermission.findMany as jest.Mock).mockResolvedValue([{ key: "reports.view" }]);
+      await expect(updateSchedule("s1", { isActive: false })).rejects.toThrow(/Forbidden/i);
+      expect(prismadb.crm_Report_Schedule.update).not.toHaveBeenCalled();
     });
 
     it("manager can update other's schedule", async () => {

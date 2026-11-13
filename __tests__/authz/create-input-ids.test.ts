@@ -41,6 +41,9 @@ beforeAll(async () => {
       userStatus: k === "gone" ? "INACTIVE" : "ACTIVE",
     })),
   });
+  await prismadb.nexusUserPermission.createMany({
+    data: [U.rep, U.other, U.gone].map((userId) => ({ userId, key: "crm.manage" })),
+  });
   for (const k of ["rep", "other"] as const) {
     await prismadb.crm_Accounts.create({
       data: { id: ACC[k], v: 0, name: `${k}-${tag}`, assigned_to: U[k], createdBy: U[k] },
@@ -49,7 +52,7 @@ beforeAll(async () => {
   await prismadb.crm_Accounts.create({
     data: { id: ACC.repGone, v: 0, name: `repGone-${tag}`, assigned_to: U.gone, createdBy: U.rep },
   });
-  await prismadb.crm_PriceLists.create({ data: { id: PRICELIST, name: `pl-${tag}`, currency: "AAA" } });
+  await prismadb.crm_PriceLists.create({ data: { id: PRICELIST, name: `pl-${tag}`, currency: "INR" } });
   for (const [k, assignee] of [["rep", U.other], ["repGone", U.gone]] as const) {
     await prismadb.crm_Contracts.create({
       data: { id: CONTRACT[k], v: 0, title: `${k}-${tag}`, value: 1, account: ACC.rep, assigned_to: assignee, createdBy: U.rep },

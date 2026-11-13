@@ -90,6 +90,11 @@ beforeAll(async () => {
       { id: U.colleague, email: `col-${tag}@partner.test`, name: `col-${tag}`, role: "user", userStatus: "ACTIVE" },
     ],
   });
+  await prismadb.nexusUserPermission.createMany({
+    data: [U.rep, U.colleague].flatMap((userId) => [
+      "crm.view", "crm.manage", "projects.view", "projects.manage", "finance.view", "finance.manage", "reports.view", "reports.manage",
+    ].map((key) => ({ userId, key }))),
+  });
   const partnerOf: Partial<Record<AccKey, string>> = { A: U.A, B: U.B };
   for (const k of ACC_KEYS) {
     await prismadb.crm_Accounts.create({
@@ -102,7 +107,7 @@ beforeAll(async () => {
   }
   await prismadb.users.update({ where: { id: U.A }, data: { partnerAccountId: ACC.aOwn } });
   await prismadb.accountWatchers.create({ data: { account_id: ACC.A, user_id: U.colleague } });
-  currency = (await prismadb.currency.findFirst({ select: { code: true } }))!.code;
+  currency = "INR";
 
   const child = async (name: string, accountId: string, by = U.rep) => {
     ids.contact[name] = (await prismadb.crm_Contacts.create({
@@ -315,10 +320,10 @@ describe("invoices", () => {
 });
 
 describe("user directory and pickers", () => {
-  it("partner A finds only himself", async () => {
+  it("partner cannot search the internal user directory", async () => {
     signInAs(U.A);
-    expect((await searchUsers({ search: tag })).users.map((u) => u.name)).toEqual([`A-${tag}`]);
-    expect((await getActiveUsers()).map((u) => u.id)).toEqual([U.A]);
+    await expect(searchUsers({ search: tag })).rejects.toThrow(/Unauthorized|Forbidden/i);
+    await expect(getActiveUsers()).rejects.toThrow(/Unauthenticated|Unauthorized|Forbidden/i);
     await expect(getUsers()).rejects.toThrow(); // admin list: no partner opt-in
   });
 

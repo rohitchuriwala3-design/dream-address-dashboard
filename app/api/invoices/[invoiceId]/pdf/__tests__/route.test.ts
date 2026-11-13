@@ -2,6 +2,7 @@ jest.mock("@/lib/auth-server", () => ({ getSession: jest.fn() }));
 jest.mock("@/lib/prisma", () => ({
   prismadb: {
     users: { findUnique: jest.fn() },
+    nexusUserPermission: { findMany: jest.fn().mockResolvedValue([{ key: "finance.view" }]) },
     invoices: { findFirst: jest.fn() },
   },
 }));
@@ -30,7 +31,10 @@ function req() {
   return new NextRequest("http://localhost/api/invoices/i1/pdf");
 }
 
-beforeEach(() => jest.clearAllMocks());
+beforeEach(() => {
+  jest.clearAllMocks();
+  (prismadb.nexusUserPermission.findMany as jest.Mock).mockResolvedValue([{ key: "finance.view" }]);
+});
 
 describe("GET /api/invoices/[invoiceId]/pdf", () => {
   it("401 unauth", async () => {
