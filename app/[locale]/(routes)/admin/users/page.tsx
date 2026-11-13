@@ -36,17 +36,17 @@ const AdminUsersPage = async () => {
       title={t("users.title")}
       description={t("users.description")}
     >
-      <div className="flex-col1">
+      <section className="flex flex-col gap-4 rounded-lg border p-4 sm:p-6">
         <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">
           {t("users.inviteHeading")}
         </h4>
         <InviteForm />
-      </div>
-      <Separator />
+      </section>
+      <Separator className="my-6" />
       <div>
         <SendMailToAll />
       </div>
-      <Separator />
+      <Separator className="my-6" />
 
       <AdminUserDataTable columns={columns} data={users} />
     </Container>
