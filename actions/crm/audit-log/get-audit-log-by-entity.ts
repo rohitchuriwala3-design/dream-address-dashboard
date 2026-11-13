@@ -1,7 +1,7 @@
 "use server";
 import { prismadb } from "@/lib/prisma";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanReadActivityForEntity,
   AuthenticationError,
   AuthorizationError,
@@ -14,9 +14,10 @@ export const getAuditLogByEntity = async (
 ) => {
   let user;
   try {
-    user = await requireAuthenticated({ partner: true });
+    user = await requirePermission('crm.view', { partner: true });
   } catch (e) {
     if (e instanceof AuthenticationError) return { data: [], nextCursor: null };
+    if (e instanceof AuthorizationError) return { data: [], nextCursor: null };
     throw e;
   }
   try {

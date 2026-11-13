@@ -43,8 +43,12 @@ export const inviteUser = async (data: {
   if (!Object.values(Language).includes(data.language as Language)) {
     return { error: "Choose a valid language." };
   }
-  if (await prismadb.users.findUnique({ where: { email }, select: { id: true } })) {
-    return { error: "A profile with this email already exists." };
+  const existingProfile = await prismadb.users.findUnique({
+    where: { email },
+    select: { id: true },
+  });
+  if (existingProfile) {
+    return { error: "A profile with this email already exists. Open its profile to update access; the password was not changed." };
   }
 
   let createdUserId: string | undefined;
@@ -69,6 +73,7 @@ export const inviteUser = async (data: {
     if (permissions.length) {
       await prismadb.nexusUserPermission.createMany({
         data: permissions.map((key) => ({ userId, key })),
+        skipDuplicates: true,
       });
     }
     phase = "write_audit";

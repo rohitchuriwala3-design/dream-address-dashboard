@@ -1,6 +1,6 @@
 import { prismadb } from "@/lib/prisma";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanReadBoard,
   AuthenticationError,
   AuthorizationError,
@@ -9,9 +9,10 @@ import {
 export const getKanbanData = async (boardId: string) => {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("projects.view");
   } catch (e) {
     if (e instanceof AuthenticationError) return { board: null, sections: [] };
+    if (e instanceof AuthorizationError) return { board: null, sections: [] };
     throw e;
   }
 

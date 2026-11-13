@@ -10,6 +10,7 @@ jest.mock("@/lib/prisma", () => {
   return {
     prismadb: {
       users: { findUnique: jest.fn() },
+      nexusUserPermission: { findMany: jest.fn().mockResolvedValue([{ key: "crm.view" }]) },
       crm_Accounts: m(),
       crm_Opportunities: m(),
       crm_Leads: m(),

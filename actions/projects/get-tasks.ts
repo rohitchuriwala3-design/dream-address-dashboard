@@ -1,16 +1,18 @@
 import { prismadb } from "@/lib/prisma";
 import {
-  requireAuthenticated,
+  requirePermission,
   boardReadScopeWhere,
   AuthenticationError,
+  AuthorizationError,
 } from "@/lib/authz";
 
 export const getTasks = async () => {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("projects.view");
   } catch (e) {
     if (e instanceof AuthenticationError) return [];
+    if (e instanceof AuthorizationError) return [];
     throw e;
   }
 
@@ -35,10 +37,21 @@ export const getTasks = async () => {
 
 //get tasks by month for chart
 export const getTasksByMonth = async () => {
+  let user;
+  try {
+    user = await requirePermission("projects.view");
+  } catch (e) {
+    if (e instanceof AuthenticationError || e instanceof AuthorizationError) return [];
+    throw e;
+  }
+
   const tasks = await prismadb.tasks.findMany({
-    select: {
-      createdAt: true,
+    where: {
+      assigned_section: {
+        board_relation: boardReadScopeWhere(user),
+      },
     },
+    select: { createdAt: true },
   });
 
   if (!tasks) {

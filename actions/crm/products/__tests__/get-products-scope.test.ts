@@ -2,6 +2,7 @@ jest.mock("@/lib/auth-server", () => ({ getSession: jest.fn() }));
 jest.mock("@/lib/prisma", () => ({
   prismadb: {
     users: { findUnique: jest.fn() },
+    nexusUserPermission: { findMany: jest.fn().mockResolvedValue([]) },
     crm_Products: { findMany: jest.fn() },
   },
 }));
@@ -29,6 +30,7 @@ describe("getProductsFull auth gate", () => {
   it("returns array when authenticated", async () => {
     gs.mockResolvedValue({ user: { id: "u" } } as any);
     fu.mockResolvedValue({ id: "u", role: "user" } as any);
+    (prismadb as any).nexusUserPermission.findMany.mockResolvedValue([{ key: "crm.view" }]);
     findMany.mockResolvedValue([{ id: "p1", name: "Widget" }] as any);
     const res = await getProductsFull();
     expect(res).toHaveLength(1);

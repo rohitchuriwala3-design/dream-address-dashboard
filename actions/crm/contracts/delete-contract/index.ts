@@ -6,7 +6,7 @@ import { InputType, ReturnType } from "./types";
 import { createSafeAction } from "@/lib/create-safe-action";
 import { writeAuditLog } from "@/lib/audit-log";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanWriteContract,
   AuthenticationError,
   AuthorizationError,
@@ -23,9 +23,10 @@ const handler = async (data: InputType): Promise<ReturnType> => {
 
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("crm.manage");
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "User not logged in." };
+    if (e instanceof AuthorizationError) return { error: "Forbidden" };
     throw e;
   }
   try {

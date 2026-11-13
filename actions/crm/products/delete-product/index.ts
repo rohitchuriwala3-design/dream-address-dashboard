@@ -2,12 +2,12 @@
 import { prismadb } from "@/lib/prisma";
 import { writeAuditLog } from "@/lib/audit-log";
 import { revalidatePath } from "next/cache";
-import { requireRole, AuthenticationError, AuthorizationError } from "@/lib/authz";
+import { requirePermission, AuthenticationError, AuthorizationError } from "@/lib/authz";
 
 export const deleteProduct = async (id: string) => {
   let actor;
   try {
-    actor = await requireRole(["manager", "admin"]);
+    actor = await requirePermission("crm.manage");
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthorized" };
     if (e instanceof AuthorizationError) return { error: "Forbidden" };

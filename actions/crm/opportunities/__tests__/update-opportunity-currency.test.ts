@@ -1,8 +1,9 @@
 jest.mock("@/lib/auth-server", () => ({ getSession: jest.fn() }));
-// Actions now resolve the caller via requireAuthenticated + assertCanWrite*;
+// Permission resolution is mocked here; object-level auth is covered separately.
 // authz behavior is covered by the *-scope tests, so pass it through here.
 jest.mock("@/lib/authz", () => ({
   requireAuthenticated: jest.fn(),
+  requirePermission: jest.fn(),
   assertCanWriteOpportunity: jest.fn(),
   AuthenticationError: class AuthenticationError extends Error {},
   AuthorizationError: class AuthorizationError extends Error {},
@@ -30,7 +31,7 @@ jest.mock("next/cache", () => ({ revalidatePath: jest.fn() }));
 
 import { prismadb } from "@/lib/prisma";
 import { getSession } from "@/lib/auth-server";
-import { requireAuthenticated, assertCanWriteOpportunity } from "@/lib/authz";
+import { requireAuthenticated, requirePermission, assertCanWriteOpportunity } from "@/lib/authz";
 import { updateOpportunity } from "@/actions/crm/opportunities/update-opportunity";
 
 describe("updateOpportunity currency handling", () => {
@@ -38,6 +39,7 @@ describe("updateOpportunity currency handling", () => {
     jest.clearAllMocks();
     (getSession as jest.Mock).mockResolvedValue({ user: { id: "u1" } });
     (requireAuthenticated as jest.Mock).mockResolvedValue({ id: "u1", role: "admin" });
+    (requirePermission as jest.Mock).mockResolvedValue({ id: "u1", role: "admin" });
     (assertCanWriteOpportunity as jest.Mock).mockResolvedValue(undefined);
     (prismadb.crm_Opportunities.findUnique as jest.Mock).mockResolvedValue({ id: "opp-1" });
     (prismadb.crm_Opportunities.update as jest.Mock).mockResolvedValue({ id: "opp-1" });

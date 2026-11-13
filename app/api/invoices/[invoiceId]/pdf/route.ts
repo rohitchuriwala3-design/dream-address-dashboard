@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  requireAuthenticated,
+  requirePermission,
   unauthorizedResponse,
   notFoundOrForbiddenResponse,
   AuthenticationError,
+  AuthorizationError,
 } from "@/lib/authz";
 import { prismadb } from "@/lib/prisma";
 import { invoiceReadScopeWhere } from "@/lib/invoices/permissions";
@@ -16,9 +17,10 @@ export async function GET(
   const { invoiceId } = await params;
   let user;
   try {
-    user = await requireAuthenticated({ partner: true });
+    user = await requirePermission("finance.view", { partner: true });
   } catch (e) {
     if (e instanceof AuthenticationError) return unauthorizedResponse();
+    if (e instanceof AuthorizationError) return notFoundOrForbiddenResponse();
     throw e;
   }
 

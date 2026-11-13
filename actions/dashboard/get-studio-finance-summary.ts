@@ -1,5 +1,5 @@
 import { prismadb } from "@/lib/prisma";
-import { requireAuthenticated, AuthenticationError } from "@/lib/authz";
+import { requirePermission, AuthenticationError, AuthorizationError } from "@/lib/authz";
 import { invoiceReadScopeWhere } from "@/lib/invoices/permissions";
 import { Invoice_Status, Prisma } from "@prisma/client";
 
@@ -9,7 +9,7 @@ import { Invoice_Status, Prisma } from "@prisma/client";
  */
 export async function getStudioFinanceSummary() {
   try {
-    const user = await requireAuthenticated({ partner: true });
+    const user = await requirePermission("finance.view", { partner: true });
     const scope = invoiceReadScopeWhere(user);
     const issuedInvoices: Prisma.InvoicesWhereInput = {
       ...scope,
@@ -43,7 +43,7 @@ export async function getStudioFinanceSummary() {
       excludesOtherCurrencies: true,
     };
   } catch (error) {
-    if (error instanceof AuthenticationError) {
+    if (error instanceof AuthenticationError || error instanceof AuthorizationError) {
       return {
         issuedInvoiceValue: "0",
         collected: "0",

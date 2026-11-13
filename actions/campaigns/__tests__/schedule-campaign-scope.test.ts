@@ -2,6 +2,7 @@ jest.mock("@/lib/auth-server", () => ({ getSession: jest.fn() }));
 jest.mock("@/lib/prisma", () => ({
   prismadb: {
     users: { findUnique: jest.fn() },
+    nexusUserPermission: { findMany: jest.fn().mockResolvedValue([{ key: "crm.view" }, { key: "crm.manage" }]) },
     crm_campaigns: { findFirst: jest.fn(), update: jest.fn() },
     crm_campaign_steps: { findFirst: jest.fn() },
   },

@@ -2,7 +2,7 @@
 
 import { prismadb } from "@/lib/prisma";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanWriteAccount,
   AuthenticationError,
   AuthorizationError,
@@ -15,7 +15,7 @@ import { Decimal } from "decimal.js";
 export async function duplicateInvoice(invoiceId: string) {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("finance.manage");
   } catch (e) {
     if (e instanceof AuthenticationError) throw new Error("Unauthorized");
     throw e;

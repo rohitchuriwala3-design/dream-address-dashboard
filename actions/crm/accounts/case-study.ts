@@ -4,7 +4,7 @@ import { prismadb } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { writeAuditLog } from "@/lib/audit-log";
 import {
-  requireAuthenticated,
+  requirePermission,
   requireRole,
   assertCanWriteAccount,
   AuthenticationError,
@@ -19,9 +19,10 @@ export async function setCaseStudyCandidate(
 ): Promise<{ error?: string }> {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission('crm.manage');
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthorized" };
+    if (e instanceof AuthorizationError) return { error: "Forbidden" };
     throw e;
   }
   try {
@@ -69,6 +70,7 @@ export async function setCaseStudyApproved(
   let approver;
   try {
     approver = await requireRole(["manager", "admin"]);
+    await requirePermission("crm.manage");
   } catch (e) {
     if (e instanceof AuthenticationError || e instanceof AuthorizationError) {
       return { error: "Forbidden" };

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { pluginRuleErrorMessage } from "@/lib/plugins/action-errors";
 import { writeAuditLog } from "@/lib/audit-log";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanWriteOpportunity,
   AuthenticationError,
   AuthorizationError,
@@ -15,7 +15,7 @@ export const deleteOpportunity = async (opportunityId: string) => {
 
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("crm.manage");
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthorized" };
     throw e;

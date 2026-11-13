@@ -1,5 +1,5 @@
 jest.mock("@/lib/authz", () => ({
-  requireRole: jest.fn(), AuthenticationError: class AuthenticationError extends Error {},
+  requirePermission: jest.fn(), AuthenticationError: class AuthenticationError extends Error {},
   AuthorizationError: class AuthorizationError extends Error {},
 }));
 jest.mock("@/lib/prisma", () => ({ prismadb: {
@@ -10,7 +10,7 @@ jest.mock("@/lib/prisma", () => ({ prismadb: {
 } }));
 jest.mock("@/lib/audit-log", () => ({ writeAuditLog: jest.fn() }));
 
-import { requireRole } from "@/lib/authz";
+import { requirePermission } from "@/lib/authz";
 import { prismadb } from "@/lib/prisma";
 import { createVendorBill, markVendorBillPaid, reviewVendorBill, reviseRejectedVendorBill } from "../service";
 
@@ -18,11 +18,11 @@ const tx = { $queryRaw: jest.fn(), vendorBill: { findUnique: jest.fn(), update: 
 
 beforeEach(() => {
   jest.clearAllMocks();
-  (requireRole as jest.Mock).mockResolvedValue({ id: "manager-1", role: "manager" });
+  (requirePermission as jest.Mock).mockResolvedValue({ id: "manager-1", role: "manager" });
   (prismadb.crm_Accounts.findFirst as jest.Mock).mockResolvedValue({ id: "vendor-1" });
   (prismadb.studioProject.findFirst as jest.Mock).mockResolvedValue({ id: "project-1", currency: "INR" });
   (prismadb.vendorBill.create as jest.Mock).mockResolvedValue({ id: "bill-1", grossAmount: "1234.50" });
-  tx.vendorBill.findUnique.mockResolvedValue({ id: "bill-1", status: "SUBMITTED" });
+  tx.vendorBill.findUnique.mockResolvedValue({ id: "bill-1", status: "SUBMITTED", currency: "INR" });
   tx.vendorBill.update.mockImplementation(({ data }: any) => Promise.resolve({ id: "bill-1", ...data }));
   tx.treasuryAccount.findFirst.mockResolvedValue({ id: "cash-1", currency: "INR" });
   tx.treasuryEntry.aggregate.mockResolvedValue({ _sum: { amount: "5000" } });

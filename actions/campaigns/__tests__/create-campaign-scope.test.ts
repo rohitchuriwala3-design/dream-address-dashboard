@@ -2,6 +2,7 @@ jest.mock("@/lib/auth-server", () => ({ getSession: jest.fn() }));
 jest.mock("@/lib/prisma", () => ({
   prismadb: {
     users: { findUnique: jest.fn() },
+    nexusUserPermission: { findMany: jest.fn().mockResolvedValue([{ key: "crm.view" }, { key: "crm.manage" }]) },
     crm_campaigns: { create: jest.fn() },
     crm_campaign_templates: { findFirst: jest.fn() },
     crm_TargetLists: { findMany: jest.fn() },
@@ -30,6 +31,14 @@ describe("createCampaign scope", () => {
     (getSession as jest.Mock).mockResolvedValue(null);
     const res = await createCampaign({ ...baseInput });
     expect(res).toEqual({ error: "Unauthorized" });
+    expect(prismadb.crm_campaigns.create).not.toHaveBeenCalled();
+  });
+
+  it("requires crm.manage even when the caller is signed in", async () => {
+    mockUser("user", "u1");
+    (prismadb.nexusUserPermission.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const res = await createCampaign({ ...baseInput });
+    expect(res).toEqual({ error: "Forbidden" });
     expect(prismadb.crm_campaigns.create).not.toHaveBeenCalled();
   });
 

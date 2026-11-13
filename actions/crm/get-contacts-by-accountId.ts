@@ -1,6 +1,6 @@
 import { prismadb } from "@/lib/prisma";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanReadAccount,
   contactReadScopeWhere,
   AuthenticationError,
@@ -10,7 +10,7 @@ import {
 export const getContactsByAccountId = async (accountId: string) => {
   let user;
   try {
-    user = await requireAuthenticated({ partner: true });
+    user = await requirePermission('crm.view', { partner: true });
   } catch (e) {
     if (e instanceof AuthenticationError) return [];
     throw e;

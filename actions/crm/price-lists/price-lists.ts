@@ -2,7 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prismadb } from "@/lib/prisma";
-import { requireAuthenticated, assertCanWritePriceList, AuthenticationError, AuthorizationError } from "@/lib/authz";
+import { requireAuthenticated, requirePermission, assertCanWritePriceList, AuthenticationError, AuthorizationError } from "@/lib/authz";
 import { writeAuditLog } from "@/lib/audit-log";
 import { cleanRule, createsListCycle, ruleProblems, type RuleFields } from "@/lib/pricing/validate";
 import { getPrice } from "@/lib/pricing/get-price";
@@ -15,13 +15,13 @@ const PATH = "/[locale]/(routes)/crm/price-lists";
 const listSchema = z.object({ name: z.string().trim().min(1).max(200), currency: z.literal("INR") });
 
 async function signedIn() {
-  try { return await requireAuthenticated(); } catch (e) { if (e instanceof AuthenticationError) return null; throw e; }
+  try { return await requirePermission("crm.view"); } catch (e) { if (e instanceof AuthenticationError || e instanceof AuthorizationError) return null; throw e; }
 }
 
 /** Resolves the caller and the list, and enforces assertCanWritePriceList. */
 async function writer(listId: string | null): Promise<{ userId: string } | { error: string }> {
-  const user = await signedIn();
-  if (!user) return { error: "Unauthorized" };
+  let user;
+  try { user = await requirePermission("crm.manage"); } catch (e) { if (e instanceof AuthenticationError) return { error: "Unauthorized" }; if (e instanceof AuthorizationError) return { error: "Forbidden" }; throw e; }
   const list = listId ? await prismadb.crm_PriceLists.findUnique({ where: { id: listId } }) : null;
   if (listId && !list) return { error: "Not found" };
   try { assertCanWritePriceList(user, list); } catch (e) { if (e instanceof AuthorizationError) return { error: "Forbidden" }; throw e; }

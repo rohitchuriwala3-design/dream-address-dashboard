@@ -1,17 +1,19 @@
 import { prismadb } from "@/lib/prisma";
 import {
-  requireAuthenticated,
+  requireAnyPermission,
   documentReadScopeWhere,
   AuthenticationError,
+  AuthorizationError,
 } from "@/lib/authz";
 
 // Size of the documents the caller can read (no org-wide total for user/partner).
 export const getStorageSize = async () => {
   let user;
   try {
-    user = await requireAuthenticated({ partner: true });
+    user = await requireAnyPermission(["crm.view", "projects.view"], { partner: true });
   } catch (e) {
     if (e instanceof AuthenticationError) return 0;
+    if (e instanceof AuthorizationError) return 0;
     throw e;
   }
   const data = await prismadb.documents.findMany({

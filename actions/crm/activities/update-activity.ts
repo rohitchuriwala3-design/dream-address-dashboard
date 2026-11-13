@@ -1,6 +1,6 @@
 "use server";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanWriteActivity,
   PARTNER_EDIT,
   AuthenticationError,
@@ -33,9 +33,10 @@ export const updateActivity = async (data: {
   // swallowed into the generic "Failed to update activity" branch.
   let user;
   try {
-    user = await requireAuthenticated({ partner: true });
+    user = await requirePermission('crm.manage', { partner: true });
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthorized" };
+    if (e instanceof AuthorizationError) return { error: "Forbidden" };
     throw e;
   }
   try {

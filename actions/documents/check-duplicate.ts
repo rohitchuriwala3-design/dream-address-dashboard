@@ -1,8 +1,9 @@
 "use server";
 import {
-  requireAuthenticated,
+  requireAnyPermission,
   documentReadScopeWhere,
   AuthenticationError,
+  AuthorizationError,
 } from "@/lib/authz";
 import { prismadb } from "@/lib/prisma";
 
@@ -19,9 +20,10 @@ interface DuplicateResult {
 export async function checkDuplicate(contentHash: string): Promise<DuplicateResult> {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requireAnyPermission(["crm.view", "projects.view"], { partner: true });
   } catch (e) {
     if (e instanceof AuthenticationError) return { isDuplicate: false };
+    if (e instanceof AuthorizationError) return { isDuplicate: false };
     throw e;
   }
 

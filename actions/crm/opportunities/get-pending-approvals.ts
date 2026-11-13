@@ -4,6 +4,7 @@ import { prismadb } from "@/lib/prisma";
 import { serializeDecimalsList } from "@/lib/serialize-decimals";
 import {
   requireRole,
+  requirePermission,
   AuthenticationError,
   AuthorizationError,
 } from "@/lib/authz";
@@ -23,6 +24,7 @@ export async function getPendingApprovals(): Promise<
 > {
   try {
     await requireRole(["manager", "admin"]);
+    await requirePermission("crm.view");
   } catch (e) {
     if (e instanceof AuthenticationError || e instanceof AuthorizationError) {
       return { error: "Forbidden" };

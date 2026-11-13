@@ -10,10 +10,12 @@ import {
   mapLegacyRole,
   assertCanWriteAccount,
   AuthorizationError,
+  requirePermission,
 } from "@/lib/authz";
 import { serializeDecimals } from "@/lib/serialize-decimals";
 
 export async function updateInvoice(invoiceId: string, raw: unknown) {
+  await requirePermission("finance.manage");
   const user = await getUser();
   const input = updateInvoiceSchema.parse(raw);
 

@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { prismadb } from "@/lib/prisma";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanReadAccount,
   AuthenticationError,
   AuthorizationError,
@@ -10,9 +10,10 @@ import {
 export const getAccountProducts = cache(async (accountId: string) => {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission('crm.view');
   } catch (e) {
     if (e instanceof AuthenticationError) return [];
+    if (e instanceof AuthorizationError) return [];
     throw e;
   }
   try {

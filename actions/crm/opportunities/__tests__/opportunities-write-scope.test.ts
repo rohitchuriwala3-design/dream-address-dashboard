@@ -4,6 +4,7 @@
 jest.mock("@/lib/authz", () => ({
   PARTNER_EDIT: { partnerEdit: true },
   requireAuthenticated: jest.fn(),
+  requirePermission: jest.fn(),
   assertCanWriteOpportunity: jest.fn(),
   assertCanWriteAccount: jest.fn(),
   assertCanReadCampaign: jest.fn(),
@@ -36,6 +37,7 @@ jest.mock("@/lib/crm/approval-gate", () => ({ qualifiedEntryBlockReason: jest.fn
 
 import {
   requireAuthenticated,
+  requirePermission,
   assertCanWriteOpportunity,
   assertCanWriteAccount,
   assertCanReadCampaign,
@@ -47,6 +49,7 @@ import { updateOpportunity } from "@/actions/crm/opportunities/update-opportunit
 import { deleteOpportunity } from "@/actions/crm/opportunities/delete-opportunity";
 
 const authed = requireAuthenticated as jest.Mock;
+const permitted = requirePermission as jest.Mock;
 const assertOpp = assertCanWriteOpportunity as jest.Mock;
 const assertAccount = assertCanWriteAccount as jest.Mock;
 const oUpdate = prismadb.crm_Opportunities.update as jest.Mock;
@@ -59,6 +62,7 @@ const OWNER = { id: "owner", role: "user" };
 beforeEach(() => {
   jest.clearAllMocks();
   authed.mockResolvedValue(OWNER);
+  permitted.mockImplementation(() => authed());
   assertOpp.mockResolvedValue(undefined);
   assertAccount.mockResolvedValue(undefined);
   assertCampaign.mockResolvedValue(undefined);

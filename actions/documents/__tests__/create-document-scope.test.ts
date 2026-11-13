@@ -1,6 +1,6 @@
 jest.mock("@/lib/auth-server", () => ({ getSession: jest.fn() }));
 jest.mock("@/lib/prisma", () => ({
-  prismadb: {
+  prismadb: { nexusUserPermission: { findMany: jest.fn().mockResolvedValue([{ key: "crm.view" }, { key: "crm.manage" }, { key: "projects.view" }, { key: "projects.manage" }]) },
     users: { findUnique: jest.fn() },
     documents: { create: jest.fn(), findFirst: jest.fn(), count: jest.fn() },
     crm_Accounts: { findFirst: jest.fn() },
@@ -68,6 +68,15 @@ describe("createDocument auth", () => {
     expect(where.id).toBe("a1");
     expect(where.OR).toBeUndefined();
     expect(prismadb.documents.create).toHaveBeenCalled();
+  });
+
+  it("does not upload or create a document without CRM/project manage access", async () => {
+    mockUser("user", "u1");
+    (prismadb.nexusUserPermission.findMany as jest.Mock).mockResolvedValueOnce([{ key: "crm.view" }]);
+
+    await expect(createDocument(baseInput)).rejects.toThrow("Forbidden");
+    expect(prismadb.documents.create).not.toHaveBeenCalled();
+    expect(prismadb.documents.count).not.toHaveBeenCalled();
   });
 });
 

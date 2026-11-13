@@ -2,19 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import { inngest } from "@/inngest/client";
 import { getApiKey } from "@/lib/api-keys";
 import {
-  requireAuthenticated,
+  requirePermission,
   filterWritableContactIds,
   unauthorizedResponse,
   forbiddenResponse,
   AuthenticationError,
+  AuthorizationError,
 } from "@/lib/authz";
 
 export async function POST(request: NextRequest) {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("crm.manage");
   } catch (e) {
     if (e instanceof AuthenticationError) return unauthorizedResponse();
+    if (e instanceof AuthorizationError) return forbiddenResponse();
     throw e;
   }
 

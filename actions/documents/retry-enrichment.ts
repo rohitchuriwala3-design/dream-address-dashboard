@@ -1,6 +1,6 @@
 "use server";
 import {
-  requireAuthenticated,
+  requireAnyPermission,
   assertCanWriteDocument,
   AuthenticationError,
   AuthorizationError,
@@ -12,9 +12,10 @@ import { revalidatePath } from "next/cache";
 export async function retryEnrichment(documentId: string) {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requireAnyPermission(["crm.manage", "projects.manage"]);
   } catch (e) {
     if (e instanceof AuthenticationError) throw new Error("Unauthorized");
+    if (e instanceof AuthorizationError) throw new Error("Forbidden");
     throw e;
   }
 

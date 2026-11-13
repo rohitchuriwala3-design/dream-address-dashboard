@@ -3,6 +3,7 @@
 
 jest.mock("@/lib/authz", () => ({
   requireAuthenticated: jest.fn(),
+  requirePermission: jest.fn(),
   assertCanWriteTarget: jest.fn(),
   AuthenticationError: class AuthenticationError extends Error {},
   AuthorizationError: class AuthorizationError extends Error {},
@@ -33,6 +34,7 @@ jest.mock("@/actions/crm/targets/convert-target", () => ({ convertTarget: mockCo
 
 import {
   requireAuthenticated,
+  requirePermission,
   assertCanWriteTarget,
   AuthorizationError,
 } from "@/lib/authz";
@@ -42,6 +44,7 @@ import { deleteTarget } from "@/actions/crm/targets/delete-target";
 import { convertTargetToDeal } from "@/actions/crm/targets/convert-target-to-deal";
 
 const authed = requireAuthenticated as jest.Mock;
+const permission = requirePermission as jest.Mock;
 const assertTarget = assertCanWriteTarget as jest.Mock;
 const tUpdate = prismadb.crm_Targets.update as jest.Mock;
 
@@ -50,6 +53,7 @@ const OWNER = { id: "owner", role: "user" };
 beforeEach(() => {
   jest.clearAllMocks();
   authed.mockResolvedValue(OWNER);
+  permission.mockImplementation((_key: string, options?: { partner?: boolean }) => authed(options));
   assertTarget.mockResolvedValue(undefined);
   mockConvertTarget.mockResolvedValue({ accountId: "a-1", contactId: "c-1" });
 });

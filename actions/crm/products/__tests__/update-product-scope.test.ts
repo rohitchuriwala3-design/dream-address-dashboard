@@ -2,6 +2,7 @@ jest.mock("@/lib/auth-server", () => ({ getSession: jest.fn() }));
 jest.mock("@/lib/prisma", () => ({
   prismadb: {
     users: { findUnique: jest.fn() },
+    nexusUserPermission: { findMany: jest.fn().mockResolvedValue([]) },
     crm_Products: {
       findUnique: jest.fn(),
       update: jest.fn(),
@@ -50,6 +51,7 @@ describe("updateProduct role gate", () => {
   it("manager succeeds", async () => {
     gs.mockResolvedValue({ user: { id: "m" } } as any);
     fu.mockResolvedValue({ id: "m", role: "manager" } as any);
+    (prismadb as any).nexusUserPermission.findMany.mockResolvedValue([{ key: "crm.manage" }]);
     const res = await updateProduct(validInput);
     expect(res).toMatchObject({ data: { id: "p1" } });
     expect(upd).toHaveBeenCalled();

@@ -6,7 +6,9 @@ import {
 } from "@/inngest/lib/embedding-utils";
 import {
   requireAuthenticated,
+  requirePermission,
   AuthenticationError,
+  AuthorizationError,
   boardReadScopeWhere,
   documentReadScopeWhere,
 } from "@/lib/authz";
@@ -62,6 +64,12 @@ export async function unifiedSearch(
   if (!query || query.trim().length < 2)
     return { error: "Query must be at least 2 characters" };
 
+  const canRead = async (permission: "crm.view" | "projects.view") => {
+    try { await requirePermission(permission, { partner: true }); return true; }
+    catch (error) { if (error instanceof AuthorizationError) return false; throw error; }
+  };
+  const [canSearchCrm, canSearchProjects] = await Promise.all([canRead("crm.view"), canRead("projects.view")]);
+  const canSearchDocuments = canSearchCrm || canSearchProjects;
   const scope = getReportScope(user);
 
   // Generate embedding — fall back to keyword-only on failure (silent)
@@ -93,7 +101,7 @@ export async function unifiedSearch(
       semDocChunks,
     ] = await Promise.all([
       prismadb.crm_Accounts.findMany({
-        where: {
+        where: !canSearchCrm ? { id: { in: [] } } : {
           deletedAt: null,
           AND: [
             scope.account,
@@ -110,7 +118,7 @@ export async function unifiedSearch(
         select: { id: true, name: true, email: true },
       }),
       prismadb.crm_Contacts.findMany({
-        where: {
+        where: !canSearchCrm ? { id: { in: [] } } : {
           deletedAt: null,
           AND: [
             scope.contact,
@@ -127,7 +135,7 @@ export async function unifiedSearch(
         select: { id: true, first_name: true, last_name: true, email: true },
       }),
       prismadb.crm_Leads.findMany({
-        where: {
+        where: !canSearchCrm ? { id: { in: [] } } : {
           deletedAt: null,
           AND: [
             scope.lead,
@@ -145,7 +153,7 @@ export async function unifiedSearch(
         select: { id: true, firstName: true, lastName: true, company: true, email: true },
       }),
       prismadb.crm_Opportunities.findMany({
-        where: {
+        where: !canSearchCrm ? { id: { in: [] } } : {
           deletedAt: null,
           AND: [
             scope.opportunity,
@@ -161,7 +169,7 @@ export async function unifiedSearch(
         select: { id: true, name: true, status: true },
       }),
       prismadb.boards.findMany({
-        where: {
+        where: !canSearchProjects ? { id: { in: [] } } : {
           AND: [
             boardReadScopeWhere(user),
             {
@@ -176,7 +184,7 @@ export async function unifiedSearch(
         select: { id: true, title: true, description: true },
       }),
       prismadb.tasks.findMany({
-        where: {
+        where: !canSearchProjects ? { id: { in: [] } } : {
           AND: [
             scope.task,
             {
@@ -190,7 +198,7 @@ export async function unifiedSearch(
         take: 10,
         select: { id: true, title: true, taskStatus: true },
       }),
-      scope.allowUserDirectory
+      scope.allowUserDirectory && (canSearchCrm || canSearchProjects)
         ? prismadb.users.findMany({
             where: {
               OR: [
@@ -204,7 +212,7 @@ export async function unifiedSearch(
           })
         : Promise.resolve([] as { id: string; name: string | null; email: string | null }[]),
       prismadb.documents.findMany({
-        where: {
+        where: !canSearchDocuments ? { id: { in: [] } } : {
           parent_document_id: null,
           AND: [
             documentReadScopeWhere(user),
@@ -226,7 +234,7 @@ export async function unifiedSearch(
           accounts: { select: { account: { select: { name: true } } }, take: 1 },
         },
       }),
-      queryVec
+      queryVec && canSearchCrm
         ? prismadb.$queryRaw<{ id: string; similarity: number }[]>`
             SELECT a.id, 1 - (e.embedding <=> ${queryVec}::vector) AS similarity
             FROM "crm_Accounts" a
@@ -235,7 +243,7 @@ export async function unifiedSearch(
             ORDER BY e.embedding <=> ${queryVec}::vector
             LIMIT 10`
         : noSemantic,
-      queryVec
+      queryVec && canSearchCrm
         ? prismadb.$queryRaw<{ id: string; similarity: number }[]>`
             SELECT c.id, 1 - (e.embedding <=> ${queryVec}::vector) AS similarity
             FROM "crm_Contacts" c
@@ -244,7 +252,7 @@ export async function unifiedSearch(
             ORDER BY e.embedding <=> ${queryVec}::vector
             LIMIT 10`
         : noSemantic,
-      queryVec
+      queryVec && canSearchCrm
         ? prismadb.$queryRaw<{ id: string; similarity: number }[]>`
             SELECT l.id, 1 - (e.embedding <=> ${queryVec}::vector) AS similarity
             FROM "crm_Leads" l
@@ -253,7 +261,7 @@ export async function unifiedSearch(
             ORDER BY e.embedding <=> ${queryVec}::vector
             LIMIT 10`
         : noSemantic,
-      queryVec
+      queryVec && canSearchCrm
         ? prismadb.$queryRaw<{ id: string; similarity: number }[]>`
             SELECT o.id, 1 - (e.embedding <=> ${queryVec}::vector) AS similarity
             FROM "crm_Opportunities" o
@@ -262,7 +270,7 @@ export async function unifiedSearch(
             ORDER BY e.embedding <=> ${queryVec}::vector
             LIMIT 10`
         : noSemantic,
-      queryVec
+      queryVec && canSearchDocuments
         ? prismadb.$queryRaw<{ id: string; similarity: number }[]>`
             SELECT d.id, 1 - (e.embedding <=> ${queryVec}::vector) AS similarity
             FROM "Documents" d
@@ -271,7 +279,7 @@ export async function unifiedSearch(
             ORDER BY e.embedding <=> ${queryVec}::vector
             LIMIT 10`
         : noSemantic,
-      queryVec
+      queryVec && canSearchDocuments
         ? prismadb.$queryRaw<{ id: string; similarity: number }[]>`
             SELECT DISTINCT c."document_id" AS id,
                    MAX(1 - (c.embedding <=> ${queryVec}::vector)) AS similarity

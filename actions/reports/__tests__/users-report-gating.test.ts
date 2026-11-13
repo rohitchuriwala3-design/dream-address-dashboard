@@ -7,6 +7,7 @@ jest.mock("@/lib/prisma", () => ({
       count: jest.fn().mockResolvedValue(0),
       findMany: jest.fn().mockResolvedValue([]),
     },
+    nexusUserPermission: { findMany: jest.fn().mockResolvedValue([{ key: "reports.view" }]) },
   },
 }));
 

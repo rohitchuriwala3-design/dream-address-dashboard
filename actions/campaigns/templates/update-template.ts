@@ -1,7 +1,7 @@
 "use server";
 import { prismadb } from "@/lib/prisma";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanWriteTemplate,
   AuthenticationError,
   AuthorizationError,
@@ -19,9 +19,10 @@ export const updateTemplate = async (
 ) => {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("crm.manage");
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthorized" };
+    if (e instanceof AuthorizationError) return { error: "Forbidden" };
     throw e;
   }
 

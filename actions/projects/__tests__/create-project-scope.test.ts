@@ -1,6 +1,6 @@
 jest.mock("@/lib/auth-server", () => ({ getSession: jest.fn() }));
 jest.mock("@/lib/prisma", () => ({
-  prismadb: {
+  prismadb: { nexusUserPermission: { findMany: jest.fn().mockResolvedValue([{ key: "projects.view" }, { key: "projects.manage" }]) },
     users: { findUnique: jest.fn() },
     boards: { count: jest.fn(), create: jest.fn() },
     sections: { create: jest.fn() },
@@ -38,5 +38,14 @@ describe("createProject scope", () => {
     expect(args.data.user).toBe("u1");
     expect(args.data.createdBy).toBe("u1");
     expect(args.data.sharedWith).toEqual(["u1"]);
+  });
+
+  it("does not create a board when the selected manage permission is missing", async () => {
+    mockUser("u1");
+    (prismadb.nexusUserPermission.findMany as jest.Mock).mockResolvedValueOnce([{ key: "projects.view" }]);
+
+    const res = await createProject({ title: "t", description: "d", visibility: "private" });
+    expect(res).toEqual({ error: "Forbidden" });
+    expect(prismadb.boards.create).not.toHaveBeenCalled();
   });
 });

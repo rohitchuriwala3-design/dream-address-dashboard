@@ -6,6 +6,7 @@ jest.mock("@/lib/prisma", () => ({
 }));
 jest.mock("@/lib/authz", () => ({
   requireAuthenticated: jest.fn().mockResolvedValue({ id: "u1", role: "admin" }),
+  requirePermission: jest.fn().mockResolvedValue({ id: "u1", role: "admin" }),
   opportunityReadScopeWhere: jest.fn(() => ({})),
   contractReadScopeWhere: jest.fn(() => ({})),
   assertCanReadAccount: jest.fn().mockResolvedValue(undefined),

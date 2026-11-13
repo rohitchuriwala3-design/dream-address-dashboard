@@ -1,5 +1,6 @@
 jest.mock("@/lib/authz", () => ({
   requireAuthenticated: jest.fn(),
+  requirePermission: jest.fn(),
   requireRole: jest.fn(),
   assertCanWriteOpportunity: jest.fn(),
   AuthenticationError: class AuthenticationError extends Error {},
@@ -30,13 +31,14 @@ jest.mock("@/lib/resend", () => ({
 }));
 
 import { prismadb } from "@/lib/prisma";
-import { requireAuthenticated, requireRole } from "@/lib/authz";
+import { requireAuthenticated, requirePermission, requireRole } from "@/lib/authz";
 import { requestApproval, decideApproval, reopenApprovedQuote } from "@/actions/crm/opportunities/approval";
 
 describe("requestApproval", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (requireAuthenticated as jest.Mock).mockResolvedValue({ id: "rep1", role: "user" });
+    (requirePermission as jest.Mock).mockResolvedValue({ id: "rep1", role: "user" });
     (prismadb.crm_Opportunities.findFirst as jest.Mock).mockResolvedValue({
       id: "o1", name: "Deal", approval_status: "NONE", assigned_to: "rep1",
     });
@@ -113,6 +115,7 @@ describe("decideApproval", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (requireRole as jest.Mock).mockResolvedValue({ id: "cso1", role: "manager" });
+    (requirePermission as jest.Mock).mockResolvedValue({ id: "cso1", role: "manager" });
     (prismadb.crm_Opportunities.findFirst as jest.Mock).mockResolvedValue({
       id: "o1", name: "Deal", approval_status: "PENDING", assigned_to: "rep1",
     });

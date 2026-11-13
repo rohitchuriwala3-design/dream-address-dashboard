@@ -3,7 +3,9 @@
 
 jest.mock("@/lib/authz", () => ({
   requireAuthenticated: jest.fn(),
+  requirePermission: jest.fn().mockResolvedValue({ id: "owner", role: "user" }),
   AuthenticationError: class AuthenticationError extends Error {},
+  AuthorizationError: class AuthorizationError extends Error {},
 }));
 // The checks run in lib/crm/leads/service.ts, which imports the leaf modules.
 jest.mock("@/lib/authz/scopes/crm", () => ({
@@ -27,7 +29,7 @@ jest.mock("@/lib/audit-log", () => ({ writeAuditLog: jest.fn(), diffObjects: jes
 jest.mock("@/inngest/client", () => ({ inngest: { send: jest.fn() } }));
 jest.mock("@/lib/sendmail", () => ({ __esModule: true, default: jest.fn() }));
 
-import { requireAuthenticated } from "@/lib/authz";
+import { requireAuthenticated, requirePermission } from "@/lib/authz";
 import { assertCanWriteLead, assertCanWriteAccount } from "@/lib/authz/scopes/crm";
 import { AuthorizationError } from "@/lib/authz/errors";
 import { prismadb } from "@/lib/prisma";
@@ -112,6 +114,7 @@ describe("restoreLead", () => {
 
   it("restores for an admin", async () => {
     authed.mockResolvedValue({ id: "admin", role: "admin" });
+    (requirePermission as jest.Mock).mockResolvedValue({ id: "admin", role: "admin" });
     await expect(restoreLead("l-1")).resolves.toEqual({ success: true });
     expect(lUpdate).toHaveBeenCalledWith({ where: { id: "l-1" }, data: { deletedAt: null, deletedBy: null } });
   });

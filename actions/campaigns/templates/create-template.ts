@@ -1,6 +1,6 @@
 "use server";
 import { prismadb } from "@/lib/prisma";
-import { requireAuthenticated, AuthenticationError } from "@/lib/authz";
+import { requirePermission, AuthenticationError, AuthorizationError } from "@/lib/authz";
 
 export const createTemplate = async (data: {
   name: string;
@@ -11,9 +11,10 @@ export const createTemplate = async (data: {
 }) => {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("crm.manage");
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthorized" };
+    if (e instanceof AuthorizationError) return { error: "Forbidden" };
     throw e;
   }
 

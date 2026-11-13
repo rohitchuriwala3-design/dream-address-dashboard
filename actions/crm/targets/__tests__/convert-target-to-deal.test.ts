@@ -4,6 +4,7 @@ jest.mock("@/lib/auth-server", () => ({ getSession: jest.fn() }));
 // is covered by targets-write-scope.test.ts).
 jest.mock("@/lib/authz", () => ({
   requireAuthenticated: jest.fn(),
+  requirePermission: jest.fn(),
   assertCanWriteTarget: jest.fn(),
   AuthenticationError: class AuthenticationError extends Error {},
   AuthorizationError: class AuthorizationError extends Error {},
@@ -30,6 +31,7 @@ import { inngest } from "@/inngest/client";
 import { getSession } from "@/lib/auth-server";
 import {
   requireAuthenticated,
+  requirePermission,
   assertCanWriteTarget,
   AuthenticationError,
 } from "@/lib/authz";
@@ -39,6 +41,7 @@ import { convertTargetToDeal } from "@/actions/crm/targets/convert-target-to-dea
 describe("convertTargetToDeal", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (requirePermission as jest.Mock).mockImplementation((_key: string, options?: { partner?: boolean }) => requireAuthenticated(options));
     (getSession as jest.Mock).mockResolvedValue({ user: { id: "u1" } });
     (requireAuthenticated as jest.Mock).mockResolvedValue({ id: "u1", role: "admin" });
     (assertCanWriteTarget as jest.Mock).mockResolvedValue(undefined);

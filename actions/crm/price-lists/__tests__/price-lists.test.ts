@@ -2,6 +2,7 @@ jest.mock("@/lib/auth-server", () => ({ getSession: jest.fn() }));
 jest.mock("@/lib/prisma", () => ({
   prismadb: {
     users: { findUnique: jest.fn() },
+    nexusUserPermission: { findMany: jest.fn() },
     currency: { findFirst: jest.fn() },
     crm_PriceLists: { findUnique: jest.fn(), create: jest.fn(), update: jest.fn(), delete: jest.fn() },
     crm_PriceListRules: { findUnique: jest.fn(), findMany: jest.fn(), create: jest.fn(), update: jest.fn(), delete: jest.fn(), count: jest.fn() },
@@ -24,6 +25,7 @@ const db = prismadb as unknown as Record<string, Record<string, jest.Mock>>;
 const as = (role: "user" | "manager" | "admin") => {
   (getSession as jest.Mock).mockResolvedValue({ user: { id: "u1" } });
   db.users.findUnique.mockResolvedValue({ id: "u1", role, userStatus: "ACTIVE" });
+  db.nexusUserPermission.findMany.mockResolvedValue(role === "manager" ? [{ key: "crm.manage" }] : role === "user" ? [{ key: "crm.view" }] : []);
 };
 
 beforeEach(() => {

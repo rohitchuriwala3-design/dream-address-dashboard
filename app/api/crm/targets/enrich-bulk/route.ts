@@ -4,19 +4,21 @@ import { missingTargetEnrichmentKey } from "@/lib/enrichment/target-enrichment-k
 import { FIELD_MAP } from "@/lib/enrichment/presets/target-fields";
 import type { EnrichmentField } from "@/lib/enrichment/types";
 import {
-  requireAuthenticated,
+  requirePermission,
   filterAuthorizedTargetIds,
   unauthorizedResponse,
   forbiddenResponse,
   AuthenticationError,
+  AuthorizationError,
 } from "@/lib/authz";
 
 export async function POST(request: NextRequest) {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("crm.manage");
   } catch (e) {
     if (e instanceof AuthenticationError) return unauthorizedResponse();
+    if (e instanceof AuthorizationError) return forbiddenResponse();
     throw e;
   }
 

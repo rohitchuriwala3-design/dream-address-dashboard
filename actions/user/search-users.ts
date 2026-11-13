@@ -1,5 +1,5 @@
 "use server";
-import { requireAuthenticated, AuthenticationError } from "@/lib/authz";
+import { requireAnyPermission, AuthenticationError, AuthorizationError } from "@/lib/authz";
 import { userDirectoryWhere } from "@/lib/authz/scopes/users";
 
 import { prismadb } from "@/lib/prisma";
@@ -17,9 +17,10 @@ export async function searchUsers({
 } = {}) {
   let user;
   try {
-    user = await requireAuthenticated({ partner: true });
+    user = await requireAnyPermission(["crm.manage", "projects.manage", "finance.manage"]);
   } catch (e) {
     if (e instanceof AuthenticationError) throw new Error("Unauthorized");
+    if (e instanceof AuthorizationError) throw new Error("Forbidden");
     throw e;
   }
 

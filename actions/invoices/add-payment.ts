@@ -12,8 +12,10 @@ import {
 import { mapLegacyRole } from "@/lib/authz";
 import { serializeDecimals } from "@/lib/serialize-decimals";
 import { calculatePaymentAllocation } from "@/lib/invoices/payment-allocation";
+import { requirePermission } from "@/lib/authz";
 
 export async function addPayment(raw: unknown) {
+  await requirePermission("finance.manage");
   const user = await getUser();
   const input = addPaymentSchema.parse(raw);
 

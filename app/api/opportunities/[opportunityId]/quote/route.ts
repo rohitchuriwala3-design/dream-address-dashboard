@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
-import { AuthenticationError, AuthorizationError, assertCanReadOpportunity, requireAuthenticated } from "@/lib/authz";
+import { AuthenticationError, AuthorizationError, assertCanReadOpportunity, requirePermission } from "@/lib/authz";
 import { prismadb } from "@/lib/prisma";
 import { renderApprovedQuotePdf } from "@/lib/nexus360/quote-pdf";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ opportunityId: string }> }) {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("crm.view");
   } catch (error) {
     if (error instanceof AuthenticationError) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (error instanceof AuthorizationError) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     throw error;
   }
 

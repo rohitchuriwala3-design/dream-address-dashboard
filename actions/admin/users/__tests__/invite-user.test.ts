@@ -52,7 +52,7 @@ describe("inviteUser", () => {
       role: "manager",
       data: { userStatus: "ACTIVE", userLanguage: "en" },
     } });
-    expect(createPermissions).toHaveBeenCalledWith({ data: [{ userId: "staff-1", key: "projects.view" }] });
+    expect(createPermissions).toHaveBeenCalledWith({ data: [{ userId: "staff-1", key: "projects.view" }], skipDuplicates: true });
     expect(writeAuditLog).toHaveBeenCalledWith(expect.objectContaining({
       entityType: "user", entityId: "staff-1", action: "created", userId: "admin-1",
     }));
@@ -61,8 +61,18 @@ describe("inviteUser", () => {
   it("does not call Better Auth when the address already belongs to a profile", async () => {
     findByEmail.mockResolvedValue({ id: "existing" } as never);
 
-    await expect(inviteUser(input)).resolves.toEqual({ error: "A profile with this email already exists." });
+    await expect(inviteUser(input)).resolves.toEqual({ error: "A profile with this email already exists. Open its profile to update access; the password was not changed." });
     expect(createUser).not.toHaveBeenCalled();
+  });
+
+  it("does not treat an existing account as a profile retry or change its access", async () => {
+    findByEmail.mockResolvedValue({ id: "staff-1", role: "manager", userLanguage: "en" } as never);
+
+    await expect(inviteUser(input)).resolves.toEqual({
+      error: "A profile with this email already exists. Open its profile to update access; the password was not changed.",
+    });
+    expect(createUser).not.toHaveBeenCalled();
+    expect(createPermissions).not.toHaveBeenCalled();
   });
 
   it("accepts the requested eight-character temporary password on staging", async () => {
@@ -77,5 +87,17 @@ describe("inviteUser", () => {
       data: { id: "staff-1" },
       warning: "Profile created, but some selected permissions may not have saved. Review the profile before sharing its login.",
     });
+  });
+
+  it("prevents a duplicate profile after a partial first create", async () => {
+    createPermissions.mockRejectedValueOnce(new Error("permission store unavailable"));
+    const first = await inviteUser(input);
+    expect(first).toHaveProperty("warning");
+
+    findByEmail.mockResolvedValue({ id: "staff-1", role: "manager", userLanguage: "en" } as never);
+    await expect(inviteUser(input)).resolves.toEqual({
+      error: "A profile with this email already exists. Open its profile to update access; the password was not changed.",
+    });
+    expect(createUser).toHaveBeenCalledTimes(1);
   });
 });

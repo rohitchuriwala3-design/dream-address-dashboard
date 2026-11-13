@@ -2,7 +2,7 @@
 import { prismadb } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanWriteCrmTask,
   AuthenticationError,
   AuthorizationError,
@@ -18,9 +18,10 @@ export const assignDocumentToCrmTask = async (data: {
 
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission('crm.manage');
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthorized" };
+    if (e instanceof AuthorizationError) return { error: "Forbidden" };
     throw e;
   }
   try {
@@ -62,9 +63,10 @@ export const disconnectDocumentFromCrmTask = async (data: {
 
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission('crm.manage');
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthorized" };
+    if (e instanceof AuthorizationError) return { error: "Forbidden" };
     throw e;
   }
   try {

@@ -1,5 +1,5 @@
 jest.mock("@/lib/auth-server", () => ({ getSession: jest.fn() }));
-jest.mock("@/lib/prisma", () => ({ prismadb: { users: { findUnique: jest.fn() } } }));
+jest.mock("@/lib/prisma", () => ({ prismadb: { users: { findUnique: jest.fn() }, nexusUserPermission: { findMany: jest.fn().mockResolvedValue([{ key: "crm.manage" }]) } } }));
 jest.mock("next/cache", () => ({ revalidatePath: jest.fn() }));
 jest.mock("@/lib/orders/service", () => ({ createOrder: jest.fn(), updateDraft: jest.fn(), deleteDraft: jest.fn(), quoteLine: jest.fn() }));
 jest.mock("@/lib/orders/workflow", () => ({ submitOrder: jest.fn(), decideApproval: jest.fn(), changeStatus: jest.fn() }));

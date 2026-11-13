@@ -3,6 +3,7 @@ class AuthenticationError extends Error {}
 const requireRole = jest.fn();
 jest.mock("@/lib/authz", () => ({
   requireAuthenticated: jest.fn().mockResolvedValue({ id: "u1", role: "user" }),
+  requirePermission: jest.fn().mockResolvedValue({ id: "u1", role: "user" }),
   requireRole: (...a: unknown[]) => requireRole(...a),
   assertCanWriteAccount: jest.fn(),
   AuthenticationError,

@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import NewTaskCommentEmail from "@/emails/NewTaskComment";
 import resendHelper from "@/lib/resend";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanWriteBoard,
   AuthenticationError,
   AuthorizationError,
@@ -18,9 +18,10 @@ export const addCommentToTask = async (data: {
 }) => {
   let authzUser;
   try {
-    authzUser = await requireAuthenticated();
+    authzUser = await requirePermission("projects.manage");
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthorized" };
+    if (e instanceof AuthorizationError) return { error: "Forbidden" };
     throw e;
   }
 

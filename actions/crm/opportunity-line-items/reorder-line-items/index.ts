@@ -2,7 +2,7 @@
 import { prismadb } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanWriteOpportunity,
   AuthenticationError,
   AuthorizationError,
@@ -13,9 +13,10 @@ export const reorderOpportunityLineItems = async (
 ) => {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("crm.manage", { partner: true });
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthorized" };
+    if (e instanceof AuthorizationError) return { error: "Forbidden" };
     throw e;
   }
 

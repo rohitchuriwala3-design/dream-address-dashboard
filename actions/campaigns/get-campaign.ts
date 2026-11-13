@@ -1,7 +1,7 @@
 "use server";
 import { prismadb } from "@/lib/prisma";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanReadCampaign,
   AuthenticationError,
   AuthorizationError,
@@ -10,9 +10,9 @@ import {
 export const getCampaign = async (id: string) => {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("crm.view");
   } catch (e) {
-    if (e instanceof AuthenticationError) return null;
+    if (e instanceof AuthenticationError || e instanceof AuthorizationError) return null;
     throw e;
   }
 

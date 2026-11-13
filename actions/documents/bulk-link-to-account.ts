@@ -1,6 +1,6 @@
 "use server";
 import {
-  requireAuthenticated,
+  requireAnyPermission,
   assertCanWriteAccount,
   filterWritableDocumentIds,
   AuthenticationError,
@@ -12,9 +12,10 @@ import { revalidatePath } from "next/cache";
 export async function bulkLinkToAccount(documentIds: string[], accountId: string) {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requireAnyPermission(["crm.manage", "projects.manage"]);
   } catch (e) {
     if (e instanceof AuthenticationError) throw new Error("Unauthenticated");
+    if (e instanceof AuthorizationError) throw new Error("Forbidden");
     throw e;
   }
 

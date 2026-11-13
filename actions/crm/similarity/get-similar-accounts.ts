@@ -1,7 +1,7 @@
 "use server";
 import { prismadb } from "@/lib/prisma";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanReadAccount,
   filterAuthorizedAccountIds,
   AuthenticationError,
@@ -27,9 +27,9 @@ export async function getSimilarAccounts(
 ): Promise<SimilarityResult> {
   let user;
   try {
-    user = await requireAuthenticated({ partner: true });
+    user = await requirePermission("crm.view", { partner: true });
   } catch (e) {
-    if (e instanceof AuthenticationError)
+    if (e instanceof AuthenticationError || e instanceof AuthorizationError)
       return { status: "ok", records: [] };
     throw e;
   }

@@ -1,6 +1,6 @@
 import Decimal from "decimal.js";
 import { prismadb } from "@/lib/prisma";
-import { requireRole, AuthenticationError, AuthorizationError } from "@/lib/authz";
+import { requirePermission, AuthenticationError, AuthorizationError, type NexusPermission } from "@/lib/authz";
 import { serializeDecimalsList } from "@/lib/serialize-decimals";
 import { writeAuditLog } from "@/lib/audit-log";
 
@@ -8,16 +8,16 @@ export class VendorBillError extends Error {
   constructor(message: string, readonly code: "FORBIDDEN" | "NOT_FOUND" | "INVALID" | "DUPLICATE" | "FAILED") { super(message); }
 }
 
-async function financeUser() {
-  try { return await requireRole(["manager", "admin"]); }
+async function financeUser(permission: Extract<NexusPermission, "finance.view" | "finance.manage"> = "finance.manage") {
+  try { return await requirePermission(permission); }
   catch (error) {
-    if (error instanceof AuthenticationError || error instanceof AuthorizationError) throw new VendorBillError("Manager access is required", "FORBIDDEN");
+    if (error instanceof AuthenticationError || error instanceof AuthorizationError) throw new VendorBillError("Finance access is required", "FORBIDDEN");
     throw error;
   }
 }
 
 export async function listVendorAccounts() {
-  await financeUser();
+  await financeUser("finance.view");
   return prismadb.crm_Accounts.findMany({
     where: { type: "Vendor", status: "Active", deletedAt: null },
     select: { id: true, name: true, email: true, office_phone: true, billing_city: true },
@@ -40,7 +40,7 @@ export async function createVendorAccount(input: { name: string; email?: string;
 }
 
 export async function listVendorBillProjects() {
-  await financeUser();
+  await financeUser("finance.view");
   return prismadb.studioProject.findMany({
     where: { deletedAt: null, status: { not: "CANCELLED" }, currency: "INR" },
     select: { id: true, code: true, name: true, currency: true }, orderBy: { name: "asc" }, take: 500,
@@ -48,7 +48,7 @@ export async function listVendorBillProjects() {
 }
 
 export async function listVendorBills() {
-  await financeUser();
+  await financeUser("finance.view");
   const rows = await prismadb.vendorBill.findMany({
     where: { currency: "INR" },
     include: { vendor: { select: { id: true, name: true } }, project: { select: { id: true, code: true, name: true } } },

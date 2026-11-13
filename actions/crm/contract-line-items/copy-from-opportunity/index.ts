@@ -4,7 +4,7 @@ import { writeAuditLog } from "@/lib/audit-log";
 import { revalidatePath } from "next/cache";
 import { sumLineTotals } from "@/lib/line-items";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanWriteContract,
   assertCanReadOpportunity,
   AuthenticationError,
@@ -18,9 +18,10 @@ export const copyLineItemsFromOpportunity = async (
   // Dual guard: write on the destination contract, read on the source opportunity.
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("crm.manage", { partner: true });
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthorized" };
+    if (e instanceof AuthorizationError) return { error: "Forbidden" };
     throw e;
   }
   try {

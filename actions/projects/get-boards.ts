@@ -1,17 +1,19 @@
 import { prismadb } from "@/lib/prisma";
 import { junctionTableHelpers } from "@/lib/junction-helpers";
 import {
-  requireAuthenticated,
+  requirePermission,
   boardReadScopeWhere,
   AuthenticationError,
+  AuthorizationError,
 } from "@/lib/authz";
 
 export const getBoards = async (_userId?: string) => {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("projects.view");
   } catch (e) {
     if (e instanceof AuthenticationError) return [];
+    if (e instanceof AuthorizationError) return [];
     throw e;
   }
   const data = await prismadb.boards.findMany({

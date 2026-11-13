@@ -5,6 +5,7 @@
 jest.mock("@/lib/authz", () => ({
   PARTNER_EDIT: { partnerEdit: true },
   requireAuthenticated: jest.fn(),
+  requirePermission: jest.fn(),
   assertCanWriteAccount: jest.fn(),
   AuthenticationError: class AuthenticationError extends Error {},
   AuthorizationError: class AuthorizationError extends Error {},
@@ -37,6 +38,7 @@ jest.mock("@/emails/NewTaskFromCRMToWatchers", () => ({ __esModule: true, defaul
 
 import {
   requireAuthenticated,
+  requirePermission,
   assertCanWriteAccount,
   AuthorizationError,
 } from "@/lib/authz";
@@ -49,6 +51,7 @@ import { unwatchAccount } from "@/actions/crm/accounts/unwatch-account";
 import { createTask } from "@/actions/crm/accounts/create-task";
 
 const authed = requireAuthenticated as jest.Mock;
+const permission = requirePermission as jest.Mock;
 const assertAccount = assertCanWriteAccount as jest.Mock;
 const getSess = getSession as jest.Mock;
 const accUpdate = prismadb.crm_Accounts.update as jest.Mock;
@@ -59,6 +62,7 @@ const OWNER = { id: "owner", role: "user" };
 beforeEach(() => {
   jest.clearAllMocks();
   authed.mockResolvedValue(OWNER);
+  permission.mockImplementation((_key: string, options?: { partner?: boolean }) => authed(options));
   getSess.mockResolvedValue({ user: { id: "owner", name: "Owner", userLanguage: "en" } });
 });
 

@@ -5,6 +5,7 @@ jest.mock("@/lib/crm/calendar/outbound-emit", () => ({
 }));
 jest.mock("@/lib/prisma", () => ({
   prismadb: {
+    nexusUserPermission: { findMany: jest.fn().mockResolvedValue([{ key: "crm.manage" }]) },
     users: { findUnique: jest.fn() },
     crm_Activities: { findFirst: jest.fn(), findUnique: jest.fn(), update: jest.fn() },
     crm_ActivityLinks: { findMany: jest.fn(), deleteMany: jest.fn(), createMany: jest.fn() },

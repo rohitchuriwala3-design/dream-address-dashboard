@@ -4,7 +4,7 @@ jest.mock("react", () => ({
 }));
 jest.mock("@/lib/auth-server", () => ({ getSession: jest.fn() }));
 jest.mock("@/lib/prisma", () => ({
-  prismadb: {
+  prismadb: { nexusUserPermission: { findMany: jest.fn().mockResolvedValue([{ key: "crm.view" }, { key: "crm.manage" }, { key: "projects.view" }, { key: "projects.manage" }]) },
     users: { findUnique: jest.fn() },
     documents: { findMany: jest.fn() },
   },
@@ -56,5 +56,13 @@ describe("getDocuments scope", () => {
     expect(call.where.parent_document_id).toBeNull();
     expect(call.where.deletedAt).toBeNull();
     expect(call.where.OR).toBeUndefined();
+  });
+
+  it("denies document reads when neither CRM nor project view access is granted", async () => {
+    mockUser("user", "u1");
+    (prismadb.nexusUserPermission.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+    await expect(getDocuments()).resolves.toEqual([]);
+    expect(prismadb.documents.findMany).not.toHaveBeenCalled();
   });
 });

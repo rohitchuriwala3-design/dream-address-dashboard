@@ -1,5 +1,5 @@
 jest.mock("@/lib/authz", () => ({
-  requireAuthenticated: jest.fn(), requireRole: jest.fn(), accountReadScopeWhere: jest.fn(() => ({})),
+  requireAuthenticated: jest.fn(), requirePermission: jest.fn(), requireRole: jest.fn(), accountReadScopeWhere: jest.fn(() => ({})),
   assertCanWriteAccount: jest.fn(), AuthenticationError: class AuthenticationError extends Error {},
   AuthorizationError: class AuthorizationError extends Error {}, PARTNER_EDIT: {},
 }));
@@ -10,7 +10,7 @@ jest.mock("@/lib/prisma", () => ({ prismadb: {
 } }));
 jest.mock("@/lib/audit-log", () => ({ writeAuditLog: jest.fn() }));
 
-import { requireAuthenticated, requireRole } from "@/lib/authz";
+import { requireAuthenticated, requirePermission, requireRole } from "@/lib/authz";
 import { prismadb } from "@/lib/prisma";
 import { createStudioProjectExpense, markStudioProjectExpensePaid, reviewStudioProjectExpense } from "../service";
 
@@ -22,6 +22,7 @@ const tx = {
 beforeEach(() => {
   jest.clearAllMocks();
   (requireAuthenticated as jest.Mock).mockResolvedValue({ id: "u1", role: "user" });
+  (requirePermission as jest.Mock).mockImplementation(() => (requireAuthenticated as jest.Mock)());
   (requireRole as jest.Mock).mockResolvedValue({ id: "m1", role: "manager" });
   (prismadb.studioProject.findFirst as jest.Mock).mockResolvedValue({ id: "p1", accountId: "a1", currency: "INR" });
   (prismadb.studioProjectExpense.create as jest.Mock).mockResolvedValue({ id: "e1", amount: "125.50", status: "SUBMITTED" });

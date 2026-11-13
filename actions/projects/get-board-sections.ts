@@ -1,6 +1,6 @@
 import { prismadb } from "@/lib/prisma";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanReadBoard,
   AuthenticationError,
   AuthorizationError,
@@ -9,9 +9,10 @@ import {
 export const getBoardSections = async (boadId: string) => {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("projects.view");
   } catch (e) {
     if (e instanceof AuthenticationError) return [];
+    if (e instanceof AuthorizationError) return [];
     throw e;
   }
 

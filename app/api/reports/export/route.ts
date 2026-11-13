@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  requireAuthenticated,
+  requirePermission,
   unauthorizedResponse,
   forbiddenResponse,
   AuthenticationError,
+  AuthorizationError,
   getReportScope,
   isManagerOrAdmin,
   type ReportScope,
@@ -74,9 +75,10 @@ async function getReportData(
 export async function GET(request: NextRequest) {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("reports.view");
   } catch (e) {
     if (e instanceof AuthenticationError) return unauthorizedResponse();
+    if (e instanceof AuthorizationError) return forbiddenResponse();
     throw e;
   }
 

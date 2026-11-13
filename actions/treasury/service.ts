@@ -1,19 +1,19 @@
 import { Decimal } from "decimal.js";
 import { prismadb } from "@/lib/prisma";
-import { requireRole, AuthenticationError, AuthorizationError } from "@/lib/authz";
+import { requirePermission, AuthenticationError, AuthorizationError, type NexusPermission } from "@/lib/authz";
 
 export class TreasuryError extends Error {}
 
-async function treasuryUser() {
-  try { return await requireRole(["manager", "admin"]); }
+async function treasuryUser(permission: Extract<NexusPermission, "finance.view" | "finance.manage"> = "finance.manage") {
+  try { return await requirePermission(permission); }
   catch (error) {
-    if (error instanceof AuthenticationError || error instanceof AuthorizationError) throw new TreasuryError("Manager access is required");
+    if (error instanceof AuthenticationError || error instanceof AuthorizationError) throw new TreasuryError("Finance access is required");
     throw error;
   }
 }
 
 export async function listTreasury() {
-  await treasuryUser();
+  await treasuryUser("finance.view");
   const [accounts, transactions] = await Promise.all([
     prismadb.treasuryAccount.findMany({
       where: { currency: "INR" },
@@ -89,7 +89,7 @@ export async function recordTreasuryReconciliation(input: { accountId: string; s
 }
 
 export async function listActiveTreasuryAccounts() {
-  await treasuryUser();
+  await treasuryUser("finance.view");
   return prismadb.treasuryAccount.findMany({
     where: { active: true, currency: "INR" },
     select: { id: true, name: true, currency: true }, orderBy: { name: "asc" },

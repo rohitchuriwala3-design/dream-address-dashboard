@@ -2,7 +2,7 @@
 import { prismadb } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanWriteBoard,
   AuthenticationError,
   AuthorizationError,
@@ -16,9 +16,10 @@ export const updateProject = async (data: {
 }) => {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("projects.manage");
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthorized" };
+    if (e instanceof AuthorizationError) return { error: "Forbidden" };
     throw e;
   }
 

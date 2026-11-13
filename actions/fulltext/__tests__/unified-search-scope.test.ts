@@ -9,6 +9,7 @@ jest.mock("@/lib/prisma", () => ({
       findUnique: jest.fn(),
       findMany: jest.fn().mockResolvedValue([]),
     },
+    nexusUserPermission: { findMany: jest.fn().mockResolvedValue([]) },
     crm_Accounts: { findMany: jest.fn().mockResolvedValue([]) },
     crm_Contacts: { findMany: jest.fn().mockResolvedValue([]) },
     crm_Leads: { findMany: jest.fn().mockResolvedValue([]) },

@@ -4,7 +4,9 @@
 
 jest.mock("@/lib/authz", () => ({
   requireAuthenticated: jest.fn(),
+  requirePermission: jest.fn(),
   AuthenticationError: class AuthenticationError extends Error {},
+  AuthorizationError: class AuthorizationError extends Error {},
 }));
 jest.mock("@/lib/crm/leads/service", () => ({
   createLead: jest.fn(),
@@ -17,7 +19,7 @@ jest.mock("@/lib/plugins/action-errors", () => ({
 }));
 jest.mock("next/cache", () => ({ revalidatePath: jest.fn() }));
 
-import { requireAuthenticated, AuthenticationError } from "@/lib/authz";
+import { requireAuthenticated, requirePermission, AuthenticationError, AuthorizationError } from "@/lib/authz";
 import * as svc from "@/lib/crm/leads/service";
 import { LeadError } from "@/lib/crm/leads/types";
 import { revalidatePath } from "next/cache";
@@ -27,6 +29,7 @@ import { deleteLead } from "@/actions/crm/leads/delete-lead";
 import { restoreLead } from "@/actions/crm/leads/restore-lead";
 
 const authed = requireAuthenticated as jest.Mock;
+const permission = requirePermission as jest.Mock;
 const revalidate = revalidatePath as jest.Mock;
 const USER = { id: "u-1", role: "admin" };
 const LEAD = { id: "l-1" };
@@ -38,6 +41,7 @@ type Case = {
   call: () => Promise<unknown>;
   service: jest.Mock;
   authArgs: unknown[];
+  usePermission?: boolean;
   success: unknown;
   revalidations: unknown[][];
   ruleResult: unknown;
@@ -51,6 +55,7 @@ const cases: Case[] = [
     call: () => createLead({ last_name: "Doe" }),
     service: svc.createLead as jest.Mock,
     authArgs: [{ partner: true }],
+    usePermission: true,
     success: { data: LEAD },
     revalidations: [LEADS_PAGE],
     ruleResult: { error: "Blocked by rule" },
@@ -62,6 +67,7 @@ const cases: Case[] = [
     call: () => updateLead({ id: "l-1", lastName: "Doe" }),
     service: svc.updateLead as jest.Mock,
     authArgs: [{ partner: true }],
+    usePermission: true,
     success: { data: LEAD },
     revalidations: [LEADS_PAGE],
     ruleResult: { error: "Blocked by rule" },
@@ -73,6 +79,7 @@ const cases: Case[] = [
     call: () => deleteLead("l-1"),
     service: svc.deleteLead as jest.Mock,
     authArgs: [],
+    usePermission: true,
     success: { success: true },
     revalidations: [LEADS_PAGE],
     ruleResult: { error: "Blocked by rule" },
@@ -84,6 +91,7 @@ const cases: Case[] = [
     call: () => restoreLead("l-1"),
     service: svc.restoreLead as jest.Mock,
     authArgs: [],
+    usePermission: true,
     success: { success: true },
     revalidations: [LEADS_PAGE, AUDIT_PAGE],
     // restoreLead never mapped plugin rule errors.
@@ -97,26 +105,36 @@ let log: jest.SpyInstance;
 beforeEach(() => {
   jest.clearAllMocks();
   authed.mockResolvedValue(USER);
+  permission.mockResolvedValue(USER);
   log = jest.spyOn(console, "log").mockImplementation(() => {});
 });
 afterEach(() => log.mockRestore());
 
 describe.each(cases)("$name", (c) => {
   it("returns Unauthorized when not signed in, without calling the service", async () => {
-    authed.mockRejectedValue(new AuthenticationError());
+    (c.usePermission ? permission : authed).mockRejectedValue(new AuthenticationError());
     await expect(c.call()).resolves.toEqual({ error: "Unauthorized" });
     expect(c.service).not.toHaveBeenCalled();
   });
 
+  it("returns Forbidden when the staff account lacks CRM manage permission", async () => {
+    if (!c.usePermission) return;
+    permission.mockRejectedValue(new AuthorizationError());
+    await expect(c.call()).resolves.toEqual({ error: "Forbidden" });
+    expect(c.service).not.toHaveBeenCalled();
+  });
+
   it("rethrows other auth failures", async () => {
-    authed.mockRejectedValue(new Error("db down"));
+    (c.usePermission ? permission : authed).mockRejectedValue(new Error("db down"));
     await expect(c.call()).rejects.toThrow("db down");
   });
 
   it("returns the success result and revalidates in order", async () => {
     c.service.mockResolvedValue(LEAD);
     await expect(c.call()).resolves.toEqual(c.success);
-    expect(authed.mock.calls).toEqual([c.authArgs]);
+    expect((c.usePermission ? permission : authed).mock.calls).toEqual([
+      c.usePermission ? ["crm.manage", ...c.authArgs] : c.authArgs,
+    ]);
     expect(revalidate.mock.calls).toEqual(c.revalidations);
   });
 

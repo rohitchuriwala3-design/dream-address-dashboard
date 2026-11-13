@@ -1,6 +1,6 @@
 import { prismadb } from "@/lib/prisma";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanReadAccount,
   AuthenticationError,
   AuthorizationError,
@@ -10,7 +10,7 @@ import { invoiceReadScopeWhere } from "@/lib/invoices/permissions";
 export async function getInvoicesByAccountId(accountId: string) {
   let user;
   try {
-    user = await requireAuthenticated({ partner: true });
+    user = await requirePermission("finance.view", { partner: true });
   } catch (e) {
     if (e instanceof AuthenticationError) return [];
     throw e;

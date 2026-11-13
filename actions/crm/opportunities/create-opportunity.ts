@@ -7,7 +7,7 @@ import { inngest } from "@/inngest/client";
 import { writeAuditLog } from "@/lib/audit-log";
 import { handleStageTransition } from "@/lib/crm/stage-transition";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanWriteAccount,
   assertCanWriteContact,
   assertCanReadCampaign,
@@ -51,9 +51,10 @@ export const createOpportunity = async (data: {
 
   let user;
   try {
-    user = await requireAuthenticated({ partner: true });
+    user = await requirePermission("crm.manage", { partner: true });
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthorized" };
+    if (e instanceof AuthorizationError) return { error: "Forbidden" };
     throw e;
   }
   try {

@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  requireAuthenticated,
+  requirePermission,
   unauthorizedResponse,
   notFoundOrForbiddenResponse,
   AuthenticationError,
+  AuthorizationError,
   tryScopedUpdateContact,
 } from "@/lib/authz";
 
@@ -27,9 +28,10 @@ export async function PATCH(
 
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("crm.manage");
   } catch (e) {
     if (e instanceof AuthenticationError) return unauthorizedResponse();
+    if (e instanceof AuthorizationError) return notFoundOrForbiddenResponse();
     throw e;
   }
 

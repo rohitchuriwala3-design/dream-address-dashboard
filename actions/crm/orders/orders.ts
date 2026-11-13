@@ -1,6 +1,6 @@
 "use server";
 import { revalidatePath } from "next/cache";
-import { requireAuthenticated, AuthenticationError } from "@/lib/authz";
+import { requirePermission, AuthenticationError, AuthorizationError } from "@/lib/authz";
 import type { AuthzUser } from "@/lib/authz";
 import { pluginRuleErrorMessage } from "@/lib/plugins/action-errors";
 import * as svc from "@/lib/orders/service";
@@ -11,7 +11,7 @@ type Result<T> = { data: T } | { error: string };
 
 async function run<T>(fn: (user: AuthzUser) => Promise<T>): Promise<Result<T>> {
   let user: AuthzUser;
-  try { user = await requireAuthenticated(); } catch (e) { if (e instanceof AuthenticationError) return { error: "Unauthorized" }; throw e; }
+  try { user = await requirePermission("crm.manage"); } catch (e) { if (e instanceof AuthenticationError) return { error: "Unauthorized" }; if (e instanceof AuthorizationError) return { error: "Forbidden" }; throw e; }
   try {
     const data = await fn(user);
     revalidatePath("/[locale]/(routes)/crm/orders", "layout");

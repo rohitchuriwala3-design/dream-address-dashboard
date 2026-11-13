@@ -1,6 +1,6 @@
 "use server";
 import {
-  requireAuthenticated,
+  requireAnyPermission,
   assertCanWriteDocument,
   AuthenticationError,
   AuthorizationError,
@@ -13,9 +13,10 @@ import { minioClient, MINIO_BUCKET } from "@/lib/minio";
 export async function deleteDocument(documentId: string) {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requireAnyPermission(["crm.manage", "projects.manage"]);
   } catch (e) {
     if (e instanceof AuthenticationError) throw new Error("Unauthenticated");
+    if (e instanceof AuthorizationError) throw new Error("Forbidden");
     throw e;
   }
 

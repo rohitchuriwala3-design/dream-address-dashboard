@@ -1,13 +1,13 @@
 "use server";
 import { prismadb } from "@/lib/prisma";
-import { requireAuthenticated } from "@/lib/authz";
+import { requirePermission } from "@/lib/authz";
 
 const num = (v: unknown) => (v == null ? null : Number(v));
 
 export type PriceListRow = { id: string; name: string; currency: string; isActive: boolean; source: "CRM" | "EXTERNAL"; ruleCount: number; usedAsBase: boolean; updatedAt: Date };
 
 export async function getPriceLists(opts: { includeArchived?: boolean } = {}): Promise<PriceListRow[]> {
-  await requireAuthenticated();
+  await requirePermission("crm.view");
   const rows = await prismadb.crm_PriceLists.findMany({
     where: { currency: "INR", ...(opts.includeArchived ? {} : { isActive: true }) },
     orderBy: { name: "asc" },
@@ -17,7 +17,7 @@ export async function getPriceLists(opts: { includeArchived?: boolean } = {}): P
 }
 
 export async function getPriceList(id: string) {
-  await requireAuthenticated();
+  await requirePermission("crm.view");
   const row = await prismadb.crm_PriceLists.findUnique({
     where: { id },
     include: { _count: { select: { baseFor: true } }, rules: { include: { product: { select: { name: true } }, category: { select: { name: true } }, basePriceList: { select: { name: true } } } } },
@@ -39,6 +39,6 @@ export async function getPriceList(id: string) {
 export type PriceListDetail = NonNullable<Awaited<ReturnType<typeof getPriceList>>>;
 
 export async function getPriceListOptions() {
-  await requireAuthenticated();
+  await requirePermission("crm.view");
   return prismadb.crm_PriceLists.findMany({ where: { isActive: true, currency: "INR" }, orderBy: { name: "asc" }, select: { id: true, name: true, currency: true } });
 }

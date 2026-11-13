@@ -4,6 +4,7 @@
 
 jest.mock("@/lib/authz", () => ({
   requireAuthenticated: jest.fn(),
+  requirePermission: jest.fn(),
   assertCanWriteOpportunity: jest.fn(),
   assertCanWriteOpportunityLineItem: jest.fn(),
   assertCanReadOpportunity: jest.fn(),
@@ -40,7 +41,7 @@ jest.mock("@/lib/prisma", () => ({
       return arg({
         $queryRaw: jest.fn(),
         crm_Opportunities: {
-          findUnique: jest.fn().mockResolvedValue({ approval_status: "NONE" }),
+          findUnique: jest.fn().mockResolvedValue({ approval_status: "NONE", currency: "INR", deletedAt: null }),
           update: jest.fn().mockResolvedValue({ id: "o-1" }),
         },
         crm_OpportunityLineItems: {
@@ -60,6 +61,7 @@ jest.mock("@/lib/line-items", () => ({
 
 import {
   requireAuthenticated,
+  requirePermission,
   assertCanWriteOpportunity,
   assertCanWriteOpportunityLineItem,
   AuthorizationError,
@@ -71,6 +73,7 @@ import { removeOpportunityLineItem } from "@/actions/crm/opportunity-line-items/
 import { reorderOpportunityLineItems } from "@/actions/crm/opportunity-line-items/reorder-line-items";
 
 const authed = requireAuthenticated as jest.Mock;
+const permitted = requirePermission as jest.Mock;
 const assertOpp = assertCanWriteOpportunity as jest.Mock;
 const assertLI = assertCanWriteOpportunityLineItem as jest.Mock;
 const liCreate = prismadb.crm_OpportunityLineItems.create as jest.Mock;
@@ -88,6 +91,7 @@ const ADD_INPUT = {
 beforeEach(() => {
   jest.clearAllMocks();
   authed.mockResolvedValue(OWNER);
+  permitted.mockImplementation(() => authed());
   assertOpp.mockResolvedValue(undefined);
   assertLI.mockResolvedValue(undefined);
 });

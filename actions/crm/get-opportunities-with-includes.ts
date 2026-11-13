@@ -3,18 +3,20 @@
 import { cache } from "react";
 import { prismadb } from "@/lib/prisma";
 import {
-  requireAuthenticated,
+  requirePermission,
   opportunityReadScopeWhere,
   AuthenticationError,
+  AuthorizationError,
 } from "@/lib/authz";
 import { serializeDecimalsList } from "@/lib/serialize-decimals";
 
 export const getOpportunitiesFull = cache(async () => {
   let user;
   try {
-    user = await requireAuthenticated({ partner: true });
+    user = await requirePermission("crm.view", { partner: true });
   } catch (e) {
     if (e instanceof AuthenticationError) return [];
+    if (e instanceof AuthorizationError) return [];
     throw e;
   }
 

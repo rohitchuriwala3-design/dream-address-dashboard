@@ -4,7 +4,7 @@ import { writeAuditLog } from "@/lib/audit-log";
 import { revalidatePath } from "next/cache";
 import { sumLineTotals } from "@/lib/line-items";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanWriteContractLineItem,
   AuthenticationError,
   AuthorizationError,
@@ -13,9 +13,10 @@ import {
 export const removeContractLineItem = async (id: string) => {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("crm.manage", { partner: true });
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthorized" };
+    if (e instanceof AuthorizationError) return { error: "Forbidden" };
     throw e;
   }
   try {

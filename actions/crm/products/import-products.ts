@@ -3,7 +3,7 @@ import { prismadb } from "@/lib/prisma";
 import Papa from "papaparse";
 import { writeAuditLog } from "@/lib/audit-log";
 import { revalidatePath } from "next/cache";
-import { requireRole, AuthenticationError, AuthorizationError } from "@/lib/authz";
+import { requireRole, requirePermission, AuthenticationError, AuthorizationError } from "@/lib/authz";
 
 const REQUIRED_FIELDS = ["name", "type", "unit_price"];
 const MAX_ROWS = 500;
@@ -14,6 +14,7 @@ export async function importProducts(
   let actor;
   try {
     actor = await requireRole(["manager", "admin"]);
+    await requirePermission("crm.manage");
   } catch (e) {
     if (e instanceof AuthenticationError) throw new Error("Unauthorized");
     if (e instanceof AuthorizationError) throw new Error("Forbidden");

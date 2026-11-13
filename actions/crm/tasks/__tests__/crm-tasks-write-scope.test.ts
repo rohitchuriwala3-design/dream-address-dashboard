@@ -4,6 +4,7 @@
 jest.mock("@/lib/authz", () => ({
   PARTNER_EDIT: { partnerEdit: true },
   requireAuthenticated: jest.fn(),
+  requirePermission: jest.fn(),
   assertCanWriteCrmTask: jest.fn(),
   AuthenticationError: class AuthenticationError extends Error {},
   AuthorizationError: class AuthorizationError extends Error {},
@@ -32,6 +33,7 @@ jest.mock("next/cache", () => ({ revalidatePath: jest.fn() }));
 
 import {
   requireAuthenticated,
+  requirePermission,
   assertCanWriteCrmTask,
   AuthorizationError,
 } from "@/lib/authz";
@@ -44,6 +46,7 @@ import {
 import { deleteTask } from "@/actions/crm/tasks/delete-task";
 
 const authed = requireAuthenticated as jest.Mock;
+const permission = requirePermission as jest.Mock;
 const assertTask = assertCanWriteCrmTask as jest.Mock;
 const commentCreate = prismadb.tasksComments.create as jest.Mock;
 const docCreate = prismadb.documentsToCrmAccountsTasks.create as jest.Mock;
@@ -55,6 +58,7 @@ const OWNER = { id: "owner", role: "user" };
 beforeEach(() => {
   jest.clearAllMocks();
   authed.mockResolvedValue(OWNER);
+  permission.mockImplementation((_key: string, options?: { partner?: boolean }) => authed(options));
   assertTask.mockResolvedValue(undefined);
 });
 

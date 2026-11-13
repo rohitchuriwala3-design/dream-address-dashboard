@@ -1,12 +1,12 @@
 import { prismadb } from "@/lib/prisma";
-import { requireAuthenticated, AuthenticationError } from "@/lib/authz";
+import { requirePermission, AuthenticationError, AuthorizationError } from "@/lib/authz";
 import { opportunityReadScopeWhere } from "@/lib/authz/scopes/crm";
 import { Decimal } from "decimal.js";
 
 /** Forecast only explicitly denominated in INR; no guessed FX conversion. */
 export async function getStudioPipelineSummary() {
   try {
-    const user = await requireAuthenticated({ partner: true });
+    const user = await requirePermission("crm.view", { partner: true });
     const opportunities = await prismadb.crm_Opportunities.findMany({
       where: {
         status: "ACTIVE",
@@ -20,7 +20,7 @@ export async function getStudioPipelineSummary() {
       new Decimal(0),
     ).toString();
   } catch (error) {
-    if (error instanceof AuthenticationError) return "0";
+    if (error instanceof AuthenticationError || error instanceof AuthorizationError) return "0";
     throw error;
   }
 }

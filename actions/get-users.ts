@@ -1,5 +1,5 @@
 import { prismadb } from "@/lib/prisma";
-import { requireAuthenticated, isAdmin } from "@/lib/authz";
+import { requireAuthenticated, requirePermission, requireAnyPermission, isAdmin } from "@/lib/authz";
 import { userDirectoryWhere } from "@/lib/authz/scopes/users";
 
 //Get all users  for admin module (admins only)
@@ -16,7 +16,7 @@ export const getUsers = async () => {
 
 //Get active users for Selects in app etc
 export const getActiveUsers = async () => {
-  const user = await requireAuthenticated({ partner: true });
+  const user = await requireAnyPermission(["crm.manage", "projects.manage", "finance.manage"]);
   const data = await prismadb.users.findMany({
     orderBy: {
       name: "asc",
@@ -36,6 +36,7 @@ export const getActiveUsers = async () => {
 
 //Get new users by month for chart
 export const getUsersByMonthAndYear = async (year: number) => {
+  await requirePermission("dashboard.view");
   const users = await prismadb.users.findMany({
     select: {
       created_on: true,
@@ -72,6 +73,7 @@ export const getUsersByMonthAndYear = async (year: number) => {
 
 //Get new users by month for chart
 export const getUsersByMonth = async () => {
+  await requirePermission("dashboard.view");
   const users = await prismadb.users.findMany({
     select: {
       created_on: true,
@@ -104,6 +106,7 @@ export const getUsersByMonth = async () => {
 };
 
 export const getUsersCountOverall = async () => {
+  await requirePermission("dashboard.view");
   const users = await prismadb.users.findMany({
     select: {
       created_on: true,

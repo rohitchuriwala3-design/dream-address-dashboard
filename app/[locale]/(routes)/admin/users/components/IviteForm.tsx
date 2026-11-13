@@ -84,7 +84,7 @@ export function InviteForm() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="grid w-full grid-cols-1 items-end gap-4 p-5 md:grid-cols-3 xl:grid-cols-6"
+        className="grid w-full grid-cols-1 items-end gap-4 p-5 md:grid-cols-2 xl:grid-cols-3"
       >
         <FormField
           control={form.control}
@@ -178,7 +178,7 @@ export function InviteForm() {
             </FormItem>
           )}
         />
-        <FormField control={form.control} name="permissions" render={({ field }) => <FormItem className="md:col-span-3 xl:col-span-6">
+        <FormField control={form.control} name="permissions" render={({ field }) => <FormItem className="md:col-span-2 xl:col-span-3">
           <FormLabel>Additional permissions</FormLabel>
           <p className="text-xs text-muted-foreground">Permission rollout is in progress. Existing role-based access remains authoritative until module enforcement is complete.</p>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">

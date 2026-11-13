@@ -3,6 +3,7 @@
 
 jest.mock("@/lib/authz", () => ({
   requireAuthenticated: jest.fn(),
+  requirePermission: jest.fn(),
   assertCanWriteContract: jest.fn(),
   assertCanWriteAccount: jest.fn(),
   AuthenticationError: class AuthenticationError extends Error {},
@@ -32,6 +33,7 @@ jest.mock("@/lib/currency", () => ({
 
 import {
   requireAuthenticated,
+  requirePermission,
   assertCanWriteContract,
   assertCanWriteAccount,
   AuthorizationError,
@@ -42,6 +44,7 @@ import { updateContract } from "@/actions/crm/contracts/update-contract";
 import { deleteContract } from "@/actions/crm/contracts/delete-contract";
 
 const authed = requireAuthenticated as jest.Mock;
+const permitted = requirePermission as jest.Mock;
 const assertContract = assertCanWriteContract as jest.Mock;
 const assertAccount = assertCanWriteAccount as jest.Mock;
 const ctCreate = prismadb.crm_Contracts.create as jest.Mock;
@@ -52,6 +55,7 @@ const OWNER = { id: "owner", role: "user" };
 beforeEach(() => {
   jest.clearAllMocks();
   authed.mockResolvedValue(OWNER);
+  permitted.mockImplementation(() => authed());
   assertContract.mockResolvedValue(undefined);
   assertAccount.mockResolvedValue(undefined);
 });

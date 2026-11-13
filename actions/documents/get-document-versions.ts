@@ -1,6 +1,6 @@
 "use server";
 import {
-  requireAuthenticated,
+  requireAnyPermission,
   assertCanReadDocument,
   AuthenticationError,
   AuthorizationError,
@@ -10,9 +10,10 @@ import { prismadb } from "@/lib/prisma";
 export async function getDocumentVersions(documentId: string) {
   let user;
   try {
-    user = await requireAuthenticated({ partner: true });
+    user = await requireAnyPermission(["crm.view", "projects.view"], { partner: true });
   } catch (e) {
     if (e instanceof AuthenticationError) return [];
+    if (e instanceof AuthorizationError) return [];
     throw e;
   }
 

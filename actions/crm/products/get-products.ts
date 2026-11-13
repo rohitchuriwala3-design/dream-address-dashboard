@@ -1,12 +1,13 @@
 import { cache } from "react";
 import { prismadb } from "@/lib/prisma";
-import { requireAuthenticated, AuthenticationError } from "@/lib/authz";
+import { requirePermission, AuthenticationError, AuthorizationError } from "@/lib/authz";
 
 export const getProductsFull = cache(async () => {
   try {
-    await requireAuthenticated();
+    await requirePermission("crm.view");
   } catch (e) {
     if (e instanceof AuthenticationError) return [];
+    if (e instanceof AuthorizationError) return [];
     throw e;
   }
   const products = await prismadb.crm_Products.findMany({

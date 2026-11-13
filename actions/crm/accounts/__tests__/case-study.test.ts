@@ -1,5 +1,6 @@
 jest.mock("@/lib/authz", () => ({
   requireAuthenticated: jest.fn(),
+  requirePermission: jest.fn().mockResolvedValue({ id: "rep1", role: "user" }),
   requireRole: jest.fn(),
   assertCanWriteAccount: jest.fn(),
   AuthenticationError: class AuthenticationError extends Error {},

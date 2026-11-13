@@ -3,6 +3,7 @@
 
 jest.mock("@/lib/authz", () => ({
   requireAuthenticated: jest.fn(),
+  requirePermission: jest.fn(),
   assertCanWriteTargetList: jest.fn(),
   filterAuthorizedTargetIds: jest.fn(),
   AuthenticationError: class AuthenticationError extends Error {},
@@ -28,6 +29,7 @@ jest.mock("next/cache", () => ({ revalidatePath: jest.fn() }));
 
 import {
   requireAuthenticated,
+  requirePermission,
   assertCanWriteTargetList,
   filterAuthorizedTargetIds,
   AuthorizationError,
@@ -39,6 +41,7 @@ import { addTargetsToList } from "@/actions/crm/target-lists/add-targets-to-list
 import { removeTargetFromList } from "@/actions/crm/target-lists/remove-target-from-list";
 
 const authed = requireAuthenticated as jest.Mock;
+const permission = requirePermission as jest.Mock;
 const assertList = assertCanWriteTargetList as jest.Mock;
 const filterTargets = filterAuthorizedTargetIds as jest.Mock;
 const tlUpdate = prismadb.crm_TargetLists.update as jest.Mock;
@@ -50,6 +53,7 @@ const OWNER = { id: "owner", role: "user" };
 beforeEach(() => {
   jest.clearAllMocks();
   authed.mockResolvedValue(OWNER);
+  permission.mockImplementation((_key: string, options?: { partner?: boolean }) => authed(options));
   assertList.mockResolvedValue(undefined);
   filterTargets.mockImplementation(async (_u: any, ids: string[]) => ids);
 });

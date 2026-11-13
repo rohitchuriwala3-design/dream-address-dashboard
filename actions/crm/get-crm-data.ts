@@ -2,7 +2,7 @@ import { cache } from "react";
 import { prismadb } from "@/lib/prisma";
 import { serializeDecimalsList } from "@/lib/serialize-decimals";
 import {
-  requireAuthenticated,
+  requirePermission,
   accountReadScopeWhere,
   campaignReadScopeWhere,
   contactReadScopeWhere,
@@ -14,7 +14,7 @@ import {
 // Entity lists are scoped to the caller (GHSA-q96c-2vj9-8v7f): a `user` gets
 // only records they own, created or reach via an account in their scope.
 export const getAllCrmData = cache(async () => {
-  const user = await requireAuthenticated({ partner: true });
+  const user = await requirePermission("crm.view", { partner: true });
   const [
     accounts,
     opportunities,

@@ -12,8 +12,10 @@ import { renderInvoicePdf } from "@/lib/invoices/pdf/render";
 import { uploadInvoicePdf } from "@/lib/invoices/storage";
 import type { InvoicePdfData, PdfParty } from "@/lib/invoices/pdf/templates/default-invoice";
 import { serializeDecimals } from "@/lib/serialize-decimals";
+import { requirePermission } from "@/lib/authz";
 
 export async function issueInvoice(raw: unknown) {
+  await requirePermission("finance.manage");
   const user = await getUser();
   const input = issueInvoiceSchema.parse(raw);
 

@@ -1,18 +1,18 @@
 "use server";
 import { prismadb } from "@/lib/prisma";
-import { requireAuthenticated, isManagerOrAdmin, accountReadScopeWhere, orderReadScopeWhere } from "@/lib/authz";
+import { requirePermission, isManagerOrAdmin, accountReadScopeWhere, orderReadScopeWhere } from "@/lib/authz";
 import { listOrders, loadOrder, pricingContextForAccount } from "@/lib/orders/service";
 import { serializeOrder } from "@/lib/orders/serialize";
 import { toActor } from "@/lib/orders/transitions";
 import { OrderError } from "@/lib/orders/types";
 
 export async function getOrders(filters: { status?: string; ownerId?: string; accountId?: string } = {}) {
-  const user = await requireAuthenticated({ partner: true });
+  const user = await requirePermission("crm.view", { partner: true });
   return (await listOrders(user, { ...filters, limit: 200, offset: 0 })).data;
 }
 
 export async function getOrder(id: string) {
-  const user = await requireAuthenticated({ partner: true });
+  const user = await requirePermission("crm.view", { partner: true });
   try {
     return serializeOrder(await loadOrder(user, id), toActor(user));
   } catch (e) {
@@ -23,7 +23,7 @@ export async function getOrder(id: string) {
 export type OrderDetail = NonNullable<Awaited<ReturnType<typeof getOrder>>>;
 
 export async function getOrderFormData(accountId: string) {
-  const user = await requireAuthenticated();
+  const user = await requirePermission("crm.view");
   const account = await prismadb.crm_Accounts.findFirst({ where: { id: accountId, ...accountReadScopeWhere(user) } });
   if (!account) return null;
   const [contacts, ctx] = await Promise.all([
@@ -43,30 +43,30 @@ export async function getOrderFormData(accountId: string) {
 export type OrderFormData = NonNullable<Awaited<ReturnType<typeof getOrderFormData>>>;
 
 export async function getProductOptions() {
-  await requireAuthenticated();
+  await requirePermission("crm.view");
   return prismadb.crm_Products.findMany({ where: { deletedAt: null, status: "ACTIVE", currency: "INR" }, select: { id: true, name: true, sku: true }, orderBy: { name: "asc" } });
 }
 export type ProductOption = Awaited<ReturnType<typeof getProductOptions>>[number];
 
 export async function getOwnerOptions() {
-  const user = await requireAuthenticated({ partner: true }); // partner: not a manager, gets []
+  const user = await requirePermission("crm.view", { partner: true }); // partner: not a manager, gets []
   if (!isManagerOrAdmin(user)) return [];
   return prismadb.users.findMany({ where: { userStatus: "ACTIVE" }, select: { id: true, name: true }, orderBy: { name: "asc" } });
 }
 
 export async function getPendingOrderApprovals() {
-  const user = await requireAuthenticated();
+  const user = await requirePermission("crm.view");
   if (!isManagerOrAdmin(user)) return [];
   return (await listOrders(user, { status: "PENDING_APPROVAL", limit: 200, offset: 0 })).data;
 }
 
 export async function getAccountOrders(accountId: string) {
-  const user = await requireAuthenticated({ partner: true });
+  const user = await requirePermission("crm.view", { partner: true });
   return (await listOrders(user, { accountId, limit: 200, offset: 0 })).data;
 }
 
 export async function getOrderHistory(id: string) {
-  const user = await requireAuthenticated({ partner: true });
+  const user = await requirePermission("crm.view", { partner: true });
   const visible = await prismadb.crm_Orders.findFirst({ where: { id, ...orderReadScopeWhere(user) }, select: { id: true } });
   if (!visible) return [];
   const rows = await prismadb.crm_AuditLog.findMany({ where: { entityType: "order", entityId: id }, orderBy: { createdAt: "desc" }, take: 100, include: { user: { select: { name: true } } } });

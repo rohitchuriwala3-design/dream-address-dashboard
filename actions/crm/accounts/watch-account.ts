@@ -2,7 +2,7 @@
 import { prismadb } from "@/lib/prisma";
 import { junctionTableHelpers } from "@/lib/junction-helpers";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanWriteAccount,
   AuthenticationError,
   AuthorizationError,
@@ -16,9 +16,10 @@ export const watchAccount = async (accountId: string) => {
   // primitive. Watching therefore requires write access.
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission('crm.view');
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthorized" };
+    if (e instanceof AuthorizationError) return { error: "Forbidden" };
     throw e;
   }
   try {

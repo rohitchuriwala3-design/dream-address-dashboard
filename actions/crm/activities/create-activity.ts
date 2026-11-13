@@ -7,7 +7,7 @@ import {
   assertCanWriteLead,
   assertCanWriteOpportunity,
   assertPartnerCanLinkActivity,
-  requireAuthenticated,
+  requirePermission,
   AuthorizationError,
   type AuthzUser,
 } from "@/lib/authz";
@@ -47,7 +47,7 @@ export const createActivity = async (data: {
     const session = await getSession({ partner: true });
     if (!session) return { error: "Unauthorized" };
     // A partner's activity must hang off his partner records only.
-    const authUser = await requireAuthenticated({ partner: true });
+    const authUser = await requirePermission('crm.manage', { partner: true });
     try {
       if (authUser.role === "partner") {
         await assertPartnerCanLinkActivity(authUser, data.links);
@@ -111,6 +111,7 @@ export const createActivity = async (data: {
 
     return { data: fullActivity };
   } catch (error) {
+    if (error instanceof AuthorizationError) return { error: "Forbidden" };
     console.error("createActivity error:", error);
     return { error: "Failed to create activity" };
   }

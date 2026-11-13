@@ -3,12 +3,14 @@
 import { prismadb } from "@/lib/prisma";
 import {
   requireRole,
+  requirePermission,
   AuthenticationError,
   AuthorizationError,
 } from "@/lib/authz";
 import { Decimal } from "decimal.js";
 
 export async function deletePayment(paymentId: string) {
+  await requirePermission("finance.manage");
   let user;
   try {
     user = await requireRole(["admin"]);

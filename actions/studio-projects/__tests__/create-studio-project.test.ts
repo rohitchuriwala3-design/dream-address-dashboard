@@ -1,5 +1,6 @@
 jest.mock("@/lib/authz", () => ({
   requireAuthenticated: jest.fn(),
+  requirePermission: jest.fn(),
   accountReadScopeWhere: jest.fn(() => ({ deletedAt: null })),
   assertCanWriteAccount: jest.fn(),
   assertCanWriteOpportunity: jest.fn(),
@@ -17,7 +18,7 @@ jest.mock("@/lib/prisma", () => ({
 }));
 jest.mock("@/lib/audit-log", () => ({ writeAuditLog: jest.fn() }));
 
-import { requireAuthenticated } from "@/lib/authz";
+import { requireAuthenticated, requirePermission } from "@/lib/authz";
 import { prismadb } from "@/lib/prisma";
 import { createStudioProject } from "../service";
 
@@ -29,8 +30,9 @@ const tx = {
 beforeEach(() => {
   jest.clearAllMocks();
   (requireAuthenticated as jest.Mock).mockResolvedValue({ id: "user-1", role: "admin" });
+  (requirePermission as jest.Mock).mockImplementation(() => (requireAuthenticated as jest.Mock)());
   (prismadb.crm_Opportunities.findFirst as jest.Mock).mockResolvedValue({
-    id: "opp-1", account: "account-1", assigned_to: "user-1", name: "Design opportunity",
+    id: "opp-1", account: "account-1", assigned_to: "user-1", name: "Design opportunity", currency: "INR",
   });
   (prismadb.studioProject.findUnique as jest.Mock).mockResolvedValue(null);
   tx.studioProject.findUnique.mockResolvedValue(null);

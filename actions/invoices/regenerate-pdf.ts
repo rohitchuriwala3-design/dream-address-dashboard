@@ -8,6 +8,7 @@ import { canReadInvoice, type InvoiceStatus } from "@/lib/invoices/permissions";
 import { renderInvoicePdf } from "@/lib/invoices/pdf/render";
 import { uploadInvoicePdf } from "@/lib/invoices/storage";
 import { buildInvoicePdfData } from "@/lib/invoices/pdf/build-pdf-data";
+import { requirePermission } from "@/lib/authz";
 
 export type RegenerateResult =
   | { ok: true; pdfGeneratedAt: string }
@@ -16,6 +17,8 @@ export type RegenerateResult =
 export async function regenerateInvoicePdf(
   invoiceId: string
 ): Promise<RegenerateResult> {
+  try { await requirePermission("finance.manage"); }
+  catch { return { ok: false, error: "Forbidden" }; }
   let user;
   try {
     user = await getUser();

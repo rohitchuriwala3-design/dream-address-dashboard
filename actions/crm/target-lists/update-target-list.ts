@@ -2,7 +2,7 @@
 import { prismadb } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanWriteTargetList,
   AuthenticationError,
   AuthorizationError,
@@ -19,9 +19,10 @@ export const updateTargetList = async (data: {
 
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission('crm.manage');
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthorized" };
+    if (e instanceof AuthorizationError) return { error: "Forbidden" };
     throw e;
   }
   try {

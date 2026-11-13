@@ -1,5 +1,5 @@
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanWriteTarget,
   unauthorizedResponse,
   notFoundOrForbiddenResponse,
@@ -18,9 +18,10 @@ export async function POST(
 
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("crm.manage");
   } catch (e) {
     if (e instanceof AuthenticationError) return unauthorizedResponse();
+    if (e instanceof AuthorizationError) return notFoundOrForbiddenResponse();
     throw e;
   }
 

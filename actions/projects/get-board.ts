@@ -1,7 +1,7 @@
 import { prismadb } from "@/lib/prisma";
 import { junctionTableHelpers, extractWatcherUsers } from "@/lib/junction-helpers";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanReadBoard,
   AuthenticationError,
   AuthorizationError,
@@ -10,9 +10,10 @@ import {
 export const getBoard = async (id: string) => {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("projects.view");
   } catch (e) {
     if (e instanceof AuthenticationError) return null;
+    if (e instanceof AuthorizationError) return null;
     throw e;
   }
 

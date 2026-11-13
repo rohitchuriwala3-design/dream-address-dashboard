@@ -1,16 +1,18 @@
 import { prismadb } from "@/lib/prisma";
 import {
-  requireAuthenticated,
+  requirePermission,
   opportunityReadScopeWhere,
   AuthenticationError,
+  AuthorizationError,
 } from "@/lib/authz";
 
 export const getOpportunities = async () => {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("crm.view");
   } catch (e) {
     if (e instanceof AuthenticationError) return [];
+    if (e instanceof AuthorizationError) return [];
     throw e;
   }
 
@@ -60,7 +62,7 @@ export const getOpportunities = async () => {
 
 //Get opportunities by month for chart
 export const getOpportunitiesByMonth = async () => {
-  const user = await requireAuthenticated({ partner: true });
+  const user = await requirePermission("crm.view", { partner: true });
   const opportunities = await prismadb.crm_Opportunities.findMany({
     where: { ...opportunityReadScopeWhere(user), AND: [{ currency: "INR" }] },
     select: {
@@ -96,7 +98,7 @@ export const getOpportunitiesByMonth = async () => {
 
 //Get opportunities by sales_stage name for chart
 export const getOpportunitiesByStage = async () => {
-  const user = await requireAuthenticated({ partner: true });
+  const user = await requirePermission("crm.view", { partner: true });
   const opportunities = await prismadb.crm_Opportunities.findMany({
     where: { ...opportunityReadScopeWhere(user), AND: [{ currency: "INR" }] },
     select: {

@@ -1,14 +1,14 @@
 "use server";
 import { prismadb } from "@/lib/prisma";
 import { parseSpreadsheetFile } from "@/lib/spreadsheet/parse";
-import { requireAuthenticated } from "@/lib/authz";
+import { requirePermission } from "@/lib/authz";
 
 export async function importTargets(
   formData: FormData
 ): Promise<{ imported: number; skipped: number; errors: string[] }> {
-  // Plain bulk create; rows are owned by the importer. requireAuthenticated
+  // Plain bulk create; rows are owned by the importer. requirePermission
   // throws on no session, matching this function's throw-based contract.
-  const user = await requireAuthenticated();
+  const user = await requirePermission('crm.manage');
 
   const file = formData.get("file") as File | null;
   if (!file) throw new Error("No file provided");

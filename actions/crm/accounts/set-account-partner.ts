@@ -2,13 +2,14 @@
 import { prismadb } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { writeAuditLog } from "@/lib/audit-log";
-import { requireRole, AuthenticationError, AuthorizationError } from "@/lib/authz";
+import { requireRole, requirePermission, AuthenticationError, AuthorizationError } from "@/lib/authz";
 
 /** Admins and managers name the account's external partner (a user with role partner), or clear it with null. */
 export const setAccountPartner = async (accountId: string, partnerUserId: string | null) => {
   let actor;
   try {
     actor = await requireRole(["admin", "manager"]);
+    await requirePermission("crm.manage");
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthorized" };
     if (e instanceof AuthorizationError) return { error: "Forbidden" };

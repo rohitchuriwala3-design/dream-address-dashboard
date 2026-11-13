@@ -13,6 +13,8 @@ export {
   isAdmin,
   isManagerOrAdmin,
 } from "./session";
+export { requirePermission, requireAnyPermission, getUserPermissions } from "./permissions";
+export type { NexusPermission } from "./permission-catalog";
 export {
   tryScopedUpdateContact,
   tryScopedUpdateTarget,

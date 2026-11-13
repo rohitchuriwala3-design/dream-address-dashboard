@@ -1,7 +1,8 @@
 import { prismadb } from "@/lib/prisma";
 import {
-  requireAuthenticated,
+  requirePermission,
   AuthenticationError,
+  AuthorizationError,
   isUnhandledRole,
 } from "@/lib/authz";
 import dayjs from "dayjs";
@@ -9,9 +10,10 @@ import dayjs from "dayjs";
 export const getTasksPastDue = async () => {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("projects.view");
   } catch (e) {
     if (e instanceof AuthenticationError) return undefined;
+    if (e instanceof AuthorizationError) return undefined;
     throw e;
   }
   // Any role without rules here (partner) gets nothing.

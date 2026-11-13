@@ -1,7 +1,7 @@
 "use server";
 import { prismadb } from "@/lib/prisma";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanWriteOpportunity,
   AuthenticationError,
   AuthorizationError,
@@ -14,7 +14,7 @@ export async function setInactiveOpportunity(id: string) {
   // than a hand-rolled assigned_to-only + admin-only check.
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("crm.manage");
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthenticated" };
     throw e;

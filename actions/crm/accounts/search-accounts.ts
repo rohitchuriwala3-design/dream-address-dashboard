@@ -2,9 +2,10 @@
 
 import { prismadb } from "@/lib/prisma";
 import {
-  requireAuthenticated,
+  requirePermission,
   accountReadScopeWhere,
   AuthenticationError,
+  AuthorizationError,
 } from "@/lib/authz";
 
 const PAGE_SIZE_MAX = 100;
@@ -19,7 +20,7 @@ export async function searchAccounts({
   take?: number;
 } = {}) {
   try {
-    const user = await requireAuthenticated({ partner: true });
+    const user = await requirePermission('crm.view', { partner: true });
 
     const safeTake = Math.min(PAGE_SIZE_MAX, Math.max(1, take));
     const safeSkip = Math.max(0, skip);
@@ -46,6 +47,9 @@ export async function searchAccounts({
   } catch (error) {
     if (error instanceof AuthenticationError) {
       return { error: "Unauthorized", accounts: [], total: 0, hasMore: false };
+    }
+    if (error instanceof AuthorizationError) {
+      return { error: "Forbidden", accounts: [], total: 0, hasMore: false };
     }
     return {
       error: "Failed to search accounts",

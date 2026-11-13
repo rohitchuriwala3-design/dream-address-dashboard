@@ -2,7 +2,7 @@
 import { z } from "zod";
 import { prismadb } from "@/lib/prisma";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanWriteCampaign,
   assertCanReadTemplate,
   AuthenticationError,
@@ -33,9 +33,10 @@ export const updateCampaign = async (
 ) => {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("crm.manage");
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthorized" };
+    if (e instanceof AuthorizationError) return { error: "Forbidden" };
     throw e;
   }
 

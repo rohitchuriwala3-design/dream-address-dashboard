@@ -1,17 +1,18 @@
 "use server";
 import { prismadb } from "@/lib/prisma";
 import {
-  requireAuthenticated,
+  requirePermission,
   campaignTemplateReadScopeWhere,
   AuthenticationError,
+  AuthorizationError,
 } from "@/lib/authz";
 
 export const getTemplates = async () => {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("crm.view");
   } catch (e) {
-    if (e instanceof AuthenticationError) return [];
+    if (e instanceof AuthenticationError || e instanceof AuthorizationError) return [];
     throw e;
   }
 

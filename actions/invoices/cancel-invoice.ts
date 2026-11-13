@@ -5,8 +5,10 @@ import { getUser } from "@/actions/get-user";
 import { canCancelInvoice, type InvoiceStatus } from "@/lib/invoices/permissions";
 import { mapLegacyRole } from "@/lib/authz";
 import { serializeDecimals } from "@/lib/serialize-decimals";
+import { requirePermission } from "@/lib/authz";
 
 export async function cancelInvoice(invoiceId: string) {
+  await requirePermission("finance.manage");
   const user = await getUser();
 
   const invoice = await prismadb.invoices.findUniqueOrThrow({

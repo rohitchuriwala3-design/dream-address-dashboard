@@ -9,7 +9,7 @@ import {
   AuthenticationError,
   AuthorizationError,
   PARTNER_EDIT,
-  requireAuthenticated,
+  requirePermission,
 } from "@/lib/authz";
 import { opportunityReadScopeWhere } from "@/lib/authz/scopes/crm";
 import { writeAuditLog } from "@/lib/audit-log";
@@ -22,8 +22,8 @@ export class StudioProjectServiceError extends Error {
   }
 }
 
-async function currentUser() {
-  try { return await requireAuthenticated({ partner: true }); }
+async function currentUser(permission: "projects.view" | "projects.manage" = "projects.view") {
+  try { return await requirePermission(permission, { partner: true }); }
   catch (error) {
     if (error instanceof AuthenticationError) throw new StudioProjectServiceError("Sign in to continue", "UNAUTHORIZED");
     throw error;
@@ -112,7 +112,7 @@ export async function createStudioProject(input: {
   startDate?: Date;
   targetHandoverDate?: Date;
 }) {
-  const user = await currentUser();
+  const user = await currentUser("projects.manage");
   const opportunityId = input.opportunityId.trim();
   if (!opportunityId || !input.name.trim()) throw new StudioProjectServiceError("Choose an opportunity and enter a project name", "INVALID");
 
@@ -186,7 +186,7 @@ export async function createStudioProject(input: {
 }
 
 export async function updateStudioProjectStatus(projectId: string, status: StudioProjectStatus) {
-  const user = await currentUser();
+  const user = await currentUser("projects.manage");
   if (!STUDIO_PROJECT_STATUSES.includes(status)) throw new StudioProjectServiceError("Invalid project status", "INVALID");
   const project = await prismadb.studioProject.findFirst({ where: { id: projectId, deletedAt: null, account: { is: accountReadScopeWhere(user) } }, select: { id: true, accountId: true, status: true } });
   if (!project) throw new StudioProjectServiceError("Project not found", "NOT_FOUND");
@@ -202,7 +202,7 @@ export async function updateStudioProjectStatus(projectId: string, status: Studi
 }
 
 export async function setStudioProjectMilestoneComplete(projectId: string, milestoneId: string, complete: boolean) {
-  const user = await currentUser();
+  const user = await currentUser("projects.manage");
   const project = await prismadb.studioProject.findFirst({ where: { id: projectId, deletedAt: null, account: { is: accountReadScopeWhere(user) } }, select: { id: true, accountId: true } });
   if (!project) throw new StudioProjectServiceError("Project not found", "NOT_FOUND");
   try { await assertCanWriteAccount(user, project.accountId, PARTNER_EDIT); }
@@ -220,7 +220,7 @@ export async function setStudioProjectMilestoneComplete(projectId: string, miles
 }
 
 export async function updateStudioProjectMilestoneDueDate(projectId: string, milestoneId: string, dueDate: Date | null) {
-  const user = await currentUser();
+  const user = await currentUser("projects.manage");
   const project = await prismadb.studioProject.findFirst({
     where: { id: projectId, deletedAt: null, account: { is: accountReadScopeWhere(user) } },
     select: { id: true, accountId: true },
@@ -245,8 +245,13 @@ export async function createStudioProjectExpense(input: {
   projectId: string; category: string; vendorName?: string; description: string;
   reference?: string; amount: string; incurredOn: Date;
 }) {
-  const user = await currentUser();
+  const user = await currentUser("projects.manage");
   if (user.role === "partner") throw new StudioProjectServiceError("External partner users cannot submit internal project costs", "FORBIDDEN");
+  try { await requirePermission("finance.manage"); }
+  catch (error) {
+    if (error instanceof AuthenticationError || error instanceof AuthorizationError) throw new StudioProjectServiceError("Finance access is required", "FORBIDDEN");
+    throw error;
+  }
   const project = await prismadb.studioProject.findFirst({
     where: { id: input.projectId, deletedAt: null, status: { not: "CANCELLED" }, account: { is: accountReadScopeWhere(user) } },
     select: { id: true, accountId: true, currency: true },
@@ -273,6 +278,11 @@ export async function createStudioProjectExpense(input: {
 }
 
 export async function reviewStudioProjectExpense(expenseId: string, decision: "APPROVED" | "REJECTED", note?: string) {
+  try { await requirePermission("projects.manage"); await requirePermission("finance.manage"); }
+  catch (error) {
+    if (error instanceof AuthenticationError || error instanceof AuthorizationError) throw new StudioProjectServiceError("Finance and project access are required", "FORBIDDEN");
+    throw error;
+  }
   let user;
   try { user = await requireRole(["manager", "admin"]); }
   catch (error) {
@@ -298,6 +308,11 @@ export async function reviewStudioProjectExpense(expenseId: string, decision: "A
 }
 
 export async function markStudioProjectExpensePaid(expenseId: string, treasuryAccountId: string, paymentReference: string) {
+  try { await requirePermission("projects.manage"); await requirePermission("finance.manage"); }
+  catch (error) {
+    if (error instanceof AuthenticationError || error instanceof AuthorizationError) throw new StudioProjectServiceError("Finance and project access are required", "FORBIDDEN");
+    throw error;
+  }
   let user;
   try { user = await requireRole(["manager", "admin"]); }
   catch (error) {

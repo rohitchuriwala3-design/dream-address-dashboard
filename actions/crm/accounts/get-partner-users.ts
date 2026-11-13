@@ -1,11 +1,12 @@
 "use server";
 import { prismadb } from "@/lib/prisma";
-import { requireRole } from "@/lib/authz";
+import { requireRole, requirePermission } from "@/lib/authz";
 
 /** Active users with role partner, for the account Partner picker (admins and managers only). */
 export const getPartnerUsers = async () => {
   try {
     await requireRole(["admin", "manager"]);
+    await requirePermission("crm.view");
   } catch {
     return [];
   }

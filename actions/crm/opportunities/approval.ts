@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import resendHelper from "@/lib/resend";
 import { writeAuditLog } from "@/lib/audit-log";
 import {
-  requireAuthenticated,
+  requirePermission,
   requireRole,
   assertCanWriteOpportunity,
   AuthenticationError,
@@ -32,9 +32,10 @@ export async function requestApproval(
 ): Promise<{ error?: string }> {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("crm.manage");
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthorized" };
+    if (e instanceof AuthorizationError) return { error: "Forbidden" };
     throw e;
   }
   try {
@@ -126,7 +127,7 @@ export async function requestApproval(
 /** A manager reopens an approved quote; subsequent line edits require a new review. */
 export async function reopenApprovedQuote(opportunityId: string, note?: string): Promise<{ error?: string }> {
   let approver;
-  try { approver = await requireRole(["manager", "admin"]); }
+  try { approver = await requireRole(["manager", "admin"]); await requirePermission("crm.manage"); }
   catch (error) {
     if (error instanceof AuthenticationError || error instanceof AuthorizationError) return { error: "Forbidden" };
     throw error;
@@ -170,6 +171,7 @@ export async function decideApproval(
   let approver;
   try {
     approver = await requireRole(["manager", "admin"]);
+    await requirePermission("crm.manage");
   } catch (e) {
     if (e instanceof AuthenticationError || e instanceof AuthorizationError) {
       return { error: "Forbidden" };

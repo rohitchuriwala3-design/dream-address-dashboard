@@ -2,13 +2,13 @@
 // this helper must not become an endpoint of its own.
 import { revalidatePath } from "next/cache";
 import { pluginRuleErrorMessage } from "@/lib/plugins/action-errors";
-import { requireAuthenticated, AuthenticationError } from "@/lib/authz";
+import { requirePermission, AuthenticationError, AuthorizationError } from "@/lib/authz";
 import type { AuthzUser } from "@/lib/authz";
 import { LeadError, leadErrorMessage } from "@/lib/crm/leads/types";
 
 type Options = {
   verb: "create" | "update" | "delete" | "restore";
-  auth?: Parameters<typeof requireAuthenticated>[0];
+  auth?: Parameters<typeof requirePermission>[1];
   pluginRules?: boolean;
   alsoRevalidate?: string;
 };
@@ -21,7 +21,13 @@ export async function runLeadAction<T>(
   fn: (user: AuthzUser) => Promise<T>,
 ): Promise<Result<T>> {
   let user: AuthzUser;
-  try { user = await requireAuthenticated(auth); } catch (e) { if (e instanceof AuthenticationError) return { error: "Unauthorized" }; throw e; }
+  try {
+    user = await requirePermission("crm.manage", auth);
+  } catch (e) {
+    if (e instanceof AuthenticationError) return { error: "Unauthorized" };
+    if (e instanceof AuthorizationError) return { error: "Forbidden" };
+    throw e;
+  }
   try {
     const result = await fn(user);
     revalidatePath("/[locale]/(routes)/crm/leads", "page");

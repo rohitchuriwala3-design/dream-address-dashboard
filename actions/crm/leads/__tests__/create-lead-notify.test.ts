@@ -3,7 +3,9 @@
 
 jest.mock("@/lib/authz", () => ({
   requireAuthenticated: jest.fn(),
+  requirePermission: jest.fn().mockResolvedValue({ id: "owner", role: "user" }),
   AuthenticationError: class AuthenticationError extends Error {},
+  AuthorizationError: class AuthorizationError extends Error {},
 }));
 jest.mock("@/lib/authz/assignable-user", () => ({ assertAssignableUser: jest.fn() }));
 jest.mock("@/lib/prisma", () => ({

@@ -8,6 +8,7 @@ import resendHelper from "@/lib/resend";
 import { getInvoicePdfStream } from "@/lib/invoices/storage";
 import { InvoiceEmail } from "@/emails/InvoiceEmail";
 import { render } from "@react-email/render";
+import { requirePermission } from "@/lib/authz";
 
 interface SendInvoiceEmailInput {
   invoiceId: string;
@@ -17,6 +18,7 @@ interface SendInvoiceEmailInput {
 }
 
 export async function sendInvoiceEmail(input: SendInvoiceEmailInput) {
+  await requirePermission("finance.manage");
   const user = await getUser();
 
   const invoice = await prismadb.invoices.findUniqueOrThrow({

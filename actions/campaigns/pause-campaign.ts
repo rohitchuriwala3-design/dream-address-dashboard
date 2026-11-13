@@ -2,7 +2,7 @@
 import { prismadb } from "@/lib/prisma";
 import { inngest } from "@/inngest/client";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanWriteCampaign,
   AuthenticationError,
   AuthorizationError,
@@ -11,9 +11,10 @@ import {
 export const pauseCampaign = async (id: string) => {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("crm.manage");
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthorized" };
+    if (e instanceof AuthorizationError) return { error: "Forbidden" };
     throw e;
   }
 

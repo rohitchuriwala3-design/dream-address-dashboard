@@ -7,7 +7,7 @@ import { writeAuditLog, diffObjects } from "@/lib/audit-log";
 import { handleStageTransition } from "@/lib/crm/stage-transition";
 import { qualifiedEntryBlockReason } from "@/lib/crm/approval-gate";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanWriteOpportunity,
   assertCanWriteAccount,
   assertCanWriteContact,
@@ -57,9 +57,10 @@ export const updateOpportunity = async (data: {
   // Authorization runs before the approval gate and the update.
   let user;
   try {
-    user = await requireAuthenticated({ partner: true });
+    user = await requirePermission("crm.manage", { partner: true });
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthorized" };
+    if (e instanceof AuthorizationError) return { error: "Forbidden" };
     throw e;
   }
   try {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  requireAuthenticated,
+  requireAnyPermission,
   assertCanReadDocument,
   unauthorizedResponse,
   notFoundOrForbiddenResponse,
@@ -18,9 +18,10 @@ export async function GET(
   const { documentId } = await params;
   let user;
   try {
-    user = await requireAuthenticated({ partner: true });
+    user = await requireAnyPermission(["crm.view", "projects.view"], { partner: true });
   } catch (e) {
     if (e instanceof AuthenticationError) return unauthorizedResponse();
+    if (e instanceof AuthorizationError) return notFoundOrForbiddenResponse();
     throw e;
   }
 

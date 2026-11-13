@@ -7,7 +7,7 @@ import { validateEnrichRequest } from "./validate";
 import { getApiKey } from "@/lib/api-keys";
 import { FIELD_MAP } from "@/lib/enrichment/presets/target-fields";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanWriteTarget,
   assertCanCancelTargetEnrichment,
   unauthorizedResponse,
@@ -23,9 +23,10 @@ const activeSessions = new Map<string, { controller: AbortController; enrichment
 export async function POST(request: NextRequest) {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("crm.manage");
   } catch (e) {
     if (e instanceof AuthenticationError) return unauthorizedResponse();
+    if (e instanceof AuthorizationError) return notFoundOrForbiddenResponse();
     throw e;
   }
 
@@ -157,9 +158,10 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("crm.manage");
   } catch (e) {
     if (e instanceof AuthenticationError) return unauthorizedResponse();
+    if (e instanceof AuthorizationError) return notFoundOrForbiddenResponse();
     throw e;
   }
 

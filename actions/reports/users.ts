@@ -1,10 +1,11 @@
 import { prismadb } from "@/lib/prisma";
-import { requireRole, AuthorizationError } from "@/lib/authz";
+import { requireRole, requirePermission, AuthorizationError } from "@/lib/authz";
 import type { ReportFilters, ChartDataPoint } from "./types";
 import { groupedToChartData } from "./types";
 
 async function ensureManagerOrAdmin() {
   try {
+    await requirePermission("reports.view");
     await requireRole(["manager", "admin"]);
   } catch (e) {
     if (e instanceof AuthorizationError) throw new Error("Forbidden");

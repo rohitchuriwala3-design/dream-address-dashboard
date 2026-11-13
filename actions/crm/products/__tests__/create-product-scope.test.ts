@@ -2,6 +2,7 @@ jest.mock("@/lib/auth-server", () => ({ getSession: jest.fn() }));
 jest.mock("@/lib/prisma", () => ({
   prismadb: {
     users: { findUnique: jest.fn() },
+    nexusUserPermission: { findMany: jest.fn().mockResolvedValue([]) },
     crm_Products: {
       findUnique: jest.fn(),
       create: jest.fn(),
@@ -38,7 +39,7 @@ beforeEach(() => {
 
 it("validates the product catalog as INR-only for V1", () => {
   expect(CreateProduct.safeParse(validInput).success).toBe(true);
-  expect(CreateProduct.safeParse({ ...validInput, currency: "INR" }).success).toBe(false);
+  expect(CreateProduct.safeParse({ ...validInput, currency: "OTHER" }).success).toBe(false);
 });
 
 describe("createProduct role gate", () => {
@@ -60,6 +61,7 @@ describe("createProduct role gate", () => {
   it("manager succeeds", async () => {
     gs.mockResolvedValue({ user: { id: "m" } } as any);
     fu.mockResolvedValue({ id: "m", role: "manager" } as any);
+    (prismadb as any).nexusUserPermission.findMany.mockResolvedValue([{ key: "crm.manage" }]);
     const res = await createProduct(validInput);
     expect(res).toMatchObject({ data: { id: "p1" } });
     expect(create).toHaveBeenCalled();

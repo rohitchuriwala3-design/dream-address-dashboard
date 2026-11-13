@@ -3,7 +3,7 @@ import { prismadb } from "@/lib/prisma";
 import { junctionTableHelpers } from "@/lib/junction-helpers";
 import { revalidatePath } from "next/cache";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanReadBoard,
   AuthenticationError,
   AuthorizationError,
@@ -12,9 +12,10 @@ import {
 export const watchProject = async (projectId: string) => {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("projects.view");
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthorized" };
+    if (e instanceof AuthorizationError) return { error: "Forbidden" };
     throw e;
   }
 
@@ -46,9 +47,10 @@ export const watchProject = async (projectId: string) => {
 export const unwatchProject = async (projectId: string) => {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("projects.view");
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthorized" };
+    if (e instanceof AuthorizationError) return { error: "Forbidden" };
     throw e;
   }
 

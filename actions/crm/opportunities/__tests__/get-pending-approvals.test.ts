@@ -1,5 +1,6 @@
 jest.mock("@/lib/authz", () => ({
   requireRole: jest.fn(),
+  requirePermission: jest.fn(),
   AuthenticationError: class AuthenticationError extends Error {},
   AuthorizationError: class AuthorizationError extends Error {},
 }));
@@ -8,13 +9,14 @@ jest.mock("@/lib/prisma", () => ({
 }));
 
 import { prismadb } from "@/lib/prisma";
-import { requireRole } from "@/lib/authz";
+import { requireRole, requirePermission } from "@/lib/authz";
 import { getPendingApprovals } from "@/actions/crm/opportunities/get-pending-approvals";
 
 describe("getPendingApprovals", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (requireRole as jest.Mock).mockResolvedValue({ id: "cso1", role: "manager" });
+    (requirePermission as jest.Mock).mockResolvedValue({ id: "cso1", role: "manager" });
   });
 
   it("lists PENDING deals with serialized decimals, oldest request first", async () => {

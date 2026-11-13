@@ -1,9 +1,10 @@
 "use server";
 import {
-  requireAuthenticated,
+  requireAnyPermission,
   documentReadScopeWhere,
   filterAuthorizedDocumentIds,
   AuthenticationError,
+  AuthorizationError,
 } from "@/lib/authz";
 import { prismadb } from "@/lib/prisma";
 import {
@@ -24,9 +25,10 @@ export async function searchDocuments(
 ): Promise<DocumentSearchResult[]> {
   let user;
   try {
-    user = await requireAuthenticated({ partner: true });
+    user = await requireAnyPermission(["crm.view", "projects.view"], { partner: true });
   } catch (e) {
     if (e instanceof AuthenticationError) return [];
+    if (e instanceof AuthorizationError) return [];
     throw e;
   }
   if (!query || query.trim().length < 2) return [];

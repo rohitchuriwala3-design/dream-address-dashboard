@@ -1,6 +1,6 @@
 "use server";
 import { getApiKey } from "@/lib/api-keys";
-import { requireAuthenticated, AuthenticationError } from "@/lib/authz";
+import { requirePermission, AuthenticationError, AuthorizationError } from "@/lib/authz";
 
 export const generateTemplate = async (
   prompt: string
@@ -11,9 +11,10 @@ export const generateTemplate = async (
 }> => {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("crm.manage");
   } catch (e) {
     if (e instanceof AuthenticationError) throw new Error("Unauthorized");
+    if (e instanceof AuthorizationError) throw new Error("Forbidden");
     throw e;
   }
 

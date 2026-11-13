@@ -5,10 +5,10 @@ import { prismadb } from "@/lib/prisma";
 import {
   assertCanWriteAccount,
   assertCanWriteLead,
+  requirePermission,
   AuthenticationError,
   AuthorizationError,
   PARTNER_EDIT,
-  requireAuthenticated,
 } from "@/lib/authz";
 import { writeAuditLog } from "@/lib/audit-log";
 import { handleStageTransition } from "@/lib/crm/stage-transition";
@@ -24,9 +24,10 @@ type ConversionResult = {
 export async function convertLead(leadId: string): Promise<ConversionResult | { error: string }> {
   let user;
   try {
-    user = await requireAuthenticated({ partner: true });
+    user = await requirePermission("crm.manage", { partner: true });
   } catch (error) {
     if (error instanceof AuthenticationError) return { error: "Unauthorized" };
+    if (error instanceof AuthorizationError) return { error: "Forbidden" };
     throw error;
   }
 

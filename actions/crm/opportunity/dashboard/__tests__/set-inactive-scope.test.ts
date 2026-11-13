@@ -4,7 +4,7 @@
 // the shared assertCanWriteOpportunity scope.
 
 jest.mock("@/lib/authz", () => ({
-  requireAuthenticated: jest.fn(),
+  requirePermission: jest.fn(),
   assertCanWriteOpportunity: jest.fn(),
   AuthenticationError: class AuthenticationError extends Error {},
   AuthorizationError: class AuthorizationError extends Error {},
@@ -14,14 +14,14 @@ jest.mock("@/lib/prisma", () => ({
 }));
 
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanWriteOpportunity,
   AuthorizationError,
 } from "@/lib/authz";
 import { prismadb } from "@/lib/prisma";
 import { setInactiveOpportunity } from "@/actions/crm/opportunity/dashboard/set-inactive";
 
-const authed = requireAuthenticated as jest.Mock;
+const authed = requirePermission as jest.Mock;
 const assertOpp = assertCanWriteOpportunity as jest.Mock;
 const oUpdate = prismadb.crm_Opportunities.update as jest.Mock;
 

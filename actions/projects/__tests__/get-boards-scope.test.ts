@@ -1,6 +1,6 @@
 jest.mock("@/lib/auth-server", () => ({ getSession: jest.fn() }));
 jest.mock("@/lib/prisma", () => ({
-  prismadb: {
+  prismadb: { nexusUserPermission: { findMany: jest.fn().mockResolvedValue([{ key: "projects.view" }, { key: "projects.manage" }]) },
     users: { findUnique: jest.fn() },
     boards: { findMany: jest.fn() },
   },
@@ -56,5 +56,13 @@ describe("getBoards scope", () => {
     const call = (prismadb.boards.findMany as jest.Mock).mock.calls[0][0];
     expect(call.where.deletedAt).toBeNull();
     expect(call.where.OR).toBeUndefined();
+  });
+
+  it("denies project reads when the selected view permission is missing", async () => {
+    mockUser("user", "u1");
+    (prismadb.nexusUserPermission.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+    await expect(getBoards()).resolves.toEqual([]);
+    expect(prismadb.boards.findMany).not.toHaveBeenCalled();
   });
 });

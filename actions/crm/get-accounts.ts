@@ -1,9 +1,9 @@
 import { cache } from "react";
 import { prismadb } from "@/lib/prisma";
-import { requireAuthenticated, accountReadScopeWhere } from "@/lib/authz";
+import { requirePermission, accountReadScopeWhere } from "@/lib/authz";
 
 export const getAccounts = cache(async () => {
-  const user = await requireAuthenticated({ partner: true });
+  const user = await requirePermission('crm.view', { partner: true });
   const data = await prismadb.crm_Accounts.findMany({
     where: accountReadScopeWhere(user),
     include: {

@@ -3,7 +3,7 @@
 import { cache } from "react";
 import { prismadb } from "@/lib/prisma";
 import {
-  requireAuthenticated,
+  requirePermission,
   contractReadScopeWhere,
   assertCanReadAccount,
   AuthenticationError,
@@ -14,7 +14,7 @@ import { serializeDecimalsList } from "@/lib/serialize-decimals";
 export const getContractsWithIncludes = cache(async () => {
   let user;
   try {
-    user = await requireAuthenticated({ partner: true });
+    user = await requirePermission("crm.view", { partner: true });
   } catch (e) {
     if (e instanceof AuthenticationError) return [];
     throw e;
@@ -44,7 +44,7 @@ export const getContractsWithIncludes = cache(async () => {
 export const getContractsByAccountId = async (accountId: string) => {
   let user;
   try {
-    user = await requireAuthenticated({ partner: true });
+    user = await requirePermission("crm.view", { partner: true });
   } catch (e) {
     if (e instanceof AuthenticationError) return [];
     throw e;

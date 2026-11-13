@@ -6,7 +6,7 @@ import resendHelper from "@/lib/resend";
 import NewTaskFromCRMEmail from "@/emails/NewTaskFromCRM";
 import NewTaskFromCRMToWatchersEmail from "@/emails/NewTaskFromCRMToWatchers";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanWriteAccount,
   PARTNER_EDIT,
   AuthenticationError,
@@ -36,9 +36,10 @@ export const createTask = async (data: {
   // Parent-write: creating a task under an account requires write on that account.
   let authUser;
   try {
-    authUser = await requireAuthenticated({ partner: true });
+    authUser = await requirePermission('crm.manage', { partner: true });
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthorized" };
+    if (e instanceof AuthorizationError) return { error: "Forbidden" };
     throw e;
   }
   try {

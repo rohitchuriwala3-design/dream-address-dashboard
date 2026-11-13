@@ -5,6 +5,7 @@
 
 jest.mock("@/lib/authz", () => ({
   requireAuthenticated: jest.fn(),
+  requirePermission: jest.fn(),
   assertCanWriteTarget: jest.fn(),
   AuthenticationError: class AuthenticationError extends Error {},
   AuthorizationError: class AuthorizationError extends Error {},
@@ -22,6 +23,7 @@ jest.mock("next/cache", () => ({ revalidatePath: jest.fn() }));
 
 import {
   requireAuthenticated,
+  requirePermission,
   assertCanWriteTarget,
   AuthorizationError,
 } from "@/lib/authz";
@@ -29,6 +31,7 @@ import { prismadb } from "@/lib/prisma";
 import { convertTarget } from "@/actions/crm/targets/convert-target";
 
 const authed = requireAuthenticated as jest.Mock;
+const permission = requirePermission as jest.Mock;
 const assertTarget = assertCanWriteTarget as jest.Mock;
 const targetFind = prismadb.crm_Targets.findFirst as jest.Mock;
 const tx = prismadb.$transaction as jest.Mock;
@@ -38,6 +41,7 @@ const OWNER = { id: "owner", role: "user" };
 beforeEach(() => {
   jest.clearAllMocks();
   authed.mockResolvedValue(OWNER);
+  permission.mockImplementation((_key: string, options?: { partner?: boolean }) => authed(options));
 });
 
 it("denies a non-owner before reading or converting the target", async () => {

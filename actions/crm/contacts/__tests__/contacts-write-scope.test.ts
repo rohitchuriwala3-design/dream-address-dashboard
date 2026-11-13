@@ -4,6 +4,7 @@
 jest.mock("@/lib/authz", () => ({
   PARTNER_EDIT: { partnerEdit: true },
   requireAuthenticated: jest.fn(),
+  requirePermission: jest.fn(),
   assertCanWriteContact: jest.fn(),
   assertCanWriteAccount: jest.fn(),
   assertCanWriteOpportunity: jest.fn(),
@@ -33,6 +34,7 @@ jest.mock("@/lib/sendmail", () => ({ __esModule: true, default: jest.fn() }));
 
 import {
   requireAuthenticated,
+  requirePermission,
   assertCanWriteContact,
   assertCanWriteAccount,
   assertCanWriteOpportunity,
@@ -45,6 +47,7 @@ import { deleteContact } from "@/actions/crm/contacts/delete-contact";
 import { unlinkOpportunity } from "@/actions/crm/contacts/unlink-opportunity";
 
 const authed = requireAuthenticated as jest.Mock;
+const permission = requirePermission as jest.Mock;
 const assertContact = assertCanWriteContact as jest.Mock;
 const assertAccount = assertCanWriteAccount as jest.Mock;
 const assertOpp = assertCanWriteOpportunity as jest.Mock;
@@ -57,6 +60,7 @@ const OWNER = { id: "owner", role: "user" };
 beforeEach(() => {
   jest.clearAllMocks();
   authed.mockResolvedValue(OWNER);
+  permission.mockImplementation((_key: string, options?: { partner?: boolean }) => authed(options));
   assertContact.mockResolvedValue(undefined);
   assertAccount.mockResolvedValue(undefined);
   assertOpp.mockResolvedValue(undefined);

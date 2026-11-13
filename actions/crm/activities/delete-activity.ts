@@ -1,6 +1,6 @@
 "use server";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanWriteActivity,
   AuthenticationError,
   AuthorizationError,
@@ -22,9 +22,10 @@ export const deleteActivity = async (activityId: string) => {
   // swallowed into the generic "Failed to delete activity" branch.
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission('crm.manage');
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthorized" };
+    if (e instanceof AuthorizationError) return { error: "Forbidden" };
     throw e;
   }
   try {

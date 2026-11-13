@@ -3,6 +3,7 @@ import { prismadb } from "@/lib/prisma";
 import { inngest } from "@/inngest/client";
 import {
   requireRole,
+  requirePermission,
   assertCanReadCampaign,
   AuthenticationError,
   AuthorizationError,
@@ -13,6 +14,7 @@ export const scheduleCampaign = async (id: string, scheduledAt: Date) => {
   let user;
   try {
     user = await requireRole(["manager", "admin"]);
+    await requirePermission("crm.manage");
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthorized" };
     if (e instanceof AuthorizationError) return { error: "Forbidden" };

@@ -3,7 +3,7 @@ import { getSession } from "@/lib/auth-server";
 import { prismadb } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import {
-  requireAuthenticated,
+  requirePermission,
   assertCanWriteBoard,
   AuthenticationError,
   AuthorizationError,
@@ -12,9 +12,10 @@ import {
 export const deleteTask = async (data: { id: string; section?: string }) => {
   let authzUser;
   try {
-    authzUser = await requireAuthenticated();
+    authzUser = await requirePermission("projects.manage");
   } catch (e) {
     if (e instanceof AuthenticationError) return { error: "Unauthorized" };
+    if (e instanceof AuthorizationError) return { error: "Forbidden" };
     throw e;
   }
 

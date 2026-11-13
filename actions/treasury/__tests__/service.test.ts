@@ -1,10 +1,10 @@
 jest.mock("@/lib/authz", () => ({
-  requireRole: jest.fn(), AuthenticationError: class AuthenticationError extends Error {},
+  requirePermission: jest.fn(), AuthenticationError: class AuthenticationError extends Error {},
   AuthorizationError: class AuthorizationError extends Error {},
 }));
 jest.mock("@/lib/prisma", () => ({ prismadb: { treasuryAccount: { create: jest.fn() }, treasuryTransaction: { findUnique: jest.fn() }, $transaction: jest.fn() } }));
 
-import { requireRole } from "@/lib/authz";
+import { requirePermission } from "@/lib/authz";
 import { prismadb } from "@/lib/prisma";
 import { createTreasuryAccount, recordTreasuryMovement, recordTreasuryReconciliation, transferTreasury, TreasuryError } from "../service";
 
@@ -18,7 +18,7 @@ const tx = {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  (requireRole as jest.Mock).mockResolvedValue({ id: "manager-1", role: "manager" });
+  (requirePermission as jest.Mock).mockResolvedValue({ id: "manager-1", role: "manager" });
   (prismadb.$transaction as jest.Mock).mockImplementation((callback: any) => callback(tx));
   tx.treasuryAccount.create.mockResolvedValue({ id: "cash-1", currency: "INR" });
   tx.treasuryAccount.findFirst.mockResolvedValue({ id: "cash-1", currency: "INR" });

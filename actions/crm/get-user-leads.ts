@@ -1,7 +1,8 @@
 import { prismadb } from "@/lib/prisma";
 import {
-  requireAuthenticated,
+  requirePermission,
   AuthenticationError,
+  AuthorizationError,
   isUnhandledRole,
 } from "@/lib/authz";
 
@@ -10,9 +11,10 @@ import {
 export const getUserLeads = async (userId: string) => {
   let user;
   try {
-    user = await requireAuthenticated();
+    user = await requirePermission("crm.view");
   } catch (e) {
     if (e instanceof AuthenticationError) return [];
+    if (e instanceof AuthorizationError) return [];
     throw e;
   }
   if (user.role === "user" && userId !== user.id) return [];

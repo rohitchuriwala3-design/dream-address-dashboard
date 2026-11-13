@@ -1,5 +1,6 @@
 jest.mock("@/lib/authz", () => ({
   requireAuthenticated: jest.fn(async () => ({ id: "u1", role: "user" })),
+  requirePermission: jest.fn(async () => ({ id: "u1", role: "user" })),
   AuthenticationError: class AuthenticationError extends Error {},
 }));
 const mockProviders: { plugin: unknown; provider: Record<string, unknown> }[] = [];

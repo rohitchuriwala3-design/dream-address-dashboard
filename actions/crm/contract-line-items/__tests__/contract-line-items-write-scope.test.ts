@@ -3,6 +3,7 @@
 
 jest.mock("@/lib/authz", () => ({
   requireAuthenticated: jest.fn(),
+  requirePermission: jest.fn(),
   assertCanWriteContract: jest.fn(),
   assertCanWriteContractLineItem: jest.fn(),
   assertCanReadOpportunity: jest.fn(),
@@ -52,6 +53,7 @@ jest.mock("@/lib/line-items", () => ({
 
 import {
   requireAuthenticated,
+  requirePermission,
   assertCanWriteContract,
   assertCanWriteContractLineItem,
   assertCanReadOpportunity,
@@ -65,6 +67,7 @@ import { removeContractLineItem } from "@/actions/crm/contract-line-items/remove
 import { reorderContractLineItems } from "@/actions/crm/contract-line-items/reorder-line-items";
 
 const authed = requireAuthenticated as jest.Mock;
+const permitted = requirePermission as jest.Mock;
 const assertContract = assertCanWriteContract as jest.Mock;
 const assertLI = assertCanWriteContractLineItem as jest.Mock;
 const assertReadOpp = assertCanReadOpportunity as jest.Mock;
@@ -84,6 +87,7 @@ const ADD_INPUT = {
 beforeEach(() => {
   jest.clearAllMocks();
   authed.mockResolvedValue(OWNER);
+  permitted.mockImplementation(() => authed());
   assertContract.mockResolvedValue(undefined);
   assertLI.mockResolvedValue(undefined);
   assertReadOpp.mockResolvedValue(undefined);
