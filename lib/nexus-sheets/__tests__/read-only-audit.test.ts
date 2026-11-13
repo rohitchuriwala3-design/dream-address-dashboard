@@ -29,7 +29,7 @@ describe("auditNexusMasterSheet", () => {
     });
     mockValuesGet.mockReset().mockImplementation(async ({ range }: { range: string }) => {
       const headersOnly = range.endsWith("A1:Z4");
-      if (range.startsWith("'Projects'")) return { data: { values: headersOnly ? [["Project ID", "Name"]] : [["P-1", "One"], ["P-1", "Duplicate"], ["", "Missing ID"]] } };
+      if (range.startsWith("'Projects'")) return { data: { values: headersOnly ? [["Project ID", "Name"]] : [["P-1", "One"], ["P-1", "Duplicate"], ["", "Missing ID"], ['=IF(A6="",0,A6)', '=IF(B6="",0,B6)']] } };
       if (range.startsWith("'Quotation Lines'")) return { data: { values: headersOnly ? [["Quote ID", "Revision", "Line no."]] : [["Q-1", 1, 1], ["Q-1", 1, 1], ["Q-2", 1, ""]] } };
       if (range.startsWith("'Invoice Lines'")) return { data: { values: headersOnly ? [["Invoice ID", "Section", "Line no."]] : [["I-1", "Service", 1]] } };
       if (range.startsWith("'Vendors'")) return { data: { values: headersOnly ? [["Title"], ["Instructions"], ["IDs stay fixed"], ["Vendor ID", "Vendor name"]] : [["V-1", "Vendor one"]] } };
@@ -61,6 +61,7 @@ describe("auditNexusMasterSheet", () => {
       expect.objectContaining({ tab: "Quotation Lines", code: "MISSING_ID", count: 1 }),
     ]));
     expect(result.tabs.find((tab) => tab.name === "Quotation Lines")?.idColumns).toEqual(["A", "B", "C"]);
+    expect(result.tabs.find((tab) => tab.name === "Projects")?.rowsScanned).toBe(3);
     expect(mockValuesGet).toHaveBeenCalledTimes(20);
     expect(mockValuesGet).toHaveBeenCalledWith(expect.objectContaining({ range: "'Vendors'!A5:B20" }));
     expect(result.tabs.find((tab) => tab.name === "Vendors")?.keyHeaders).toEqual(["Vendor ID"]);
@@ -70,6 +71,15 @@ describe("auditNexusMasterSheet", () => {
     const result = await auditNexusMasterSheet({ includeKeys: true });
     expect(result.tabs.find((tab) => tab.name === "Projects")?.keys).toEqual(["P-1", "P-1"]);
     expect(result.tabs.find((tab) => tab.name === "Quotation Lines")?.keys).toEqual(["Q-1|1|1", "Q-1|1|1"]);
+  });
+
+  it("ignores formula-only template rows and formula-generated keys", async () => {
+    const result = await auditNexusMasterSheet({ includeKeys: true });
+    const projects = result.tabs.find((tab) => tab.name === "Projects");
+    expect(projects?.rowsScanned).toBe(3);
+    expect(projects?.blankIds).toBe(1);
+    expect(projects?.keys).toEqual(["P-1", "P-1"]);
+    expect(result.issues).not.toContainEqual(expect.objectContaining({ tab: "Projects", code: "MISSING_ID", count: 2 }));
   });
 
   it("does not treat a private_key_id as a usable private key", () => {

@@ -61,7 +61,10 @@ function normalizeHeader(value: unknown) {
 }
 
 function rowHasContent(row: unknown[]) {
-  return row.some((cell) => String(cell ?? "").trim() !== "");
+  return row.some((cell) => {
+    const value = String(cell ?? "").trim();
+    return value !== "" && !value.startsWith("=");
+  });
 }
 
 export async function auditNexusMasterSheet(options: { includeKeys?: boolean } = {}): Promise<SheetAuditResult> {
@@ -95,7 +98,7 @@ export async function auditNexusMasterSheet(options: { includeKeys?: boolean } =
     const headerResponse = await sheets.spreadsheets.values.get({
       spreadsheetId: config.spreadsheetId,
       range: `'${safeName}'!A1:Z${HEADER_SCAN_ROWS}`,
-      valueRenderOption: "UNFORMATTED_VALUE",
+      valueRenderOption: "FORMULA",
     });
     const headerGrid = headerResponse.data.values ?? [];
     const headerLimit = Math.min(HEADER_SCAN_ROWS, headerGrid.length);
@@ -116,7 +119,7 @@ export async function auditNexusMasterSheet(options: { includeKeys?: boolean } =
     const dataResponse = await sheets.spreadsheets.values.get({
       spreadsheetId: config.spreadsheetId,
       range: `'${safeName}'!A${firstDataRow}:${definition.scanThroughColumn}${maxRows}`,
-      valueRenderOption: "UNFORMATTED_VALUE",
+      valueRenderOption: "FORMULA",
     });
     const grid = dataResponse.data.values ?? [];
     const seen = new Set<string>();
@@ -128,7 +131,10 @@ export async function auditNexusMasterSheet(options: { includeKeys?: boolean } =
       if (!rowHasContent(row)) continue;
       dataRows++;
       // Header normalization is case-insensitive; record identifiers are preserved verbatim.
-      const keyParts = keyColumns.map((column) => String(row[column] ?? "").trim());
+      const keyParts = keyColumns.map((column) => {
+        const value = String(row[column] ?? "").trim();
+        return value.startsWith("=") ? "" : value;
+      });
       if (keyParts.some((part) => !part)) { blankIds++; continue; }
       const normalizedId = keyParts.join("|");
       rowKeys.push(normalizedId);
