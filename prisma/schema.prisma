@@ -1003,29 +1003,29 @@ enum AppRole {
 }
 
 model Users {
-  id               String        @id @default(uuid()) @db.Uuid
-  v                Int           @default(0) @map("__v")
+  id               String                @id @default(uuid()) @db.Uuid
+  v                Int                   @default(0) @map("__v")
   account_name     String?
   avatar           String?
-  email            String        @unique
-  emailVerified    Boolean       @default(false)
+  email            String                @unique
+  emailVerified    Boolean               @default(false)
   image            String?
-  role             AppRole       @default(user)
+  role             AppRole               @default(user)
   permissions      NexusUserPermission[]
-  created_on       DateTime      @default(now())
-  updated_at       DateTime?     @updatedAt
+  created_on       DateTime              @default(now())
+  updated_at       DateTime?             @updatedAt
   lastLoginAt      DateTime?
   name             String?
   password         String?
   username         String?
-  userStatus       ActiveStatus  @default(PENDING)
-  userLanguage     Language      @default(en)
-  banned           Boolean       @default(false)
+  userStatus       ActiveStatus          @default(PENDING)
+  userLanguage     Language              @default(en)
+  banned           Boolean               @default(false)
   banReason        String?
   banExpires       DateTime?
   /// Role partner only: the partner's own company account (read-only for him).
-  partnerAccountId String?       @db.Uuid
-  partnerAccount   crm_Accounts? @relation("PartnerOwnAccount", fields: [partnerAccountId], references: [id], onDelete: SetNull)
+  partnerAccountId String?               @db.Uuid
+  partnerAccount   crm_Accounts?         @relation("PartnerOwnAccount", fields: [partnerAccountId], references: [id], onDelete: SetNull)
 
   tasksComment                 tasksComments[]
   created_by_documents         Documents[]              @relation("created_by_user")
@@ -2265,22 +2265,30 @@ model NexusUserPermission {
 }
 
 model NexusSheetCrosswalk {
-  id            String   @id @default(uuid()) @db.Uuid
-  spreadsheetId String   @db.VarChar(128)
-  sheetTab      String   @db.VarChar(80)
-  sheetKey      String   @db.VarChar(200)
-  entityType    String   @db.VarChar(40)
-  appRecordId   String   @db.Uuid
-  note          String?  @db.VarChar(500)
-  createdBy     String   @db.Uuid
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  creator       Users    @relation(fields: [createdBy], references: [id], onDelete: Restrict)
+  id             String    @id @default(uuid()) @db.Uuid
+  spreadsheetId  String    @db.VarChar(128)
+  sheetTab       String    @db.VarChar(80)
+  sheetKey       String    @db.VarChar(200)
+  entityType     String    @db.VarChar(40)
+  appRecordId    String    @db.Uuid
+  note           String?   @db.VarChar(500)
+  syncStatus     String    @default("UNSYNCED") @db.VarChar(24)
+  baseline       Json?
+  lastAppHash    String?   @db.VarChar(64)
+  lastSheetHash  String?   @db.VarChar(64)
+  conflictFields Json?
+  lastSyncedAt   DateTime?
+  lastSyncError  String?   @db.VarChar(1000)
+  createdBy      String    @db.Uuid
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  creator        Users     @relation(fields: [createdBy], references: [id], onDelete: Restrict)
 
   @@unique([spreadsheetId, sheetTab, sheetKey])
   @@unique([entityType, appRecordId])
   @@index([sheetTab, sheetKey])
   @@index([createdBy, createdAt])
+  @@index([syncStatus, updatedAt])
 }
 
 model Invoice_Attachments {

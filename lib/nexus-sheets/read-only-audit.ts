@@ -1,4 +1,5 @@
 import { google } from "googleapis";
+import { existsSync, readFileSync } from "node:fs";
 
 const REQUIRED_TABS = [
   { name: "Projects", keyHeaders: [["project id", "projectid"]], scanThroughColumn: "B" },
@@ -17,6 +18,38 @@ const REQUIRED_TABS = [
 const SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"];
 const MASTER_SPREADSHEET_ID = "1oJP7fqIGl48cUPq76XOogPQ-B5IfHHESt0JCTVpIW5o";
 const HEADER_SCAN_ROWS = 4;
+const RENDER_SERVICE_ACCOUNT_FILE = "/etc/secrets/sheet api key";
+
+type ServiceAccountCredentials = { client_email?: string; private_key?: string };
+
+function normalizePrivateKey(value: string | undefined) {
+  const key = value?.trim().replace(/\\n/g, "\n");
+  return key && /-----BEGIN (?:RSA )?PRIVATE KEY-----/.test(key) ? key : undefined;
+}
+
+function getServiceAccountCredentials() {
+  const envEmail = process.env.NEXUS360_SHEETS_SERVICE_ACCOUNT_EMAIL?.trim();
+  const envKey = normalizePrivateKey(process.env.NEXUS360_SHEETS_PRIVATE_KEY);
+  const filePath = process.env.NEXUS360_SHEETS_CREDENTIALS_FILE?.trim()
+    || process.env.GOOGLE_APPLICATION_CREDENTIALS?.trim()
+    || RENDER_SERVICE_ACCOUNT_FILE;
+
+  if (existsSync(filePath)) {
+    try {
+      const credentials = JSON.parse(readFileSync(filePath, "utf8")) as ServiceAccountCredentials;
+      const email = credentials.client_email?.trim() || envEmail;
+      const key = normalizePrivateKey(credentials.private_key) || envKey;
+      if (email && key) return { email, key };
+    } catch {
+      // Fall back to separately configured environment values without logging file contents.
+    }
+  }
+
+  return {
+    email: envEmail,
+    key: envKey,
+  };
+}
 
 export interface SheetAuditIssue {
   tab: string;
@@ -35,14 +68,13 @@ export interface SheetAuditResult {
 }
 
 export function getNexusSheetsConfiguration() {
-  const email = process.env.NEXUS360_SHEETS_SERVICE_ACCOUNT_EMAIL?.trim();
-  const key = process.env.NEXUS360_SHEETS_PRIVATE_KEY?.trim();
+  const { email, key } = getServiceAccountCredentials();
   return {
     spreadsheetId: process.env.NEXUS360_SHEETS_SPREADSHEET_ID?.trim() || MASTER_SPREADSHEET_ID,
     configured: Boolean(email && key),
     missing: [
       ...(!email ? ["NEXUS360_SHEETS_SERVICE_ACCOUNT_EMAIL"] : []),
-      ...(!key ? ["NEXUS360_SHEETS_PRIVATE_KEY"] : []),
+      ...(!key ? ["NEXUS360_SHEETS_PRIVATE_KEY or NEXUS360_SHEETS_CREDENTIALS_FILE"] : []),
     ],
   };
 }
@@ -59,9 +91,10 @@ export async function auditNexusMasterSheet(options: { includeKeys?: boolean } =
   const config = getNexusSheetsConfiguration();
   if (!config.configured) throw new Error(`Google Sheets service account is not configured: ${config.missing.join(", ")}`);
 
+  const credentials = getServiceAccountCredentials();
   const auth = new google.auth.JWT({
-    email: process.env.NEXUS360_SHEETS_SERVICE_ACCOUNT_EMAIL,
-    key: process.env.NEXUS360_SHEETS_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+    email: credentials.email,
+    key: credentials.key,
     scopes: SCOPES,
   });
   const sheets = google.sheets({ version: "v4", auth });

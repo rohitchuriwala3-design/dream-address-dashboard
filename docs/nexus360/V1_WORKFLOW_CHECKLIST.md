@@ -126,7 +126,7 @@ The cumulative focused profile/invoice/tax/Orders/product/vendor regression batc
 - [ ] Run read-only mapping and duplicate/conflict review; resolve ambiguous rows explicitly.
 - [ ] Add controlled app-to-Sheet and Sheet-to-app sync with field ownership, timestamps, tombstone/deletion rules, retry safety, conflict queue and run history.
 - [ ] Verify a staged write/readback round trip and reconcile row counts and financial totals before enabling routine sync.
-- [ ] Regression-check both sync directions, current connection health, last successful run, errors/retries and duplicate/conflict handling after any change that touches the website, Sheet schema, credentials or sync code. Current staging is not connected (service-account email and private-key environment variables are missing); app capability is read-only audit/crosswalk preview and no two-way write path exists yet.
+- [ ] Regression-check both sync directions, current connection health, last successful run, errors/retries and duplicate/conflict handling after any change that touches the website, Sheet schema, credentials or sync code. The owner reports the full PEM private key is now in Render; verify a successful authenticated read-only audit. Current app capability remains read-only audit/crosswalk preview and no two-way write path exists yet.
 - [ ] Keep manual Sheet entry understandable with data dictionary, validation, filters, protected formula/system columns and sync status.
 
 ### Phase 5 — Deliver actionable analytics and business alerts

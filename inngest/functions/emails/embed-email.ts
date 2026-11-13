@@ -4,6 +4,7 @@ import {
   buildEmbeddingText,
   computeContentHash,
   generateEmbedding,
+  isEmbeddingConfigured,
   toVectorLiteral,
 } from "@/inngest/lib/embedding-utils";
 
@@ -15,6 +16,7 @@ export const embedEmail = inngest.createFunction(
     triggers: [{ event: "email/embed-email" }],
   },
   async ({ event }: { event: { data: { emailId: string } } }) => {
+    if (!isEmbeddingConfigured()) return { skipped: "OpenAI embeddings are not configured" };
     const { emailId } = event.data;
 
     const email = await prismadb.email.findUnique({

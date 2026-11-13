@@ -1,23 +1,32 @@
 const mockSpreadsheetGet = jest.fn();
 const mockValuesGet = jest.fn();
+const mockJwt = jest.fn();
 jest.mock("googleapis", () => ({
   google: {
-    auth: { JWT: jest.fn() },
+    auth: { JWT: mockJwt },
     sheets: jest.fn(() => ({ spreadsheets: { get: mockSpreadsheetGet, values: { get: mockValuesGet } } })),
   },
 }));
 
-import { auditNexusMasterSheet } from "../read-only-audit";
+import { auditNexusMasterSheet, getNexusSheetsConfiguration } from "../read-only-audit";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 describe("auditNexusMasterSheet", () => {
   const originalEnv = {
     email: process.env.NEXUS360_SHEETS_SERVICE_ACCOUNT_EMAIL,
     key: process.env.NEXUS360_SHEETS_PRIVATE_KEY,
+    credentialsFile: process.env.NEXUS360_SHEETS_CREDENTIALS_FILE,
+    googleCredentials: process.env.GOOGLE_APPLICATION_CREDENTIALS,
   };
 
   beforeEach(() => {
     process.env.NEXUS360_SHEETS_SERVICE_ACCOUNT_EMAIL = "sheets-reader@example.test";
-    process.env.NEXUS360_SHEETS_PRIVATE_KEY = "fake-private-key";
+    process.env.NEXUS360_SHEETS_PRIVATE_KEY = "-----BEGIN PRIVATE KEY-----\nfake\n-----END PRIVATE KEY-----";
+    delete process.env.NEXUS360_SHEETS_CREDENTIALS_FILE;
+    delete process.env.GOOGLE_APPLICATION_CREDENTIALS;
+    mockJwt.mockReset();
     mockSpreadsheetGet.mockReset().mockResolvedValue({
       data: {
         properties: { title: "Studio master" },
@@ -45,6 +54,10 @@ describe("auditNexusMasterSheet", () => {
     else process.env.NEXUS360_SHEETS_SERVICE_ACCOUNT_EMAIL = originalEnv.email;
     if (originalEnv.key === undefined) delete process.env.NEXUS360_SHEETS_PRIVATE_KEY;
     else process.env.NEXUS360_SHEETS_PRIVATE_KEY = originalEnv.key;
+    if (originalEnv.credentialsFile === undefined) delete process.env.NEXUS360_SHEETS_CREDENTIALS_FILE;
+    else process.env.NEXUS360_SHEETS_CREDENTIALS_FILE = originalEnv.credentialsFile;
+    if (originalEnv.googleCredentials === undefined) delete process.env.GOOGLE_APPLICATION_CREDENTIALS;
+    else process.env.GOOGLE_APPLICATION_CREDENTIALS = originalEnv.googleCredentials;
   });
 
   it("reports missing tabs, duplicate IDs, and populated rows without IDs", async () => {
@@ -68,5 +81,28 @@ describe("auditNexusMasterSheet", () => {
     const result = await auditNexusMasterSheet({ includeKeys: true });
     expect(result.tabs.find((tab) => tab.name === "Projects")?.keys).toEqual(["P-1", "P-1"]);
     expect(result.tabs.find((tab) => tab.name === "Quotation Lines")?.keys).toEqual(["Q-1|1|1", "Q-1|1|1"]);
+  });
+
+  it("loads the service-account JSON from a Render secret file without requiring key text in an environment variable", async () => {
+    const directory = mkdtempSync(join(tmpdir(), "nexus-sheets-test-"));
+    const credentialsPath = join(directory, "service-account.json");
+    process.env.NEXUS360_SHEETS_CREDENTIALS_FILE = credentialsPath;
+    delete process.env.NEXUS360_SHEETS_PRIVATE_KEY;
+    writeFileSync(credentialsPath, JSON.stringify({ client_email: "file-reader@example.test", private_key: "-----BEGIN PRIVATE KEY-----\\nfake-file-key\\n-----END PRIVATE KEY-----" }));
+
+    try {
+      await auditNexusMasterSheet();
+      expect(mockJwt).toHaveBeenCalledWith(expect.objectContaining({
+        email: "file-reader@example.test",
+        key: "-----BEGIN PRIVATE KEY-----\nfake-file-key\n-----END PRIVATE KEY-----",
+      }));
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("does not treat a private_key_id as a usable private key", () => {
+    process.env.NEXUS360_SHEETS_PRIVATE_KEY = "0123456789abcdef0123456789abcdef01234567";
+    expect(getNexusSheetsConfiguration().configured).toBe(false);
   });
 });

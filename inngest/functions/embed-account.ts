@@ -4,12 +4,14 @@ import {
   buildEmbeddingText,
   computeContentHash,
   generateEmbedding,
+  isEmbeddingConfigured,
   toVectorLiteral,
 } from "@/inngest/lib/embedding-utils";
 
 export const embedAccount = inngest.createFunction(
   { id: "embed-account", name: "Embed Account", triggers: [{ event: "crm/account.saved" }] },
   async ({ event }) => {
+    if (!isEmbeddingConfigured()) return { skipped: "OpenAI embeddings are not configured" };
     const { record_id } = event.data as { record_id: string };
 
     const account = await prismadb.crm_Accounts.findUnique({
