@@ -61,7 +61,7 @@ describe("getContractsWithIncludes scope (list-all)", () => {
     (prismadb.crm_Contracts.findMany as jest.Mock).mockResolvedValue([]);
     await getContractsWithIncludes();
     const call = (prismadb.crm_Contracts.findMany as jest.Mock).mock.calls[0][0];
-    expect(call.where).toEqual({ deletedAt: null });
+    expect(call.where).toEqual({ deletedAt: null, AND: [{ currency: "INR" }] });
     expect(call.where.OR).toBeUndefined();
   });
 });
@@ -104,7 +104,7 @@ describe("getContractsByAccountId scope (list-by-account)", () => {
     (prismadb.crm_Contracts.findMany as jest.Mock).mockResolvedValue([]);
     await getContractsByAccountId("a1");
     const call = (prismadb.crm_Contracts.findMany as jest.Mock).mock.calls[0][0];
-    expect(call.where).toEqual({ account: "a1", deletedAt: null });
+    expect(call.where).toEqual({ account: "a1", deletedAt: null, AND: [{ currency: "INR" }] });
     expect(call.where.OR).toBeUndefined();
   });
 });

@@ -40,14 +40,7 @@ export const copyLineItemsFromOpportunity = async (
 
     if (!contract || contract.deletedAt) return { error: "Contract not found" };
     if (!opportunity || opportunity.deletedAt) return { error: "Opportunity not found" };
-
-    const contractCurrency = contract.currency || "INR";
-    const opportunityCurrency = opportunity.currency || "INR";
-    if (contractCurrency !== opportunityCurrency) {
-      return {
-        error: `Currency mismatch: contract uses ${contractCurrency} but opportunity uses ${opportunityCurrency}. Cannot copy line items across currencies.`,
-      };
-    }
+    if (contract.currency !== "INR" || opportunity.currency !== "INR") return { error: "Both records need verified INR values before line items can be copied." };
 
     const sourceItems = await prismadb.crm_OpportunityLineItems.findMany({
       where: { opportunityId },

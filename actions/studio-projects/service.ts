@@ -33,7 +33,7 @@ async function currentUser() {
 export async function listStudioProjects() {
   const user = await currentUser();
   const projects = await prismadb.studioProject.findMany({
-    where: { deletedAt: null, account: { is: accountReadScopeWhere(user) } },
+    where: { deletedAt: null, currency: "INR", account: { is: accountReadScopeWhere(user) } },
     include: {
       account: { select: { id: true, name: true } },
       opportunity: { select: { id: true, name: true, expected_revenue: true, currency: true } },
@@ -46,13 +46,13 @@ export async function listStudioProjects() {
 
 export async function countStudioProjects() {
   const user = await currentUser();
-  return prismadb.studioProject.count({ where: { deletedAt: null, account: { is: accountReadScopeWhere(user) } } });
+  return prismadb.studioProject.count({ where: { deletedAt: null, currency: "INR", account: { is: accountReadScopeWhere(user) } } });
 }
 
 export async function listInvoiceProjectOptions() {
   const user = await currentUser();
   return prismadb.studioProject.findMany({
-    where: { deletedAt: null, status: { not: "CANCELLED" }, account: { is: accountReadScopeWhere(user) } },
+    where: { deletedAt: null, status: { not: "CANCELLED" }, currency: "INR", account: { is: accountReadScopeWhere(user) } },
     select: { id: true, code: true, name: true, accountId: true, account: { select: { name: true } } },
     orderBy: [{ name: "asc" }],
     take: 500,
@@ -67,12 +67,13 @@ export async function getStudioProject(projectId: string) {
       account: { select: { id: true, name: true, email: true } },
       opportunity: { select: { id: true, name: true, expected_revenue: true, currency: true } },
       milestones: { orderBy: { sortOrder: "asc" } },
-      invoices: { orderBy: { createdAt: "desc" }, select: { id: true, number: true, type: true, status: true, currency: true, issueDate: true, grandTotal: true, paidTotal: true, balanceDue: true } },
-      ...(user.role !== "partner" ? { expenses: { orderBy: [{ incurredOn: "desc" }, { createdAt: "desc" }] } } : {}),
-      ...(["manager", "admin"].includes(user.role) ? { vendorBills: { orderBy: [{ dueDate: "asc" }, { invoiceDate: "desc" }], include: { vendor: { select: { id: true, name: true } } } } } : {}),
+      invoices: { where: { currency: "INR" }, orderBy: { createdAt: "desc" }, select: { id: true, number: true, type: true, status: true, currency: true, issueDate: true, grandTotal: true, paidTotal: true, balanceDue: true } },
+      ...(user.role !== "partner" ? { expenses: { where: { currency: "INR" }, orderBy: [{ incurredOn: "desc" }, { createdAt: "desc" }] } } : {}),
+      ...(["manager", "admin"].includes(user.role) ? { vendorBills: { where: { currency: "INR" }, orderBy: [{ dueDate: "asc" }, { invoiceDate: "desc" }], include: { vendor: { select: { id: true, name: true } } } } } : {}),
     },
   });
   if (!project) throw new StudioProjectServiceError("Project not found", "NOT_FOUND");
+  if (project.currency !== "INR") throw new StudioProjectServiceError("This project must be reviewed by an admin before new finance entries can be added", "INVALID");
   const projectManager = project.projectManagerId
     ? await prismadb.users.findUnique({ where: { id: project.projectManagerId }, select: { name: true, email: true } })
     : null;
@@ -89,7 +90,7 @@ export async function getStudioProject(projectId: string) {
 export async function getStudioProjectOpportunities() {
   const user = await currentUser();
   const opportunities = await prismadb.crm_Opportunities.findMany({
-    where: { ...opportunityReadScopeWhere(user), status: "ACTIVE", account: { not: null } },
+    where: { ...opportunityReadScopeWhere(user), status: "ACTIVE", currency: "INR", account: { not: null } },
     select: {
       id: true, name: true, expected_revenue: true, currency: true, account: true,
       assigned_account: { select: { id: true, name: true } },
@@ -123,9 +124,10 @@ export async function createStudioProject(input: {
 
   const opportunity = await prismadb.crm_Opportunities.findFirst({
     where: { id: opportunityId, deletedAt: null, status: "ACTIVE", account: { not: null } },
-    select: { id: true, account: true, assigned_to: true, name: true },
+    select: { id: true, account: true, assigned_to: true, name: true, currency: true },
   });
   if (!opportunity?.account) throw new StudioProjectServiceError("An active opportunity linked to a client is required", "INVALID");
+  if (opportunity.currency !== "INR") throw new StudioProjectServiceError("Set a verified INR forecast before creating a project", "INVALID");
   try { await assertCanWriteAccount(user, opportunity.account, PARTNER_EDIT); }
   catch (error) {
     if (error instanceof AuthorizationError) throw new StudioProjectServiceError("You cannot manage this client account", "FORBIDDEN");
@@ -250,6 +252,7 @@ export async function createStudioProjectExpense(input: {
     select: { id: true, accountId: true, currency: true },
   });
   if (!project) throw new StudioProjectServiceError("Project not found", "NOT_FOUND");
+  if (project.currency !== "INR") throw new StudioProjectServiceError("This project must be reviewed by an admin before new finance entries can be added", "INVALID");
   try { await assertCanWriteAccount(user, project.accountId, PARTNER_EDIT); }
   catch (error) {
     if (error instanceof AuthorizationError) throw new StudioProjectServiceError("You cannot submit expenses for this project", "FORBIDDEN");
@@ -258,7 +261,7 @@ export async function createStudioProjectExpense(input: {
   const created = await prismadb.studioProjectExpense.create({ data: {
     projectId: project.id, category: input.category.trim(), vendorName: input.vendorName?.trim() || null,
     description: input.description.trim(), reference: input.reference?.trim() || null,
-    amount: new Decimal(input.amount).toDecimalPlaces(2).toString(), currency: project.currency,
+    amount: new Decimal(input.amount).toDecimalPlaces(2).toString(), currency: "INR",
     incurredOn: input.incurredOn, submittedBy: user.id,
   } });
   try { await writeAuditLog({ entityType: "studio_project_expense", entityId: created.id, action: "created", changes: [
@@ -305,6 +308,7 @@ export async function markStudioProjectExpensePaid(expenseId: string, treasuryAc
     await tx.$queryRaw`SELECT "id" FROM "StudioProjectExpense" WHERE "id" = ${expenseId}::uuid FOR UPDATE`;
     const current = await tx.studioProjectExpense.findUnique({ where: { id: expenseId }, select: { id: true, status: true, projectId: true, amount: true, currency: true, description: true } });
     if (!current) return { error: "Expense not found" as const };
+    if (current.currency !== "INR") return { error: "This expense must be reviewed by an admin before payment" as const };
     if (current.status !== "APPROVED") return { error: "Only approved expenses can be marked paid" as const };
     await tx.$queryRaw`SELECT "id" FROM "TreasuryAccount" WHERE "id" = ${treasuryAccountId}::uuid FOR UPDATE`;
     const account = await tx.treasuryAccount.findFirst({ where: { id: treasuryAccountId, active: true } });

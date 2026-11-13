@@ -8,7 +8,7 @@ import {
   Settings,
   User,
   LayoutDashboard,
-  BadgeDollarSign,
+  BadgeIndianRupee,
 } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -126,7 +126,7 @@ export function NavUser({ user }: NavUserProps) {
             <DropdownMenuItem
               onClick={() => router.push(`/crm/dashboard/${user.id}`)}
             >
-              <BadgeDollarSign className="mr-2 h-4 w-4" />
+              <BadgeIndianRupee className="mr-2 h-4 w-4" />
               Sales Dashboard
             </DropdownMenuItem>
             <DropdownMenuSeparator />

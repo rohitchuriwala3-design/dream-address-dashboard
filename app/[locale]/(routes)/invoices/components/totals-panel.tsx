@@ -63,9 +63,9 @@ export function TotalsPanel({ lineItems, currency, locale }: TotalsPanelProps) {
   }, [lineItems]);
 
   const fmt = (n: number) =>
-    new Intl.NumberFormat(locale, {
+    currency !== "INR" ? "Amount needs INR review" : new Intl.NumberFormat(locale, {
       style: "currency",
-      currency: currency || "INR",
+      currency: "INR",
       minimumFractionDigits: 2,
     }).format(n);
 

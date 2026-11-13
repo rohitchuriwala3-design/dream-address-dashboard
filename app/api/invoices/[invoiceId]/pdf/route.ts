@@ -25,7 +25,7 @@ export async function GET(
   // Same read scope as the invoice list: a partner can open the PDFs of
   // his accounts' invoices; every invoice write still refuses him.
   const invoice = await prismadb.invoices.findFirst({
-    where: { id: invoiceId, ...invoiceReadScopeWhere(user) },
+    where: { id: invoiceId, currency: "INR", ...invoiceReadScopeWhere(user) },
     select: { pdfStorageKey: true },
   });
   if (!invoice) return notFoundOrForbiddenResponse();

@@ -1,5 +1,5 @@
 import { Decimal } from "decimal.js";
-import { PriceListDepthExceeded, PriceListNotFound } from "./errors";
+import { PricingError, PriceListDepthExceeded, PriceListNotFound } from "./errors";
 import type { ListData, PriceResult, PriceStep, PricingContext, ProductData, RuleData } from "./types";
 
 const TARGET_RANK = { PRODUCT: 0, CATEGORY: 1, ALL: 2 } as const;
@@ -35,7 +35,11 @@ export function computePrice(ctx: PricingContext, listId: string, quantity: Deci
   const list = ctx.lists.get(listId);
   if (!list) throw new PriceListNotFound(listId);
   const { product } = ctx;
-  const toList = (amount: Decimal, from: string) => amount.mul(ctx.rate(from, list.currency));
+  if (product.currency !== "INR" || list.currency !== "INR") throw new PricingError("MARK IV V1 supports INR prices only");
+  const toList = (amount: Decimal, from: string) => {
+    if (from !== "INR") throw new PricingError("MARK IV V1 supports INR prices only");
+    return amount;
+  };
   const listPrice = toList(product.unitPrice, product.currency);
   const done = (price: Decimal, ruleId: string | null, steps: PriceStep[]): PriceResult => ({ price, currency: list.currency, listPrice, ruleId, steps });
 

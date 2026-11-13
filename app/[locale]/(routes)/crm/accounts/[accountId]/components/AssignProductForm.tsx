@@ -102,10 +102,7 @@ const AssignProductForm = ({
           id="currency"
           label="Currency"
           type="hidden"
-          data={currencies.map((c) => ({
-            id: c.code,
-            name: `${c.symbol} ${c.code} — ${c.name}`,
-          }))}
+          data={[{ id: "INR", name: "₹ INR — Indian Rupee" }]}
           errors={fieldErrors}
         />
         <FormSelect

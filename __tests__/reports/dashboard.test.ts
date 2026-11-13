@@ -8,7 +8,6 @@ jest.mock("@/lib/prisma", () => ({
     crm_campaign_sends: { count: jest.fn() },
     tasks: { count: jest.fn() },
     users: { count: jest.fn() },
-    exchangeRate: { findMany: jest.fn() },
   },
 }));
 
@@ -22,7 +21,6 @@ const baseFilters: ReportFilters = { dateFrom: new Date("2025-01-01"), dateTo: n
 describe("getDashboardKPIs", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (prismadb.exchangeRate.findMany as jest.Mock).mockResolvedValue([]);
     (prismadb.crm_Opportunities.findMany as jest.Mock).mockResolvedValue([]);
   });
 

@@ -26,6 +26,7 @@ export const getOpportunity = async (opportunityId: string) => {
     where: {
       id: opportunityId,
       deletedAt: null,
+      currency: "INR",
     },
     include: {
       // Include assigned account

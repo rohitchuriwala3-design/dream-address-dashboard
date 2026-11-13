@@ -59,9 +59,10 @@ const handler = async (data: InputType): Promise<ReturnType> => {
   }
 
   const before = await prismadb.crm_Contracts.findUnique({ where: { id, deletedAt: null } });
-  if (currency && currency !== "INR" && currency !== before?.currency) {
-    return { error: "MARK IV V1 supports INR only" };
+  if (before?.currency && before.currency !== "INR") {
+    return { error: "This historical contract needs an admin's INR review before editing" };
   }
+  if (currency && currency !== "INR") return { error: "MARK IV V1 supports INR only" };
 
   try {
     // Parent-write, as createContract: moving the contract to another account requires write on it.

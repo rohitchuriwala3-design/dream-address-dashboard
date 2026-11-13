@@ -28,15 +28,7 @@ export const getOpportunitiesFullByContactId = async (contactId: string) => {
   // Defense in depth: scope the opportunity list by ownership rules even
   // when the caller has access to the linked contact.
   const data = await prismadb.crm_Opportunities.findMany({
-    where: {
-      // Filter through ContactsToOpportunities junction table
-      contacts: {
-        some: {
-          contact_id: contactId,
-        },
-      },
-      ...opportunityReadScopeWhere(user),
-    },
+    where: { contacts: { some: { contact_id: contactId } }, ...opportunityReadScopeWhere(user), AND: [{ currency: "INR" }] },
     include: {
       assigned_account: {
         select: {

@@ -59,7 +59,7 @@ describe("getOpportunitiesFullByAccountId scope", () => {
     (prismadb.crm_Opportunities.findMany as jest.Mock).mockResolvedValue([]);
     await getOpportunitiesFullByAccountId("a1");
     const call = (prismadb.crm_Opportunities.findMany as jest.Mock).mock.calls[0][0];
-    expect(call.where).toEqual({ account: "a1", deletedAt: null });
+    expect(call.where).toEqual({ account: "a1", deletedAt: null, AND: [{ currency: "INR" }] });
     expect(call.where.OR).toBeUndefined();
   });
 });

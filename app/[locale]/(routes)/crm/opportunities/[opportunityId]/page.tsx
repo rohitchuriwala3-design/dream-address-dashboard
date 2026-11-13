@@ -78,7 +78,7 @@ const OpportunityView = async (
             <LineItemsSection
               opportunityId={opportunityId}
               lineItems={serializedLineItems}
-              currency={(opportunity as any)?.currency || "INR"}
+              currency={(opportunity as any)?.currency}
               approvalStatus={(opportunity as any)?.approval_status || "NONE"}
               products={activeProducts}
             />

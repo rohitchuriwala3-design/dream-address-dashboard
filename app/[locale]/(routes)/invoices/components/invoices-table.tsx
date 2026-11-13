@@ -53,9 +53,10 @@ function formatDate(d: string | null, locale: string) {
 function formatCurrency(amount: string, currency: string, locale: string) {
   const num = parseFloat(amount);
   if (isNaN(num)) return amount;
+  if (currency !== "INR") return "Amount needs INR review";
   return new Intl.NumberFormat(locale, {
     style: "currency",
-    currency,
+    currency: "INR",
     minimumFractionDigits: 2,
   }).format(num);
 }

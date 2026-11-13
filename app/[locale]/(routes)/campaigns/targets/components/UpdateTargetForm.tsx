@@ -326,7 +326,7 @@ export function UpdateTargetForm({ initialData, setOpen }: UpdateTargetFormProps
         <div className="grid grid-cols-2 gap-4">
           <FormField control={form.control} name="city" render={({ field }) => (
             <FormItem><FormLabel>City</FormLabel>
-              <FormControl><Input placeholder="Prague" {...field} value={field.value ?? ''} /></FormControl>
+              <FormControl><Input placeholder="City, state" {...field} value={field.value ?? ''} /></FormControl>
               <FormMessage />
             </FormItem>
           )} />

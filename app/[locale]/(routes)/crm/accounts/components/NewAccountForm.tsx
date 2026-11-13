@@ -236,7 +236,7 @@ export function NewAccountForm({ industries, onFinish }: Props) {
                     <FormControl>
                       <Input
                         disabled={form.formState.isSubmitting}
-                        placeholder="Prague"
+                        placeholder="City, state"
                         {...field}
                       />
                     </FormControl>
@@ -319,7 +319,7 @@ export function NewAccountForm({ industries, onFinish }: Props) {
                     <FormControl>
                       <Input
                         disabled={form.formState.isSubmitting}
-                        placeholder="Prague"
+                        placeholder="City, state"
                         {...field}
                       />
                     </FormControl>

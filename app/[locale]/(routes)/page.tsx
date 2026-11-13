@@ -6,7 +6,7 @@ import {
   ArrowUpRight,
   BriefcaseBusiness,
   CalendarDays,
-  CircleDollarSign,
+  IndianRupee,
   ContactRound,
   FileText,
   FolderKanban,
@@ -56,7 +56,7 @@ const DashboardPage = async () => {
 
   const metrics = [
     { label: "Active opportunities", value: opportunities, note: "Open sales records", icon: BriefcaseBusiness, href: "/crm/opportunities", tone: "text-blue-700 bg-blue-50 dark:bg-blue-950/40 dark:text-blue-300" },
-    { label: "INR opportunity forecast", value: formatINR(pipelineValue), note: "Active opportunities explicitly in INR", icon: CircleDollarSign, href: "/crm/opportunities", tone: "text-violet-700 bg-violet-50 dark:bg-violet-950/40 dark:text-violet-300" },
+    { label: "INR opportunity forecast", value: formatINR(pipelineValue), note: "Active opportunities explicitly in INR", icon: IndianRupee, href: "/crm/opportunities", tone: "text-violet-700 bg-violet-50 dark:bg-violet-950/40 dark:text-violet-300" },
     { label: "Receivables", value: formatINR(finance.receivables), note: `${finance.overdueCount} past-due INR invoices`, icon: HandCoins, href: "/invoices", tone: "text-amber-700 bg-amber-50 dark:bg-amber-950/40 dark:text-amber-300" },
     { label: "My open tasks", value: myTasks, note: `${tasks} tasks visible in workspace`, icon: ListTodo, href: `/projects/tasks/${userId}`, tone: "text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 dark:text-emerald-300" },
   ];

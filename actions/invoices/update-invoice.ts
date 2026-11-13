@@ -19,8 +19,10 @@ export async function updateInvoice(invoiceId: string, raw: unknown) {
 
   const existing = await prismadb.invoices.findUniqueOrThrow({
     where: { id: invoiceId },
-    select: { status: true, createdBy: true, paidTotal: true },
+    select: { status: true, createdBy: true, paidTotal: true, currency: true },
   });
+
+  if (existing.currency !== "INR") throw new Error("This historical invoice needs an admin's INR review before editing");
 
   if (
     !canEditInvoice(

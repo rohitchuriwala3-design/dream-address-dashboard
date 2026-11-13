@@ -10,11 +10,12 @@ export const getProduct = cache(async (id: string) => {
     throw e;
   }
   const product = await prismadb.crm_Products.findUnique({
-    where: { id },
+      where: { id, currency: "INR" },
     include: {
       category: true,
       created_by_user: { select: { id: true, name: true } },
       accountProducts: {
+        where: { currency: "INR" },
         include: { account: { select: { id: true, name: true } } },
         orderBy: { createdAt: "desc" },
       },

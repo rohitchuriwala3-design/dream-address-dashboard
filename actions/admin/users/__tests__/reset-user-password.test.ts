@@ -26,7 +26,7 @@ beforeEach(() => {
 
 describe("resetUserPassword", () => {
   it("requires an administrator and rejects short passwords", async () => {
-    await expect(resetUserPassword("staff-1", "short")).resolves.toEqual({ error: "Use a password between 12 and 128 characters." });
+    await expect(resetUserPassword("staff-1", "short")).resolves.toEqual({ error: "Use a password between 8 and 128 characters." });
     expect(setUserPassword).not.toHaveBeenCalled();
   });
 

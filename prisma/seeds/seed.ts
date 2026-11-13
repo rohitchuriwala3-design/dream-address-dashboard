@@ -351,7 +351,7 @@ async function main() {
   console.log("Demo CRM dataset seeded");
   }
 
-  // Currencies and Exchange Rates
+  // INR regional defaults
   await seedCurrencies(prisma);
 
   // Invoice module defaults

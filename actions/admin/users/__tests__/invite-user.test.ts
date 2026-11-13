@@ -65,6 +65,11 @@ describe("inviteUser", () => {
     expect(createUser).not.toHaveBeenCalled();
   });
 
+  it("accepts the requested eight-character temporary password on staging", async () => {
+    await expect(inviteUser({ ...input, password: "12345678" })).resolves.toEqual({ data: { id: "staff-1" } });
+    expect(createUser).toHaveBeenCalledWith(expect.objectContaining({ body: expect.objectContaining({ password: "12345678" }) }));
+  });
+
   it("does not report profile creation as failed when permission persistence fails afterward", async () => {
     createPermissions.mockRejectedValueOnce(new Error("permission store unavailable"));
 

@@ -31,7 +31,7 @@ export async function getPendingApprovals(): Promise<
   }
 
   const rows = await prismadb.crm_Opportunities.findMany({
-    where: { approval_status: "PENDING", deletedAt: null },
+    where: { approval_status: "PENDING", deletedAt: null, currency: "INR" },
     include: {
       assigned_account: { select: { name: true } },
       assigned_to_user: { select: { name: true } },

@@ -29,12 +29,11 @@ export interface ListData { id: string; currency: string; rules: RuleData[] }
 
 export interface ProductData { id: string; unitPrice: Decimal; unitCost: Decimal | null; currency: string; categoryId: string | null }
 
-/** categoryChain: the product's category first, then its ancestors. rate() throws MissingRateError. */
+/** categoryChain: the product's category first, then its ancestors. V1 validates INR before pricing. */
 export interface PricingContext {
   lists: Map<string, ListData>;
   product: ProductData;
   categoryChain: string[];
-  rate(from: string, to: string): Decimal;
 }
 
 export type StepLabel = "fallback" | "fixed" | "base" | "percentage" | "discount" | "round" | "surcharge" | "minMargin" | "maxMargin";

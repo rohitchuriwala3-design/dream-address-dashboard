@@ -44,7 +44,7 @@ export type OrderFormData = NonNullable<Awaited<ReturnType<typeof getOrderFormDa
 
 export async function getProductOptions() {
   await requireAuthenticated();
-  return prismadb.crm_Products.findMany({ where: { deletedAt: null, status: "ACTIVE" }, select: { id: true, name: true, sku: true }, orderBy: { name: "asc" } });
+  return prismadb.crm_Products.findMany({ where: { deletedAt: null, status: "ACTIVE", currency: "INR" }, select: { id: true, name: true, sku: true }, orderBy: { name: "asc" } });
 }
 export type ProductOption = Awaited<ReturnType<typeof getProductOptions>>[number];
 

@@ -5,7 +5,7 @@ import { createSmartSearchTool } from '../tools/smart-search-tool';
 
 const MetricsResult = z.object({
   employeeCount: z.string().describe('Employee count or range (e.g., "50-100", "1000+")'),
-  revenue: z.string().optional().describe('Annual revenue (e.g., "$10M", "$100M ARR")'),
+  revenue: z.string().optional().describe('Annual revenue reported in Indian rupees (for example, INR 10 crore); leave blank when no INR figure is available.'),
   growthRate: z.string().optional().describe('Growth rate if available'),
   isEstimate: z.record(z.string(), z.boolean()).describe('Whether each metric is an estimate'),
   confidence: z.record(z.string(), z.number()).describe('Confidence scores for each field'),
@@ -36,9 +36,8 @@ export function createMetricsAgent(firecrawlApiKey: string) {
     - If exact data unavailable, provide reasonable estimates
     - Mark estimates clearly in isEstimate field
     - Use industry benchmarks:
-      * B2B SaaS: ~$150-250k revenue per employee
-      * Enterprise: ~$200-400k revenue per employee
-      * Consumer: ~$100-200k revenue per employee
+      * Do not apply generic software-company benchmarks to an Indian interior design and execution firm.
+      * Include revenue values only when a source reports them in Indian rupees; never estimate or convert another denomination.
     
     FORMATTING:
     - Employee Count: Always use ranges unless exact number is known

@@ -24,7 +24,7 @@ import { getAllCrmData } from "@/actions/crm/get-crm-data";
 import { OpportunityDetailActions } from "./OpportunityDetailActions";
 import RequestApprovalButton from "./RequestApprovalButton";
 import { Badge } from "@/components/ui/badge";
-import { formatCurrency, convertAmount, getExchangeRates } from "@/lib/currency";
+import { formatCurrency } from "@/lib/currency";
 import { Decimal } from "@prisma/client/runtime/client";
 import { serializeDecimals } from "@/lib/serialize-decimals";
 import ReopenQuoteButton from "./ReopenQuoteButton";
@@ -45,16 +45,11 @@ export async function BasicView({ data }: OppsViewProps) {
   //console.log(data, "data");
   const users = await prismadb.users.findMany();
   const crmData = await getAllCrmData();
-  const { saleTypes, saleStages, campaigns, currencies } = crmData;
-  const displayCurrency = "INR";
-  const rates = await getExchangeRates();
+  const { saleTypes, saleStages, campaigns } = crmData;
   if (!data) return <div>Opportunity not found</div>;
 
-  const fromCurrency = data.currency || "INR";
+  const fromCurrency = data.currency;
   const budgetAmount = new Decimal(data.budget?.toString() ?? "0");
-  const displayBudget = displayCurrency !== fromCurrency
-    ? convertAmount(budgetAmount, fromCurrency, displayCurrency, rates)
-    : null;
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -91,7 +86,7 @@ export async function BasicView({ data }: OppsViewProps) {
             saleTypes={saleTypes}
             saleStages={saleStages}
             campaigns={campaigns}
-            currencies={currencies.map((c: { code: string; name: string; symbol: string }) => ({ code: c.code, name: c.name, symbol: c.symbol }))}
+            currencies={[{ code: "INR", name: "Indian Rupee", symbol: "₹" }]}
           />
           </div>
         </div>
@@ -105,9 +100,7 @@ export async function BasicView({ data }: OppsViewProps) {
                 Opportunity amount
               </p>
               <p className="text-sm text-muted-foreground">
-                {displayBudget
-                  ? formatCurrency(displayBudget, displayCurrency)
-                  : formatCurrency(budgetAmount, fromCurrency)}
+                {fromCurrency === "INR" ? formatCurrency(budgetAmount, "INR") : "Amount needs INR review"}
               </p>
             </div>
           </div>

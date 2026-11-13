@@ -68,6 +68,9 @@ describe("getAllCrmData scope", () => {
       const where = whereOf(model);
       expect(where.deletedAt).toBeNull();
       expect(where.OR).toEqual(expect.arrayContaining([{ createdBy: "u1" }]));
+      if (model === "crm_Opportunities" || model === "crm_Contracts") {
+        expect(where.AND).toEqual([{ currency: "INR" }]);
+      }
     }
   });
 
@@ -75,7 +78,11 @@ describe("getAllCrmData scope", () => {
     mockUser(role, "m1");
     await getAllCrmData();
     for (const model of ENTITIES) {
-      expect(whereOf(model)).toEqual({ deletedAt: null });
+      expect(whereOf(model)).toEqual(
+        model === "crm_Opportunities" || model === "crm_Contracts"
+          ? { deletedAt: null, AND: [{ currency: "INR" }] }
+          : { deletedAt: null },
+      );
     }
   });
 

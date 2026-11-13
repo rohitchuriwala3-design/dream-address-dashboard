@@ -15,7 +15,7 @@ export const getOpportunities = async () => {
   }
 
   const data = await prismadb.crm_Opportunities.findMany({
-    where: { ...opportunityReadScopeWhere(user) },
+    where: { ...opportunityReadScopeWhere(user), AND: [{ currency: "INR" }] },
     include: {
       // Include assigned user (uses "assigned_to_user_relation")
       assigned_to_user: {
@@ -60,8 +60,9 @@ export const getOpportunities = async () => {
 
 //Get opportunities by month for chart
 export const getOpportunitiesByMonth = async () => {
+  const user = await requireAuthenticated({ partner: true });
   const opportunities = await prismadb.crm_Opportunities.findMany({
-    where: { deletedAt: null },
+    where: { ...opportunityReadScopeWhere(user), AND: [{ currency: "INR" }] },
     select: {
       created_on: true,
     },
@@ -94,8 +95,9 @@ export const getOpportunitiesByMonth = async () => {
 
 //Get opportunities by sales_stage name for chart
 export const getOpportunitiesByStage = async () => {
+  const user = await requireAuthenticated({ partner: true });
   const opportunities = await prismadb.crm_Opportunities.findMany({
-    where: { deletedAt: null },
+    where: { ...opportunityReadScopeWhere(user), AND: [{ currency: "INR" }] },
     select: {
       assigned_sales_stage: {
         select: {

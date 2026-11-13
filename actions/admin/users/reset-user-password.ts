@@ -21,8 +21,8 @@ export async function resetUserPassword(userId: string, newPassword: string) {
     throw error;
   }
 
-  if (!userId || newPassword.length < 12 || newPassword.length > 128) {
-    return { error: "Use a password between 12 and 128 characters." };
+  if (!userId || newPassword.length < 8 || newPassword.length > 128) {
+    return { error: "Use a password between 8 and 128 characters." };
   }
 
   try {

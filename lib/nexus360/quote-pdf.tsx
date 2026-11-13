@@ -43,11 +43,13 @@ const styles = StyleSheet.create({
 });
 
 function formatMoney(value: string, currency: string) {
+  if (currency !== "INR") return "Amount needs INR review";
   const amount = Number(value);
+  if (!Number.isFinite(amount)) return "Invalid amount";
   try {
-    return new Intl.NumberFormat("en-IN", { style: "currency", currency, maximumFractionDigits: 2 }).format(amount);
+    return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(amount);
   } catch {
-    return `${currency} ${value}`;
+    return "Amount needs INR review";
   }
 }
 
@@ -77,8 +79,8 @@ function ApprovedQuotePdf({ data }: { data: ApprovedQuotePdfData }) {
           React.createElement(Text, { style: styles.itemName }, line.name),
           line.description || line.sku ? React.createElement(Text, { style: styles.itemDetail }, [line.sku, line.description].filter(Boolean).join(" · ")) : null),
         React.createElement(Text, { style: styles.qty }, String(line.quantity)),
-        React.createElement(Text, { style: styles.unit }, formatMoney(line.unitPrice, line.currency || data.currency)),
-        React.createElement(Text, { style: styles.total }, formatMoney(line.lineTotal, line.currency || data.currency)))),
+        React.createElement(Text, { style: styles.unit }, formatMoney(line.unitPrice, line.currency)),
+        React.createElement(Text, { style: styles.total }, formatMoney(line.lineTotal, line.currency)))),
       React.createElement(View, { style: styles.grandTotal },
         React.createElement(Text, null, "Quoted total"),
         React.createElement(Text, null, formatMoney(data.total, data.currency))),

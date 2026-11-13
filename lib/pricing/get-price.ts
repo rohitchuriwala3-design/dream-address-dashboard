@@ -1,7 +1,7 @@
 import { Decimal } from "decimal.js";
 import { prismadb } from "@/lib/prisma";
 import { computePrice } from "./engine";
-import { MissingRateError, ProductNotFound } from "./errors";
+import { PricingError, ProductNotFound } from "./errors";
 import type { ListData, PriceResult, ProductData, RuleData } from "./types";
 
 const dec = (v: unknown) => new Decimal(String(v));
@@ -29,17 +29,6 @@ function toRule(r: Record<string, unknown>): RuleData {
     priceMinMargin: decOrNull(r.priceMinMargin),
     priceMaxMargin: decOrNull(r.priceMaxMargin),
     createdAt: r.createdAt as Date,
-  };
-}
-
-export function rateLookup(rates: { fromCurrency: string; toCurrency: string; rate: unknown }[]) {
-  return (from: string, to: string): Decimal => {
-    if (from === to) return new Decimal(1);
-    const direct = rates.find((r) => r.fromCurrency === from && r.toCurrency === to);
-    if (direct) return dec(direct.rate);
-    const inverse = rates.find((r) => r.fromCurrency === to && r.toCurrency === from);
-    if (inverse) return new Decimal(1).div(dec(inverse.rate));
-    throw new MissingRateError(from, to);
   };
 }
 
@@ -71,12 +60,13 @@ async function categoryChain(categoryId: string | null): Promise<string[]> {
 export async function getPrice(input: { priceListId: string | null; productId: string; quantity: Decimal | number | string; date?: Date }): Promise<PriceResult> {
   const row = await prismadb.crm_Products.findFirst({ where: { id: input.productId, deletedAt: null } });
   if (!row) throw new ProductNotFound(input.productId);
+  if (row.currency !== "INR") throw new PricingError("MARK IV V1 supports INR prices only");
   const product: ProductData = { id: row.id, unitPrice: dec(row.unit_price), unitCost: decOrNull(row.unit_cost), currency: row.currency, categoryId: row.categoryId };
   if (!input.priceListId) {
     return { price: product.unitPrice, currency: product.currency, listPrice: product.unitPrice, ruleId: null, steps: [{ label: "fallback", value: product.unitPrice }] };
   }
-  const [lists, chain, rates] = await Promise.all([loadLists(input.priceListId), categoryChain(product.categoryId), prismadb.exchangeRate.findMany()]);
-  return computePrice({ lists, product, categoryChain: chain, rate: rateLookup(rates) }, input.priceListId, dec(input.quantity), input.date ?? new Date());
+  const [lists, chain] = await Promise.all([loadLists(input.priceListId), categoryChain(product.categoryId)]);
+  return computePrice({ lists, product, categoryChain: chain }, input.priceListId, dec(input.quantity), input.date ?? new Date());
 }
 
 /** Account list → instance default list → null (product unit price). */

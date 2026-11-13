@@ -2,14 +2,13 @@ const db = {
   crm_Products: { findFirst: jest.fn() },
   crm_ProductCategories: { findUnique: jest.fn() },
   crm_PriceLists: { findUnique: jest.fn() },
-  exchangeRate: { findMany: jest.fn() },
   crm_Accounts: { findFirst: jest.fn() },
   crm_SystemSettings: { findUnique: jest.fn() },
 };
 jest.mock("@/lib/prisma", () => ({ prismadb: db }));
 
-import { getPrice, rateLookup, resolvePriceListId } from "@/lib/pricing/get-price";
-import { MissingRateError, ProductNotFound } from "@/lib/pricing/errors";
+import { getPrice, resolvePriceListId } from "@/lib/pricing/get-price";
+import { PricingError, ProductNotFound } from "@/lib/pricing/errors";
 
 const rule = (over: Record<string, unknown>) => ({
   id: "r", appliesTo: "ALL", categoryId: null, productId: null, minQuantity: "0", dateStart: null, dateEnd: null,
@@ -20,31 +19,28 @@ const rule = (over: Record<string, unknown>) => ({
 
 beforeEach(() => {
   jest.resetAllMocks();
-  db.crm_Products.findFirst.mockResolvedValue({ id: "p1", unit_price: "100", unit_cost: "60", currency: "CCC", categoryId: "c-child" });
+  db.crm_Products.findFirst.mockResolvedValue({ id: "p1", unit_price: "100", unit_cost: "60", currency: "INR", categoryId: "c-child" });
   db.crm_ProductCategories.findUnique.mockImplementation(async ({ where }: { where: { id: string } }) =>
     ({ "c-child": { parentId: "c-parent" }, "c-parent": { parentId: null } } as Record<string, { parentId: string | null }>)[where.id] ?? null);
-  db.exchangeRate.findMany.mockResolvedValue([{ fromCurrency: "AAA", toCurrency: "CCC", rate: "25" }]);
 });
 
 it("loads the category chain and chained lists", async () => {
   db.crm_PriceLists.findUnique.mockImplementation(async ({ where }: { where: { id: string } }) => ({
-    L: { id: "L", currency: "CCC", rules: [rule({ computePrice: "FORMULA", base: "PRICE_LIST", basePriceListId: "B", priceDiscount: "10" })] },
-    B: { id: "B", currency: "CCC", rules: [rule({ appliesTo: "CATEGORY", categoryId: "c-parent", fixedPrice: "70" })] },
+    L: { id: "L", currency: "INR", rules: [rule({ computePrice: "FORMULA", base: "PRICE_LIST", basePriceListId: "B", priceDiscount: "10" })] },
+    B: { id: "B", currency: "INR", rules: [rule({ appliesTo: "CATEGORY", categoryId: "c-parent", fixedPrice: "70" })] },
   } as Record<string, unknown>)[where.id] ?? null);
   const r = await getPrice({ priceListId: "L", productId: "p1", quantity: 1, date: new Date("2026-06-01T00:00:00Z") });
   expect(r.price.toFixed(2)).toBe("63.00");
 });
 
-it("uses the inverse rate when only the other direction is stored (Review Focus 1)", async () => {
-  db.crm_PriceLists.findUnique.mockResolvedValue({ id: "L", currency: "AAA", rules: [] });
-  const r = await getPrice({ priceListId: "L", productId: "p1", quantity: 1 });
-  expect(r.price.toFixed(2)).toBe("4.00");
-  expect(r.currency).toBe("AAA");
+it("rejects any product amount not explicitly recorded as INR", async () => {
+  db.crm_Products.findFirst.mockResolvedValue({ id: "p1", unit_price: "100", unit_cost: "60", currency: null, categoryId: "c-child" });
+  await expect(getPrice({ priceListId: null, productId: "p1", quantity: 1 })).rejects.toBeInstanceOf(PricingError);
 });
 
 it("returns the product price without a list", async () => {
   const r = await getPrice({ priceListId: null, productId: "p1", quantity: 3 });
-  expect([r.price.toFixed(2), r.currency, r.ruleId]).toEqual(["100.00", "CCC", null]);
+  expect([r.price.toFixed(2), r.currency, r.ruleId]).toEqual(["100.00", "INR", null]);
 });
 
 it("refuses deleted or unknown products", async () => {
@@ -54,16 +50,8 @@ it("refuses deleted or unknown products", async () => {
 
 it("stops walking a looping category tree", async () => {
   db.crm_ProductCategories.findUnique.mockResolvedValue({ parentId: "c-child" });
-  db.crm_PriceLists.findUnique.mockResolvedValue({ id: "L", currency: "CCC", rules: [] });
+  db.crm_PriceLists.findUnique.mockResolvedValue({ id: "L", currency: "INR", rules: [] });
   await expect(getPrice({ priceListId: "L", productId: "p1", quantity: 1 })).resolves.toBeDefined();
-});
-
-it("looks up rates direct, inverse, or throws", () => {
-  const rate = rateLookup([{ fromCurrency: "AAA", toCurrency: "CCC", rate: "25" }]);
-  expect(rate("CCC", "CCC").toString()).toBe("1");
-  expect(rate("AAA", "CCC").toString()).toBe("25");
-  expect(rate("CCC", "AAA").toFixed(2)).toBe("0.04");
-  expect(() => rate("BBB", "CCC")).toThrow(MissingRateError);
 });
 
 it("resolves account list, then default list, then null", async () => {

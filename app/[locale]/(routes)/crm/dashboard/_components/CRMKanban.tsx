@@ -43,6 +43,13 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 
+const formatINR = (value: unknown) => {
+  const amount = Number(value);
+  return Number.isFinite(amount)
+    ? new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(amount)
+    : "—";
+};
+
 import { NewOpportunityForm } from "../../opportunities/components/NewOpportunityForm";
 import { setInactiveOpportunity } from "@/actions/crm/opportunity/dashboard/set-inactive";
 import { updateOpportunity } from "@/actions/crm/opportunities/update-opportunity";
@@ -134,7 +141,7 @@ function OpportunityCard({ opportunity, router, onThumbsDown, stage, salesStages
           </div>
           <div className="space-x-1">
             <span>Amount:</span>
-            <span>{opportunity.budget?.toString()}</span>
+            <span>{opportunity.budget == null ? "—" : formatINR(opportunity.budget)}</span>
           </div>
           <div className="space-x-1">
             <span>Expected closing:</span>
@@ -442,7 +449,7 @@ const CRMKanban = ({
                       <div>{opportunity.description?.substring(0, 200)}</div>
                       <div className="space-x-1">
                         <span>Amount:</span>
-                        <span>{opportunity.budget?.toString()}</span>
+                        <span>{opportunity.budget == null ? "—" : formatINR(opportunity.budget)}</span>
                       </div>
                       <div className="space-x-1">
                         <span>Expected closing:</span>

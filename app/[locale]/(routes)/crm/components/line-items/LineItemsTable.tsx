@@ -39,10 +39,11 @@ interface LineItemsTableProps {
 }
 
 function formatPrice(amount: number, currency: string): string {
+  if (currency !== "INR") return "Amount needs INR review";
   const isWhole = amount % 1 === 0;
   return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency,
+    currency: "INR",
     minimumFractionDigits: isWhole ? 0 : 2,
     maximumFractionDigits: isWhole ? 0 : 2,
   }).format(amount);
@@ -104,17 +105,17 @@ const LineItemsTable = ({
             </TableCell>
             <TableCell className="text-right">{item.quantity}</TableCell>
             <TableCell className="text-right">
-              {formatPrice(item.unit_price, item.currency || currency)}
+              {formatPrice(item.unit_price, item.currency)}
             </TableCell>
             <TableCell className="text-right">
               {item.discount_type === "PERCENTAGE" && item.discount_value > 0
                 ? `${item.discount_value}%`
                 : item.discount_type === "FIXED" && item.discount_value > 0
-                  ? formatPrice(item.discount_value, item.currency || currency)
+                  ? formatPrice(item.discount_value, item.currency)
                   : "-"}
             </TableCell>
             <TableCell className="text-right font-bold">
-              {formatPrice(item.line_total, item.currency || currency)}
+              {formatPrice(item.line_total, item.currency)}
             </TableCell>
             <TableCell>
               {!readOnly && (

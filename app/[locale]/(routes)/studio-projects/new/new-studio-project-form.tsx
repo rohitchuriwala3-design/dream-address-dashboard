@@ -36,7 +36,7 @@ export function NewStudioProjectForm({opportunities}:{opportunities:OpportunityO
 
   return <form action={submit} className="space-y-5">
     <div className="space-y-2"><Label htmlFor="opportunityId">Client opportunity</Label><select id="opportunityId" name="opportunityId" required value={selected} onChange={(event)=>setSelected(event.target.value)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"><option value="" disabled>Select an opportunity</option>{opportunities.map((item)=><option key={item.id} value={item.id}>{item.name} · {item.accountName}</option>)}</select>
-      {selectedOpportunity&&<p className="text-xs text-muted-foreground">Linked client: {selectedOpportunity.accountName}{selectedOpportunity.expectedRevenue>0?` · CRM forecast ${new Intl.NumberFormat("en-IN",{style:"currency",currency:selectedOpportunity.currency,maximumFractionDigits:0}).format(selectedOpportunity.expectedRevenue)}`:""}</p>}
+      {selectedOpportunity&&<p className="text-xs text-muted-foreground">Linked client: {selectedOpportunity.accountName}{selectedOpportunity.expectedRevenue>0?` · CRM forecast ${new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:0}).format(selectedOpportunity.expectedRevenue)}`:""}</p>}
     </div>
     <div className="space-y-2"><Label htmlFor="name">Project name</Label><Input id="name" name="name" required minLength={2} maxLength={160} placeholder="e.g. Sharma Residence — Full Interior"/></div>
     <div className="space-y-2"><Label htmlFor="siteAddress">Site address</Label><Textarea id="siteAddress" name="siteAddress" maxLength={500} rows={2} placeholder="Full project site address"/></div>

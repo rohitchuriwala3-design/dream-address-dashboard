@@ -57,7 +57,7 @@ describe("getOpportunities scope", () => {
     (prismadb.crm_Opportunities.findMany as jest.Mock).mockResolvedValue([]);
     await getOpportunities();
     const call = (prismadb.crm_Opportunities.findMany as jest.Mock).mock.calls[0][0];
-    expect(call.where).toEqual({ deletedAt: null });
+    expect(call.where).toEqual({ deletedAt: null, AND: [{ currency: "INR" }] });
     expect(call.where.OR).toBeUndefined();
   });
 });

@@ -28,10 +28,7 @@ export const getOpportunitiesFullByAccountId = async (accountId: string) => {
   // Defense in depth: scope the opportunity list by ownership rules even
   // when the caller has access to the parent account.
   const data = await prismadb.crm_Opportunities.findMany({
-    where: {
-      account: accountId,
-      ...opportunityReadScopeWhere(user),
-    },
+    where: { account: accountId, ...opportunityReadScopeWhere(user), AND: [{ currency: "INR" }] },
     include: {
       assigned_account: {
         select: {

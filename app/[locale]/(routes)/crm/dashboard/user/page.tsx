@@ -187,7 +187,7 @@ const UserDashboardPage = async () => {
                         {opp.assigned_sales_stage?.name ?? "—"}
                       </TableCell>
                       <TableCell>
-                        {opp.budget ? `$${Number(opp.budget).toLocaleString()}` : "—"}
+                        {opp.budget ? new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(Number(opp.budget)) : "—"}
                       </TableCell>
                     </TableRow>
                   ))}

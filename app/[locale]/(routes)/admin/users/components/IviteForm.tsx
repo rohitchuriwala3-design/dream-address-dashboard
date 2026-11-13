@@ -32,7 +32,7 @@ import { NEXUS_PERMISSIONS, type NexusPermission } from "@/lib/authz/permission-
 const FormSchema = z.object({
   name: z.string().min(3).max(50),
   email: z.string().email(),
-  password: z.string().min(12).max(128),
+  password: z.string().min(8).max(128),
   role: z.enum(["user", "manager", "admin", "partner"]),
   language: z
     .string({
@@ -120,7 +120,7 @@ export function InviteForm() {
                   autoComplete="new-password"
                   minLength={12}
                   disabled={isLoading}
-                  placeholder="At least 12 characters"
+                  placeholder="At least 8 characters"
                   {...field}
                 />
               </FormControl>

@@ -88,10 +88,10 @@ export async function recordTreasuryReconciliation(input: { accountId: string; s
   });
 }
 
-export async function listActiveTreasuryAccounts(currency?: string) {
+export async function listActiveTreasuryAccounts() {
   await treasuryUser();
   return prismadb.treasuryAccount.findMany({
-    where: { active: true, ...(currency ? { currency: currency.toUpperCase() } : {}) },
+    where: { active: true, currency: "INR" },
     select: { id: true, name: true, currency: true }, orderBy: { name: "asc" },
   });
 }

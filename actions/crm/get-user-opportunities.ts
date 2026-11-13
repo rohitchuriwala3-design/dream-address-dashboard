@@ -26,6 +26,7 @@ export const getUserOpportunities = async (userId: string) => {
     where: {
       assigned_to: userId,
       deletedAt: null,
+      currency: "INR",
     },
     include: {
       assigned_sales_stage: {

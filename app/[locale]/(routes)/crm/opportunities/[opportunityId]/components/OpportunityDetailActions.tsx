@@ -52,7 +52,7 @@ export function OpportunityDetailActions({
               saleTypes={saleTypes}
               saleStages={saleStages}
               campaigns={campaigns}
-              currencies={currencies}
+              currencies={[{ code: "INR", name: "Indian Rupee", symbol: "₹" }]}
             />
           </div>
         </SheetContent>

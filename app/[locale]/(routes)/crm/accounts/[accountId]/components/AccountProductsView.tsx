@@ -66,8 +66,8 @@ const AccountProductsView = ({
     const price = item.custom_price ?? item.product?.unit_price;
     if (price == null) return "-";
     const num = typeof price === "number" ? price : Number(price);
-    const curr = item.currency || item.product?.currency || "INR";
-    return `${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${curr}`;
+    if (item.currency !== "INR" || (item.product?.currency && item.product.currency !== "INR")) return "Amount needs INR review";
+    return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
   };
 
   const formatDate = (date: string | Date | null | undefined) => {
@@ -88,13 +88,7 @@ const AccountProductsView = ({
             <AssignProductForm
               accountId={accountId}
               products={activeProducts}
-              currencies={currencies.map(
-                (c: { code: string; name: string; symbol: string }) => ({
-                  code: c.code,
-                  name: c.name,
-                  symbol: c.symbol,
-                })
-              )}
+              currencies={[{ code: "INR", name: "Indian Rupee", symbol: "₹" }]}
             />
           </div>
         </div>

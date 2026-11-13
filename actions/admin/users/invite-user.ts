@@ -34,8 +34,8 @@ export const inviteUser = async (data: {
 
   const name = data.name.trim();
   const email = data.email.trim().toLowerCase();
-  if (name.length < 3 || name.length > 50 || !email || data.password.length < 12 || data.password.length > 128) {
-    return { error: "Enter a name, email, and password with at least 12 characters." };
+  if (name.length < 3 || name.length > 50 || !email || data.password.length < 8 || data.password.length > 128) {
+    return { error: "Enter a name, email, and password between 8 and 128 characters." };
   }
   if (!allowedRoles.has(data.role)) return { error: "Choose a valid access role." };
   const permissions = parseNexusPermissions(data.permissions);

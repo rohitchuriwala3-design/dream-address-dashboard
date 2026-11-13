@@ -10,7 +10,7 @@ export const getProductsFull = cache(async () => {
     throw e;
   }
   const products = await prismadb.crm_Products.findMany({
-    where: { deletedAt: null },
+    where: { deletedAt: null, currency: "INR" },
     include: {
       category: true,
       created_by_user: { select: { id: true, name: true } },

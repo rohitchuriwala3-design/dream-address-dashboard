@@ -625,11 +625,6 @@ enum crm_Contracts_Status {
   SIGNED
 }
 
-enum ExchangeRateSource {
-  MANUAL
-  ECB
-}
-
 model Currency {
   code      String   @id @db.VarChar(3)
   name      String
@@ -639,8 +634,6 @@ model Currency {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  ratesFrom       ExchangeRate[]        @relation("rate_from")
-  ratesTo         ExchangeRate[]        @relation("rate_to")
   opportunities   crm_Opportunities[]
   contracts       crm_Contracts[]
   products        crm_Products[]
@@ -648,24 +641,6 @@ model Currency {
   invoices        Invoices[]            @relation("InvoiceCurrency")
   priceLists      crm_PriceLists[]
   orders          crm_Orders[]
-}
-
-model ExchangeRate {
-  id            String             @id @default(uuid()) @db.Uuid
-  fromCurrency  String             @db.VarChar(3)
-  toCurrency    String             @db.VarChar(3)
-  rate          Decimal            @db.Decimal(18, 8)
-  source        ExchangeRateSource @default(MANUAL)
-  effectiveDate DateTime           @default(now())
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
-
-  from Currency @relation("rate_from", fields: [fromCurrency], references: [code])
-  to   Currency @relation("rate_to", fields: [toCurrency], references: [code])
-
-  @@unique([fromCurrency, toCurrency])
-  @@index([fromCurrency])
-  @@index([toCurrency])
 }
 
 model crm_SystemSettings {

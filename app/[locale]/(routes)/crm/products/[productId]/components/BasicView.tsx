@@ -60,7 +60,7 @@ export function BasicView({ data }: BasicViewProps) {
 
   const formatValue = (value: number | null | undefined) =>
     value != null
-      ? formatCurrency(new Decimal(value.toString()), data.currency || "INR")
+      ? formatCurrency(new Decimal(value.toString()), data.currency)
       : "N/A";
 
   const marginPercentage =

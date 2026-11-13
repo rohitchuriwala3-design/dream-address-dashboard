@@ -19,12 +19,6 @@ export async function seedCurrencies(prisma: PrismaClient) {
   await prisma.currency.updateMany({ where: { code: "INR" }, data: { isDefault: true, isEnabled: true } });
 
   await prisma.crm_SystemSettings.upsert({
-    where: { key: "ecb_auto_update" },
-    update: { value: "false" },
-    create: { key: "ecb_auto_update", value: "false" },
-  });
-
-  await prisma.crm_SystemSettings.upsert({
     where: { key: "default_currency" },
     update: { value: "INR" },
     create: { key: "default_currency", value: "INR" },

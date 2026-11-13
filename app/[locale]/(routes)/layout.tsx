@@ -10,8 +10,6 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "./components/app-sidebar";
 import { getTranslations } from "next-intl/server";
 import { AvatarProvider } from "@/context/avatar-context";
-import { CurrencyProvider } from "@/context/currency-context";
-import { getEnabledCurrencies } from "@/lib/currency";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -96,12 +94,6 @@ export default async function AppLayout({
   const cookieStore = await cookies();
   const sidebarOpen = cookieStore.get("sidebar_state")?.value !== "false";
 
-  const enabledCurrencies = await getEnabledCurrencies();
-  const displayCurrency = "INR";
-  const currencyList = enabledCurrencies
-    .filter((c: { code: string }) => c.code === "INR")
-    .map((c: { code: string; name: string; symbol: string }) => ({ code: c.code, name: c.name, symbol: c.symbol }));
-
   const { getPluginNavItems } = await import("@/lib/plugins/nav");
   const { mapLegacyRole } = await import("@/lib/authz/roles");
   const { getLocale } = await import("next-intl/server");
@@ -110,7 +102,6 @@ export default async function AppLayout({
   //console.log(typeof build, "build");
   return (
     <AvatarProvider initialAvatar={user?.image}>
-    <CurrencyProvider initialCurrency={displayCurrency} currencies={currencyList}>
     <SidebarProvider defaultOpen={sidebarOpen}>
       <AppSidebar
         dict={translations}
@@ -139,7 +130,6 @@ export default async function AppLayout({
         </div>
       </SidebarInset>
     </SidebarProvider>
-    </CurrencyProvider>
     </AvatarProvider>
   );
 }

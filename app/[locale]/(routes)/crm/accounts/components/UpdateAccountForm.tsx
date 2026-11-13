@@ -295,7 +295,7 @@ export function UpdateAccountForm({
                     <FormControl>
                       <Input
                         disabled={form.formState.isSubmitting}
-                        placeholder="Prague"
+                        placeholder="City, state"
                         {...field}
                       />
                     </FormControl>
@@ -378,7 +378,7 @@ export function UpdateAccountForm({
                     <FormControl>
                       <Input
                         disabled={form.formState.isSubmitting}
-                        placeholder="Prague"
+                        placeholder="City, state"
                         {...field}
                       />
                     </FormControl>

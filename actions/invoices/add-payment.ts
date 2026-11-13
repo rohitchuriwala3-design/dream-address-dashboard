@@ -26,6 +26,7 @@ export async function addPayment(raw: unknown) {
       where: { id: input.invoiceId },
       select: { id: true, status: true, createdBy: true, grandTotal: true, paidTotal: true, currency: true },
     });
+    if (invoice.currency !== "INR") throw new Error("This invoice needs an admin's INR review before taking payments");
 
     const role = mapLegacyRole(user.role);
     const retry = await tx.invoice_Payments.findUnique({
@@ -70,7 +71,7 @@ export async function addPayment(raw: unknown) {
 
     await tx.$queryRaw`SELECT "id" FROM "TreasuryAccount" WHERE "id" = ${input.treasuryAccountId}::uuid FOR UPDATE`;
     const cashAccount = await tx.treasuryAccount.findFirst({ where: { id: input.treasuryAccountId, active: true } });
-    if (!cashAccount || cashAccount.currency !== invoice.currency) throw new Error("Choose an active cash account with the invoice's currency");
+    if (!cashAccount || cashAccount.currency !== "INR") throw new Error("Choose an active INR cash account");
 
     const payment = await tx.invoice_Payments.create({
       data: {

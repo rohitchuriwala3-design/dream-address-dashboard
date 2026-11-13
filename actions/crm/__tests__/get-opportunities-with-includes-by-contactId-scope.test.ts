@@ -64,6 +64,7 @@ describe("getOpportunitiesFullByContactId scope", () => {
     expect(call.where).toEqual({
       deletedAt: null,
       contacts: { some: { contact_id: "c1" } },
+      AND: [{ currency: "INR" }],
     });
     expect(call.where.OR).toBeUndefined();
   });

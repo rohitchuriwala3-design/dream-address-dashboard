@@ -94,7 +94,7 @@ export function createFundraisingAgent(firecrawl: FirecrawlApp) {
     tools: [createSpecializedSearchTool(firecrawl)],
     outputType: z.object({
       lastFundingStage: z.enum(['Pre-seed', 'Seed', 'Series A', 'Series B', 'Series C', 'Series D', 'Series E+', 'IPO', 'Unknown']).optional(),
-      lastFundingAmount: z.string().optional(), // String to handle "$10M" format
+      lastFundingAmount: z.string().optional(), // India-first INR amount text
       lastFundingDate: z.string().optional(),
       totalRaised: z.string().optional(),
       valuation: z.string().optional(),

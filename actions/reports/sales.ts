@@ -20,7 +20,7 @@ export async function getRevenue(
   scope: ReportScope = DEFAULT_SCOPE,
 ): Promise<number> {
   const opps = await prismadb.crm_Opportunities.findMany({
-    where: { ...dateRangeWhere(filters), status: "CLOSED", ...scope.opportunity },
+    where: { ...dateRangeWhere(filters), status: "CLOSED", AND: [{ currency: "INR" }], ...scope.opportunity },
     select: { budget: true, currency: true },
   });
   let total = new Decimal(0);
@@ -38,7 +38,7 @@ export async function getPipelineValue(
   scope: ReportScope = DEFAULT_SCOPE,
 ): Promise<number> {
   const opps = await prismadb.crm_Opportunities.findMany({
-    where: { ...dateRangeWhere(filters), status: "ACTIVE", ...scope.opportunity },
+    where: { ...dateRangeWhere(filters), status: "ACTIVE", AND: [{ currency: "INR" }], ...scope.opportunity },
     select: { budget: true, currency: true },
   });
   let total = new Decimal(0);
@@ -55,7 +55,7 @@ export async function getOppsByStage(
   scope: ReportScope = DEFAULT_SCOPE,
 ): Promise<ChartDataPoint[]> {
   const opps = await prismadb.crm_Opportunities.findMany({
-    where: { ...dateRangeWhere(filters), ...scope.opportunity },
+    where: { ...dateRangeWhere(filters), AND: [{ currency: "INR" }], ...scope.opportunity },
     select: { assigned_sales_stage: { select: { name: true } } },
   });
   const grouped: Record<string, number> = {};
@@ -71,7 +71,7 @@ export async function getOppsByMonth(
   scope: ReportScope = DEFAULT_SCOPE,
 ): Promise<ChartDataPoint[]> {
   const opps = await prismadb.crm_Opportunities.findMany({
-    where: { ...dateRangeWhere(filters), ...scope.opportunity },
+    where: { ...dateRangeWhere(filters), AND: [{ currency: "INR" }], ...scope.opportunity },
     select: { created_on: true },
   });
   const grouped: Record<string, number> = {};
@@ -89,10 +89,10 @@ export async function getWinLossRate(
   scope: ReportScope = DEFAULT_SCOPE,
 ): Promise<{ won: number; total: number; rate: number }> {
   const won = await prismadb.crm_Opportunities.count({
-    where: { ...dateRangeWhere(filters), status: "CLOSED", ...scope.opportunity },
+    where: { ...dateRangeWhere(filters), status: "CLOSED", AND: [{ currency: "INR" }], ...scope.opportunity },
   });
   const total = await prismadb.crm_Opportunities.count({
-    where: { ...dateRangeWhere(filters), status: { in: ["CLOSED", "INACTIVE"] }, ...scope.opportunity },
+    where: { ...dateRangeWhere(filters), status: { in: ["CLOSED", "INACTIVE"] }, AND: [{ currency: "INR" }], ...scope.opportunity },
   });
   return { won, total, rate: total > 0 ? Math.round((won / total) * 100) : 0 };
 }
@@ -103,10 +103,10 @@ export async function getAvgDealSize(
   scope: ReportScope = DEFAULT_SCOPE,
 ): Promise<number> {
   const opps = await prismadb.crm_Opportunities.findMany({
-    where: { ...dateRangeWhere(filters), status: "CLOSED", ...scope.opportunity },
+    where: { ...dateRangeWhere(filters), status: "CLOSED", AND: [{ currency: "INR" }], ...scope.opportunity },
     select: { budget: true, currency: true },
   });
-  const inrOpps = opps.filter((opp) => !opp.currency || opp.currency === "INR");
+  const inrOpps = opps.filter((opp) => opp.currency === "INR");
   if (inrOpps.length === 0) return 0;
   let total = new Decimal(0);
   for (const opp of inrOpps) {
@@ -121,7 +121,7 @@ export async function getSalesCycleLength(
   scope: ReportScope = DEFAULT_SCOPE,
 ): Promise<number> {
   const opps = await prismadb.crm_Opportunities.findMany({
-    where: { ...dateRangeWhere(filters), status: "CLOSED", close_date: { not: null }, ...scope.opportunity },
+    where: { ...dateRangeWhere(filters), status: "CLOSED", close_date: { not: null }, AND: [{ currency: "INR" }], ...scope.opportunity },
     select: { created_on: true, close_date: true },
   });
   if (opps.length === 0) return 0;

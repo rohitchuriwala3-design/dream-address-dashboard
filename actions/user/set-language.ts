@@ -15,6 +15,7 @@ export const setLanguage = async (data: {
 
   if (!userId) return { error: "userId is required" };
   if (!language) return { error: "language is required" };
+  if (language !== "en") return { error: "Only English is enabled for MARK IV V1" };
 
   // Ensure user can only update their own language unless admin
   if (session.user.id !== userId && session.user.role !== "admin") {

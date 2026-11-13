@@ -26,9 +26,9 @@ interface PaymentListProps {
 
 export function PaymentList({ payments, currency, locale }: PaymentListProps) {
   const fmt = (n: string) =>
-    new Intl.NumberFormat(locale, {
+    currency !== "INR" ? "Amount needs INR review" : new Intl.NumberFormat(locale, {
       style: "currency",
-      currency: currency || "INR",
+      currency: "INR",
       minimumFractionDigits: 2,
     }).format(parseFloat(n));
 

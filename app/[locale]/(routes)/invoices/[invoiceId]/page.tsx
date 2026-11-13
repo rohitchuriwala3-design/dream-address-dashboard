@@ -30,9 +30,10 @@ function formatDate(d: Date | string | null, locale: string) {
 function formatCurrency(amount: string | number, currency: string, locale: string) {
   const num = typeof amount === "string" ? parseFloat(amount) : amount;
   if (isNaN(num)) return String(amount);
+  if (currency !== "INR") return "Amount needs INR review";
   return new Intl.NumberFormat(locale, {
     style: "currency",
-    currency: currency || "INR",
+    currency: "INR",
     minimumFractionDigits: 2,
   }).format(num);
 }
@@ -43,7 +44,7 @@ export default async function InvoiceDetailPage({ params }: Props) {
   const t = await getTranslations("InvoicesPage");
   const invoice = await getInvoiceById(invoiceId);
   let treasuryAccounts: { id: string; name: string }[] = [];
-  try { treasuryAccounts = await listActiveTreasuryAccounts(invoice?.currency); }
+  try { treasuryAccounts = await listActiveTreasuryAccounts(); }
   catch (error) { if (!(error instanceof TreasuryError)) throw error; }
 
   if (!invoice) {

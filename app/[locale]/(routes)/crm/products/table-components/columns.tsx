@@ -11,10 +11,11 @@ import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 
 function formatPrice(value: number, currency: string): string {
+  if (currency !== "INR") return "Amount needs INR review";
   const isWhole = value % 1 === 0;
   return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency,
+    currency: "INR",
     minimumFractionDigits: isWhole ? 0 : 2,
     maximumFractionDigits: isWhole ? 0 : 2,
   }).format(value);

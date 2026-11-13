@@ -23,7 +23,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ opp
   const [opportunity, revision] = await Promise.all([
     prismadb.crm_Opportunities.findFirst({
       where: { id: opportunityId, deletedAt: null, approval_status: "APPROVED" },
-      select: { name: true, assigned_account: { select: { name: true } } },
+      select: { name: true, currency: true, assigned_account: { select: { name: true } } },
     }),
     prismadb.opportunityQuoteRevision.findFirst({
       where: { opportunityId, status: "APPROVED" }, orderBy: { revisionNo: "desc" },
@@ -33,12 +33,18 @@ export async function GET(_request: Request, { params }: { params: Promise<{ opp
   if (!opportunity || !revision) {
     return NextResponse.json({ error: "An approved quote revision is required before downloading." }, { status: 404 });
   }
+  if (opportunity.currency !== "INR") {
+    return NextResponse.json({ error: "This quotation needs an INR review before it can be downloaded." }, { status: 409 });
+  }
 
   const snapshot = revision.snapshot as {
     opportunity?: { currency?: string; expectedRevenue?: string };
     lines?: Array<{ name: string; sku?: string | null; description?: string | null; quantity: number; unitPrice: string; lineTotal: string; currency: string }>;
   };
-  const currency = snapshot.opportunity?.currency || "INR";
+  const currency = snapshot.opportunity?.currency;
+  if (currency !== "INR" || !Array.isArray(snapshot.lines) || snapshot.lines.some((line) => line.currency !== "INR")) {
+    return NextResponse.json({ error: "This quotation needs an INR review before it can be downloaded." }, { status: 409 });
+  }
   const pdf = await renderApprovedQuotePdf({
     revisionNo: revision.revisionNo,
     submittedAt: revision.submittedAt,

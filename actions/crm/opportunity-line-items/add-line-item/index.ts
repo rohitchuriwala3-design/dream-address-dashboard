@@ -64,6 +64,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
       await tx.$queryRaw`SELECT "id" FROM "crm_Opportunities" WHERE "id" = ${opportunityId}::uuid FOR UPDATE`;
       const opportunity = await tx.crm_Opportunities.findUnique({ where: { id: opportunityId } });
       if (!opportunity || opportunity.deletedAt) return { error: "Opportunity not found" as const };
+      if (opportunity.currency !== "INR") return { error: "Set a verified INR forecast before adding quotation lines." as const };
       if (opportunity.approval_status === "PENDING" || opportunity.approval_status === "APPROVED") return { error: "Reopen quote approval before changing an approved or pending quotation." as const };
       const created = await tx.crm_OpportunityLineItems.create({ data: {
         opportunityId,
@@ -76,7 +77,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
         discount_type,
         discount_value: discountVal,
         line_total: lineTotal,
-        currency: opportunity.currency || "INR",
+        currency: "INR",
         sort_order,
         createdBy: userId,
         updatedBy: userId,

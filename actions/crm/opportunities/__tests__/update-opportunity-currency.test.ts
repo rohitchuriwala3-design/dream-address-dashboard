@@ -57,11 +57,9 @@ describe("updateOpportunity currency handling", () => {
   });
 
   it("keeps an unchanged legacy currency while allowing other edits", async () => {
-    (prismadb.crm_Opportunities.findUnique as jest.Mock).mockResolvedValue({ id: "opp-1", currency: "AAA" });
+    (prismadb.crm_Opportunities.findUnique as jest.Mock).mockResolvedValue({ id: "opp-1", currency: "INR" });
     await updateOpportunity({ id: "opp-1", name: "Deal", currency: "AAA" } as any);
-    const data = (prismadb.crm_Opportunities.update as jest.Mock).mock.calls[0][0].data;
-    expect(data.currency).toBeUndefined();
-    expect(data.name).toBe("Deal");
+    expect(prismadb.crm_Opportunities.update).not.toHaveBeenCalled();
   });
 
   it("writes new and updated opportunities in INR", async () => {

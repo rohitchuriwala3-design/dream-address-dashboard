@@ -24,7 +24,7 @@ export const getContract = async (contractId: string) => {
   }
 
   return prismadb.crm_Contracts.findUnique({
-    where: { id: contractId, deletedAt: null },
+    where: { id: contractId, deletedAt: null, currency: "INR" },
     include: {
       assigned_account: { select: { id: true, name: true } },
       assigned_to_user: { select: { id: true, name: true } },

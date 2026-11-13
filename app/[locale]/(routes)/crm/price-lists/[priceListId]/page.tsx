@@ -16,7 +16,7 @@ export default async function PriceListDetailPage(props: { params: Promise<{ pri
   if (!list) notFound();
   const t = await getTranslations("PriceListsPage");
   const [products, categories, lists, currencies] = await Promise.all([
-    prismadb.crm_Products.findMany({ where: { deletedAt: null }, select: { id: true, name: true }, orderBy: { name: "asc" } }),
+    prismadb.crm_Products.findMany({ where: { deletedAt: null, currency: "INR" }, select: { id: true, name: true }, orderBy: { name: "asc" } }),
     prismadb.crm_ProductCategories.findMany({ where: { isActive: true }, select: { id: true, name: true }, orderBy: { name: "asc" } }),
     getPriceLists({ includeArchived: true }),
     getEnabledCurrencies(),

@@ -5,7 +5,7 @@ import { writeAuditLog } from "@/lib/audit-log";
 import { revalidatePath } from "next/cache";
 import { requireRole, AuthenticationError, AuthorizationError } from "@/lib/authz";
 
-const REQUIRED_FIELDS = ["name", "type", "unit_price", "currency"];
+const REQUIRED_FIELDS = ["name", "type", "unit_price"];
 const MAX_ROWS = 500;
 
 export async function importProducts(
@@ -66,9 +66,9 @@ export async function importProducts(
       return;
     }
 
-    const currency = row.currency?.trim().toUpperCase();
-    if (!currencyCodes.has(currency)) {
-      errors.push(`Row ${rowNum}: unknown currency "${row.currency}"`);
+    const currency = row.currency?.trim().toUpperCase() || "INR";
+    if (currency !== "INR" || !currencyCodes.has("INR")) {
+      errors.push(`Row ${rowNum}: MARK IV V1 accepts INR products only`);
       return;
     }
 

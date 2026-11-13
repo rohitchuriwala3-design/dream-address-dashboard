@@ -52,20 +52,20 @@ export async function getDashboardKPIs(
   ] = await Promise.all([
     // totalRevenue
     prismadb.crm_Opportunities.findMany({
-      where: { created_on: { gte: filters.dateFrom, lte: filters.dateTo }, deletedAt: null, status: "CLOSED", ...scope.opportunity },
+      where: { created_on: { gte: filters.dateFrom, lte: filters.dateTo }, deletedAt: null, status: "CLOSED", AND: [{ currency: "INR" }], ...scope.opportunity },
       select: { budget: true, currency: true },
     }),
     prismadb.crm_Opportunities.findMany({
-      where: { created_on: { gte: prev.dateFrom, lte: prev.dateTo }, deletedAt: null, status: "CLOSED", ...scope.opportunity },
+      where: { created_on: { gte: prev.dateFrom, lte: prev.dateTo }, deletedAt: null, status: "CLOSED", AND: [{ currency: "INR" }], ...scope.opportunity },
       select: { budget: true, currency: true },
     }),
     // pipelineValue
     prismadb.crm_Opportunities.findMany({
-      where: { created_on: { gte: filters.dateFrom, lte: filters.dateTo }, deletedAt: null, status: "ACTIVE", ...scope.opportunity },
+      where: { created_on: { gte: filters.dateFrom, lte: filters.dateTo }, deletedAt: null, status: "ACTIVE", AND: [{ currency: "INR" }], ...scope.opportunity },
       select: { budget: true, currency: true },
     }),
     prismadb.crm_Opportunities.findMany({
-      where: { created_on: { gte: prev.dateFrom, lte: prev.dateTo }, deletedAt: null, status: "ACTIVE", ...scope.opportunity },
+      where: { created_on: { gte: prev.dateFrom, lte: prev.dateTo }, deletedAt: null, status: "ACTIVE", AND: [{ currency: "INR" }], ...scope.opportunity },
       select: { budget: true, currency: true },
     }),
     // newLeads

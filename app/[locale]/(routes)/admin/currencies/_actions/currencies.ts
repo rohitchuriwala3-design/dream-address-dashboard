@@ -1,9 +1,6 @@
 "use server";
 
-import { z } from "zod";
 import { prismadb } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
-import { ExchangeRateSource } from "@prisma/client";
 import { requireRole, AuthenticationError, AuthorizationError } from "@/lib/authz";
 
 async function ensureAdmin(): Promise<{ error: string } | null> {
@@ -25,119 +22,10 @@ export type CurrencyValue = {
   isDefault: boolean;
 };
 
-export type ExchangeRateValue = {
-  id: string;
-  fromCurrency: string;
-  toCurrency: string;
-  rate: string;
-  source: ExchangeRateSource;
-  effectiveDate: Date;
-  updatedAt: Date;
-};
-
-const currencySchema = z.object({
-  code: z.string().length(3, "Must be 3-letter ISO code").toUpperCase(),
-  name: z.string().min(1, "Name is required").max(100),
-  symbol: z.string().min(1).max(5),
-});
-
-const rateSchema = z.object({
-  fromCurrency: z.string().length(3),
-  toCurrency: z.string().length(3),
-  rate: z.string().refine((v) => !isNaN(Number(v)) && Number(v) > 0, "Rate must be positive"),
-});
-
 export async function getCurrencies(): Promise<CurrencyValue[]> {
   const denied = await ensureAdmin();
   if (denied) throw new Error(denied.error);
-  const currencies = await prismadb.currency.findMany({ orderBy: { code: "asc" } });
-  return currencies.map((c) => ({
-    code: c.code,
-    name: c.name,
-    symbol: c.symbol,
-    isEnabled: c.isEnabled,
-    isDefault: c.isDefault,
-  }));
-}
-
-export async function getExchangeRatesAdmin(): Promise<ExchangeRateValue[]> {
-  const denied = await ensureAdmin();
-  if (denied) throw new Error(denied.error);
-  const rates = await prismadb.exchangeRate.findMany({
-    orderBy: [{ fromCurrency: "asc" }, { toCurrency: "asc" }],
-  });
-  return rates.map((r) => ({
-    id: r.id,
-    fromCurrency: r.fromCurrency,
-    toCurrency: r.toCurrency,
-    rate: r.rate.toString(),
-    source: r.source,
-    effectiveDate: r.effectiveDate,
-    updatedAt: r.updatedAt,
-  }));
-}
-
-export async function createCurrency(data: { code: string; name: string; symbol: string }) {
-  const denied = await ensureAdmin();
-  if (denied) throw new Error(denied.error);
-  currencySchema.parse(data);
-  throw new Error("MARK IV V1 supports INR only; additional currencies are deferred");
-}
-
-export async function toggleCurrency(code: string, isEnabled: boolean) {
-  const denied = await ensureAdmin();
-  if (denied) throw new Error(denied.error);
-  if (code !== "INR" || !isEnabled) {
-    throw new Error("INR is the only active V1 currency and cannot be disabled");
-  }
-  await prismadb.currency.update({ where: { code: "INR" }, data: { isEnabled: true } });
-  revalidatePath("/", "layout");
-}
-
-export async function setDefaultCurrency(code: string) {
-  const denied = await ensureAdmin();
-  if (denied) throw new Error(denied.error);
-  if (code !== "INR") throw new Error("MARK IV V1 supports INR as its only default currency");
-  await prismadb.$transaction([
-    prismadb.currency.updateMany({ data: { isDefault: false } }),
-    prismadb.currency.update({ where: { code }, data: { isDefault: true, isEnabled: true } }),
-    prismadb.crm_SystemSettings.upsert({
-      where: { key: "default_currency" },
-      update: { value: code },
-      create: { key: "default_currency", value: code },
-    }),
-  ]);
-  revalidatePath("/", "layout");
-}
-
-export async function updateExchangeRate(data: {
-  fromCurrency: string;
-  toCurrency: string;
-  rate: string;
-}) {
-  const denied = await ensureAdmin();
-  if (denied) throw new Error(denied.error);
-  rateSchema.parse(data);
-  throw new Error("Exchange rates are not used in MARK IV V1");
-}
-
-export async function getEcbAutoUpdate(): Promise<boolean> {
-  const denied = await ensureAdmin();
-  if (denied) throw new Error(denied.error);
-  const setting = await prismadb.crm_SystemSettings.findUnique({
-    where: { key: "ecb_auto_update" },
-  });
-  return setting?.value === "true";
-}
-
-export async function setEcbAutoUpdate(enabled: boolean) {
-  const denied = await ensureAdmin();
-  if (denied) throw new Error(denied.error);
-  if (enabled) throw new Error("Exchange-rate updates are disabled in MARK IV V1");
-  await prismadb.crm_SystemSettings.upsert({
-    where: { key: "ecb_auto_update" },
-    update: { value: enabled ? "true" : "false" },
-    create: { key: "ecb_auto_update", value: enabled ? "true" : "false" },
-  });
-  revalidatePath("/", "layout");
+  const currency = await prismadb.currency.findUnique({ where: { code: "INR" } });
+  if (!currency) return [];
+  return [{ code: "INR", name: "Indian Rupee", symbol: "₹", isEnabled: currency.isEnabled, isDefault: currency.isDefault }];
 }

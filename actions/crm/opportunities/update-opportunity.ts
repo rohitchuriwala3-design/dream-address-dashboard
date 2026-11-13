@@ -83,6 +83,7 @@ export const updateOpportunity = async (data: {
 
   try {
     const before = await prismadb.crm_Opportunities.findUnique({ where: { id, deletedAt: null } });
+    if (before?.currency && before.currency !== "INR") return { error: "This historical opportunity needs an admin's INR review before editing" };
     if (currency && currency !== "INR" && currency !== before?.currency) {
       return { error: "MARK IV V1 supports INR only" };
     }

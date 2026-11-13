@@ -5,9 +5,6 @@ jest.mock("@/lib/prisma", () => ({
       count: jest.fn(),
       aggregate: jest.fn(),
     },
-    exchangeRate: {
-      findMany: jest.fn(),
-    },
   },
 }));
 
@@ -32,7 +29,6 @@ const baseFilters: ReportFilters = {
 describe("sales report actions", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (prismadb.exchangeRate.findMany as jest.Mock).mockResolvedValue([]);
   });
 
   describe("getRevenue", () => {

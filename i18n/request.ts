@@ -29,6 +29,6 @@ export default getRequestConfig(async ({ requestLocale }) => {
   return {
     locale,
     messages: mergePluginMessages(withFallback(en, (await import(`../locales/${locale}.json`)).default), locale as Locale),
-    timeZone: "Europe/Prague",
+    timeZone: "Asia/Kolkata",
   };
 });

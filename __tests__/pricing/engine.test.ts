@@ -1,6 +1,6 @@
 import { Decimal } from "decimal.js";
 import { applicableRules, computePrice, roundTo } from "@/lib/pricing/engine";
-import { MissingRateError, PriceListDepthExceeded, PriceListNotFound } from "@/lib/pricing/errors";
+import { PricingError, PriceListDepthExceeded, PriceListNotFound } from "@/lib/pricing/errors";
 import type { ListData, PricingContext, ProductData, RuleData } from "@/lib/pricing/types";
 
 const d = (v: number | string) => new Decimal(v);
@@ -10,16 +10,10 @@ const rule = (over: Partial<RuleData>): RuleData => ({
   priceDiscount: d(0), priceSurcharge: d(0), priceRound: null, priceMinMargin: null, priceMaxMargin: null,
   createdAt: new Date("2026-01-01T00:00:00Z"), ...over,
 });
-const product: ProductData = { id: "p1", unitPrice: d(100), unitCost: d(60), currency: "CCC", categoryId: "c-child" };
-const rate = (from: string, to: string) => {
-  if (from === to) return d(1);
-  if (from === "AAA" && to === "CCC") return d(25);
-  if (from === "CCC" && to === "AAA") return d(1).div(25);
-  throw new MissingRateError(from, to);
-};
+const product: ProductData = { id: "p1", unitPrice: d(100), unitCost: d(60), currency: "INR", categoryId: "c-child" };
 const ctx = (lists: ListData[], over: Partial<PricingContext> = {}): PricingContext =>
-  ({ lists: new Map(lists.map((l) => [l.id, l])), product, categoryChain: ["c-child", "c-parent"], rate, ...over });
-const list = (rules: RuleData[], over: Partial<ListData> = {}): ListData => ({ id: "L", currency: "CCC", rules, ...over });
+  ({ lists: new Map(lists.map((l) => [l.id, l])), product, categoryChain: ["c-child", "c-parent"], ...over });
+const list = (rules: RuleData[], over: Partial<ListData> = {}): ListData => ({ id: "L", currency: "INR", rules, ...over });
 const price = (c: PricingContext, qty = 1, date = new Date("2026-06-01T12:00:00Z"), listId = "L") => computePrice(c, listId, d(qty), date);
 
 it("falls back to the product's list price without a matching rule", () => {
@@ -105,16 +99,14 @@ it("rounds half away from zero", () => {
   expect(roundTo(d(-2.5), d(1)).toFixed(2)).toBe("-3.00");
 });
 
-it("chains price lists and converts currencies", () => {
-  const base: ListData = { id: "B", currency: "AAA", rules: [rule({ fixedPrice: d(4) })] };
+it("chains price lists within the INR basis", () => {
+  const base: ListData = { id: "B", currency: "INR", rules: [rule({ fixedPrice: d(100) })] };
   const main = list([rule({ computePrice: "FORMULA", base: "PRICE_LIST", basePriceListId: "B", priceDiscount: d(10) })]);
   expect(price(ctx([main, base])).price.toFixed(2)).toBe("90.00");
-  const currencyA = list([], { currency: "AAA" });
-  expect(price(ctx([currencyA])).price.toFixed(2)).toBe("4.00");
 });
 
-it("throws on a missing rate, a missing list and a loop", () => {
-  expect(() => price(ctx([list([], { currency: "BBB" })]))).toThrow(MissingRateError);
+it("rejects unsupported denominations and still detects a missing list and loop", () => {
+  expect(() => price(ctx([list([], { currency: "OTHER" })]))).toThrow(PricingError);
   expect(() => price(ctx([]))).toThrow(PriceListNotFound);
   const a = list([rule({ computePrice: "FORMULA", base: "PRICE_LIST", basePriceListId: "B" })], { id: "A" });
   const b = list([rule({ computePrice: "FORMULA", base: "PRICE_LIST", basePriceListId: "A" })], { id: "B" });

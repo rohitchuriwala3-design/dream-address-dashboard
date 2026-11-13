@@ -1,5 +1,4 @@
 import { prismadb } from "@/lib/prisma";
-import { getExchangeRates, convertAmount } from "@/lib/currency";
 import { Decimal } from "@prisma/client/runtime/client";
 import {
   requireAuthenticated,
@@ -8,7 +7,7 @@ import {
 } from "@/lib/authz";
 
 // Sum over the opportunities the caller can read.
-export const getExpectedRevenue = async (displayCurrency: string) => {
+export const getExpectedRevenue = async (_displayCurrency: string) => {
   let user;
   try {
     user = await requireAuthenticated({ partner: true });
@@ -19,6 +18,7 @@ export const getExpectedRevenue = async (displayCurrency: string) => {
   const activeOpportunities = await prismadb.crm_Opportunities.findMany({
     where: {
       status: "ACTIVE",
+      currency: "INR",
       ...opportunityReadScopeWhere(user),
     },
     select: {
@@ -27,14 +27,9 @@ export const getExpectedRevenue = async (displayCurrency: string) => {
     },
   });
 
-  const rates = await getExchangeRates();
-
   let total = new Decimal(0);
   for (const opp of activeOpportunities) {
-    const budget = new Decimal(opp.budget?.toString() ?? "0");
-    const from = opp.currency || displayCurrency;
-    const converted = convertAmount(budget, from, displayCurrency, rates);
-    total = total.add(converted ?? budget);
+    total = total.add(new Decimal(opp.budget?.toString() ?? "0"));
   }
 
   return total.toNumber();

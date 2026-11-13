@@ -100,7 +100,7 @@ describe("requestApproval", () => {
   it("requires at least one BOQ line before requesting review", async () => {
     (prismadb.$transaction as jest.Mock).mockImplementationOnce(async (callback: any) => callback({
       $queryRaw: jest.fn(),
-      crm_Opportunities: { findFirst: jest.fn().mockResolvedValue({ id: "o1", approval_status: "NONE" }), update: jest.fn() },
+      crm_Opportunities: { findFirst: jest.fn().mockResolvedValue({ id: "o1", currency: "INR", approval_status: "NONE" }), update: jest.fn() },
       crm_OpportunityLineItems: { count: jest.fn().mockResolvedValue(0), findMany: jest.fn() },
       opportunityQuoteRevision: { findFirst: jest.fn(), create: jest.fn(), update: jest.fn() },
     }));

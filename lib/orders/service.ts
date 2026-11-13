@@ -5,7 +5,6 @@ import { AuthorizationError } from "@/lib/authz/errors";
 import { assertCanReadAccount, assertCanWriteAccount } from "@/lib/authz/scopes/crm";
 import { orderReadScopeWhere } from "@/lib/authz/scopes/orders";
 import { writeAuditLog } from "@/lib/audit-log";
-import { getDefaultCurrency } from "@/lib/currency";
 import { getPrice, resolvePriceListId } from "@/lib/pricing/get-price";
 import { PricingError } from "@/lib/pricing/errors";
 import { allocateNumber } from "./numbering";
@@ -32,7 +31,7 @@ async function guardAccount(check: () => Promise<void>) {
 export async function pricingContextForAccount(accountId: string): Promise<PricingContext> {
   const priceListId = await resolvePriceListId(accountId);
   const list = priceListId ? await prismadb.crm_PriceLists.findUnique({ where: { id: priceListId }, select: { currency: true } }) : null;
-  const currency = list?.currency ?? (await getDefaultCurrency());
+  const currency = list?.currency ?? "INR";
   if (currency !== "INR") throw new OrderError("pricing", "MARK IV V1 supports INR only; set this price list to INR before creating an order");
   return { priceListId: list ? priceListId : null, currency: "INR" };
 }
@@ -112,7 +111,7 @@ function shippingFrom(account: Record<string, unknown>, input: HeaderInput) {
 }
 
 export async function loadOrder(user: AuthzUser, id: string) {
-  const order = await prismadb.crm_Orders.findFirst({ where: { id, ...orderReadScopeWhere(user) }, include: DETAIL_INCLUDE });
+  const order = await prismadb.crm_Orders.findFirst({ where: { id, currency: "INR", ...orderReadScopeWhere(user) }, include: DETAIL_INCLUDE });
   if (!order) throw new OrderError("notFound");
   return order;
 }
@@ -189,6 +188,7 @@ export async function deleteDraft(user: AuthzUser, id: string) {
 export async function listOrders(user: AuthzUser, args: { status?: string; accountId?: string; ownerId?: string; limit: number; offset: number }) {
   const where = {
     ...orderReadScopeWhere(user),
+    currency: "INR",
     ...(args.status ? { status: args.status as never } : {}),
     ...(args.accountId ? { accountId: args.accountId } : {}),
     ...(args.ownerId ? { ownerId: args.ownerId } : {}),

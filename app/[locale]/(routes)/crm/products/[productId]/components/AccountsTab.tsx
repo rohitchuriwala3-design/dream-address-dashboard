@@ -49,7 +49,8 @@ export function AccountsTab({
 
   const formatPrice = (value: number | null) => {
     const amount = value ?? productPrice;
-    return formatCurrency(new Decimal(amount.toString()), productCurrency);
+    if (productCurrency !== "INR") return "Amount needs INR review";
+    return formatCurrency(new Decimal(amount.toString()), "INR");
   };
 
   if (!assignments || assignments.length === 0) {

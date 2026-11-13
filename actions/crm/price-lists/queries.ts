@@ -9,7 +9,7 @@ export type PriceListRow = { id: string; name: string; currency: string; isActiv
 export async function getPriceLists(opts: { includeArchived?: boolean } = {}): Promise<PriceListRow[]> {
   await requireAuthenticated();
   const rows = await prismadb.crm_PriceLists.findMany({
-    where: opts.includeArchived ? {} : { isActive: true },
+    where: { currency: "INR", ...(opts.includeArchived ? {} : { isActive: true }) },
     orderBy: { name: "asc" },
     include: { _count: { select: { rules: true, baseFor: true } } },
   });
@@ -22,7 +22,7 @@ export async function getPriceList(id: string) {
     where: { id },
     include: { _count: { select: { baseFor: true } }, rules: { include: { product: { select: { name: true } }, category: { select: { name: true } }, basePriceList: { select: { name: true } } } } },
   });
-  if (!row) return null;
+  if (!row || row.currency !== "INR") return null;
   return {
     id: row.id, name: row.name, currency: row.currency, isActive: row.isActive, source: row.source, usedAsBase: row._count.baseFor > 0,
     rules: row.rules.map((r) => ({
@@ -40,5 +40,5 @@ export type PriceListDetail = NonNullable<Awaited<ReturnType<typeof getPriceList
 
 export async function getPriceListOptions() {
   await requireAuthenticated();
-  return prismadb.crm_PriceLists.findMany({ where: { isActive: true }, orderBy: { name: "asc" }, select: { id: true, name: true, currency: true } });
+  return prismadb.crm_PriceLists.findMany({ where: { isActive: true, currency: "INR" }, orderBy: { name: "asc" }, select: { id: true, name: true, currency: true } });
 }

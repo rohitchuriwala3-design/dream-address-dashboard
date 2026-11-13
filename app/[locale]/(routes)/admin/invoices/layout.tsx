@@ -10,7 +10,7 @@ export default function InvoicesLayout({
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Invoices</h1>
         <p className="text-sm text-muted-foreground">
-          Manage invoice settings, number series, and tax rates.
+          Manage invoice settings and number series.
         </p>
       </div>
       <InvoicesTabs />

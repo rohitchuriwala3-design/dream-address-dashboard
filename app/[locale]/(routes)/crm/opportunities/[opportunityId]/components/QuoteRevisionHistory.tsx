@@ -15,19 +15,20 @@ type QuoteRevision = {
 };
 
 function readSnapshot(value: unknown) {
-  if (!value || typeof value !== "object") return { currency: "INR", total: "0", lines: [] as any[] };
+  if (!value || typeof value !== "object") return { currency: "", total: "", lines: [] as any[] };
   const root = value as { opportunity?: { currency?: string; expectedRevenue?: string }; lines?: any[] };
   return {
-    currency: root.opportunity?.currency || "INR",
-    total: root.opportunity?.expectedRevenue || "0",
+    currency: root.opportunity?.currency || "",
+    total: root.opportunity?.expectedRevenue || "",
     lines: Array.isArray(root.lines) ? root.lines : [],
   };
 }
 
 function money(value: string, currency: string) {
+  if (currency !== "INR") return "Amount needs INR review";
   const amount = Number(value);
-  if (!Number.isFinite(amount)) return `${currency} ${value}`;
-  return new Intl.NumberFormat("en-IN", { style: "currency", currency, maximumFractionDigits: 2 }).format(amount);
+  if (!Number.isFinite(amount)) return "Invalid amount";
+  return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(amount);
 }
 
 export function QuoteRevisionHistory({ revisions }: { revisions: QuoteRevision[] }) {
@@ -60,7 +61,7 @@ export function QuoteRevisionHistory({ revisions }: { revisions: QuoteRevision[]
                 {snapshot.lines.map((line, index) => (
                   <div key={`${revision.id}-${line.id ?? index}`} className="flex justify-between gap-3 text-muted-foreground">
                     <span className="truncate">{line.quantity} × {line.name}</span>
-                    <span className="shrink-0">{money(String(line.lineTotal ?? "0"), line.currency || snapshot.currency)}</span>
+                    <span className="shrink-0">{money(String(line.lineTotal ?? "0"), line.currency ?? "")}</span>
                   </div>
                 ))}
               </div>

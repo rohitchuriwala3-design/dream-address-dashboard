@@ -4,7 +4,7 @@ import { prismadb } from "@/lib/prisma";
 export const getCurrencies = async () => {
   try {
     const currencies = await prismadb.currency.findMany({
-      where: { isEnabled: true },
+      where: { isEnabled: true, code: "INR" },
       select: { code: true, name: true, symbol: true },
       orderBy: { code: "asc" },
     });

@@ -7,7 +7,7 @@ const FundingResult = z.object({
     'Pre-seed', 'Seed', 'Series A', 'Series B', 'Series C', 'Series D', 'Series E+',
     'IPO', 'Acquired', 'Bootstrapped', 'Unknown'
   ]).describe('Latest funding stage'),
-  lastFundingAmount: z.string().optional().describe('Amount raised in last round (e.g., "$10M")'),
+  lastFundingAmount: z.string().optional().describe('Last reported funding amount in Indian rupees (for example, INR 10 crore); leave blank when the source reports another currency.'),
   lastFundingDate: z.string().optional().describe('Date of last funding round'),
   totalRaised: z.string().optional().describe('Total funding raised to date'),
   valuation: z.string().optional().describe('Company valuation if available'),

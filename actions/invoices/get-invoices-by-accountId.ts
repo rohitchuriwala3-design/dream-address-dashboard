@@ -23,7 +23,7 @@ export async function getInvoicesByAccountId(accountId: string) {
   }
 
   return prismadb.invoices.findMany({
-    where: { accountId, ...invoiceReadScopeWhere(user) },
+    where: { accountId, currency: "INR", ...invoiceReadScopeWhere(user) },
     orderBy: { createdAt: "desc" },
     include: {
       account: { select: { id: true, name: true } },

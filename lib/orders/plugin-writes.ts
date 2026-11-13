@@ -2,7 +2,6 @@ import { Decimal } from "decimal.js";
 import type { ExternalOrderInput, OrderLineInput, OrderUpdateInput } from "@nextcrm/plugin-sdk";
 import { prismadb } from "@/lib/prisma";
 import { writeAuditLog } from "@/lib/audit-log";
-import { getDefaultCurrency } from "@/lib/currency";
 import { allocateNumber } from "./numbering";
 import { lineAmounts, orderTotals, round2 } from "./pricing";
 import { canPluginSet } from "./transitions";
@@ -24,6 +23,7 @@ async function externalLines(lines: OrderLineInput[]) {
   return Promise.all(lines.map(async (l, position) => {
     const product = await prismadb.crm_Products.findFirst({ where: { id: l.productId, deletedAt: null } });
     if (!product) throw new Error(`Product not found: ${l.productId}`);
+    if (product.currency !== "INR") throw new Error("MARK IV V1 supports INR products only");
     const quantity = new Decimal(String(l.quantity));
     const price = round2(new Decimal(String(l.unitPrice)));
     // Ignore legacy product tax settings for new V1 order transactions.
@@ -38,7 +38,7 @@ async function externalLines(lines: OrderLineInput[]) {
 
 export async function pluginCreateOrder(pluginId: string, input: ExternalOrderInput) {
   if (!CREATE_STATUSES.has(input.status)) throw new Error(`Plugins cannot create an order as ${input.status}`);
-  const currency = input.currency ?? (await getDefaultCurrency());
+  const currency = input.currency ?? "INR";
   if (currency !== "INR") throw new Error("MARK IV V1 supports INR orders only");
   const orderDate = input.orderDate !== undefined ? orderDay(input.orderDate) : undefined;
   const account = await prismadb.crm_Accounts.findFirst({ where: { id: input.accountId, deletedAt: null } });
@@ -62,6 +62,7 @@ export async function pluginCreateOrder(pluginId: string, input: ExternalOrderIn
 export async function pluginUpdateOrder(pluginId: string, id: string, input: OrderUpdateInput) {
   const order = await prismadb.crm_Orders.findUnique({ where: { id } });
   if (!order) throw new Error(`Order not found: ${id}`);
+  if (order.currency !== "INR") throw new Error("This historical order needs an INR review before it can be changed");
   if ((input.lines || input.orderDate !== undefined) && order.source !== "EXTERNAL") throw new Error("Plugins may replace lines or set the order date on only EXTERNAL orders");
   const to = input.status as OrderStatus | undefined;
   const moving = !!to && to !== order.status;

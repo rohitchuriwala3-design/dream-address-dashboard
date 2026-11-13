@@ -26,7 +26,7 @@ export default async function EditInvoicePage({ params }: Props) {
     await Promise.all([
       prismadb.crm_Products.findMany({
         select: { id: true, name: true },
-        where: { status: "ACTIVE" },
+        where: { status: "ACTIVE", currency: "INR" },
         orderBy: { name: "asc" },
       }),
       prismadb.invoice_Series.findMany({

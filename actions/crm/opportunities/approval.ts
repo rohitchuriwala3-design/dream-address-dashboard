@@ -57,6 +57,7 @@ export async function requestApproval(
     await tx.$queryRaw`SELECT "id" FROM "crm_Opportunities" WHERE "id" = ${opportunityId}::uuid FOR UPDATE`;
     const current = await tx.crm_Opportunities.findFirst({ where: { id: opportunityId, deletedAt: null } });
     if (!current) return { error: "Opportunity not found" };
+    if (current.currency !== "INR") return { error: "Set a verified INR forecast before requesting quote approval." };
     if (current.approval_status === "PENDING") return { error: "Approval is already pending for this deal." };
     if (current.approval_status === "APPROVED") return { error: "This deal is already approved." };
     const quoteLineCount = await tx.crm_OpportunityLineItems.count({ where: { opportunityId } });
@@ -65,6 +66,7 @@ export async function requestApproval(
       where: { opportunityId },
       orderBy: [{ sort_order: "asc" }, { createdAt: "asc" }],
     });
+    if (lines.some((line) => line.currency !== "INR")) return { error: "Quotation lines need an INR review before approval can be requested." };
     const previousRevision = await tx.opportunityQuoteRevision.findFirst({
       where: { opportunityId }, orderBy: { revisionNo: "desc" }, select: { revisionNo: true },
     });
@@ -73,7 +75,7 @@ export async function requestApproval(
       opportunity: {
         name: current.name,
         accountId: current.account,
-        currency: current.currency || "INR",
+        currency: current.currency,
         description: current.description,
         expectedRevenue: current.expected_revenue.toString(),
       },

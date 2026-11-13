@@ -42,7 +42,7 @@ export async function createVendorAccount(input: { name: string; email?: string;
 export async function listVendorBillProjects() {
   await financeUser();
   return prismadb.studioProject.findMany({
-    where: { deletedAt: null, status: { not: "CANCELLED" } },
+    where: { deletedAt: null, status: { not: "CANCELLED" }, currency: "INR" },
     select: { id: true, code: true, name: true, currency: true }, orderBy: { name: "asc" }, take: 500,
   });
 }
@@ -78,7 +78,8 @@ export async function createVendorBill(input: {
       where: { id: input.projectId, deletedAt: null, status: { not: "CANCELLED" } }, select: { id: true, currency: true },
     });
     if (!project) throw new VendorBillError("Choose an active studio project", "INVALID");
-    currency = project.currency;
+    if (project.currency !== "INR") throw new VendorBillError("This project must be reviewed by an admin before new finance entries can be added", "INVALID");
+    currency = "INR";
   }
 
   try {
@@ -166,10 +167,11 @@ export async function markVendorBillPaid(billId: string, paymentReference: strin
     await tx.$queryRaw`SELECT "id" FROM "VendorBill" WHERE "id" = ${billId}::uuid FOR UPDATE`;
     const current = await tx.vendorBill.findUnique({ where: { id: billId }, select: { id: true, status: true, grossAmount: true, currency: true, vendor: { select: { name: true } } } });
     if (!current) return { error: "Vendor bill not found" as const };
+    if (current.currency !== "INR") return { error: "This bill needs an admin's INR review before payment" as const };
     if (current.status !== "APPROVED") return { error: "Only approved vendor bills can be marked paid" as const };
     await tx.$queryRaw`SELECT "id" FROM "TreasuryAccount" WHERE "id" = ${treasuryAccountId}::uuid FOR UPDATE`;
     const account = await tx.treasuryAccount.findFirst({ where: { id: treasuryAccountId, active: true } });
-    if (!account || account.currency !== current.currency) return { error: "Choose an active cash account with the vendor bill's currency" as const };
+    if (!account || account.currency !== "INR") return { error: "Choose an active INR cash account" as const };
     const balance = await tx.treasuryEntry.aggregate({ where: { accountId: account.id }, _sum: { amount: true } });
     if (new Decimal(balance._sum.amount?.toString() ?? "0").lt(current.grossAmount.toString())) return { error: "Payment exceeds the available recorded cash balance" as const };
     await tx.treasuryTransaction.create({ data: {

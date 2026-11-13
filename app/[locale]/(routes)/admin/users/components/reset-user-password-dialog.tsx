@@ -29,8 +29,8 @@ export function ResetUserPasswordDialog({ userId, email, open, onOpenChange }: P
   const [loading, setLoading] = useState(false);
 
   const reset = async () => {
-    if (password.length < 12 || password.length > 128) {
-      toast.error("Use a password between 12 and 128 characters.");
+    if (password.length < 8 || password.length > 128) {
+      toast.error("Use a password between 8 and 128 characters.");
       return;
     }
     if (password !== confirmPassword) {

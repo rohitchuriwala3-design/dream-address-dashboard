@@ -21,7 +21,7 @@ export const getContractsWithIncludes = cache(async () => {
   }
 
   const data = await prismadb.crm_Contracts.findMany({
-    where: { ...contractReadScopeWhere(user) },
+    where: { ...contractReadScopeWhere(user), AND: [{ currency: "INR" }] },
     include: {
       assigned_to_user: {
         select: {
@@ -58,10 +58,7 @@ export const getContractsByAccountId = async (accountId: string) => {
   }
 
   const data = await prismadb.crm_Contracts.findMany({
-    where: {
-      account: accountId,
-      ...contractReadScopeWhere(user),
-    },
+    where: { account: accountId, ...contractReadScopeWhere(user), AND: [{ currency: "INR" }] },
     include: {
       assigned_to_user: {
         select: {
