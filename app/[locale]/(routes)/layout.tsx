@@ -10,6 +10,7 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "./components/app-sidebar";
 import { getTranslations } from "next-intl/server";
 import { AvatarProvider } from "@/context/avatar-context";
+import { getUserPermissions } from "@/lib/authz";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -63,6 +64,10 @@ export default async function AppLayout({
     return redirect("/inactive");
   }
 
+  const modulePermissions = user?.role === "admin" || user?.role === "partner"
+    ? []
+    : await getUserPermissions(session.user.id);
+
   // Fetch localization dictionary
   const dict = await getTranslations("ModuleMenu");
 
@@ -106,6 +111,7 @@ export default async function AppLayout({
       <AppSidebar
         dict={translations}
         session={session}
+        permissions={modulePermissions}
         pluginNav={pluginNav}
         appName={process.env.NEXT_PUBLIC_APP_NAME || "MARK IV"}
       />

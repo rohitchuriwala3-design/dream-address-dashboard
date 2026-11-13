@@ -50,6 +50,8 @@ import { useAvatarContext } from "@/context/avatar-context"
  */
 
 interface NavUserProps {
+  canAccessCrm?: boolean
+  canAccessProjects?: boolean
   user: {
     id: string
     name?: string | null
@@ -58,7 +60,7 @@ interface NavUserProps {
   }
 }
 
-export function NavUser({ user }: NavUserProps) {
+export function NavUser({ user, canAccessCrm = false, canAccessProjects = false }: NavUserProps) {
   const router = useRouter()
   const { isMobile } = useSidebar()
   const { avatar } = useAvatarContext()
@@ -119,17 +121,17 @@ export function NavUser({ user }: NavUserProps) {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => router.push("/projects/dashboard")}>
+            {canAccessProjects && <DropdownMenuItem onClick={() => router.push("/projects/dashboard")}>
               <LayoutDashboard className="mr-2 h-4 w-4" />
               Todo Dashboard
-            </DropdownMenuItem>
-            <DropdownMenuItem
+            </DropdownMenuItem>}
+            {canAccessCrm && <DropdownMenuItem
               onClick={() => router.push(`/crm/dashboard/${user.id}`)}
             >
               <BadgeIndianRupee className="mr-2 h-4 w-4" />
               Sales Dashboard
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
+            </DropdownMenuItem>}
+            {(canAccessProjects || canAccessCrm) && <DropdownMenuSeparator />}
             <DropdownMenuItem onClick={() => router.push("/profile")}>
               <Settings className="mr-2 h-4 w-4" />
               Profile Settings

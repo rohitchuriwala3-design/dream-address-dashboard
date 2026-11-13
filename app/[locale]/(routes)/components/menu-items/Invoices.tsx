@@ -3,14 +3,14 @@ import { NavItem } from "../nav-main"
 
 interface GetInvoicesMenuItemProps {
   title: string
-  role?: string
+  canViewFinance?: boolean
 }
 
 export default function getInvoicesMenuItem({
   title,
-  role,
+  canViewFinance,
 }: GetInvoicesMenuItemProps): NavItem {
-  if (role === "manager" || role === "admin") {
+  if (canViewFinance) {
     return {
       title: "Finance",
       icon: Receipt,

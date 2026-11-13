@@ -9,9 +9,12 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Puzzle } from "lucide-react";
+import { FolderKanban, Puzzle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { NexusPermission } from "@/lib/authz/permission-catalog";
+import { canSeeNavigationModule } from "@/lib/authz/navigation";
 import { NavMain } from "./nav-main";
+import type { NavItem } from "./nav-main";
 import { NavUser } from "./nav-user";
 import getDashboardMenuItem from "./menu-items/Dashboard";
 import getCrmMenuItem from "./menu-items/Crm";
@@ -82,6 +85,7 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   dict: any;
   session: Session;
   pluginNav?: { title: string; url: string }[];
+  permissions?: readonly NexusPermission[];
   appName: string;
 }
 
@@ -89,16 +93,22 @@ export function AppSidebar({
   dict,
   session,
   pluginNav,
+  permissions = [],
   appName,
   ...props
 }: AppSidebarProps) {
   const { state } = useSidebar();
   const isExpanded = state === "expanded";
 
-  const navItems = [
-    getDashboardMenuItem({ title: dict?.dashboard || "Dashboard" }),
-    getCrmMenuItem({ localizations: dict.crm, role: session?.user?.role ?? undefined }),
-    getCampaignsMenuItem({
+  const role = session?.user?.role;
+  const canSee = (module: Parameters<typeof canSeeNavigationModule>[2]) =>
+    canSeeNavigationModule(role, permissions, module);
+  const navItems: NavItem[] = [];
+
+  if (canSee("dashboard")) navItems.push(getDashboardMenuItem({ title: dict?.dashboard || "Dashboard" }));
+  if (canSee("crm")) {
+    navItems.push(getCrmMenuItem({ localizations: dict.crm, role: role ?? undefined }));
+    navItems.push(getCampaignsMenuItem({
       localizations: {
         title: "Campaigns",
         campaigns: "All Campaigns",
@@ -106,20 +116,21 @@ export function AppSidebar({
         targets: "Targets",
         targetLists: "Target Lists",
       },
-    }),
-    getProjectsMenuItem({ title: dict?.projects || "Projects" }),
-    getEmailsMenuItem({ title: dict?.emails || "Emails" }),
-    getReportsMenuItem({ title: dict?.reports || "Reports" }),
-    getDocumentsMenuItem({ title: dict?.documents || "Documents" }),
-    getInvoicesMenuItem({ title: dict?.invoices || "Invoices", role: session?.user?.role ?? undefined }),
-  ];
+    }));
+  }
+  if (canSee("projects")) navItems.push(getProjectsMenuItem({ title: dict?.projects || "Projects" }));
+  if (canSee("projects")) navItems.push({ title: "Studio projects", url: "/studio-projects", icon: FolderKanban });
+  if (canSee("emails")) navItems.push(getEmailsMenuItem({ title: dict?.emails || "Emails" }));
+  if (canSee("reports")) navItems.push(getReportsMenuItem({ title: dict?.reports || "Reports" }));
+  if (canSee("documents")) navItems.push(getDocumentsMenuItem({ title: dict?.documents || "Documents" }));
+  if (canSee("finance")) navItems.push(getInvoicesMenuItem({ title: dict?.invoices || "Invoices", canViewFinance: true }));
 
-  if (pluginNav?.length) {
+  if (canSee("plugins") && pluginNav?.length) {
     navItems.push({ title: dict?.plugins || "Plugins", icon: Puzzle, items: pluginNav });
   }
 
   // Administration: admin users only
-  if (session?.user?.role === "admin") {
+  if (role === "admin") {
     navItems.push(
       getAdministrationMenuItem({ title: dict?.settings || "Administration" }),
     );
@@ -169,7 +180,7 @@ export function AppSidebar({
       <SidebarContent>
         {/* NavMain component with all enabled module navigation items */}
         <NavMain
-          items={session?.user?.role === "partner" ? partnerNavItems(navItems) : navItems}
+          items={role === "partner" ? partnerNavItems(navItems) : navItems}
           dict={dict}
         />
       </SidebarContent>
@@ -177,7 +188,11 @@ export function AppSidebar({
       {/* Footer with NavUser and Build Version */}
       <SidebarFooter>
         {/* Task 3.1: NavUser component with user profile and actions */}
-        <NavUser user={userData} />
+        <NavUser
+          user={userData}
+          canAccessCrm={canSee("crm")}
+          canAccessProjects={canSee("projects")}
+        />
       </SidebarFooter>
 
       {/* Rail for toggling sidebar on desktop */}
