@@ -13,6 +13,7 @@ type QuoteLine = {
 };
 
 export type ApprovedQuotePdfData = {
+  issuerName: string;
   revisionNo: number;
   submittedAt: Date;
   reviewedAt: Date | null;
@@ -57,7 +58,7 @@ function formatMoney(value: string, currency: string) {
 function ApprovedQuotePdf({ data }: { data: ApprovedQuotePdfData }) {
   return React.createElement(Document, null,
     React.createElement(Page, { size: "A4", style: styles.page, wrap: true },
-      React.createElement(Text, { style: styles.brand }, "DREAM ADDRESS STUDIO · APPROVED QUOTATION"),
+      React.createElement(Text, { style: styles.brand }, `${data.issuerName} · APPROVED QUOTATION`),
       React.createElement(Text, { style: styles.title }, data.opportunityName || "Interior Design Proposal"),
       React.createElement(Text, { style: styles.subtitle }, `Revision ${data.revisionNo} · Approved quote snapshot`),
       React.createElement(View, { style: styles.metadata },

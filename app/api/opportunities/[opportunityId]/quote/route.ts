@@ -21,7 +21,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ opp
     throw error;
   }
 
-  const [opportunity, revision] = await Promise.all([
+  const [opportunity, revision, invoiceSettings] = await Promise.all([
     prismadb.crm_Opportunities.findFirst({
       where: { id: opportunityId, deletedAt: null, approval_status: "APPROVED" },
       select: { name: true, currency: true, assigned_account: { select: { name: true } } },
@@ -30,6 +30,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ opp
       where: { opportunityId, status: "APPROVED" }, orderBy: { revisionNo: "desc" },
       select: { revisionNo: true, snapshot: true, submittedAt: true, reviewedAt: true },
     }),
+    prismadb.invoice_Settings.findFirst({ select: { companyName: true } }),
   ]);
   if (!opportunity || !revision) {
     return NextResponse.json({ error: "An approved quote revision is required before downloading." }, { status: 404 });
@@ -47,6 +48,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ opp
     return NextResponse.json({ error: "This quotation needs an INR review before it can be downloaded." }, { status: 409 });
   }
   const pdf = await renderApprovedQuotePdf({
+    issuerName: invoiceSettings?.companyName?.trim() || "Dream Space Studios",
     revisionNo: revision.revisionNo,
     submittedAt: revision.submittedAt,
     reviewedAt: revision.reviewedAt,
