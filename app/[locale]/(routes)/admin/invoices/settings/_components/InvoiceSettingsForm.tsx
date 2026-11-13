@@ -138,6 +138,9 @@ export function InvoiceSettingsForm({
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
           Company Details
         </h3>
+        <p className="text-sm text-muted-foreground">
+          The company name and address entered here are printed on invoices and approved quotation PDFs. This document issuer is separate from the MARK IV workspace brand.
+        </p>
         <div className="space-y-2">
           <Label>Company Name <span className="text-destructive">*</span></Label>
           <Input
@@ -168,7 +171,7 @@ export function InvoiceSettingsForm({
             <p className="text-xs text-destructive">{errors.companyAddress}</p>
           )}
         </div>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div className="space-y-2">
             <Label>City <span className="text-destructive">*</span></Label>
             <Input
@@ -213,7 +216,7 @@ export function InvoiceSettingsForm({
             )}
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label>Business registration number (optional)</Label>
             <Input
@@ -229,7 +232,7 @@ export function InvoiceSettingsForm({
             )}
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div className="space-y-2">
             <Label>Email</Label>
             <Input
@@ -267,7 +270,7 @@ export function InvoiceSettingsForm({
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
           Invoice Defaults
         </h3>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label>Base Currency</Label>
           <Select value={baseCurrency} disabled>
@@ -291,7 +294,7 @@ export function InvoiceSettingsForm({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label>Default Series</Label>
           <Select value={defaultSeriesId} onValueChange={setDefaultSeriesId}>
@@ -310,7 +313,7 @@ export function InvoiceSettingsForm({
 
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label>Bank Name</Label>
           <Input
@@ -329,7 +332,7 @@ export function InvoiceSettingsForm({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label>IBAN</Label>
           <Input
