@@ -1,6 +1,7 @@
 import { prismadb } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { InvoiceSettingsForm } from "./_components/InvoiceSettingsForm";
+import { getTestIssuerDefaultsForRuntime } from "@/lib/invoices/test-issuer-defaults";
 
 export default async function InvoiceSettingsPage() {
   const [settings, currencies, series] = await Promise.all([
@@ -26,6 +27,7 @@ export default async function InvoiceSettingsPage() {
             settings={settings ? JSON.parse(JSON.stringify(settings)) : null}
             currencies={JSON.parse(JSON.stringify(currencies))}
             series={JSON.parse(JSON.stringify(series))}
+            testIssuerDefaults={getTestIssuerDefaultsForRuntime()}
           />
         </CardContent>
       </Card>

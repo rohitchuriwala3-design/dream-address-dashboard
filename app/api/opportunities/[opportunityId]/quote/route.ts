@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { AuthenticationError, AuthorizationError, assertCanReadOpportunity, requirePermission } from "@/lib/authz";
 import { prismadb } from "@/lib/prisma";
 import { renderApprovedQuotePdf } from "@/lib/nexus360/quote-pdf";
+import { getTestIssuerDefaultsForRuntime } from "@/lib/invoices/test-issuer-defaults";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ opportunityId: string }> }) {
   let user;
@@ -35,6 +36,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ opp
   if (!opportunity || !revision) {
     return NextResponse.json({ error: "An approved quote revision is required before downloading." }, { status: 404 });
   }
+  const testIssuer = getTestIssuerDefaultsForRuntime();
   if (opportunity.currency !== "INR") {
     return NextResponse.json({ error: "This quotation needs an INR review before it can be downloaded." }, { status: 409 });
   }
@@ -48,7 +50,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ opp
     return NextResponse.json({ error: "This quotation needs an INR review before it can be downloaded." }, { status: 409 });
   }
   const pdf = await renderApprovedQuotePdf({
-    issuerName: invoiceSettings?.companyName?.trim() || "Dream Space Studios",
+    issuerName: invoiceSettings?.companyName?.trim() || testIssuer?.companyName || "Dream Space Studios",
     revisionNo: revision.revisionNo,
     submittedAt: revision.submittedAt,
     reviewedAt: revision.reviewedAt,

@@ -16,6 +16,7 @@ jest.mock("@/lib/nexus360/quote-pdf", () => ({ renderApprovedQuotePdf: jest.fn()
 import { requirePermission, assertCanReadOpportunity } from "@/lib/authz";
 import { prismadb } from "@/lib/prisma";
 import { renderApprovedQuotePdf } from "@/lib/nexus360/quote-pdf";
+import { TEST_ISSUER_DEFAULTS } from "@/lib/invoices/test-issuer-defaults";
 import { GET } from "../route";
 
 const params = Promise.resolve({ opportunityId: "o1" });
@@ -54,5 +55,22 @@ describe("GET approved quotation PDF", () => {
     const response = await GET(new Request("http://localhost/api/opportunities/o1/quote"), { params });
     expect(response.status).toBe(404);
     expect(renderApprovedQuotePdf).not.toHaveBeenCalled();
+  });
+
+  it("uses the fictional test issuer in staging when the saved company name is blank", async () => {
+    const previous = process.env.MARK4_TEST_ISSUER;
+    process.env.MARK4_TEST_ISSUER = "true";
+    (prismadb.invoice_Settings.findFirst as jest.Mock).mockResolvedValue(null);
+
+    try {
+      const response = await GET(new Request("http://localhost/api/opportunities/o1/quote"), { params });
+      expect(response.status).toBe(200);
+      expect(renderApprovedQuotePdf).toHaveBeenCalledWith(expect.objectContaining({
+        issuerName: TEST_ISSUER_DEFAULTS.companyName,
+      }));
+    } finally {
+      if (previous === undefined) delete process.env.MARK4_TEST_ISSUER;
+      else process.env.MARK4_TEST_ISSUER = previous;
+    }
   });
 });

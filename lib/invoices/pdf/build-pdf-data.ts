@@ -1,5 +1,6 @@
 import { Decimal } from "decimal.js";
 import { computeInvoiceTotals } from "@/lib/invoices/totals";
+import { getTestIssuerDefaultsForRuntime } from "@/lib/invoices/test-issuer-defaults";
 import type {
   InvoicePdfData,
   PdfParty,
@@ -66,15 +67,17 @@ type SettingsForPdf = {
 } | null;
 
 function buildSupplier(settings: SettingsForPdf): PdfParty {
+  const testDefaults = getTestIssuerDefaultsForRuntime();
   return {
     name:
-      settings?.companyName ??
-      process.env.NEXT_PUBLIC_APP_NAME ??
-      "NextCRM",
-    street: settings?.companyAddress ?? undefined,
-    city: settings?.companyCity ?? undefined,
-    zip: settings?.companyZip ?? undefined,
-    country: settings?.companyCountry ?? undefined,
+      settings?.companyName?.trim() ||
+      testDefaults?.companyName ||
+      process.env.NEXT_PUBLIC_APP_NAME ||
+      "MARK IV",
+    street: settings?.companyAddress?.trim() || testDefaults?.companyAddress,
+    city: settings?.companyCity?.trim() || testDefaults?.companyCity,
+    zip: settings?.companyZip?.trim() || testDefaults?.companyZip,
+    country: settings?.companyCountry?.trim() || testDefaults?.companyCountry,
     vatId: settings?.companyVatId ?? undefined,
     regId: settings?.companyRegNo ?? undefined,
   };

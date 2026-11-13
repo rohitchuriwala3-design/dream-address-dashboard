@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import type { TEST_ISSUER_DEFAULTS } from "@/lib/invoices/test-issuer-defaults";
 import {
   Select,
   SelectContent,
@@ -54,12 +55,14 @@ interface Props {
   settings: Settings | null;
   currencies: Currency[];
   series: Series[];
+  testIssuerDefaults: typeof TEST_ISSUER_DEFAULTS | null;
 }
 
 export function InvoiceSettingsForm({
   settings,
   currencies,
   series,
+  testIssuerDefaults,
 }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -85,15 +88,15 @@ export function InvoiceSettingsForm({
   const [iban, setIban] = useState(settings?.iban ?? "");
   const [swift, setSwift] = useState(settings?.swift ?? "");
   const [footerText, setFooterText] = useState(settings?.footerText ?? "");
-  const [companyName, setCompanyName] = useState(settings?.companyName ?? "");
-  const [companyAddress, setCompanyAddress] = useState(settings?.companyAddress ?? "");
-  const [companyCity, setCompanyCity] = useState(settings?.companyCity ?? "");
-  const [companyZip, setCompanyZip] = useState(settings?.companyZip ?? "");
-  const [companyCountry, setCompanyCountry] = useState(settings?.companyCountry ?? "India");
+  const [companyName, setCompanyName] = useState(settings?.companyName?.trim() || testIssuerDefaults?.companyName || "");
+  const [companyAddress, setCompanyAddress] = useState(settings?.companyAddress?.trim() || testIssuerDefaults?.companyAddress || "");
+  const [companyCity, setCompanyCity] = useState(settings?.companyCity?.trim() || testIssuerDefaults?.companyCity || "");
+  const [companyZip, setCompanyZip] = useState(settings?.companyZip?.trim() || testIssuerDefaults?.companyZip || "");
+  const [companyCountry, setCompanyCountry] = useState(settings?.companyCountry?.trim() || testIssuerDefaults?.companyCountry || "India");
   const [companyRegNo, setCompanyRegNo] = useState(settings?.companyRegNo ?? "");
-  const [companyEmail, setCompanyEmail] = useState(settings?.companyEmail ?? "");
+  const [companyEmail, setCompanyEmail] = useState(settings?.companyEmail?.trim() || testIssuerDefaults?.companyEmail || "");
   const [companyPhone, setCompanyPhone] = useState(settings?.companyPhone ?? "");
-  const [companyWebsite, setCompanyWebsite] = useState(settings?.companyWebsite ?? "");
+  const [companyWebsite, setCompanyWebsite] = useState(settings?.companyWebsite?.trim() || testIssuerDefaults?.companyWebsite || "");
 
   const handleSave = () => {
     const payload: InvoiceSettingsInput = {
@@ -139,11 +142,12 @@ export function InvoiceSettingsForm({
           Company Details
         </h3>
         <p className="text-sm text-muted-foreground">
-          The company name and address entered here are printed on invoices and approved quotation PDFs. This document issuer is separate from the MARK IV workspace brand.
+          A fictional test issuer is prefilled in staging so you can test documents now. Replace these values with your business details whenever you are ready; saved values are used on invoices and approved quotation PDFs. Do not send PDFs carrying the TEST identity to clients.
         </p>
         <div className="space-y-2">
-          <Label>Company Name <span className="text-destructive">*</span></Label>
+          <Label>Business name <span className="text-destructive">*</span></Label>
           <Input
+            required
             value={companyName}
             onChange={(e) => {
               setCompanyName(e.target.value);
@@ -157,8 +161,9 @@ export function InvoiceSettingsForm({
           )}
         </div>
         <div className="space-y-2">
-          <Label>Street Address <span className="text-destructive">*</span></Label>
+          <Label>Street address <span className="text-destructive">*</span></Label>
           <Input
+            required
             value={companyAddress}
             onChange={(e) => {
               setCompanyAddress(e.target.value);
@@ -175,6 +180,7 @@ export function InvoiceSettingsForm({
           <div className="space-y-2">
             <Label>City <span className="text-destructive">*</span></Label>
             <Input
+              required
               value={companyCity}
               onChange={(e) => {
                 setCompanyCity(e.target.value);
@@ -187,8 +193,9 @@ export function InvoiceSettingsForm({
             )}
           </div>
           <div className="space-y-2">
-            <Label>ZIP / Postal Code <span className="text-destructive">*</span></Label>
+            <Label>PIN code <span className="text-destructive">*</span></Label>
             <Input
+              required
               value={companyZip}
               onChange={(e) => {
                 setCompanyZip(e.target.value);
@@ -203,6 +210,7 @@ export function InvoiceSettingsForm({
           <div className="space-y-2">
             <Label>Country <span className="text-destructive">*</span></Label>
             <Input
+              required
               value={companyCountry}
               onChange={(e) => {
                 setCompanyCountry(e.target.value);
@@ -260,7 +268,7 @@ export function InvoiceSettingsForm({
             <Input
               value={companyWebsite}
               onChange={(e) => setCompanyWebsite(e.target.value)}
-              placeholder="e.g. https://acme.com"
+            placeholder={testIssuerDefaults?.companyWebsite || "e.g. https://example.com"}
             />
           </div>
         </div>

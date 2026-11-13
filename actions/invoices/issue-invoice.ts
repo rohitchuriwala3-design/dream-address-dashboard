@@ -1,6 +1,7 @@
 "use server";
 
 import { prismadb } from "@/lib/prisma";
+import { getTestIssuerDefaultsForRuntime } from "@/lib/invoices/test-issuer-defaults";
 import { getUser } from "@/actions/get-user";
 import { Decimal } from "decimal.js";
 import { computeInvoiceTotals } from "@/lib/invoices/totals";
@@ -144,15 +145,17 @@ export async function issueInvoice(raw: unknown) {
 
     // Supplier info — use company details from Invoice_Settings (fallback to app name)
     const settings = await prismadb.invoice_Settings.findFirst();
+    const testIssuer = getTestIssuerDefaultsForRuntime();
     const supplier: PdfParty = {
       name:
-        settings?.companyName ??
-        process.env.NEXT_PUBLIC_APP_NAME ??
-        "NextCRM",
-      street: settings?.companyAddress ?? undefined,
-      city: settings?.companyCity ?? undefined,
-      zip: settings?.companyZip ?? undefined,
-      country: settings?.companyCountry ?? undefined,
+        settings?.companyName?.trim() ||
+        testIssuer?.companyName ||
+        process.env.NEXT_PUBLIC_APP_NAME ||
+        "MARK IV",
+      street: settings?.companyAddress?.trim() || testIssuer?.companyAddress,
+      city: settings?.companyCity?.trim() || testIssuer?.companyCity,
+      zip: settings?.companyZip?.trim() || testIssuer?.companyZip,
+      country: settings?.companyCountry?.trim() || testIssuer?.companyCountry,
       vatId: settings?.companyVatId ?? undefined,
       regId: settings?.companyRegNo ?? undefined,
     };

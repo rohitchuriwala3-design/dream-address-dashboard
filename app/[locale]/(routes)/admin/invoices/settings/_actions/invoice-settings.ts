@@ -9,9 +9,6 @@ import {
   AuthorizationError,
 } from "@/lib/authz";
 
-const requiredStr = (label: string, max: number) =>
-  z.string().trim().min(1, `${label} is required`).max(max, `${label} must be ≤ ${max} chars`);
-
 const optionalStr = (max: number) =>
   z
     .string()
@@ -19,6 +16,9 @@ const optionalStr = (max: number) =>
     .max(max)
     .nullable()
     .or(z.literal("").transform(() => null));
+
+const requiredStr = (label: string, max: number) =>
+  z.string().trim().min(1, `${label} is required`).max(max, `${label} must be ≤ ${max} chars`);
 
 const settingsSchema = z.object({
   baseCurrency: z.literal("INR"),
@@ -36,11 +36,11 @@ const settingsSchema = z.object({
   swift: optionalStr(20),
   footerText: optionalStr(1000),
 
-  // Required company identity fields
-  companyName: requiredStr("Company name", 200),
+  // Required profile fields use a clearly fictional staging default until replaced.
+  companyName: requiredStr("Business name", 200),
   companyAddress: requiredStr("Street address", 300),
   companyCity: requiredStr("City", 100),
-  companyZip: requiredStr("ZIP / postal code", 20),
+  companyZip: requiredStr("PIN code", 20),
   companyCountry: requiredStr("Country", 100),
   companyRegNo: optionalStr(50),
 
