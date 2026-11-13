@@ -47,9 +47,10 @@ export const getUsersByMonthAndYear = async (year: number) => {
   }
 
   const usersByMonth = users.reduce((acc: any, user: any) => {
-    const yearCreated = new Date(user.created_on).getFullYear();
-    const month = new Date(user.created_on).toLocaleString("default", {
+    const yearCreated = Number(new Intl.DateTimeFormat("en-IN", { year: "numeric", timeZone: "Asia/Kolkata" }).format(new Date(user.created_on)));
+    const month = new Date(user.created_on).toLocaleString("en-IN", {
       month: "long",
+      timeZone: "Asia/Kolkata",
     });
 
     if (yearCreated === year) {
@@ -82,8 +83,9 @@ export const getUsersByMonth = async () => {
   }
 
   const usersByMonth = users.reduce((acc: any, user: any) => {
-    const month = new Date(user.created_on).toLocaleString("default", {
+    const month = new Date(user.created_on).toLocaleString("en-IN", {
       month: "long",
+      timeZone: "Asia/Kolkata",
     });
 
     acc[month] = (acc[month] || 0) + 1;

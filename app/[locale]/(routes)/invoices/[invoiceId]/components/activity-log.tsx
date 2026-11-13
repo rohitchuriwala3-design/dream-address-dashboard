@@ -1,5 +1,7 @@
 "use client";
 
+import { formatIndiaDateTime } from "@/lib/india-time";
+
 interface Activity {
   id: string;
   action: string;
@@ -40,7 +42,7 @@ export function ActivityLog({ activities }: ActivityLogProps) {
               {ACTION_LABELS[a.action] ?? a.action}
             </p>
             <p className="text-muted-foreground text-xs">
-              {new Date(a.createdAt).toLocaleString()}
+              {formatIndiaDateTime(a.createdAt)}
             </p>
           </div>
         </div>

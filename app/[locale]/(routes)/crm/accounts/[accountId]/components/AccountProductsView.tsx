@@ -13,6 +13,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { formatIndiaDate } from "@/lib/india-time";
 import {
   Table,
   TableBody,
@@ -72,7 +73,7 @@ const AccountProductsView = ({
 
   const formatDate = (date: string | Date | null | undefined) => {
     if (!date) return "-";
-    return new Date(date).toLocaleDateString();
+    return formatIndiaDate(date);
   };
 
   return (

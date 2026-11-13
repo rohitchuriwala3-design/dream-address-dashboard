@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { StatusBadge } from "./status-badge";
 import { cn } from "@/lib/utils";
+import { formatIndiaDate } from "@/lib/india-time";
 
 interface Invoice {
   id: string;
@@ -47,7 +48,7 @@ interface InvoicesTableProps {
 
 function formatDate(d: string | null, locale: string) {
   if (!d) return "-";
-  return new Date(d).toLocaleDateString(locale);
+  return formatIndiaDate(d, locale);
 }
 
 function formatCurrency(amount: string, currency: string, locale: string) {

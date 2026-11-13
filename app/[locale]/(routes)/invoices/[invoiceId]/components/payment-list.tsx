@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { formatIndiaDate } from "@/lib/india-time";
 
 interface Payment {
   id: string;
@@ -55,7 +56,7 @@ export function PaymentList({ payments, currency, locale }: PaymentListProps) {
         {payments.map((p) => (
           <TableRow key={p.id}>
             <TableCell>
-              {new Date(p.paidAt).toLocaleDateString(locale)}
+              {formatIndiaDate(p.paidAt, locale)}
             </TableCell>
             <TableCell className="font-mono">{fmt(p.amount)}</TableCell>
             <TableCell>{p.method ?? "-"}</TableCell>

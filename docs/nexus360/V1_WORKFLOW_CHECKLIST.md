@@ -55,6 +55,19 @@ Each phase report must include a 0–100 health score with a short breakdown for
 - [ ] Apply mobile usability as an acceptance requirement in every phase: CRM create/edit/search, tasks/reminders, project updates, expense capture, invoice/receipt review, design upload/approval and notifications must work on phones as well as desktop. Use responsive navigation/tables, readable forms, touch-sized actions, camera/file upload, clear loading/error states, and no desktop-only completion steps.
 - [ ] Complete a full MARK IV visual and interaction redesign after core data/finance rules are stable: create clearer navigation and consistent page structure; richer, readable project/account views; analytical dashboards with explainable figures and filters; responsive layouts that preserve desktop-level capability on phones; and a coherent visual system for tables, forms, alerts, empty/loading/error states. Fix the Admin → Users heading/divider overlap within this pass. Do not limit this work to spacing polish.
 
+### Phase 1B — Rebuild the CRM workbench (after Phase 1, before finance)
+
+The CRM experience is a named V1 deliverable, not a generic item hidden in the final polish phase. Keep Phase 4 Sheets sync at 22% until this priority work is done; Phase 1B is a local UI/product-workflow batch and does not change the Sheets phase status.
+
+Research basis: Salesforce's official lead guidance centers a lead workspace on editable details, activity logging and planned tasks/events; its Lead Intelligence View adds filtered-list activity signals such as no activity, overdue, due today and upcoming; its qualification path converts a lead into linked account/contact/opportunity records. MARK IV should adapt these proven patterns to residential interiors (referral and site visit, design/execution scope, quotation, negotiated follow-up and project handoff), without copying enterprise features the studio does not need. [Salesforce Lead Intelligence View](https://help.salesforce.com/s/articleView?id=sf.leads_intelligence_view.htm&language=en_US&type=5), [Salesforce lead management](https://help.salesforce.com/s/articleView?id=sf.leads_manage_parent.htm&language=en_US&type=5), [Salesforce lead and opportunity flow](https://trailhead.salesforce.com/content/learn/modules/leads_opportunities_lightning_experience/create-and-convert-leads-lightning).
+
+- [ ] Research and map the existing leads-to-client workflow for Dream Space Studios: enquiry/referral → qualification and site visit → design/execution estimate → proposal and negotiation → won/lost → project handoff.
+- [ ] Restructure the CRM home around an actionable lead pipeline with clear stage ownership, next action, follow-up date, source/referral, expected project range (INR), and stale/overdue indicators.
+- [ ] Redesign lead list/detail pages with meaningful summaries, filters, saved views, activity timeline, notes/calls/site visits, and one-click next actions; retain access controls and avoid Salesforce features irrelevant to a small residential interiors team.
+- [ ] Make account, contact, opportunity, proposal/quote, and project handoff views use one consistent information hierarchy and responsive desktop/mobile interactions.
+- [ ] Define visual acceptance checks: useful density without clutter, clear stage/status distinction, readable tabular data, keyboard and touch access, empty/loading/error states, and phone workflows for create/search/update/follow-up.
+- [ ] Re-run Phase 1 acceptance gates and compare desktop and mobile CRM journeys before moving to Phase 2.
+
 #### Phase 1 audit — 2026-11-13
 
 **Status: incomplete. Estimated health: 59/100.** This is a weighted engineering assessment, not a test pass percentage. Commit `d791c25` is now live on isolated Render staging; the master/current template Sheets edits were read back. Authentication, mobile, privacy, issuer setup and the remaining localization gates are not verified.
@@ -224,3 +237,20 @@ Invoice profitability follows a separate but linked cost trail: invoice lines co
 - Treasury currently models cash movement, not full double-entry accounting. Do not describe it as a complete accounting ledger until the Phase 2 journal and statements are implemented and reconciled.
 - Invoice line records currently store client-facing quantity, unit price, discount and totals but have no cost code or cost allocation. Project expenses and vendor bills are project-level records without line-item cost allocations. A true per-item margin view therefore needs the explicit cost-code/allocation work above; do not derive margin from invoice totals minus every project cost or present that as audited profit.
 - GST is intentionally deferred until at least six months after V1; do not add GST configuration, totals or invoice claims in the current phase.
+
+## Phase 1 cumulative recheck — 2026-11-13 16:03 IST
+
+**Status: incomplete. Current health estimate: 68/100.** This revises the older 59/100 and 66/100 snapshots above using the latest staging and local evidence; it is an engineering health estimate, not a test pass rate. Phase 1 is not at the required 95-point release gate. Phase 4 Sheet business-record sync remains parked at 22%; no dual business-data sync is claimed.
+
+| Dimension | Score | Current evidence and open gate |
+|---|---:|---|
+| Functionality | 82 | Profile creation was previously exercised on staging; role editor is present. Password reset server-side duplicate-password guard is covered in unit tests; live reset/sign-in still needs a dedicated disposable test account. |
+| Data correctness | 75 | INR-only/tax-free active V1 source policies and historical-record protections are implemented. Runtime settings/schema migration and all active locale surfaces still need staging verification; this local date-display sweep is not deployed yet. |
+| Access control | 67 | Admin-only action checks, self-demotion/last-admin protection and role-change audit logic have tests. Staging's custom-permission rollout warning remains; route/action enforcement of the per-module checklist is incomplete and role boundaries have not been exercised end to end. |
+| Usability and mobile | 40 | Admin user controls and adjustable role entry are visible on desktop. Full desktop CRM redesign is Phase 1B; no phone-sized acceptance review has been completed. |
+| Integrations | 55 | The staging Sheet connectivity audit/write-read check is distinct from record sync. CRM, project, invoice and finance records are not syncing both ways; that stays in Phase 4 at 22%. |
+| Deployment | 90 | Render commit `99e8df9` is live in isolated staging and `/api/health` previously returned 200/database OK. Production remains untouched. The IST formatting batch is local and awaits upload. |
+
+**Cumulative local checks:** 44 tests pass across 8 relevant suites (`india-time` and admin-user suites); `pnpm exec tsc --noEmit`, targeted ESLint, and optimized `pnpm exec next build` pass. Build used local-only placeholder auth/Inngest values. A broader earlier regression rerun excluding the PostgreSQL-dependent invoice lifecycle suite passed 87 tests across 17 suites. The PostgreSQL invoice suite remains blocked by the unavailable local database. Staging Chrome inspection confirmed that Change access role opens its editor and Reset password opens its form; neither was submitted, and no credentials or roles were changed during that inspection.
+
+**Remaining Phase 1 gates:** deploy the date-formatting source; check latest staging health and runtime INR settings; test profile creation/retry/no-duplicate behavior and credential reset with a disposable QA user; verify role boundaries and decide/enforce module permissions; finish India-specific active surfaces and issuer settings; perform phone-size usability and private-file authorization checks. Keep old customer records and historical documents intact. Do not move to Phase 2/CRM redesign until the Phase 1 acceptance gates pass; CRM UI improvements remain explicitly scoped to Phase 1B after Phase 1.

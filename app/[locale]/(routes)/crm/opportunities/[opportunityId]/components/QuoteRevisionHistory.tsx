@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatIndiaDateTime } from "@/lib/india-time";
 
 type QuoteRevision = {
   id: string;
@@ -49,7 +50,7 @@ export function QuoteRevisionHistory({ revisions }: { revisions: QuoteRevision[]
                 <div>
                   <h3 className="font-medium">Revision {revision.revisionNo}</h3>
                   <p className="text-xs text-muted-foreground">
-                    Submitted {revision.submittedAt.toLocaleString("en-IN")} · {snapshot.lines.length} line{snapshot.lines.length === 1 ? "" : "s"}
+                    Submitted {formatIndiaDateTime(revision.submittedAt)} · {snapshot.lines.length} line{snapshot.lines.length === 1 ? "" : "s"}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -71,7 +72,7 @@ export function QuoteRevisionHistory({ revisions }: { revisions: QuoteRevision[]
                 </p>
               )}
               {revision.reviewedAt && (
-                <p className="mt-2 text-xs text-muted-foreground">Reviewed {revision.reviewedAt.toLocaleString("en-IN")}</p>
+                <p className="mt-2 text-xs text-muted-foreground">Reviewed {formatIndiaDateTime(revision.reviewedAt)}</p>
               )}
             </section>
           );

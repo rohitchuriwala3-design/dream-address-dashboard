@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
+import { formatIndiaDateTime } from "@/lib/india-time";
 import { Phone, Users, FileText, Mail, MapPin, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -99,7 +100,7 @@ export function ActivityEntry({ activity, onDeleted, onUpdated, entityType, enti
                 </span>
               </TooltipTrigger>
               <TooltipContent>
-                {new Date(activity.date).toLocaleString()}
+                {formatIndiaDateTime(activity.date)}
               </TooltipContent>
             </Tooltip>
             <Button

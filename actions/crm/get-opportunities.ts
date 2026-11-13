@@ -74,8 +74,9 @@ export const getOpportunitiesByMonth = async () => {
 
   const opportunitiesByMonth = opportunities.reduce(
     (acc: any, opportunity: any) => {
-      const month = new Date(opportunity.created_on).toLocaleString("default", {
+      const month = new Date(opportunity.created_on).toLocaleString("en-IN", {
         month: "long",
+        timeZone: "Asia/Kolkata",
       });
       acc[month] = (acc[month] || 0) + 1;
       return acc;

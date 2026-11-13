@@ -8,6 +8,16 @@ const indiaDateTime = new Intl.DateTimeFormat("en-GB", {
   hourCycle: "h23",
 });
 
+export function formatIndiaDate(value: Date | string | null | undefined, locale = "en-IN") {
+  if (!value) return "—";
+  const date = value instanceof Date ? value : new Date(value);
+  if (!Number.isFinite(date.getTime())) return "—";
+  return new Intl.DateTimeFormat(locale, {
+    timeZone: "Asia/Kolkata",
+    dateStyle: "medium",
+  }).format(date);
+}
+
 export function formatIndiaDateTime(value: Date | string | null | undefined) {
   if (!value) return "—";
 

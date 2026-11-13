@@ -46,8 +46,9 @@ export const getTasksByMonth = async () => {
   }
 
   const tasksByMonth = tasks.reduce((acc: any, task: any) => {
-    const month = new Date(task.createdAt).toLocaleString("default", {
+    const month = new Date(task.createdAt).toLocaleString("en-IN", {
       month: "long",
+      timeZone: "Asia/Kolkata",
     });
     acc[month] = (acc[month] || 0) + 1;
     return acc;

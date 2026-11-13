@@ -1,5 +1,7 @@
 "use client";
 
+import { formatIndiaDateTime } from "@/lib/india-time";
+
 import { useCallback, useEffect, useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -148,7 +150,7 @@ export function CalendarConnectionsList() {
                   {c.scopeLevel === "readwrite" ? "Two-way · " : "Inbound only · "}
                   {c.isActive
                     ? c.lastSyncedAt
-                      ? `Synced ${new Date(c.lastSyncedAt).toLocaleString()}`
+                      ? `Synced ${formatIndiaDateTime(c.lastSyncedAt)}`
                       : "Waiting for first sync"
                     : `Needs reconnect${c.lastSyncError ? `: ${c.lastSyncError}` : ""}`}
                 </p>

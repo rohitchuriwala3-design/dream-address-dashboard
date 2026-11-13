@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { createApiToken, getApiTokens, deleteApiToken } from "@/actions/api-tokens";
+import { formatIndiaDate } from "@/lib/india-time";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -133,9 +134,9 @@ export function ApiTokens() {
                   <TableCell className="font-mono text-sm">
                     nxtc__{t.tokenPrefix}…
                   </TableCell>
-                  <TableCell>{new Date(t.createdAt).toLocaleDateString()}</TableCell>
+                  <TableCell>{formatIndiaDate(t.createdAt)}</TableCell>
                   <TableCell>
-                    {t.expiresAt ? new Date(t.expiresAt).toLocaleDateString() : "Never"}
+                    {t.expiresAt ? formatIndiaDate(t.expiresAt) : "Never"}
                   </TableCell>
                   <TableCell>
                     <Button variant="destructive" size="sm" onClick={() => handleRevoke(t.id)}>

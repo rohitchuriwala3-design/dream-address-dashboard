@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { updateTarget } from "@/actions/crm/targets/update-target";
 import { convertTarget } from "@/actions/crm/targets/convert-target";
+import { formatIndiaDate } from "@/lib/india-time";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -381,7 +382,7 @@ export function UpdateTargetForm({ initialData, setOpen }: UpdateTargetFormProps
         )}
         {initialData?.converted_at ? (
           <div className="rounded-md border p-3 bg-muted text-sm text-muted-foreground">
-            Converted to Account + Contact on {new Date(initialData.converted_at).toLocaleDateString()}
+            Converted to Account + Contact on {formatIndiaDate(initialData.converted_at)}
           </div>
         ) : (
           <AlertDialog>

@@ -1,5 +1,6 @@
 import React from "react";
 import { Document, Page, Text, View, StyleSheet, renderToBuffer } from "@react-pdf/renderer";
+import { formatIndiaDate } from "@/lib/india-time";
 
 type QuoteLine = {
   name: string;
@@ -65,10 +66,10 @@ function ApprovedQuotePdf({ data }: { data: ApprovedQuotePdfData }) {
           React.createElement(Text, { style: styles.value }, data.clientName || "Client")),
         React.createElement(View, null,
           React.createElement(Text, { style: styles.label }, "SUBMITTED"),
-          React.createElement(Text, { style: styles.value }, data.submittedAt.toLocaleDateString("en-IN"))),
+          React.createElement(Text, { style: styles.value }, formatIndiaDate(data.submittedAt))),
         React.createElement(View, null,
           React.createElement(Text, { style: styles.label }, "APPROVED"),
-          React.createElement(Text, { style: styles.value }, data.reviewedAt?.toLocaleDateString("en-IN") || "Approved"))),
+          React.createElement(Text, { style: styles.value }, data.reviewedAt ? formatIndiaDate(data.reviewedAt) : "Approved"))),
       React.createElement(View, { style: styles.header },
         React.createElement(Text, { style: styles.item }, "DESCRIPTION"),
         React.createElement(Text, { style: styles.qty }, "QTY"),

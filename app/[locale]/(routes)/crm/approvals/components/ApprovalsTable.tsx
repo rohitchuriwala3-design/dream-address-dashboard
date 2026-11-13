@@ -16,6 +16,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { decideApproval } from "@/actions/crm/opportunities/approval";
 import type { PendingApproval } from "@/actions/crm/opportunities/get-pending-approvals";
+import { formatIndiaDate } from "@/lib/india-time";
 
 const ApprovalsTable = ({ rows }: { rows: PendingApproval[] }) => {
   const router = useRouter();
@@ -83,7 +84,7 @@ const ApprovalsTable = ({ rows }: { rows: PendingApproval[] }) => {
                 <td className="px-4 py-3">{r.budget.toLocaleString()}</td>
                 <td className="px-4 py-3">
                   {r.approval_requested_at
-                    ? new Date(r.approval_requested_at).toLocaleDateString()
+                    ? formatIndiaDate(r.approval_requested_at)
                     : "—"}
                 </td>
                 <td className="px-4 py-3 text-right">

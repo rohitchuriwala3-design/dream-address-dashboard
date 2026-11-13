@@ -1,5 +1,7 @@
 "use client";
 
+import { formatIndiaDateTime } from "@/lib/india-time";
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -154,7 +156,7 @@ export function EmailAccountsList({ accounts }: { accounts: Account[] }) {
             </p>
             {acc.lastSyncedAt && (
               <p className="text-xs text-muted-foreground">
-                Last synced: {new Date(acc.lastSyncedAt).toLocaleString()}
+                Last synced: {formatIndiaDateTime(acc.lastSyncedAt)}
               </p>
             )}
           </div>

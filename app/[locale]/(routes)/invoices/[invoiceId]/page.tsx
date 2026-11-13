@@ -17,6 +17,7 @@ import { InvoiceActions } from "./components/invoice-actions";
 import { PaymentList } from "./components/payment-list";
 import { ActivityLog } from "./components/activity-log";
 import { listActiveTreasuryAccounts, TreasuryError } from "@/actions/treasury/service";
+import { formatIndiaDate } from "@/lib/india-time";
 
 interface Props {
   params: Promise<{ invoiceId: string }>;
@@ -24,7 +25,7 @@ interface Props {
 
 function formatDate(d: Date | string | null, locale: string) {
   if (!d) return "-";
-  return new Date(d).toLocaleDateString(locale);
+  return formatIndiaDate(d, locale);
 }
 
 function formatCurrency(amount: string | number, currency: string, locale: string) {
