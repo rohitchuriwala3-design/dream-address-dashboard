@@ -13,7 +13,7 @@ const Heading = ({ title, description, visibility }: HeadingProps) => {
         {title}
         {visibility === "private" ? <Lock /> : ""}
       </h2>
-      <p className="text-sm text-muted-foreground py=1">{description}</p>
+      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{description}</p>
     </div>
   );
 };

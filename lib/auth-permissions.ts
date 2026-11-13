@@ -1,11 +1,10 @@
 import { createAccessControl } from "better-auth/plugins/access";
 
-// These roles are read only by BetterAuth's admin plugin, and only to gate its
-// own /api/auth/admin/* endpoints (list/create/update/remove users, sessions,
-// impersonation). NextCRM does not use those endpoints: user management runs
-// through the server actions in actions/admin/users, and every app permission
-// (CRM, projects, reports, settings) is enforced in lib/authz. No role is
-// granted anything here, so the plugin endpoints cannot bypass those checks.
+// Better Auth's admin plugin gates its own /api/auth/admin/* endpoints.
+// Profile creation, role changes, and other user management stay in our
+// requireRole-protected server actions. The admin role receives only the
+// narrow set-password grant needed by the app's administrator reset action;
+// app module permissions remain enforced separately in lib/authz.
 const statements = {
   user: ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password", "set-email", "get", "update"],
   session: ["list", "revoke", "delete"],
@@ -13,7 +12,7 @@ const statements = {
 
 export const ac = createAccessControl(statements);
 
-export const admin = ac.newRole({ user: [], session: [] });
+export const admin = ac.newRole({ user: ["set-password"], session: [] });
 
 export const manager = ac.newRole({ user: [], session: [] });
 
