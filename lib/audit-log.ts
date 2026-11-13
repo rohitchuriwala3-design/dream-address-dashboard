@@ -20,6 +20,7 @@ export type AuditEntityType =
   | "studio_project"
   | "studio_project_expense"
   | "vendor_bill"
+  | "document"
   | "sheet_crosswalk";
 
 export type AuditAction =

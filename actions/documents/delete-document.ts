@@ -7,6 +7,7 @@ import {
 } from "@/lib/authz";
 
 import { prismadb } from "@/lib/prisma";
+import { writeAuditLog } from "@/lib/audit-log";
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { minioClient, MINIO_BUCKET } from "@/lib/minio";
 
@@ -45,4 +46,12 @@ export async function deleteDocument(documentId: string) {
       })
     );
   }
+
+  await writeAuditLog({
+    entityType: "document",
+    entityId: documentId,
+    action: "deleted",
+    changes: [{ field: "deleted", old: false, new: true }],
+    userId: user.id,
+  });
 }

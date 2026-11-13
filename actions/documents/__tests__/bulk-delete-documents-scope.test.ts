@@ -12,6 +12,7 @@ jest.mock("@/lib/minio", () => ({
   minioClient: { send: jest.fn().mockResolvedValue(undefined) },
   MINIO_BUCKET: "test-bucket",
 }));
+jest.mock("@/lib/audit-log", () => ({ writeAuditLog: jest.fn() }));
 jest.mock("@aws-sdk/client-s3", () => ({
   DeleteObjectCommand: jest.fn().mockImplementation((args) => args),
 }));
@@ -19,6 +20,7 @@ jest.mock("next/cache", () => ({ revalidatePath: jest.fn() }));
 
 import { prismadb } from "@/lib/prisma";
 import { getSession } from "@/lib/auth-server";
+import { writeAuditLog } from "@/lib/audit-log";
 import { bulkDeleteDocuments } from "@/actions/documents/bulk-delete-documents";
 
 const mockUser = (role: "user" | "manager" | "admin", id = "u1") => {
@@ -64,6 +66,15 @@ describe("bulkDeleteDocuments auth", () => {
     await bulkDeleteDocuments(["d1", "d2"]);
     expect(prismadb.documents.deleteMany).toHaveBeenCalledWith({
       where: { id: { in: ["d1", "d2"] } },
+    });
+    expect(writeAuditLog).toHaveBeenCalledTimes(2);
+    expect(writeAuditLog).toHaveBeenNthCalledWith(1, {
+      entityType: "document", entityId: "d1", action: "deleted",
+      changes: [{ field: "deleted", old: false, new: true }], userId: "u1",
+    });
+    expect(writeAuditLog).toHaveBeenNthCalledWith(2, {
+      entityType: "document", entityId: "d2", action: "deleted",
+      changes: [{ field: "deleted", old: false, new: true }], userId: "u1",
     });
   });
 

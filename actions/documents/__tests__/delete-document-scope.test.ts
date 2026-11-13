@@ -13,12 +13,14 @@ jest.mock("@/lib/minio", () => ({
   minioClient: { send: jest.fn().mockResolvedValue(undefined) },
   MINIO_BUCKET: "test-bucket",
 }));
+jest.mock("@/lib/audit-log", () => ({ writeAuditLog: jest.fn() }));
 jest.mock("@aws-sdk/client-s3", () => ({
   DeleteObjectCommand: jest.fn().mockImplementation((args) => args),
 }));
 
 import { prismadb } from "@/lib/prisma";
 import { getSession } from "@/lib/auth-server";
+import { writeAuditLog } from "@/lib/audit-log";
 import { deleteDocument } from "@/actions/documents/delete-document";
 
 const mockUser = (role: "user" | "manager" | "admin", id = "u1") => {
@@ -52,6 +54,10 @@ describe("deleteDocument auth", () => {
     (prismadb.documents.delete as jest.Mock).mockResolvedValue({});
     await deleteDocument("d1");
     expect(prismadb.documents.delete).toHaveBeenCalledWith({ where: { id: "d1" } });
+    expect(writeAuditLog).toHaveBeenCalledWith({
+      entityType: "document", entityId: "d1", action: "deleted",
+      changes: [{ field: "deleted", old: false, new: true }], userId: "u1",
+    });
   });
 
   it("manager: bypasses OR scope and deletes", async () => {

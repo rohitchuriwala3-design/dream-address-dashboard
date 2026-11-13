@@ -6,6 +6,7 @@ import {
   AuthorizationError,
 } from "@/lib/authz";
 import { prismadb } from "@/lib/prisma";
+import { writeAuditLog } from "@/lib/audit-log";
 import { revalidatePath } from "next/cache";
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { minioClient, MINIO_BUCKET } from "@/lib/minio";
@@ -46,6 +47,14 @@ export async function bulkDeleteDocuments(documentIds: string[]) {
   await prismadb.documents.deleteMany({
     where: { id: { in: documentIds } },
   });
+
+  await Promise.all(documents.map((document) => writeAuditLog({
+    entityType: "document",
+    entityId: document.id,
+    action: "deleted",
+    changes: [{ field: "deleted", old: false, new: true }],
+    userId: user.id,
+  })));
 
   revalidatePath("/[locale]/(routes)/documents");
 }
