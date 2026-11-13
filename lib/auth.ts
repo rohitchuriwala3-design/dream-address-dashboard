@@ -56,7 +56,7 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     disableSignUp: true,
-    minPasswordLength: 12,
+    minPasswordLength: 8,
     revokeSessionsOnPasswordReset: true,
   },
   // Reset requests require verified email delivery. Until a provider exists,

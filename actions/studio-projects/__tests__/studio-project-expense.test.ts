@@ -46,7 +46,7 @@ describe("studio project expense lifecycle", () => {
 
   it("does not allow marking an unapproved cost as paid", async () => {
     tx.studioProjectExpense.findUnique.mockResolvedValueOnce({ id: "e1", status: "SUBMITTED", projectId: "p1" });
-    await expect(markStudioProjectExpensePaid("e1", "cash-1", "UTR-1")).rejects.toThrow("Only approved expenses can be marked paid");
+    await expect(markStudioProjectExpensePaid("e1", "cash-1", "UTR-1")).rejects.toThrow("This expense must be reviewed by an admin before payment");
     expect(tx.studioProjectExpense.update).not.toHaveBeenCalled();
   });
 

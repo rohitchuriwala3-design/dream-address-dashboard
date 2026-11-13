@@ -36,6 +36,12 @@ export const setUserRole = async (userId: string, role: AppRole) => {
       where: { id: userId },
       select: { role: true, partnerAccountId: true },
     });
+    if (!before) return { error: "Profile not found" };
+    if (before.role === role) return { error: "Profile already has that role" };
+    if (before.role === "admin" && role !== "admin") {
+      const activeAdmins = await prismadb.users.count({ where: { role: "admin", userStatus: "ACTIVE" } });
+      if (activeAdmins <= 1) return { error: "At least one active administrator must remain." };
+    }
     let user;
     if (before?.role === "partner" && role !== "partner") {
       // A former partner keeps no partner links: his own account and every
@@ -82,8 +88,15 @@ export const setUserRole = async (userId: string, role: AppRole) => {
         data: { role },
         select,
       });
+      await writeAuditLog({
+        entityType: "user",
+        entityId: userId,
+        action: "updated",
+        changes: [{ field: "role", old: before.role, new: role }],
+        userId: actor.id,
+      });
     }
-    revalidatePath("/[locale]/(routes)/admin", "page");
+    revalidatePath("/[locale]/(routes)/admin/users", "page");
     return { data: user };
   } catch (error) {
     console.log("[SET_USER_ROLE]", error);

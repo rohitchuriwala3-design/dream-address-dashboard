@@ -9,9 +9,6 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -21,16 +18,17 @@ import AlertModal from "@/components/modals/alert-modal";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { Building2, Copy, Edit, KeyRound, MoreHorizontal, Shield, ShieldCheck, Trash, UserCheck, UserX } from "lucide-react";
+import { Building2, Copy, KeyRound, MoreHorizontal, Shield, ShieldCheck, Trash, UserCheck, UserX } from "lucide-react";
 import { deleteUser } from "@/actions/admin/users/delete-user";
 import { activateUser } from "@/actions/admin/users/activate-user";
 import { deactivateUser } from "@/actions/admin/users/deactivate-user";
-import { setUserRole } from "@/actions/admin/users/set-role";
 import { revokeUserApiTokens } from "@/actions/admin/users/revoke-api-tokens";
-import type { AppRole } from "@/lib/authz";
 import { PartnerAccountDialog } from "../components/partner-account-dialog";
 import { ResetUserPasswordDialog } from "../components/reset-user-password-dialog";
 import { ProfilePermissionsDialog } from "../components/profile-permissions";
+import { ChangeRoleDialog } from "../components/change-role-dialog";
+import { parseRole } from "@/lib/authz/roles";
+import type { AppRole } from "@/lib/authz/roles";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -46,6 +44,8 @@ export function DataTableRowActions<TData>({
   const [partnerAccountOpen, setPartnerAccountOpen] = useState(false);
   const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
   const [permissionsOpen, setPermissionsOpen] = useState(false);
+  const [roleOpen, setRoleOpen] = useState(false);
+  const [nextRole, setNextRole] = useState<AppRole>(parseRole(data.role) ?? "user");
   const [loading, setLoading] = useState(false);
 
   const onCopy = (id: string) => {
@@ -121,23 +121,6 @@ export function DataTableRowActions<TData>({
     }
   };
 
-  const onSetRole = async (role: AppRole) => {
-    try {
-      setLoading(true);
-      const result = await setUserRole(data.id, role);
-      if (result.error) {
-        toast.error(result.error);
-        return;
-      }
-      router.refresh();
-      toast.success(`User role changed to ${role}.`);
-    } catch (error) {
-      toast.error("Something went wrong while changing role. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <>
       <AlertModal
@@ -161,6 +144,16 @@ export function DataTableRowActions<TData>({
         onOpenChange={setResetPasswordOpen}
       />
       <ProfilePermissionsDialog userId={data.id} email={data.email} initialPermissions={data.permissionKeys ?? []} open={permissionsOpen} onOpenChange={setPermissionsOpen} />
+      <ChangeRoleDialog
+        userId={data.id}
+        userName={data.name || data.email}
+        email={data.email}
+        currentRole={parseRole(data.role) ?? "user"}
+        role={nextRole}
+        onRoleChange={setNextRole}
+        open={roleOpen}
+        onOpenChange={setRoleOpen}
+      />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant={"ghost"} className="h-8 w-8 p-0">
@@ -196,26 +189,10 @@ export function DataTableRowActions<TData>({
             Edit permissions
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-              <Shield className="mr-2 w-4 h-4" />
-              Set Role
-            </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent>
-              <DropdownMenuItem onClick={() => onSetRole("admin")}>
-                Admin
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onSetRole("manager")}>
-                Manager
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onSetRole("user")}>
-                User
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onSetRole("partner")}>
-                Partner
-              </DropdownMenuItem>
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
+          <DropdownMenuItem onSelect={(event) => { event.preventDefault(); setNextRole(parseRole(data.role) ?? "user"); setRoleOpen(true); }}>
+            <Shield className="mr-2 w-4 h-4" />
+            Change access role
+          </DropdownMenuItem>
           {data.role === "partner" && (
             <DropdownMenuItem onClick={() => setPartnerAccountOpen(true)}>
               <Building2 className="mr-2 w-4 h-4" />

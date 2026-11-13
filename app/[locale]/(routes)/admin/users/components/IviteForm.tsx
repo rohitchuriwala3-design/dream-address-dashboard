@@ -51,6 +51,14 @@ export function InviteForm() {
     resolver: zodResolver(FormSchema),
     defaultValues: { name: "", email: "", password: "", role: "user", language: "en", permissions: [] },
   });
+  const passwordValue = form.watch("password");
+  const passwordStrength = passwordValue.length < 8
+    ? "Low — use at least 8 characters."
+    : passwordValue.length >= 14 && /[a-z]/.test(passwordValue) && /[A-Z]/.test(passwordValue) && /\d/.test(passwordValue) && /[^A-Za-z0-9]/.test(passwordValue)
+      ? "Strong"
+      : passwordValue.length >= 10 && /[a-zA-Z]/.test(passwordValue) && /\d/.test(passwordValue)
+        ? "Fair — a longer, less predictable password is safer."
+        : "Low — add length and a mix of letters, numbers, or symbols.";
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setIsLoading(true);
@@ -118,12 +126,13 @@ export function InviteForm() {
                 <Input
                   type="password"
                   autoComplete="new-password"
-                  minLength={12}
+                  minLength={8}
                   disabled={isLoading}
                   placeholder="At least 8 characters"
                   {...field}
                 />
               </FormControl>
+              {passwordValue && <p aria-live="polite" className={`text-xs ${passwordValue.length < 8 ? "text-destructive" : "text-muted-foreground"}`}>Password strength: {passwordStrength}</p>}
               <FormMessage />
             </FormItem>
           )}

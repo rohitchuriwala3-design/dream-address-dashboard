@@ -1,131 +1,107 @@
-jest.mock("@/lib/auth-server", () => ({ getSession: jest.fn() }));
-jest.mock("@/lib/prisma", () => {
-  const prismadb: Record<string, unknown> = {
-    users: { findUnique: jest.fn(), update: jest.fn() },
-    crm_Accounts: { findMany: jest.fn(), updateMany: jest.fn() },
-  };
-  prismadb.$transaction = jest.fn(async (fn: (tx: unknown) => unknown) => fn(prismadb));
-  return { prismadb };
-});
 jest.mock("next/cache", () => ({ revalidatePath: jest.fn() }));
+jest.mock("@/lib/authz", () => ({
+  APP_ROLES: ["user", "manager", "admin", "partner"],
+  requireRole: jest.fn(),
+  AuthorizationError: class AuthorizationError extends Error {},
+}));
 jest.mock("@/lib/audit-log", () => ({ writeAuditLog: jest.fn() }));
+jest.mock("@/lib/prisma", () => ({
+  prismadb: {
+    users: { findUnique: jest.fn(), count: jest.fn(), update: jest.fn() },
+    crm_Accounts: { findMany: jest.fn(), updateMany: jest.fn() },
+    $transaction: jest.fn(),
+  },
+}));
 
-import { getSession } from "@/lib/auth-server";
+import { revalidatePath } from "next/cache";
+import { requireRole } from "@/lib/authz";
+import { writeAuditLog } from "@/lib/audit-log";
 import { prismadb } from "@/lib/prisma";
 import { setUserRole } from "../set-role";
-import { writeAuditLog } from "@/lib/audit-log";
 
-const gs = getSession as jest.MockedFunction<typeof getSession>;
-const fu = prismadb.users.findUnique as jest.MockedFunction<
-  typeof prismadb.users.findUnique
->;
-const upd = prismadb.users.update as jest.MockedFunction<
-  typeof prismadb.users.update
->;
+const requireAdmin = requireRole as jest.MockedFunction<typeof requireRole>;
+const findUser = prismadb.users.findUnique as jest.MockedFunction<typeof prismadb.users.findUnique>;
+const countUsers = prismadb.users.count as jest.MockedFunction<typeof prismadb.users.count>;
+const updateUser = prismadb.users.update as jest.MockedFunction<typeof prismadb.users.update>;
 
-beforeEach(() => jest.clearAllMocks());
+beforeEach(() => {
+  jest.clearAllMocks();
+  requireAdmin.mockResolvedValue({ id: "admin-1", role: "admin" } as never);
+  findUser.mockResolvedValue({ role: "user", partnerAccountId: null } as never);
+  countUsers.mockResolvedValue(2);
+  updateUser.mockResolvedValue({ id: "staff-1", role: "manager" } as never);
+  (prismadb.$transaction as jest.Mock).mockImplementation((callback: any) => callback(prismadb));
+});
 
 describe("setUserRole", () => {
-  it("returns Unauthorized when no session", async () => {
-    gs.mockResolvedValue(null as any);
-    const res = await setUserRole("target", "manager");
-    expect(res).toEqual({ error: "Unauthorized" });
-    expect(upd).not.toHaveBeenCalled();
+  it("rejects missing and non-admin sessions", async () => {
+    requireAdmin.mockRejectedValueOnce(new Error("Unauthorized"));
+    await expect(setUserRole("staff-1", "manager")).resolves.toEqual({ error: "Unauthorized" });
+    const { AuthorizationError } = jest.requireMock("@/lib/authz");
+    requireAdmin.mockRejectedValueOnce(new AuthorizationError());
+    await expect(setUserRole("staff-1", "manager")).resolves.toEqual({ error: "Forbidden" });
+    expect(updateUser).not.toHaveBeenCalled();
   });
 
-  it("returns Forbidden when not admin", async () => {
-    gs.mockResolvedValue({ user: { id: "u" } } as any);
-    fu.mockResolvedValue({ id: "u", role: "manager" } as any);
-    const res = await setUserRole("target", "user");
-    expect(res).toEqual({ error: "Forbidden" });
-    expect(upd).not.toHaveBeenCalled();
+  it("lets an administrator change another profile's role and audits the change", async () => {
+    await expect(setUserRole("staff-1", "manager")).resolves.toMatchObject({ data: { role: "manager" } });
+    expect(updateUser).toHaveBeenCalledWith(expect.objectContaining({ where: { id: "staff-1" }, data: { role: "manager" } }));
+    expect(writeAuditLog).toHaveBeenCalledWith(expect.objectContaining({
+      entityType: "user", entityId: "staff-1", changes: [{ field: "role", old: "user", new: "manager" }], userId: "admin-1",
+    }));
+    expect(revalidatePath).toHaveBeenCalledWith("/[locale]/(routes)/admin/users", "page");
   });
 
-  it("admin updates role only — does NOT write is_admin", async () => {
-    gs.mockResolvedValue({ user: { id: "a" } } as any);
-    fu.mockResolvedValue({ id: "a", role: "admin" } as any);
-    upd.mockResolvedValue({ id: "target", role: "manager" } as any);
-
-    const res = await setUserRole("target", "manager");
-    expect(res).toEqual({ data: expect.objectContaining({ id: "target" }) });
-
-    expect(upd).toHaveBeenCalledTimes(1);
-    const callArgs = upd.mock.calls[0]![0]!;
-    expect(callArgs.data).toEqual({ role: "manager" });
-    expect(callArgs.data).not.toHaveProperty("is_admin");
+  it("prevents an administrator from demoting their own account", async () => {
+    await expect(setUserRole("admin-1", "user")).resolves.toEqual({ error: "Cannot remove your own admin role" });
+    expect(updateUser).not.toHaveBeenCalled();
   });
 
-  it("admin can make a user a partner", async () => {
-    gs.mockResolvedValue({ user: { id: "a" } } as any);
-    fu.mockResolvedValue({ id: "a", role: "admin" } as any);
-    upd.mockResolvedValue({ id: "target", role: "partner" } as any);
-
-    const res = await setUserRole("target", "partner");
-    expect(res).toEqual({ data: expect.objectContaining({ role: "partner" }) });
-    expect(upd.mock.calls[0]![0]!.data).toEqual({ role: "partner" });
+  it("prevents demoting the last active administrator", async () => {
+    findUser.mockResolvedValueOnce({ role: "admin", partnerAccountId: null } as never);
+    countUsers.mockResolvedValueOnce(1);
+    await expect(setUserRole("staff-1", "manager")).resolves.toEqual({ error: "At least one active administrator must remain." });
+    expect(updateUser).not.toHaveBeenCalled();
   });
 
-  it("rejects a role that does not exist", async () => {
-    gs.mockResolvedValue({ user: { id: "a" } } as any);
-    fu.mockResolvedValue({ id: "a", role: "admin" } as any);
-    const res = await setUserRole("target", "owner" as any);
-    expect(res).toEqual({ error: "Invalid role" });
-    expect(upd).not.toHaveBeenCalled();
+  it("rejects unknown users and roles without updating data", async () => {
+    findUser.mockResolvedValueOnce(null);
+    await expect(setUserRole("missing", "manager")).resolves.toEqual({ error: "Profile not found" });
+    await expect(setUserRole("staff-1", "owner" as never)).resolves.toEqual({ error: "Invalid role" });
+    expect(updateUser).not.toHaveBeenCalled();
   });
 
-  it("blocks self-demotion from admin", async () => {
-    gs.mockResolvedValue({ user: { id: "a" } } as any);
-    fu.mockResolvedValue({ id: "a", role: "admin" } as any);
-    const res = await setUserRole("a", "manager");
-    expect(res).toEqual({ error: "Cannot remove your own admin role" });
-    expect(upd).not.toHaveBeenCalled();
+  it("allows assigning the Partner role", async () => {
+    updateUser.mockResolvedValueOnce({ id: "staff-1", role: "partner" } as never);
+    await expect(setUserRole("staff-1", "partner")).resolves.toMatchObject({ data: { role: "partner" } });
+    expect(updateUser).toHaveBeenCalledWith(expect.objectContaining({ data: { role: "partner" } }));
   });
 
-  describe("leaving the partner role", () => {
-    const accounts = prismadb.crm_Accounts as unknown as Record<string, jest.Mock>;
-
-    // requireRole reads the actor, then the action reads the target's old role.
-    function adminChanging(targetOldRole: string) {
-      gs.mockResolvedValue({ user: { id: "a" } } as any);
-      fu.mockResolvedValueOnce({ id: "a", role: "admin" } as any);
-      fu.mockResolvedValueOnce({ id: "p", role: targetOldRole, partnerAccountId: "own-1" } as any);
-      upd.mockResolvedValue({ id: "p", role: "user" } as any);
-    }
-
-    it("clears his own account and every account pointing at him, in one transaction, audited", async () => {
-      adminChanging("partner");
-      accounts.findMany.mockResolvedValue([{ id: "acc-1" }, { id: "acc-2" }]);
-      accounts.updateMany.mockResolvedValue({ count: 2 });
-
-      const res = await setUserRole("p", "user");
-      expect(res).toEqual({ data: expect.objectContaining({ id: "p" }) });
-      expect(prismadb.$transaction).toHaveBeenCalledTimes(1);
-      expect(upd.mock.calls[0]![0]!.data).toEqual({ role: "user", partnerAccountId: null });
-      expect(accounts.updateMany).toHaveBeenCalledWith({
-        where: { partnerUserId: "p" },
-        data: { partnerUserId: null, updatedBy: "a" },
-      });
-      expect(writeAuditLog).toHaveBeenCalledWith(expect.objectContaining({
-        entityType: "user", entityId: "p", action: "updated", userId: "a",
-        changes: [
-          { field: "role", old: "partner", new: "user" },
-          { field: "partnerAccountId", old: "own-1", new: null },
-        ],
-      }));
-      for (const id of ["acc-1", "acc-2"]) {
-        expect(writeAuditLog).toHaveBeenCalledWith(expect.objectContaining({
-          entityType: "account", entityId: id, action: "updated", userId: "a",
-          changes: [{ field: "partnerUserId", old: "p", new: null }],
-        }));
-      }
+  it("clears partner account links atomically and audits them when leaving Partner", async () => {
+    findUser.mockResolvedValueOnce({ role: "partner", partnerAccountId: "own-account" } as never);
+    (prismadb.crm_Accounts.findMany as jest.Mock).mockResolvedValue([{ id: "linked-account" }]);
+    updateUser.mockResolvedValueOnce({ id: "staff-1", role: "user" } as never);
+    await expect(setUserRole("staff-1", "user")).resolves.toMatchObject({ data: { role: "user" } });
+    expect(prismadb.$transaction).toHaveBeenCalledTimes(1);
+    expect(prismadb.crm_Accounts.updateMany).toHaveBeenCalledWith({
+      where: { partnerUserId: "staff-1" }, data: { partnerUserId: null, updatedBy: "admin-1" },
     });
+    expect(updateUser).toHaveBeenCalledWith(expect.objectContaining({ data: { role: "user", partnerAccountId: null } }));
+    expect(writeAuditLog).toHaveBeenCalledWith(expect.objectContaining({
+      entityType: "user", entityId: "staff-1", changes: [
+        { field: "role", old: "partner", new: "user" },
+        { field: "partnerAccountId", old: "own-account", new: null },
+      ],
+    }));
+    expect(writeAuditLog).toHaveBeenCalledWith(expect.objectContaining({
+      entityType: "account", entityId: "linked-account",
+      changes: [{ field: "partnerUserId", old: "staff-1", new: null }],
+    }));
+  });
 
-    it("leaves partner links alone for other role changes", async () => {
-      adminChanging("user");
-      await setUserRole("p", "manager");
-      expect(prismadb.$transaction).not.toHaveBeenCalled();
-      expect(accounts.updateMany).not.toHaveBeenCalled();
-      expect(upd.mock.calls[0]![0]!.data).toEqual({ role: "manager" });
-    });
+  it("does not clear partner links for a role change unrelated to Partner", async () => {
+    await setUserRole("staff-1", "manager");
+    expect(prismadb.$transaction).not.toHaveBeenCalled();
+    expect(prismadb.crm_Accounts.updateMany).not.toHaveBeenCalled();
   });
 });

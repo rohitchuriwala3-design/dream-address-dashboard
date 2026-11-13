@@ -22,8 +22,8 @@ import { changeStatus, decideApproval, submitOrder } from "@/lib/orders/workflow
 const rep = { id: "rep", role: "user" as const };
 const manager = { id: "m", role: "manager" as const };
 const line = (over = {}) => ({ productId: "p1", quantity: new Decimal(1), unitPrice: new Decimal(49), unitPriceOverridden: false, listPrice: new Decimal(49), ...over });
-const order = (over = {}) => ({ id: "o1", number: "ORD-2026-0001", status: "DRAFT", source: "CRM", createdBy: "rep", externalRef: null, accountId: "acc", priceListId: "L", currency: "CCC", lines: [line()], ...over });
-const listPrice = (v: string) => (getPrice as jest.Mock).mockResolvedValue({ price: new Decimal(v), currency: "CCC", listPrice: new Decimal(100), ruleId: "r", steps: [] });
+const order = (over = {}) => ({ id: "o1", number: "ORD-2026-0001", status: "DRAFT", source: "CRM", createdBy: "rep", externalRef: null, accountId: "acc", priceListId: "L", currency: "INR", lines: [line()], ...over });
+const listPrice = (v: string) => (getPrice as jest.Mock).mockResolvedValue({ price: new Decimal(v), currency: "INR", listPrice: new Decimal(100), ruleId: "r", steps: [] });
 
 beforeEach(() => {
   jest.clearAllMocks();

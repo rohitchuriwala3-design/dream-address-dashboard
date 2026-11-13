@@ -2,6 +2,8 @@
 
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
+import { verifyPassword } from "better-auth/crypto";
+import { prismadb } from "@/lib/prisma";
 import { writeAuditLog } from "@/lib/audit-log";
 import { revalidatePath } from "next/cache";
 import {
@@ -26,6 +28,16 @@ export async function resetUserPassword(userId: string, newPassword: string) {
   }
 
   try {
+    // Better Auth owns credential hashing. Verify against its existing hash
+    // before asking Better Auth to hash and save the replacement.
+    const credential = await prismadb.account.findFirst({
+      where: { userId, providerId: "credential" },
+      select: { password: true },
+    });
+    if (credential?.password && await verifyPassword({ hash: credential.password, password: newPassword })) {
+      return { error: "Choose a password you have not used before." };
+    }
+
     await auth.api.setUserPassword({
       body: { userId, newPassword },
       headers: await headers(),
@@ -40,7 +52,11 @@ export async function resetUserPassword(userId: string, newPassword: string) {
     revalidatePath("/[locale]/(routes)/admin/users", "page");
     return { success: true };
   } catch (error) {
-    console.error("[ADMIN_RESET_USER_PASSWORD] Password reset failed.");
+    const errorType = error instanceof Error ? error.name : "UnknownError";
+    const statusCode = typeof error === "object" && error !== null && "status" in error && typeof error.status === "number"
+      ? error.status
+      : undefined;
+    console.error("[ADMIN_RESET_USER_PASSWORD] Password reset failed.", { errorType, statusCode });
     return { error: "Password reset failed. Please retry or contact support." };
   }
 }

@@ -27,6 +27,13 @@ export function ResetUserPasswordDialog({ userId, email, open, onOpenChange }: P
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const strength = password.length < 8
+    ? "Low — use at least 8 characters."
+    : password.length >= 14 && /[a-z]/.test(password) && /[A-Z]/.test(password) && /\d/.test(password) && /[^A-Za-z0-9]/.test(password)
+      ? "Strong"
+      : password.length >= 10 && /[a-zA-Z]/.test(password) && /\d/.test(password)
+        ? "Fair — a longer, less predictable password is safer."
+        : "Low — add length and a mix of letters, numbers, or symbols.";
 
   const reset = async () => {
     if (password.length < 8 || password.length > 128) {
@@ -69,12 +76,13 @@ export function ResetUserPasswordDialog({ userId, email, open, onOpenChange }: P
               id={`reset-password-${userId}`}
               type="password"
               autoComplete="new-password"
-              minLength={12}
+              minLength={8}
               maxLength={128}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               disabled={loading}
             />
+            {password && <p aria-live="polite" className={`text-xs ${password.length < 8 ? "text-destructive" : "text-muted-foreground"}`}>Password strength: {strength}</p>}
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor={`confirm-password-${userId}`}>Confirm password</Label>
@@ -82,7 +90,7 @@ export function ResetUserPasswordDialog({ userId, email, open, onOpenChange }: P
               id={`confirm-password-${userId}`}
               type="password"
               autoComplete="new-password"
-              minLength={12}
+              minLength={8}
               maxLength={128}
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
@@ -94,7 +102,7 @@ export function ResetUserPasswordDialog({ userId, email, open, onOpenChange }: P
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
             Cancel
           </Button>
-          <Button onClick={reset} disabled={loading || !password || !confirmPassword}>
+          <Button onClick={reset} disabled={loading || password.length < 8 || !confirmPassword}>
             {loading ? "Saving…" : "Reset password"}
           </Button>
         </DialogFooter>
