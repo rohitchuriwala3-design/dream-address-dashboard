@@ -16,6 +16,31 @@ async function requireAdmin() {
   }
 }
 
+function getSafeSheetsFailure(error: unknown) {
+  const candidate = error as {
+    code?: unknown;
+    response?: {
+      status?: unknown;
+      data?: { error?: { status?: unknown; errors?: Array<{ reason?: unknown }> } };
+    };
+  };
+  const statusCode = Number(candidate?.response?.status ?? candidate?.code);
+  const reason = String(candidate?.response?.data?.error?.errors?.[0]?.reason ?? candidate?.response?.data?.error?.status ?? "");
+  const safeReasons = new Set(["invalid_grant", "access_denied", "insufficientPermissions", "notFound", "rateLimitExceeded", "authError", "forbidden"]);
+  return {
+    statusCode: Number.isFinite(statusCode) ? statusCode : undefined,
+    reason: safeReasons.has(reason) ? reason : undefined,
+  };
+}
+
+function sheetsFailureMessage(failure: ReturnType<typeof getSafeSheetsFailure>) {
+  if (failure.reason === "invalid_grant" || failure.reason === "authError") return "Google rejected the service-account key. Check that Render has the complete private_key PEM (not private_key_id), including intact BEGIN/END lines and newline formatting.";
+  if (failure.statusCode === 403 || failure.reason === "insufficientPermissions" || failure.reason === "forbidden") return "Google denied workbook access. Confirm the exact service-account email configured in Render is shared as Editor on the master workbook, and that the Google Sheets API is enabled for its Cloud project.";
+  if (failure.statusCode === 404 || failure.reason === "notFound") return "Google could not find this workbook for the configured service account. Confirm the workbook ID and sharing access.";
+  if (failure.statusCode === 429 || failure.reason === "rateLimitExceeded") return "Google Sheets rate limited the audit. Wait briefly and retry.";
+  return "Google Sheets read failed. Check the Render service-account key/email, Sheets API enablement, workbook ID, and workbook sharing.";
+}
+
 export async function getNexusSheetsStatus() {
   await requireAdmin();
   const config = getNexusSheetsConfiguration();
@@ -69,8 +94,9 @@ export async function runNexusSheetsReadOnlyAudit() {
     });
     return { runId: run.id, result };
   } catch (error) {
-    console.error("[runNexusSheetsReadOnlyAudit] Google Sheets read failed", error instanceof Error ? error.name : "unknown error");
-    const message = "Google Sheets read failed. Confirm the service account has read access to the master workbook and that the key is valid.";
+    const failure = getSafeSheetsFailure(error);
+    console.error("[runNexusSheetsReadOnlyAudit] Google Sheets read failed", failure);
+    const message = sheetsFailureMessage(failure);
     await prismadb.nexusSheetSyncRun.update({ where: { id: run.id }, data: { status: "FAILED", finishedAt: new Date(), error: message } });
     return { error: message, runId: run.id };
   }

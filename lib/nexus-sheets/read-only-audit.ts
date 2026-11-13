@@ -1,5 +1,4 @@
 import { google } from "googleapis";
-import { existsSync, readFileSync } from "node:fs";
 
 const REQUIRED_TABS = [
   { name: "Projects", keyHeaders: [["project id", "projectid"]], scanThroughColumn: "B" },
@@ -18,10 +17,6 @@ const REQUIRED_TABS = [
 const SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"];
 const MASTER_SPREADSHEET_ID = "1oJP7fqIGl48cUPq76XOogPQ-B5IfHHESt0JCTVpIW5o";
 const HEADER_SCAN_ROWS = 4;
-const RENDER_SERVICE_ACCOUNT_FILE = "/etc/secrets/sheet api key";
-
-type ServiceAccountCredentials = { client_email?: string; private_key?: string };
-
 function normalizePrivateKey(value: string | undefined) {
   const key = value?.trim().replace(/\\n/g, "\n");
   return key && /-----BEGIN (?:RSA )?PRIVATE KEY-----/.test(key) ? key : undefined;
@@ -30,25 +25,7 @@ function normalizePrivateKey(value: string | undefined) {
 function getServiceAccountCredentials() {
   const envEmail = process.env.NEXUS360_SHEETS_SERVICE_ACCOUNT_EMAIL?.trim();
   const envKey = normalizePrivateKey(process.env.NEXUS360_SHEETS_PRIVATE_KEY);
-  const filePath = process.env.NEXUS360_SHEETS_CREDENTIALS_FILE?.trim()
-    || process.env.GOOGLE_APPLICATION_CREDENTIALS?.trim()
-    || RENDER_SERVICE_ACCOUNT_FILE;
-
-  if (existsSync(filePath)) {
-    try {
-      const credentials = JSON.parse(readFileSync(filePath, "utf8")) as ServiceAccountCredentials;
-      const email = credentials.client_email?.trim() || envEmail;
-      const key = normalizePrivateKey(credentials.private_key) || envKey;
-      if (email && key) return { email, key };
-    } catch {
-      // Fall back to separately configured environment values without logging file contents.
-    }
-  }
-
-  return {
-    email: envEmail,
-    key: envKey,
-  };
+  return { email: envEmail, key: envKey };
 }
 
 export interface SheetAuditIssue {
@@ -74,7 +51,7 @@ export function getNexusSheetsConfiguration() {
     configured: Boolean(email && key),
     missing: [
       ...(!email ? ["NEXUS360_SHEETS_SERVICE_ACCOUNT_EMAIL"] : []),
-      ...(!key ? ["NEXUS360_SHEETS_PRIVATE_KEY or NEXUS360_SHEETS_CREDENTIALS_FILE"] : []),
+      ...(!key ? ["NEXUS360_SHEETS_PRIVATE_KEY"] : []),
     ],
   };
 }
