@@ -4,7 +4,7 @@ import { prismadb } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireRole, AuthenticationError, AuthorizationError } from "@/lib/authz";
-import { auditNexusMasterSheet, getNexusSheetsConfiguration } from "@/lib/nexus-sheets/read-only-audit";
+import { auditNexusMasterSheet, getNexusSheetsConfiguration, runNexusSheetsSyncLogWriteReadTest } from "@/lib/nexus-sheets/read-only-audit";
 import { getNexusSheetTargetChoices, nexusSheetTargetExists, SHEET_ENTITY_OPTIONS } from "@/lib/nexus-sheets/crosswalk";
 import { writeAuditLog } from "@/lib/audit-log";
 
@@ -98,6 +98,55 @@ export async function runNexusSheetsReadOnlyAudit() {
     console.error("[runNexusSheetsReadOnlyAudit] Google Sheets read failed", failure);
     const message = sheetsFailureMessage(failure);
     await prismadb.nexusSheetSyncRun.update({ where: { id: run.id }, data: { status: "FAILED", finishedAt: new Date(), error: message } });
+    return { error: message, runId: run.id };
+  }
+}
+
+/**
+ * Writes one administrator-triggered connectivity-test row to the append-only
+ * Sync Log, then reads it back and verifies the completion marker. This is
+ * intentionally not a business-record sync and must not be labelled as such.
+ */
+export async function runNexusSheetsWriteReadTest() {
+  const actor = await requireAdmin();
+  const config = getNexusSheetsConfiguration();
+  const run = await prismadb.nexusSheetSyncRun.create({
+    data: { actorId: actor.id, mode: "SYNC_LOG_WRITE_READ_TEST", status: "RUNNING" },
+    select: { id: true },
+  });
+  if (!config.configured) {
+    const error = `Missing ${config.missing.join(" and ")}.`;
+    await prismadb.nexusSheetSyncRun.update({ where: { id: run.id }, data: { status: "CONFIGURATION_REQUIRED", finishedAt: new Date(), error } });
+    return { error, runId: run.id };
+  }
+
+  try {
+    const result = await runNexusSheetsSyncLogWriteReadTest({ runId: run.id, actorId: actor.id });
+    await prismadb.nexusSheetSyncRun.update({
+      where: { id: run.id },
+      data: {
+        status: "WRITE_READ_VERIFIED", finishedAt: new Date(), tabsScanned: 1, rowsScanned: 1,
+        issueCount: 0,
+        summary: {
+          spreadsheetTitle: result.spreadsheetTitle,
+          spreadsheetId: result.spreadsheetId,
+          sheetTab: result.sheetName,
+          verifiedLogRow: result.rowNumber,
+          writeReadback: "VERIFIED",
+          scope: "connectivity_test_only_no_business_records_synced",
+        },
+      },
+    });
+    revalidatePath("/admin/integrations/sheets");
+    return { runId: run.id, result };
+  } catch (error) {
+    const failure = getSafeSheetsFailure(error);
+    console.error("[runNexusSheetsWriteReadTest] Google Sheets write/read test failed", failure);
+    const message = error instanceof Error && error.message.startsWith("The Nexus360 Sync Log")
+      ? error.message
+      : sheetsFailureMessage(failure);
+    await prismadb.nexusSheetSyncRun.update({ where: { id: run.id }, data: { status: "FAILED", finishedAt: new Date(), error: message } });
+    revalidatePath("/admin/integrations/sheets");
     return { error: message, runId: run.id };
   }
 }
