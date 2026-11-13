@@ -190,7 +190,7 @@ export function AppSidebar({
         {/* Task 3.1: NavUser component with user profile and actions */}
         <NavUser
           user={userData}
-          canAccessCrm={canSee("crm")}
+          canAccessCrm={role !== "partner" && canSee("crm")}
           canAccessProjects={canSee("projects")}
         />
       </SidebarFooter>

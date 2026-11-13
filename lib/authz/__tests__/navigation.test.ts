@@ -21,10 +21,13 @@ describe("permission-based module navigation", () => {
     expect(canSeeNavigationModule("user", ["projects.view"], "documents")).toBe(true);
   });
 
-  it("keeps the existing admin and partner navigation behavior", () => {
-    for (const role of ["admin", "partner"]) {
-      expect(canSeeNavigationModule(role, [], "crm")).toBe(true);
-      expect(canSeeNavigationModule(role, [], "finance")).toBe(true);
-    }
+  it("keeps admin full access and limits partners to their scoped CRM workspace", () => {
+    expect(canSeeNavigationModule("admin", [], "finance")).toBe(true);
+    expect(canSeeNavigationModule("admin", [], "plugins")).toBe(true);
+    expect(canSeeNavigationModule("partner", [], "dashboard")).toBe(true);
+    expect(canSeeNavigationModule("partner", [], "crm")).toBe(true);
+    expect(canSeeNavigationModule("partner", [], "finance")).toBe(false);
+    expect(canSeeNavigationModule("partner", [], "projects")).toBe(false);
+    expect(canSeeNavigationModule("partner", [], "reports")).toBe(false);
   });
 });

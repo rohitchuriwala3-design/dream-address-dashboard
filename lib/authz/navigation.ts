@@ -18,7 +18,8 @@ export function canSeeNavigationModule(
   permissions: readonly NexusPermission[],
   module: NavigationModule,
 ): boolean {
-  if (role === "admin" || role === "partner") return true;
+  if (role === "admin") return true;
+  if (role === "partner") return module === "dashboard" || module === "crm";
 
   switch (module) {
     case "dashboard":
