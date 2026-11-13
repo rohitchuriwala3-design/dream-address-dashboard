@@ -72,12 +72,19 @@ The cumulative focused profile/invoice/tax/Orders/product/vendor regression batc
 
 #### Phase 1 currency and integration recheck — 2026-11-13
 
-**Status: source checks pass; staging rollout and full sync remain unverified.** New and edited V1 financial paths now enforce INR, report totals do not convert unsupported historical amounts, opportunity tables flag those amounts for review, and a new database migration disables other currency rows and clears exchange-rate data. The recurring exchange-rate worker was removed. An exact source scan found no removed currency codes or symbols outside the already-applied historical seed migration; that old migration is preserved so Prisma's recorded migration history is not rewritten.
+**Status: source checks pass; INR batch is live on staging; full sync remains unavailable.** New and edited V1 financial paths now enforce INR, report totals do not convert unsupported historical amounts, opportunity tables flag those amounts for review, and a database migration disables other currency rows and clears exchange-rate data. The recurring exchange-rate worker was removed. An exact source scan found no removed currency codes or symbols outside the historical seed migration; that migration is preserved so Prisma's recorded migration history is not rewritten.
 
 - Read the full active Master workbook (25 tabs), Final Invoices workbook (11 tabs), and IC quotations workbook (8 tabs). No targeted currency code or old-currency number format was found. A material/brand label containing “Europratik” is a product name rather than currency data and was left intact.
-- Staging's admin connection page still reports missing service-account variables and a read-only audit/crosswalk foundation; no two-way write path exists. Always check this state after website or Sheet changes. Once implemented, test both directions and reconcile IDs, values, timestamps, retries and duplicates.
-- Local checks for this source batch: TypeScript passed, ESLint passed, 44 focused tests passed across 7 suites, and the optimized Next build passed with temporary local-only environment placeholders. The full Jest run is blocked because the configured database host is unreachable; the migration has not been applied and this batch has not been deployed to staging.
+- Deployment `dep-dbr3m5d9el5s73bn3upg` for commit `e217c88` is live on isolated staging. `/api/health` returns 200 with `database: ok`; unauthenticated admin route requests redirect to sign-in. Authenticated verification of persisted regional settings remains open.
+- The admin integration check continues to report missing service-account variables and only a read-only audit/crosswalk foundation; there is no app-to-Sheet write path or dual-sync. Always recheck this state after website or Sheet changes. Once implemented, test both directions and reconcile IDs, values, timestamps, retries and duplicates.
+- Local checks for this source batch: TypeScript passed, ESLint passed, 44 focused tests passed across 7 suites, and the optimized Next build passed with temporary local-only environment placeholders. The full Jest run is blocked because the configured local database host is unreachable. Staging health confirms its database is reachable.
 - Keep the Phase 1 health score at **59/100** until staging confirms persisted INR settings, the authenticated user workflow, and earlier-phase regression gates. This does not satisfy the 95-point release gate.
+
+#### Admin users hydration defect — 2026-11-13
+
+- Fixed the admin user table’s time-dependent server/client markup that triggered React hydration error #418. Timestamps now render in stable IST formatting, and a user without a login timestamp displays “Never” instead of a fabricated “now”.
+- Focused India-time tests (2/2), ESLint, TypeScript, and optimized Next production build pass. The repository `build` script itself requires `DATABASE_URL` and runs migrations; the separate optimized build used local-only placeholders and did not apply migrations.
+- Staging deployment and live Chrome verification remain pending. After deployment, check that the admin user page loads without hydration errors and recheck that the Sheet integration still clearly reports its missing credentials/read-only status; there is still no two-way sync.
 
 ### Phase 2 — Build dependable finance and expense accounting
 

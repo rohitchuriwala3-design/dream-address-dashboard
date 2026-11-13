@@ -1,6 +1,6 @@
 "use client";
 
-import moment from "moment";
+import { useSyncExternalStore } from "react";
 
 import { ColumnDef } from "@tanstack/react-table";
 
@@ -9,6 +9,30 @@ import { AdminUser } from "../table-data/schema";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { formatDistanceToNowStrict } from "date-fns";
+import { formatIndiaDateTime } from "@/lib/india-time";
+
+const subscribeToHydration = () => () => undefined;
+const getHydratedSnapshot = () => true;
+const getServerHydrationSnapshot = () => false;
+
+function LastLoginCell({ value }: { value: Date | null | undefined }) {
+  const hydrated = useSyncExternalStore(
+    subscribeToHydration,
+    getHydratedSnapshot,
+    getServerHydrationSnapshot,
+  );
+
+  if (!value) return <div className="min-w-[150px]">Never</div>;
+
+  const lastLoginAt = new Date(value);
+  return (
+    <div className="min-w-[150px]" title={formatIndiaDateTime(lastLoginAt)}>
+      {hydrated
+        ? formatDistanceToNowStrict(lastLoginAt, { addSuffix: true })
+        : formatIndiaDateTime(lastLoginAt)}
+    </div>
+  );
+}
 
 export const columns: ColumnDef<AdminUser>[] = [
   /*   {
@@ -27,7 +51,7 @@ export const columns: ColumnDef<AdminUser>[] = [
     ),
     cell: ({ row }) => (
       <div className="w-[130px]">
-        {moment(row.getValue("created_on")).format("YYYY/MM/DD-HH:mm")}
+        {formatIndiaDateTime(row.getValue("created_on"))}
       </div>
     ),
     enableSorting: true,
@@ -38,17 +62,7 @@ export const columns: ColumnDef<AdminUser>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Last login" />
     ),
-    cell: ({ row }) => (
-      <div className="min-w-[150px]">
-        {/*   {moment(row.getValue("lastLoginAt")).format("YYYY/MM/DD-HH:mm")} */}
-        {formatDistanceToNowStrict(
-          new Date(row.original.lastLoginAt || new Date()),
-          {
-            addSuffix: true,
-          }
-        )}
-      </div>
-    ),
+    cell: ({ row }) => <LastLoginCell value={row.original.lastLoginAt} />,
     enableSorting: false,
     enableHiding: false,
   },
