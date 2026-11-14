@@ -107,13 +107,17 @@ export async function BasicView({ data }: OppsViewProps) {
                   <div className="space-y-1">
                     <p className="text-sm font-medium leading-none">Email</p>
 
-                    <Link
-                      href={`mailto:${data.email}`}
-                      className="flex items-center  gap-5 text-sm text-muted-foreground"
-                    >
-                      {data.email}
-                      <EnvelopeClosedIcon />
-                    </Link>
+                    {data.email ? (
+                      <Link
+                        href={`mailto:${data.email}`}
+                        className="flex items-center gap-2 text-sm text-muted-foreground"
+                      >
+                        {data.email}
+                        <EnvelopeClosedIcon />
+                      </Link>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">Not provided</p>
+                    )}
                   </div>
                 </div>
                 <p className="pr-20"></p>
