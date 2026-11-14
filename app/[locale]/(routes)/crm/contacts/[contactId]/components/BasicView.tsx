@@ -25,6 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { EnrichButton } from "./EnrichButton";
 import { ContactDetailActions } from "./ContactDetailActions";
 import { getAllCrmData } from "@/actions/crm/get-crm-data";
+import { ContactNotes } from "./ContactNotes";
 
 interface OppsViewProps {
   data: any;
@@ -353,26 +354,7 @@ export async function BasicView({ data }: OppsViewProps) {
           </CardContent>
         </Card>
       </div>
-      <div>
-        {
-          //TODO: Add notes functionality
-          //TODO: Delete notes functionality
-        }
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle>Notes</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-1">
-              {data.notes.map((note: string) => (
-                <p className="text-sm text-muted-foreground" key={note}>
-                  {note}
-                </p>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <ContactNotes contactId={data.id} initialNotes={data.notes ?? []} />
     </div>
   );
 }

@@ -37,6 +37,7 @@ export const updateContact = async (data: {
   social_youtube?: string | null;
   social_tiktok?: string | null;
   contact_type_id?: string;
+  notes?: string[];
 }) => {
   const {
     id,
@@ -50,6 +51,12 @@ export const updateContact = async (data: {
   } = data;
 
   if (!id) return { error: "id is required" };
+  if (
+    data.notes &&
+    (data.notes.length > 200 || data.notes.some((note) => typeof note !== "string" || note.length > 5000))
+  ) {
+    return { error: "Contact notes must be 5,000 characters or less (maximum 200 notes)." };
+  }
 
   let user;
   try {
