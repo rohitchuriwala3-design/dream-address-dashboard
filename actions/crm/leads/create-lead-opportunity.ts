@@ -13,9 +13,41 @@ import {
 import { handleStageTransition } from "@/lib/crm/stage-transition";
 import { writeAuditLog } from "@/lib/audit-log";
 import { serializeDecimals } from "@/lib/serialize-decimals";
+import { z } from "zod";
+import { parseCrmDateOnly } from "@/lib/crm/date-only";
+import { validateOpportunityCustomFields } from "@/lib/crm/opportunities/field-settings";
+
+const startOpportunitySchema = z.object({
+  name: z.string().trim().max(180).optional(),
+  description: z.string().trim().max(10_000).optional(),
+  budget: z.string().trim().optional(),
+  expectedRevenue: z.string().trim().optional(),
+  closeDate: z.string().optional(),
+  deliveryDeadline: z.string().optional(),
+  salesStage: z.string().uuid().optional(),
+  type: z.string().uuid().optional(),
+  nextStep: z.string().trim().max(300).optional(),
+  nextStepDueAt: z.string().optional(),
+  customFields: z.record(z.string(), z.unknown()).optional(),
+}).superRefine((value, context) => {
+  for (const key of ["budget", "expectedRevenue"] as const) {
+    const amount = value[key];
+    if (amount && (!/^\d+(\.\d{1,2})?$/.test(amount) || Number(amount) > 100_000_000_000)) {
+      context.addIssue({ code: "custom", path: [key], message: "Enter a valid non-negative amount in INR." });
+    }
+  }
+  for (const key of ["closeDate", "deliveryDeadline", "nextStepDueAt"] as const) {
+    const date = value[key];
+    if (date) {
+      try { parseCrmDateOnly(date); } catch { context.addIssue({ code: "custom", path: [key], message: "Enter a valid date." }); }
+    }
+  }
+});
+
+export type StartLeadOpportunityInput = z.infer<typeof startOpportunitySchema>;
 
 /** Start the pre-closure job record for a prospect without creating a client account. */
-export async function createLeadOpportunity(leadId: string) {
+export async function createLeadOpportunity(leadId: string, input?: StartLeadOpportunityInput) {
   let user;
   try {
     user = await requirePermission("crm.manage", { partner: true });
@@ -27,6 +59,10 @@ export async function createLeadOpportunity(leadId: string) {
   }
 
   try {
+    const parsedInput = input ? startOpportunitySchema.safeParse(input) : null;
+    if (parsedInput && !parsedInput.success) return { error: "Check the opportunity details and enter valid values." };
+    const opportunityInput = parsedInput?.data;
+    const customFields = opportunityInput ? await validateOpportunityCustomFields(opportunityInput.customFields ?? {}) : undefined;
     const result = await prismadb.$transaction(async (tx) => {
       await tx.$queryRaw`SELECT "id" FROM "crm_Leads" WHERE "id" = ${leadId}::uuid FOR UPDATE`;
       const lead = await tx.crm_Leads.findFirst({
@@ -62,8 +98,16 @@ export async function createLeadOpportunity(leadId: string) {
         data: {
           sourceLeadId: lead.id,
           account: lead.accountsIDs ?? undefined,
-          name: `${lead.company?.trim() || fullName || "Residential client"} — interiors project`,
-          description: lead.description ?? undefined,
+          name: opportunityInput?.name || `${lead.company?.trim() || fullName || "Residential client"} — interiors project`,
+          description: (opportunityInput?.description || lead.description) ?? undefined,
+          customFields,
+          budget: opportunityInput?.budget ? Number(opportunityInput.budget) : undefined,
+          expected_revenue: opportunityInput?.expectedRevenue ? Number(opportunityInput.expectedRevenue) : undefined,
+          close_date: opportunityInput?.closeDate ? parseCrmDateOnly(opportunityInput.closeDate) : undefined,
+          delivery_deadline: opportunityInput?.deliveryDeadline ? parseCrmDateOnly(opportunityInput.deliveryDeadline) : undefined,
+          next_step: opportunityInput?.nextStep || undefined,
+          next_step_due_at: opportunityInput?.nextStepDueAt ? parseCrmDateOnly(opportunityInput.nextStepDueAt) : undefined,
+          type: opportunityInput?.type || undefined,
           assigned_to: lead.assigned_to || user.id,
           createdBy: user.id,
           updatedBy: user.id,
@@ -71,7 +115,7 @@ export async function createLeadOpportunity(leadId: string) {
           last_activity: new Date(),
           currency: "INR",
           snapshot_rate: 1,
-          sales_stage: firstStage?.id,
+          sales_stage: opportunityInput?.salesStage || firstStage?.id,
           stage_entered_at: new Date(),
           status: "ACTIVE",
         },

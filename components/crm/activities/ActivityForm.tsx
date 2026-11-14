@@ -154,7 +154,7 @@ export function ActivityForm({ open, onOpenChange, entityType, entityId, activit
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="activity-date">Date & Time (IST) *</Label>
+            <Label htmlFor="activity-date">Follow-up date &amp; time (IST) *</Label>
             <Input
               id="activity-date"
               type="datetime-local"

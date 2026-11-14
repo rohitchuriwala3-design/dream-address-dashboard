@@ -90,6 +90,7 @@ export function DataTableRowActions<TData>({
               saleStages={config.saleStages}
               campaigns={config.campaigns}
               currencies={[{ code: "INR", name: "Indian Rupee", symbol: "₹" }]}
+              customFields={config.customFields}
             />
           </div>
         </SheetContent>

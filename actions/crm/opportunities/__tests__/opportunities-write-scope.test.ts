@@ -21,6 +21,7 @@ jest.mock("@/lib/prisma", () => ({
       findUnique: jest.fn().mockResolvedValue({ id: "o-1", sales_stage: null, approval_status: "NONE" }),
       create: jest.fn().mockResolvedValue({ id: "o-1", sales_stage: null }),
     },
+    crm_SystemSettings: { findUnique: jest.fn().mockResolvedValue(null) },
     users: { findFirst: jest.fn().mockResolvedValue(null) },
   },
 }));

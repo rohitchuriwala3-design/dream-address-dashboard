@@ -6,8 +6,9 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { convertLead } from "@/actions/crm/leads/convert-lead";
-import { createLeadOpportunity } from "@/actions/crm/leads/create-lead-opportunity";
 import Link from "next/link";
+import { StartOpportunityForm } from "./StartOpportunityForm";
+import type { LeadCustomField } from "@/lib/crm/leads/field-settings-shared";
 import {
   Sheet,
   SheetContent,
@@ -26,6 +27,9 @@ interface LeadDetailActionsProps {
   leadStatuses: ConfigItem[];
   leadTypes: ConfigItem[];
   leadFieldSettings: LeadFieldSettings;
+  opportunityStages: ConfigItem[];
+  opportunityTypes: ConfigItem[];
+  opportunityCustomFields: LeadCustomField[];
 }
 
 export function LeadDetailActions({
@@ -34,10 +38,13 @@ export function LeadDetailActions({
   leadStatuses,
   leadTypes,
   leadFieldSettings,
+  opportunityStages,
+  opportunityTypes,
+  opportunityCustomFields,
 }: LeadDetailActionsProps) {
   const [updateOpen, setUpdateOpen] = useState(false);
+  const [opportunityOpen, setOpportunityOpen] = useState(false);
   const [converting, startConversion] = useTransition();
-  const [startingOpportunity, startOpportunity] = useTransition();
   const router = useRouter();
 
   const onConvert = () => startConversion(async () => {
@@ -51,21 +58,11 @@ export function LeadDetailActions({
     router.push(`/crm/opportunities/${result.opportunityId}`);
   });
 
-  const onStartOpportunity = () => startOpportunity(async () => {
-    const result = await createLeadOpportunity(lead.id);
-    if ("error" in result) {
-      toast.error(result.error);
-      return;
-    }
-    toast.success(result.created ? "Opportunity started; the lead remains pre-closure" : "Opportunity already exists");
-    router.push(`/crm/opportunities/${result.opportunity.id}`);
-  });
-
   return (
     <>
       {!lead?.convertedOpportunityId && !lead?.preClosureOpportunity && (
-        <Button size="sm" variant="secondary" onClick={onStartOpportunity} disabled={startingOpportunity}>
-          {startingOpportunity ? "Starting…" : "Start opportunity"}
+        <Button size="sm" variant="secondary" onClick={() => setOpportunityOpen(true)}>
+          Start opportunity
         </Button>
       )}
       {lead?.preClosureOpportunity && !lead?.convertedOpportunityId && (
@@ -99,6 +96,15 @@ export function LeadDetailActions({
           </div>
         </SheetContent>
       </Sheet>
+
+      <StartOpportunityForm
+        lead={lead}
+        stages={opportunityStages}
+        types={opportunityTypes}
+        customFields={opportunityCustomFields}
+        open={opportunityOpen}
+        onOpenChange={setOpportunityOpen}
+      />
 
       <Button variant="outline" size="sm" onClick={() => setUpdateOpen(true)} data-testid="lead-detail-actions-btn">
         <Pencil className="mr-2 h-4 w-4" aria-hidden="true" />Edit lead

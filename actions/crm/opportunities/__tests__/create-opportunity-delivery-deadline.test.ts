@@ -11,6 +11,7 @@ jest.mock("@/lib/authz", () => ({
 jest.mock("@/lib/prisma", () => ({
   prismadb: {
     crm_Opportunities: { create: jest.fn() },
+    crm_SystemSettings: { findUnique: jest.fn().mockResolvedValue(null) },
     users: { findFirst: jest.fn() },
   },
 }));

@@ -13,6 +13,7 @@ import moment from "moment";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/currency-format";
 import { Decimal } from "@prisma/client/runtime/client";
+import type { LeadCustomField } from "@/lib/crm/leads/field-settings-shared";
 
 type ConfigItem = { id: string; name: string };
 
@@ -20,6 +21,7 @@ export type OpportunityConfig = {
   saleTypes: ConfigItem[];
   saleStages: ConfigItem[];
   campaigns: ConfigItem[];
+  customFields: LeadCustomField[];
 };
 
 export const createColumns = (config: OpportunityConfig): ColumnDef<Opportunity>[] => [

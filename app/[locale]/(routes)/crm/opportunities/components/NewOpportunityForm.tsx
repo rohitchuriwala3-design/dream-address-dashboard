@@ -45,6 +45,7 @@ import {
 } from "@prisma/client";
 import { createOpportunity } from "@/actions/crm/opportunities/create-opportunity";
 import { useSession } from "@/lib/auth-client";
+import type { LeadCustomField } from "@/lib/crm/leads/field-settings-shared";
 
 //TODO: fix all the types
 type NewTaskFormProps = {
@@ -57,6 +58,7 @@ type NewTaskFormProps = {
   selectedStage?: string;
   accountId?: string;
   onDialogClose: () => void;
+  customFields?: LeadCustomField[];
 };
 
 export function NewOpportunityForm({
@@ -69,6 +71,7 @@ export function NewOpportunityForm({
   selectedStage,
   accountId,
   onDialogClose,
+  customFields = [],
 }: NewTaskFormProps) {
   const t = useTranslations("CrmOpportunityForm");
   const c = useTranslations("Common");
@@ -118,6 +121,7 @@ export function NewOpportunityForm({
     account: z.string(),
     contact: z.string(),
     campaign: z.string(),
+    customFields: z.record(z.string(), z.unknown()),
   });
 
   type NewAccountFormValues = z.infer<typeof formSchema>;
@@ -137,6 +141,7 @@ export function NewOpportunityForm({
       assigned_to: "",
       contact: "",
       campaign: "",
+      customFields: {},
       description: "",
       name: "",
     },
@@ -562,6 +567,20 @@ export function NewOpportunityForm({
             </div>
           </div>
         </div>
+        {customFields.some((field) => !field.hidden) && <section className="mb-5 space-y-3 rounded-lg border p-4">
+          <div><h3 className="text-sm font-semibold">Interior project details</h3><p className="text-xs text-muted-foreground">All configured scope fields are optional.</p></div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {customFields.filter((field) => !field.hidden).map((field) => {
+              const path = `customFields.${field.key}` as const;
+              const value = form.watch(path as never) as unknown;
+              return <FormItem key={field.key}><FormLabel>{field.label}</FormLabel>
+                {field.type === "select" ? <Select value={typeof value === "string" ? value : ""} onValueChange={(next) => form.setValue(path as never, next as never, { shouldDirty: true })}><SelectTrigger><SelectValue placeholder="Not specified" /></SelectTrigger><SelectContent>{field.options?.map((option) => <SelectItem key={option} value={option}>{option}</SelectItem>)}</SelectContent></Select>
+                  : field.type === "checkbox" ? <label className="flex min-h-10 items-center gap-2 text-sm"><input type="checkbox" checked={value === true} onChange={(event) => form.setValue(path as never, event.target.checked as never, { shouldDirty: true })} />Yes</label>
+                    : <Input type={field.type === "number" ? "number" : field.type === "date" ? "date" : "text"} min={field.type === "number" ? "0" : undefined} value={value == null ? "" : String(value)} onChange={(event) => form.setValue(path as never, (field.type === "number" ? event.target.value === "" ? "" : Number(event.target.value) : event.target.value) as never, { shouldDirty: true })} placeholder="Optional" />}
+              </FormItem>;
+            })}
+          </div>
+        </section>}
         <div className="grid gap-2 py-5">
           {form.formState.errors.root?.serverError && (
             <p className="text-sm text-destructive" aria-live="polite">

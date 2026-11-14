@@ -38,6 +38,7 @@ import { UserSearchCombobox } from "@/components/ui/user-search-combobox";
 import { AccountSearchCombobox } from "@/components/ui/account-search-combobox";
 import { updateOpportunity } from "@/actions/crm/opportunities/update-opportunity";
 import { toCrmDateOnly } from "@/lib/crm/date-only";
+import type { LeadCustomField } from "@/lib/crm/leads/field-settings-shared";
 
 type ConfigItem = { id: string; name: string };
 
@@ -48,6 +49,7 @@ type UpdateOpportunityFormProps = {
   saleStages: ConfigItem[];
   campaigns: ConfigItem[];
   currencies: { code: string; name: string; symbol: string }[];
+  customFields: LeadCustomField[];
 };
 
 export function UpdateOpportunityForm({
@@ -57,6 +59,7 @@ export function UpdateOpportunityForm({
   saleStages,
   campaigns,
   currencies,
+  customFields,
 }: UpdateOpportunityFormProps) {
   const t = useTranslations("CrmOpportunityForm");
   const c = useTranslations("Common");
@@ -80,6 +83,7 @@ export function UpdateOpportunityForm({
     account: z.string().nullable().optional(),
     contact: z.string().nullable().optional(),
     campaign: z.string().nullable().optional(),
+    customFields: z.record(z.string(), z.unknown()).optional(),
   });
 
   type NewAccountFormValues = z.infer<typeof formSchema>;
@@ -102,6 +106,7 @@ export function UpdateOpportunityForm({
       campaign: initialData.campaign ?? "",
       type: initialData.type ?? "",
       sales_stage: initialData.sales_stage ?? "",
+      customFields: (initialData.customFields as Record<string, unknown> | null) ?? {},
     },
   });
 
@@ -475,6 +480,21 @@ export function UpdateOpportunityForm({
             </div>
           </div>
         </div>
+        {customFields.some((field) => !field.hidden) && <section className="space-y-3 rounded-lg border p-4">
+          <div><h3 className="text-sm font-semibold">Interior project details</h3><p className="text-xs text-muted-foreground">All configured project scope fields are optional.</p></div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {customFields.filter((field) => !field.hidden).map((field) => {
+              const path = `customFields.${field.key}` as const;
+              const value = form.watch(path as never) as unknown;
+              return <FormItem key={field.key}>
+                <FormLabel>{field.label}</FormLabel>
+                {field.type === "select" ? <Select value={typeof value === "string" ? value : ""} onValueChange={(next) => form.setValue(path as never, next as never, { shouldDirty: true })}><SelectTrigger><SelectValue placeholder="Not specified" /></SelectTrigger><SelectContent>{field.options?.map((option) => <SelectItem key={option} value={option}>{option}</SelectItem>)}</SelectContent></Select>
+                  : field.type === "checkbox" ? <label className="flex min-h-10 items-center gap-2 text-sm"><input type="checkbox" checked={value === true} onChange={(event) => form.setValue(path as never, event.target.checked as never, { shouldDirty: true })} />Yes</label>
+                    : <Input type={field.type === "number" ? "number" : field.type === "date" ? "date" : "text"} min={field.type === "number" ? "0" : undefined} value={value == null ? "" : String(value)} onChange={(event) => form.setValue(path as never, (field.type === "number" ? event.target.value === "" ? "" : Number(event.target.value) : event.target.value) as never, { shouldDirty: true })} placeholder="Optional" />}
+              </FormItem>;
+            })}
+          </div>
+        </section>}
         <div className="grid gap-2 py-5">
           {form.formState.errors.root?.serverError && (
             <p className="text-sm text-destructive" aria-live="polite">

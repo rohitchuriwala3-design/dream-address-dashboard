@@ -17,6 +17,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { UpdateOpportunityForm } from "../../components/UpdateOpportunityForm";
+import type { LeadCustomField } from "@/lib/crm/leads/field-settings-shared";
 
 type ConfigItem = { id: string; name: string };
 
@@ -26,6 +27,7 @@ interface OpportunityDetailActionsProps {
   saleStages: ConfigItem[];
   campaigns: ConfigItem[];
   currencies: { code: string; name: string; symbol: string }[];
+  customFields: LeadCustomField[];
 }
 
 export function OpportunityDetailActions({
@@ -34,6 +36,7 @@ export function OpportunityDetailActions({
   saleStages,
   campaigns,
   currencies,
+  customFields,
 }: OpportunityDetailActionsProps) {
   const [updateOpen, setUpdateOpen] = useState(false);
 
@@ -53,6 +56,7 @@ export function OpportunityDetailActions({
               saleStages={saleStages}
               campaigns={campaigns}
               currencies={[{ code: "INR", name: "Indian Rupee", symbol: "₹" }]}
+              customFields={customFields}
             />
           </div>
         </SheetContent>

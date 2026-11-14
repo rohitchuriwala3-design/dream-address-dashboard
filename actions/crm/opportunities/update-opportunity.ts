@@ -7,6 +7,7 @@ import { writeAuditLog, diffObjects } from "@/lib/audit-log";
 import { handleStageTransition } from "@/lib/crm/stage-transition";
 import { qualifiedEntryBlockReason } from "@/lib/crm/approval-gate";
 import { parseCrmDateOnly } from "@/lib/crm/date-only";
+import { validateOpportunityCustomFields } from "@/lib/crm/opportunities/field-settings";
 import {
   requirePermission,
   assertCanWriteOpportunity,
@@ -35,6 +36,7 @@ export const updateOpportunity = async (data: {
   next_step_due_at?: string | null;
   sales_stage?: string;
   type?: string;
+  customFields?: Record<string, unknown>;
 }) => {
   const {
     id,
@@ -93,6 +95,7 @@ export const updateOpportunity = async (data: {
   }
 
   try {
+    const customFields = data.customFields === undefined ? undefined : await validateOpportunityCustomFields(data.customFields);
     const before = await prismadb.crm_Opportunities.findUnique({ where: { id, deletedAt: null } });
     if (before?.currency && before.currency !== "INR") return { error: "This historical opportunity needs an admin's INR review before editing" };
     if (currency && currency !== "INR" && currency !== before?.currency) {
@@ -119,6 +122,7 @@ export const updateOpportunity = async (data: {
         updatedBy: userId,
         currency: currency === "INR" ? "INR" : undefined,
         description,
+        customFields,
         expected_revenue: expected_revenue ? parseFloat(expected_revenue) : undefined,
         snapshot_rate: currency === "INR" ? 1 : undefined,
         name,

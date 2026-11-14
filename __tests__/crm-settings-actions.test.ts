@@ -148,7 +148,7 @@ describe("salesStage stage kinds", () => {
     (mockPrisma.crm_Opportunities_Sales_Stages.create as jest.Mock).mockResolvedValue({});
     await createConfigValue("salesStage", "Qualified Lead", "qualified");
     expect(mockPrisma.crm_Opportunities_Sales_Stages.create).toHaveBeenCalledWith({
-      data: { name: "Qualified Lead", v: 0, stage_kind: "qualified" },
+      data: { name: "Qualified Lead", v: 0, stage_kind: "qualified", order: 10, probability: 0 },
     });
   });
 

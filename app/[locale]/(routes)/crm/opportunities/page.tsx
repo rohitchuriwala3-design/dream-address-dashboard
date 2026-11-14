@@ -8,10 +8,11 @@ import { getAllCrmData } from "@/actions/crm/get-crm-data";
 import { getOpportunitiesFull } from "@/actions/crm/get-opportunities-with-includes";
 import { getTranslations } from "next-intl/server";
 import { serializeDecimalsList } from "@/lib/serialize-decimals";
+import { getOpportunityFieldSettings } from "@/lib/crm/opportunities/field-settings";
 
 const AccountsPage = async () => {
   const t = await getTranslations("CrmPage");
-  const crmData = await getAllCrmData();
+  const [crmData, fieldSettings] = await Promise.all([getAllCrmData(), getOpportunityFieldSettings()]);
   const opportunities = serializeDecimalsList(await getOpportunitiesFull());
 
   return (
@@ -20,7 +21,7 @@ const AccountsPage = async () => {
       description={t("opportunities.pageDescription")}
     >
       <Suspense fallback={<CrmTableSkeleton />}>
-        <OpportunitiesView crmData={crmData} data={opportunities} />
+        <OpportunitiesView crmData={crmData} data={opportunities} opportunityCustomFields={fieldSettings.customFields} />
       </Suspense>
     </Container>
   );

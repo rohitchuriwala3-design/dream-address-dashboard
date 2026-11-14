@@ -26,6 +26,7 @@ import { NewOpportunityForm } from "../opportunities/components/NewOpportunityFo
 import { OpportunitiesDataTable } from "../opportunities/table-components/data-table";
 
 import type { getAllCrmData } from "@/actions/crm/get-crm-data";
+import type { LeadCustomField } from "@/lib/crm/leads/field-settings-shared";
 
 type CrmData = Awaited<ReturnType<typeof getAllCrmData>>;
 
@@ -33,12 +34,14 @@ interface OpportunitiesViewProps {
   data: any[];
   crmData: CrmData;
   accountId?: string;
+  opportunityCustomFields?: LeadCustomField[];
 }
 
 const OpportunitiesView = ({
   data,
   crmData,
   accountId,
+  opportunityCustomFields = [],
 }: OpportunitiesViewProps) => {
   const [open, setOpen] = useState(false);
   const t = useTranslations("CrmPage");
@@ -48,6 +51,7 @@ const OpportunitiesView = ({
     saleTypes,
     saleStages,
     campaigns,
+    customFields: opportunityCustomFields,
   });
 
   return (
@@ -83,6 +87,7 @@ const OpportunitiesView = ({
                     currencies={[{ code: "INR", name: "Indian Rupee", symbol: "₹" }]}
                     accountId={accountId}
                     onDialogClose={() => setOpen(false)}
+                    customFields={opportunityCustomFields}
                   />
                 </div>
               </SheetContent>

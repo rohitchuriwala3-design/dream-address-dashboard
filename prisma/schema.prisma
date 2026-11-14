@@ -253,6 +253,7 @@ model crm_Opportunities {
   currency              String?                 @db.VarChar(3)
   snapshot_rate         Decimal?                @db.Decimal(18, 8)
   description           String?
+  customFields          Json                    @default("{}") @db.JsonB
   expected_revenue      Decimal                 @default(0) @db.Decimal(18, 2)
   name                  String?
   next_step             String?

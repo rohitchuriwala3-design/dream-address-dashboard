@@ -7,6 +7,7 @@ import { inngest } from "@/inngest/client";
 import { writeAuditLog } from "@/lib/audit-log";
 import { handleStageTransition } from "@/lib/crm/stage-transition";
 import { parseCrmDateOnly } from "@/lib/crm/date-only";
+import { validateOpportunityCustomFields } from "@/lib/crm/opportunities/field-settings";
 import {
   requirePermission,
   assertCanWriteAccount,
@@ -33,6 +34,7 @@ export const createOpportunity = async (data: {
   next_step_due_at?: string | null;
   sales_stage?: string;
   type?: string;
+  customFields?: Record<string, unknown>;
 }) => {
   const {
     account,
@@ -74,6 +76,13 @@ export const createOpportunity = async (data: {
   }
   const userId = user.id;
 
+  let customFields: Record<string, string | number | boolean>;
+  try {
+    customFields = await validateOpportunityCustomFields(data.customFields ?? {});
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Invalid opportunity fields." };
+  }
+
   let nextStepDueAt: Date | null | undefined;
   try {
     nextStepDueAt = parseCrmDateOnly(next_step_due_at);
@@ -99,6 +108,7 @@ export const createOpportunity = async (data: {
         updatedBy: userId,
         currency: "INR",
         description: description || undefined,
+        customFields,
         expected_revenue: expected_revenue ? parseFloat(expected_revenue) : undefined,
         snapshot_rate: 1,
         name,

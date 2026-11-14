@@ -32,6 +32,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { OpportunityOutcomeActions } from "./OpportunityOutcomeActions";
+import { getOpportunityFieldSettings } from "@/lib/crm/opportunities/field-settings";
 
 interface OppsViewProps {
   data: {
@@ -46,14 +47,19 @@ interface OppsViewProps {
 
 export async function BasicView({ data }: OppsViewProps) {
   //console.log(data, "data");
-  const users = await prismadb.users.findMany();
-  const crmData = await getAllCrmData();
+  const [users, crmData, fieldSettings] = await Promise.all([prismadb.users.findMany(), getAllCrmData(), getOpportunityFieldSettings()]);
   const { saleTypes, saleStages, campaigns } = crmData;
   if (!data) return <div>Opportunity not found</div>;
+
+  const customValues = data.customFields && typeof data.customFields === "object" && !Array.isArray(data.customFields)
+    ? data.customFields as Record<string, string | number | boolean | null>
+    : {};
+  const populatedCustomFields = fieldSettings.customFields.filter((field) => !field.hidden && customValues[field.key] != null && customValues[field.key] !== "");
 
   const fromCurrency = data.currency;
   const budgetAmount = new Decimal(data.budget?.toString() ?? "0");
   return (
+    <>
     <Card>
       <CardHeader className="pb-3">
         <div className="flex w-full min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -95,6 +101,7 @@ export async function BasicView({ data }: OppsViewProps) {
             saleStages={saleStages}
             campaigns={campaigns}
             currencies={[{ code: "INR", name: "Indian Rupee", symbol: "₹" }]}
+            customFields={fieldSettings.customFields}
           />
           </div>
         </div>
@@ -242,5 +249,15 @@ export async function BasicView({ data }: OppsViewProps) {
         </div>
       </CardContent>
     </Card>
+    {fieldSettings.customFields.some((field) => !field.hidden) && <Card>
+      <CardHeader className="pb-2"><CardTitle className="text-base">Interior project scope</CardTitle><CardDescription>Optional project details configured by your administrator.</CardDescription></CardHeader>
+      <CardContent className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+        {populatedCustomFields.length ? populatedCustomFields.map((field) => {
+          const value = customValues[field.key];
+          return <div key={field.key} className="rounded-md border px-3 py-2.5"><p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{field.label}</p><p className="mt-1 whitespace-pre-wrap break-words text-sm">{value == null || value === "" ? <span className="text-muted-foreground">Not specified</span> : typeof value === "boolean" ? value ? "Yes" : "No" : String(value)}</p></div>;
+        }) : <p className="text-sm text-muted-foreground sm:col-span-2 xl:col-span-3">No interior scope details recorded yet. Update this opportunity as the project discussion develops.</p>}
+      </CardContent>
+    </Card>}
+    </>
   );
 }

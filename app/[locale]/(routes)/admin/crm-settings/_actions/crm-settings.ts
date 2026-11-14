@@ -7,6 +7,8 @@ import { requireRole, AuthenticationError, AuthorizationError } from "@/lib/auth
 import { STAGE_KINDS, type StageKind } from "@/lib/crm/stage-kinds";
 import { withEffectiveStageOrder } from "@/lib/crm/stage-order";
 import { getLeadFieldSettings, saveLeadFieldSettings, sanitizeLeadFieldSettings, type LeadFieldSettings } from "@/lib/crm/leads/field-settings";
+import { getOpportunityFieldSettings, saveOpportunityFieldSettings, sanitizeOpportunityFieldSettings } from "@/lib/crm/opportunities/field-settings";
+import { getLeadStatusOrder, saveLeadStatusOrder } from "@/lib/crm/leads/status-order";
 
 async function ensureAdmin(): Promise<{ error: string } | null> {
   try {
@@ -67,6 +69,63 @@ export async function updateAdminLeadFieldSettings(input: unknown): Promise<void
   }
 
   await saveLeadFieldSettings(next);
+  revalidatePath("/", "layout");
+}
+
+export async function getAdminOpportunityFieldSettings() {
+  const denied = await ensureAdmin();
+  if (denied) throw new Error(denied.error);
+  return getOpportunityFieldSettings();
+}
+
+export async function updateAdminOpportunityFieldSettings(input: unknown): Promise<void> {
+  const denied = await ensureAdmin();
+  if (denied) throw new Error(denied.error);
+  const next = sanitizeOpportunityFieldSettings(input);
+  const raw = input && typeof input === "object" && Array.isArray((input as { customFields?: unknown }).customFields)
+    ? (input as { customFields: unknown[] }).customFields
+    : [];
+  if (next.customFields.length !== raw.length) throw new Error("Every custom opportunity field needs a unique name and valid field type and choices.");
+
+  const current = await getOpportunityFieldSettings();
+  for (const oldField of current.customFields.filter((field) => field.type === "select")) {
+    const newField = next.customFields.find((field) => field.key === oldField.key);
+    const removedOptions = (oldField.options ?? []).filter((option) => !newField?.options?.includes(option));
+    for (const option of removedOptions) {
+      const inUse = await (prisma.crm_Opportunities as any).findFirst({
+        where: { deletedAt: null, customFields: { path: [oldField.key], equals: option } },
+        select: { id: true },
+      });
+      if (inUse) throw new Error(`Cannot remove “${option}” from ${oldField.label}: existing opportunities still use this choice.`);
+    }
+  }
+
+  await saveOpportunityFieldSettings(next);
+  revalidatePath("/", "layout");
+}
+
+export async function getAdminLeadStatusOrder() {
+  const denied = await ensureAdmin();
+  if (denied) throw new Error(denied.error);
+  const [order, statuses] = await Promise.all([getLeadStatusOrder(), prisma.crm_Lead_Statuses.findMany({ select: { id: true } })]);
+  const allowed = new Set(statuses.map((status) => status.id));
+  return order.filter((id) => allowed.has(id));
+}
+
+export async function updateAdminLeadStatusOrder(input: unknown): Promise<void> {
+  const denied = await ensureAdmin();
+  if (denied) throw new Error(denied.error);
+  const [statuses, currentOrder] = await Promise.all([
+    prisma.crm_Lead_Statuses.findMany({ select: { id: true } }),
+    getLeadStatusOrder(),
+  ]);
+  const allowed = new Set(statuses.map((status) => status.id));
+  if (!Array.isArray(input) || input.some((item) => typeof item !== "string" || !allowed.has(item))) {
+    throw new Error("Select valid lead statuses in the desired path order.");
+  }
+  const selected = Array.from(new Set(input as string[]));
+  const ordered = [...selected, ...currentOrder.filter((id) => allowed.has(id) && !selected.includes(id)), ...statuses.map((status) => status.id).filter((id) => !selected.includes(id) && !currentOrder.includes(id))];
+  await saveLeadStatusOrder(ordered);
   revalidatePath("/", "layout");
 }
 
