@@ -42,6 +42,9 @@ describe("getOpportunity scope", () => {
     const res = await getOpportunity("o1");
     expect(res).toEqual({ id: "o1", name: "Big Deal" });
     expect(prismadb.crm_Opportunities.findFirst).toHaveBeenCalledTimes(2);
+    const detailQuery = (prismadb.crm_Opportunities.findFirst as jest.Mock).mock.calls[1][0];
+    expect(detailQuery.include.sourceLead.select.lead_source).toEqual({ select: { name: true } });
+    expect(detailQuery.include.assigned_campaings).toEqual({ select: { name: true } });
   });
 
   it("manager returns detail (assert where has no OR)", async () => {

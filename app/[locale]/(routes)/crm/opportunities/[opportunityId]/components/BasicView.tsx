@@ -39,6 +39,8 @@ interface OppsViewProps {
     assigned_to_user: { name: string };
     assigned_account: { name: string };
     assigned_type: { name: string };
+    sourceLead: { lead_source: { name: string } | null } | null;
+    assigned_campaings: { name: string } | null;
   } & crm_Opportunities;
 }
 
@@ -224,7 +226,7 @@ export async function BasicView({ data }: OppsViewProps) {
             <div className="space-y-1">
               <p className="text-sm font-medium leading-none">Lead source</p>
               <p className="text-sm text-muted-foreground">
-                Will be added in the future
+                {data.sourceLead?.lead_source?.name ?? "Not set"}
               </p>
             </div>
           </div>
@@ -233,7 +235,7 @@ export async function BasicView({ data }: OppsViewProps) {
             <div className="space-y-1">
               <p className="text-sm font-medium leading-none">Campaign</p>
               <p className="text-sm text-muted-foreground">
-                Will be added in the future
+                {data.assigned_campaings?.name ?? "Not set"}
               </p>
             </div>
           </div>
