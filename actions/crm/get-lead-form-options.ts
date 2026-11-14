@@ -3,7 +3,7 @@
 import { requirePermission } from "@/lib/authz";
 import { prismadb } from "@/lib/prisma";
 import { getLeadFieldSettings } from "@/lib/crm/leads/field-settings";
-import { getLeadStatusOrder } from "@/lib/crm/leads/status-order";
+import { getLeadStatusOrder, orderLeadStatuses } from "@/lib/crm/leads/status-order";
 
 export async function getLeadFormOptions() {
   await requirePermission("crm.view", { partner: true });
@@ -14,11 +14,6 @@ export async function getLeadFormOptions() {
     getLeadFieldSettings(),
     getLeadStatusOrder(),
   ]);
-  const orderIndex = new Map(statusOrder.map((id, index) => [id, index]));
-  const leadStatuses = rawLeadStatuses.sort((left, right) => {
-    const leftIndex = orderIndex.get(left.id) ?? Number.MAX_SAFE_INTEGER;
-    const rightIndex = orderIndex.get(right.id) ?? Number.MAX_SAFE_INTEGER;
-    return leftIndex - rightIndex || left.name.localeCompare(right.name);
-  });
+  const leadStatuses = orderLeadStatuses(rawLeadStatuses, statusOrder);
   return { leadSources, leadStatuses, leadTypes, leadFieldSettings };
 }

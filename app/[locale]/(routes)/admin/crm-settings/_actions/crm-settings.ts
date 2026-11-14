@@ -8,7 +8,7 @@ import { STAGE_KINDS, type StageKind } from "@/lib/crm/stage-kinds";
 import { withEffectiveStageOrder } from "@/lib/crm/stage-order";
 import { getLeadFieldSettings, saveLeadFieldSettings, sanitizeLeadFieldSettings, type LeadFieldSettings } from "@/lib/crm/leads/field-settings";
 import { getOpportunityFieldSettings, saveOpportunityFieldSettings, sanitizeOpportunityFieldSettings } from "@/lib/crm/opportunities/field-settings";
-import { getLeadStatusOrder, saveLeadStatusOrder } from "@/lib/crm/leads/status-order";
+import { getLeadStatusOrder, orderLeadStatuses, saveLeadStatusOrder } from "@/lib/crm/leads/status-order";
 
 async function ensureAdmin(): Promise<{ error: string } | null> {
   try {
@@ -107,9 +107,8 @@ export async function updateAdminOpportunityFieldSettings(input: unknown): Promi
 export async function getAdminLeadStatusOrder() {
   const denied = await ensureAdmin();
   if (denied) throw new Error(denied.error);
-  const [order, statuses] = await Promise.all([getLeadStatusOrder(), prisma.crm_Lead_Statuses.findMany({ select: { id: true } })]);
-  const allowed = new Set(statuses.map((status) => status.id));
-  return order.filter((id) => allowed.has(id));
+  const [order, statuses] = await Promise.all([getLeadStatusOrder(), prisma.crm_Lead_Statuses.findMany({ select: { id: true, name: true } })]);
+  return orderLeadStatuses(statuses, order).map((status) => status.id);
 }
 
 export async function updateAdminLeadStatusOrder(input: unknown): Promise<void> {
