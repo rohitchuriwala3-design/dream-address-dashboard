@@ -154,6 +154,16 @@ function OpportunityCard({ opportunity }: any) {
                 : "Not set"}
             </span>
           </div>
+          {opportunity.next_step?.trim() ? (
+            <div className="line-clamp-2">
+              <span>Next:</span> {opportunity.next_step}
+            </div>
+          ) : null}
+          <div>
+            Follow-up due: {opportunity.next_step_due_at
+              ? format(new Date(opportunity.next_step_due_at), "dd/MM/yyyy")
+              : "Not set"}
+          </div>
         </div>
       </CardContent>
       <CardFooter className="flex justify-start">
@@ -345,11 +355,12 @@ const CRMKanban = ({
 
   return (
     <>
-      <section aria-label="Opportunity pipeline summary" className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
+      <section aria-label="Opportunity pipeline summary" className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Open opportunities</p><p className="mt-1 text-2xl font-semibold">{metrics.openCount}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Expected pipeline</p><p className="mt-1 text-lg font-semibold">{formatINR(metrics.pipelineValue)}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Probability weighted</p><p className="mt-1 text-lg font-semibold">{formatINR(metrics.weightedValue)}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Missing next step</p><p className="mt-1 text-2xl font-semibold">{metrics.missingNextStep}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Follow-up overdue</p><p className="mt-1 text-2xl font-semibold">{metrics.overdueFollowUps}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Past expected close</p><p className="mt-1 text-2xl font-semibold">{metrics.overdueCloseDates}</p></CardContent></Card>
       </section>
       <Dialog open={isDialogOpen} onOpenChange={() => setIsDialogOpen(false)}>

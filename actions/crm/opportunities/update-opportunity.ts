@@ -6,6 +6,7 @@ import { inngest } from "@/inngest/client";
 import { writeAuditLog, diffObjects } from "@/lib/audit-log";
 import { handleStageTransition } from "@/lib/crm/stage-transition";
 import { qualifiedEntryBlockReason } from "@/lib/crm/approval-gate";
+import { parseCrmDateOnly } from "@/lib/crm/date-only";
 import {
   requirePermission,
   assertCanWriteOpportunity,
@@ -31,6 +32,7 @@ export const updateOpportunity = async (data: {
   expected_revenue?: string;
   name?: string;
   next_step?: string;
+  next_step_due_at?: string | null;
   sales_stage?: string;
   type?: string;
 }) => {
@@ -48,6 +50,7 @@ export const updateOpportunity = async (data: {
     expected_revenue,
     name,
     next_step,
+    next_step_due_at,
     sales_stage,
     type,
   } = data;
@@ -82,6 +85,13 @@ export const updateOpportunity = async (data: {
   }
   const userId = user.id;
 
+  let nextStepDueAt: Date | null | undefined;
+  try {
+    nextStepDueAt = parseCrmDateOnly(next_step_due_at);
+  } catch {
+    return { error: "Enter a valid next-step due date." };
+  }
+
   try {
     const before = await prismadb.crm_Opportunities.findUnique({ where: { id, deletedAt: null } });
     if (before?.currency && before.currency !== "INR") return { error: "This historical opportunity needs an admin's INR review before editing" };
@@ -113,6 +123,7 @@ export const updateOpportunity = async (data: {
         snapshot_rate: currency === "INR" ? 1 : undefined,
         name,
         next_step,
+        next_step_due_at: nextStepDueAt,
         sales_stage: sales_stage || undefined,
         // Editing an opportunity must never silently reopen a Won/Lost/Inactive
         // record. Reopening, if productized later, must be an explicit audited action.

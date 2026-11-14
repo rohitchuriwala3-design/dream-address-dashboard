@@ -121,6 +121,19 @@ describe("createOpportunity", () => {
     expect(assertAccount).not.toHaveBeenCalled();
     expect(oCreate).toHaveBeenCalled();
   });
+
+  it("stores a valid next-step due date as a date-only value", async () => {
+    await createOpportunity({ name: "X", next_step_due_at: "2026-11-20" } as any);
+    expect(oCreate).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ next_step_due_at: new Date("2026-11-20T00:00:00.000Z") }),
+    }));
+  });
+
+  it("rejects an invalid next-step due date before creating an opportunity", async () => {
+    const result = await createOpportunity({ name: "X", next_step_due_at: "2026-02-30" } as any);
+    expect(result).toEqual({ error: "Enter a valid next-step due date." });
+    expect(oCreate).not.toHaveBeenCalled();
+  });
 });
 
 describe("createOpportunity campaign", () => {
@@ -177,6 +190,15 @@ describe("updateOpportunity campaign", () => {
     expect(res).not.toHaveProperty("error");
     expect(assertCampaign).not.toHaveBeenCalled();
     expect(oUpdate).toHaveBeenCalled();
+  });
+});
+
+describe("updateOpportunity next-step date", () => {
+  it("clears a due date when the user clears the date field", async () => {
+    await updateOpportunity({ id: "o-1", next_step_due_at: "" } as any);
+    expect(oUpdate).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ next_step_due_at: null }),
+    }));
   });
 });
 

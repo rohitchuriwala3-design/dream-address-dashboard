@@ -72,6 +72,7 @@ export const getLead = async (leadId: string) => {
           budget: true,
           expected_revenue: true,
           next_step: true,
+          next_step_due_at: true,
           sales_stage: true,
           assigned_sales_stage: { select: { name: true } },
           _count: { select: { quoteRevisions: true } },

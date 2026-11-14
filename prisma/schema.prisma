@@ -255,6 +255,7 @@ model crm_Opportunities {
   expected_revenue      Decimal                 @default(0) @db.Decimal(18, 2)
   name                  String?
   next_step             String?
+  next_step_due_at      DateTime?               @db.Date
   sales_stage           String?                 @db.Uuid
   type                  String?                 @db.Uuid
   status                crm_Opportunity_Status? @default(ACTIVE)
@@ -287,6 +288,7 @@ model crm_Opportunities {
   @@index([status])
   @@index([createdAt])
   @@index([close_date])
+  @@index([next_step_due_at])
   @@index([status, sales_stage])
   @@index([deletedAt])
 }

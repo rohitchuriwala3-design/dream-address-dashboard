@@ -113,6 +113,7 @@ export function NewOpportunityForm({
     currency: z.string(),
     expected_revenue: z.string(),
     next_step: z.string(),
+    next_step_due_at: z.string(),
     assigned_to: z.string(),
     account: z.string(),
     contact: z.string(),
@@ -132,6 +133,7 @@ export function NewOpportunityForm({
       currency: "",
       expected_revenue: "",
       next_step: "",
+      next_step_due_at: "",
       assigned_to: "",
       contact: "",
       campaign: "",
@@ -162,6 +164,7 @@ export function NewOpportunityForm({
         currency: "",
         expected_revenue: "",
         next_step: "",
+        next_step_due_at: "",
         assigned_to: "",
         account: "",
         contact: "",
@@ -423,6 +426,19 @@ export function NewOpportunityForm({
                           placeholder={t("nextStepPlaceholder")}
                           {...field}
                         />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="next_step_due_at"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Next step due date</FormLabel>
+                      <FormControl>
+                        <Input type="date" disabled={form.formState.isSubmitting} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

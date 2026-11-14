@@ -46,6 +46,7 @@ interface LeadDetailData {
     budget: string | number;
     expected_revenue: string | number;
     next_step: string | null;
+    next_step_due_at: Date | string | null;
     assigned_sales_stage?: { name: string } | null;
     _count: { quoteRevisions: number };
   } | null;
@@ -183,6 +184,7 @@ export async function BasicView({ data }: Props) {
             <DetailItem icon={Landmark} label="Expected job value" value={formatINR(Number(data.preClosureOpportunity.expected_revenue) || Number(data.preClosureOpportunity.budget) || 0)} />
             <DetailItem icon={FileText} label="Quote revisions" value={String(data.preClosureOpportunity._count.quoteRevisions)} />
             <DetailItem icon={CalendarDays} label="Next step" value={data.preClosureOpportunity.next_step} />
+            <DetailItem icon={CalendarDays} label="Next step due" value={formatDate(data.preClosureOpportunity.next_step_due_at)} />
           </CardContent>
         </Card>
       )}

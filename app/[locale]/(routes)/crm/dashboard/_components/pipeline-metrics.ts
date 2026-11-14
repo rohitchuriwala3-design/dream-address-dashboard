@@ -1,9 +1,12 @@
+import { toCrmDateOnly } from "@/lib/crm/date-only";
+
 type OpportunityForMetrics = {
   status?: string | null;
   sales_stage?: string | null;
   expected_revenue?: unknown;
   budget?: unknown;
   next_step?: string | null;
+  next_step_due_at?: Date | string | null;
   close_date?: Date | string | null;
 };
 
@@ -16,10 +19,12 @@ export function getPipelineMetrics(
 ) {
   const active = opportunities.filter((opportunity) => opportunity.status === "ACTIVE");
   const probabilities = new Map(stages.map((stage) => [stage.id, Number(stage.probability) || 0]));
+  const todayInKolkata = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata" }).format(now);
   let pipelineValue = 0;
   let weightedValue = 0;
   let missingNextStep = 0;
   let overdueCloseDates = 0;
+  let overdueFollowUps = 0;
 
   for (const opportunity of active) {
     const expected = Number(opportunity.expected_revenue);
@@ -34,11 +39,13 @@ export function getPipelineMetrics(
     weightedValue += value * probability / 100;
 
     if (!opportunity.next_step?.trim()) missingNextStep += 1;
+    const nextStepDue = toCrmDateOnly(opportunity.next_step_due_at);
+    if (nextStepDue && nextStepDue < todayInKolkata) overdueFollowUps += 1;
     if (opportunity.close_date) {
       const closeDate = new Date(opportunity.close_date);
       if (!Number.isNaN(closeDate.getTime()) && closeDate < now) overdueCloseDates += 1;
     }
   }
 
-  return { openCount: active.length, pipelineValue, weightedValue, missingNextStep, overdueCloseDates };
+  return { openCount: active.length, pipelineValue, weightedValue, missingNextStep, overdueCloseDates, overdueFollowUps };
 }

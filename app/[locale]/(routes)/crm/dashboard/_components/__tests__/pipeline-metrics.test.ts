@@ -20,6 +20,7 @@ describe("getPipelineMetrics", () => {
       weightedValue: 40000,
       missingNextStep: 1,
       overdueCloseDates: 0,
+      overdueFollowUps: 0,
     });
   });
 
@@ -51,5 +52,20 @@ describe("getPipelineMetrics", () => {
 
     expect(result.pipelineValue).toBe(100);
     expect(result.weightedValue).toBe(0);
+  });
+
+  it("counts only follow-ups before today in Kolkata and excludes closed deals", () => {
+    const result = getPipelineMetrics(
+      [
+        { status: "ACTIVE", next_step_due_at: "2026-11-13" },
+        { status: "ACTIVE", next_step_due_at: new Date("2026-11-14T00:00:00.000Z") },
+        { status: "ACTIVE", next_step_due_at: "2026-11-15" },
+        { status: "WON", next_step_due_at: "2026-11-12" },
+      ],
+      [],
+      now,
+    );
+
+    expect(result.overdueFollowUps).toBe(1);
   });
 });

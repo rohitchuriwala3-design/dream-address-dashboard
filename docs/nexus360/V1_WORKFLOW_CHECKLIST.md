@@ -136,10 +136,12 @@ Research basis: this is documented in [MARK IV V1 Data & Relationship Blueprint]
 
 - [x] Research and map the residential interiors workflow: enquiry/referral → qualification/site visit → scope and estimate → proposal/quote revisions and negotiation → Won/Lost → account conversion and project handoff. Keep the new prospect as Lead until Won/closed.
 - [ ] Restructure the CRM home around an actionable pipeline with stage/owner, clear next action and follow-up date, referral source, expected project range in INR, and stale/overdue indicators. Shipped first dashboard foundation; exact follow-up dates and full qualification context remain.
+- [ ] Finish the actionable pipeline details: stage/owner, next action and due date, referral context, expected INR range, and drill-through for overdue work. This batch adds persisted date-only follow-up due dates, visible on opportunity/lead records and pipeline cards, plus an overdue count; reminders are still Phase 5.
 - [ ] Redesign the lead workspace: useful contact/qualification summary, responsive search/filters, activity timeline for notes/calls/site visits, linked files/photos, next actions, and client detail pages opened in a new tab. The responsive lead-list foundation is deployed; full detail and relationship panels are in progress.
 - [ ] Design the pre-closure job relationship: a prospect Lead links to its scoped Opportunity and its quotes/revisions; no new customer Account is created at mere qualification. At Won/closed, link to a new or existing Account/Contact and preserve the lead trail.
 - [ ] Design the continuing Account portfolio: one Account has multiple Contacts, multiple open Opportunities and multiple concurrent/completed Projects; each project's budget, designs, invoice/cost trail and status stays separate and links both ways to the Account.
 - [ ] Keep related records navigable across CRM, Documents, Projects and Finance. Detail views must show the associations appropriate to the record and enforce that record's read/write permission.
+- [ ] Verify Admin → CRM Settings can safely maintain the live CRM vocabulary and stage behavior without code edits. Existing UI can add/edit/delete lead statuses, lead sources/types, opportunity types and sales-stage names/automation kinds; stage order/probability editing and field visibility/requiredness are not currently exposed. Protect system-owned IDs, conversion invariants and finance calculations.
 - [ ] Define visual acceptance checks: analytical but uncluttered density, readable stage/status, keyboard/touch access, empty/loading/error states, and phone workflows for create/search/update/follow-up.
 - [ ] Run the Phase 1 regression gate once at Phase 1B exit, plus responsive browser checks, lead/conversion/association tests, full Phase 1B tests, staging deployment and a health report. Do not repeatedly restart Phase 1 during Phase 1B implementation.
 
@@ -240,6 +242,8 @@ The next turn should close remaining Phase 1 gates one at a time, re-run earlier
 - [ ] Finish transaction-level bank matching, bill/receipt evidence, and checks against duplicate expense-versus-vendor-bill entry.
 
 ### Phase 3 — Complete the interior project and design lifecycle
+
+- [ ] Provide Admin-managed project execution templates (editable phases, tasks, dependencies and default milestones) with per-project overrides, preserving historical task completion and audit history when a template changes.
 
 - [ ] Model enquiry → qualification → site survey/client brief → scope/budget/quotation/BOQ → deal confirmation → project kickoff.
 - [ ] Support very different job sizes and durations: furniture/repair-only jobs, small residential work, ₹12–20 lakh turnkey work, and multi-phase long-running contracts. Use configurable phases, budget periods, cash forecast horizon and responsible team; do not assume one project scale or fixed portfolio capacity.

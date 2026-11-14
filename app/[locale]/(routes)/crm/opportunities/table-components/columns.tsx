@@ -140,6 +140,21 @@ export const createColumns = (config: OpportunityConfig): ColumnDef<Opportunity>
     enableHiding: false,
   },
   {
+    accessorKey: "next_step_due_at",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Next step due" />
+    ),
+    cell: ({ row }) => (
+      <div className="w-[100px]">
+        {row.getValue("next_step_due_at")
+          ? moment(row.getValue("next_step_due_at")).format("DD/MM/YY")
+          : "—"}
+      </div>
+    ),
+    enableSorting: true,
+    enableHiding: true,
+  },
+  {
     accessorKey: "status",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Status" />

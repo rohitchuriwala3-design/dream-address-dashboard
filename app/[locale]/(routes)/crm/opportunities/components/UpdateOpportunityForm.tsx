@@ -37,6 +37,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { UserSearchCombobox } from "@/components/ui/user-search-combobox";
 import { AccountSearchCombobox } from "@/components/ui/account-search-combobox";
 import { updateOpportunity } from "@/actions/crm/opportunities/update-opportunity";
+import { toCrmDateOnly } from "@/lib/crm/date-only";
 
 type ConfigItem = { id: string; name: string };
 
@@ -74,6 +75,7 @@ export function UpdateOpportunityForm({
     currency: z.string().nullable().optional(),
     expected_revenue: z.string().nullable().optional(),
     next_step: z.string().nullable().optional(),
+    next_step_due_at: z.string().nullable().optional(),
     assigned_to: z.string().nullable().optional(),
     account: z.string().nullable().optional(),
     contact: z.string().nullable().optional(),
@@ -93,6 +95,7 @@ export function UpdateOpportunityForm({
       currency: initialData.currency ?? "",
       expected_revenue: String(initialData.expected_revenue ?? ""),
       next_step: initialData.next_step ?? "",
+      next_step_due_at: toCrmDateOnly(initialData.next_step_due_at) ?? "",
       assigned_to: initialData.assigned_to ?? "",
       account: initialData.account ?? "",
       contact: initialData.contact ?? "",
@@ -367,6 +370,19 @@ export function UpdateOpportunityForm({
                           placeholder={t("nextStepPlaceholder")}
                           {...field}
                         />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="next_step_due_at"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Next step due date</FormLabel>
+                      <FormControl>
+                        <Input type="date" disabled={form.formState.isSubmitting} {...field} value={field.value ?? ""} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

@@ -6,6 +6,7 @@ import sendEmail from "@/lib/sendmail";
 import { inngest } from "@/inngest/client";
 import { writeAuditLog } from "@/lib/audit-log";
 import { handleStageTransition } from "@/lib/crm/stage-transition";
+import { parseCrmDateOnly } from "@/lib/crm/date-only";
 import {
   requirePermission,
   assertCanWriteAccount,
@@ -29,6 +30,7 @@ export const createOpportunity = async (data: {
   expected_revenue?: string;
   name: string;
   next_step?: string;
+  next_step_due_at?: string | null;
   sales_stage?: string;
   type?: string;
 }) => {
@@ -45,6 +47,7 @@ export const createOpportunity = async (data: {
     expected_revenue,
     name,
     next_step,
+    next_step_due_at,
     sales_stage,
     type,
   } = data;
@@ -71,6 +74,13 @@ export const createOpportunity = async (data: {
   }
   const userId = user.id;
 
+  let nextStepDueAt: Date | null | undefined;
+  try {
+    nextStepDueAt = parseCrmDateOnly(next_step_due_at);
+  } catch {
+    return { error: "Enter a valid next-step due date." };
+  }
+
   if (currency && currency !== "INR") return { error: "MARK IV V1 supports INR only" };
 
   try {
@@ -93,6 +103,7 @@ export const createOpportunity = async (data: {
         snapshot_rate: 1,
         name,
         next_step: next_step || undefined,
+        next_step_due_at: nextStepDueAt,
         sales_stage: sales_stage || undefined,
         stage_entered_at: new Date(),
         status: "ACTIVE",
