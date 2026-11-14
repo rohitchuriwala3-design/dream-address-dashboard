@@ -5,7 +5,8 @@ import CaseStudyCard from "./components/CaseStudyCard";
 import AccountPartnerCard from "./components/AccountPartnerCard";
 import { getPartnerUsers } from "@/actions/crm/accounts/get-partner-users";
 import { getSession } from "@/lib/auth-server";
-import { requireAuthenticated, isManagerOrAdmin, AuthorizationError } from "@/lib/authz";
+import { requireAuthenticated, getUserPermissions, isManagerOrAdmin, AuthorizationError } from "@/lib/authz";
+import { canSeeNavigationModule } from "@/lib/authz/navigation";
 import { getAccountTabs, getAccountPanels } from "@/lib/plugins/slots";
 import { PluginSlot } from "@/lib/plugins/ui/PluginSlot";
 import { FindSimilarButton } from "@/components/crm/find-similar-button";
@@ -63,6 +64,10 @@ const AccountDetailPage = async (props: AccountDetailPageProps) => {
   const sessionUserRole = (session?.user as any)?.role ?? "user";
   const actorUser = await requireAuthenticated({ partner: true });
   const actor = { type: "user" as const, userId: actorUser.id, role: actorUser.role };
+  const actorPermissions = actorUser.role === "admin" || actorUser.role === "partner"
+    ? []
+    : await getUserPermissions(actorUser.id);
+  const canViewFinance = canSeeNavigationModule(actorUser.role, actorPermissions, "finance");
   const [pluginTabs, pluginPanels] = await Promise.all([getAccountTabs(actorUser.role), getAccountPanels(actorUser.role)]);
   const account: crm_Accounts | null = await getAccount(accountId);
   let studioProjects: Awaited<ReturnType<typeof listStudioProjectsByAccount>> | null = null;
@@ -81,7 +86,8 @@ const AccountDetailPage = async (props: AccountDetailPageProps) => {
   const leads: crm_Leads[] = await getLeadsByAccountId(accountId);
   const documents: Documents[] = await getDocumentsByAccountId(accountId);
   const tasks: crm_Accounts_Tasks[] = await getAccountsTasks(accountId);
-  const invoices = await getInvoicesByAccountId(accountId);
+  // Keep CRM-only accounts usable without invoking a finance-protected query.
+  const invoices = canViewFinance ? await getInvoicesByAccountId(accountId) : [];
   const t = await getTranslations("InvoicesPage");
   const to = await getTranslations("OrdersPage");
   const invoiceStatusLabels: Record<string, string> = {
@@ -125,9 +131,14 @@ const AccountDetailPage = async (props: AccountDetailPageProps) => {
       description={"Everything you need to know about sales potential"}
     >
       <Tabs defaultValue="overview">
-        <TabsList>
+        <TabsList className="h-auto max-w-full flex-wrap justify-start gap-1">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="history">History</TabsTrigger>
+          <TabsTrigger value="pipeline">Pipeline ({opportunities.length + leads.length + contracts.length})</TabsTrigger>
+          {studioProjects !== null && <TabsTrigger value="projects">Projects ({studioProjects.length})</TabsTrigger>}
+          <TabsTrigger value="people">People ({contacts.length})</TabsTrigger>
+          <TabsTrigger value="documents">Documents ({documents.length})</TabsTrigger>
+          {canViewFinance && <TabsTrigger value="finance">Finance ({invoices.length})</TabsTrigger>}
+          <TabsTrigger value="activity">Activity & history</TabsTrigger>
           <TabsTrigger value="orders">{to("ordersTab")}</TabsTrigger>
           {await Promise.all(pluginTabs.map(async ({ plugin, tab }) => {
             const tp = await getTranslations(`plugins.${plugin.definition.id}` as never);
@@ -155,39 +166,55 @@ const AccountDetailPage = async (props: AccountDetailPageProps) => {
                 partners={partners}
               />
             )}
-            <ActivitiesSection accountId={account.id} />
             <FindSimilarButton entityType="account" recordId={accountId} />
-            {studioProjects !== null && <StudioProjectPortfolio projects={studioProjects} />}
-            <AccountsTasksView data={tasks} account={account} />
+          </div>
+        </TabsContent>
+        <TabsContent value="pipeline">
+          <div className="space-y-5">
             <OpportunitiesView
               data={opportunities}
               crmData={crmData}
               accountId={accountId}
             />
-            <ContactsView data={contacts} crmData={crmData} accountId={accountId} />
             <ContractsView
               data={contracts}
               crmData={crmData}
               accountId={accountId}
             />
             <LeadsView data={leads} crmData={crmData} accountId={accountId} />
+          </div>
+        </TabsContent>
+        {studioProjects !== null && <TabsContent value="projects">
+          <StudioProjectPortfolio projects={studioProjects} />
+        </TabsContent>}
+        <TabsContent value="people">
+          <div className="space-y-5">
+            <ContactsView data={contacts} crmData={crmData} accountId={accountId} />
+            <AccountsTasksView data={tasks} account={account} />
             <AccountProductsView
               data={accountProducts}
               accountId={accountId}
               crmData={crmData}
               activeProducts={activeProducts}
             />
-            <DocumentsView data={documents} accountId={accountId} />
+          </div>
+        </TabsContent>
+        <TabsContent value="documents">
+          <DocumentsView data={documents} accountId={accountId} />
+        </TabsContent>
+        {canViewFinance && <TabsContent value="finance">
             <InvoicesView
               data={JSON.parse(JSON.stringify(invoices))}
               accountId={accountId}
               statusLabels={invoiceStatusLabels}
               tableLabels={invoiceTableLabels}
             />
+        </TabsContent>}
+        <TabsContent value="activity">
+          <div className="space-y-5">
+            <ActivitiesSection accountId={account.id} />
+            <HistoryTab accountId={accountId} />
           </div>
-        </TabsContent>
-        <TabsContent value="history">
-          <HistoryTab accountId={accountId} />
         </TabsContent>
         <TabsContent value="orders">
           <AccountOrdersTab accountId={accountId} />
