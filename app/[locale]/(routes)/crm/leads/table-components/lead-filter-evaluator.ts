@@ -71,7 +71,16 @@ function matches(lead: LeadLike, rule: LeadFilterRule): boolean {
 function matchesGroup(lead: LeadLike, group: LeadFilterGroup): boolean {
   const active = group.rules.filter(isCompleteFilterRule);
   if (!active.length) return true;
-  return group.logic === "AND" ? active.every((rule) => matches(lead, rule)) : active.some((rule) => matches(lead, rule));
+  let orResult = false;
+  let andClause = matches(lead, active[0]);
+  for (let index = 1; index < active.length; index++) {
+    const previousIndex = group.rules.findIndex((rule) => rule.id === active[index - 1].id);
+    const join = group.rules[previousIndex]?.logicToNext || group.logic;
+    const next = matches(lead, active[index]);
+    if (join === "AND") andClause = andClause && next;
+    else { orResult = orResult || andClause; andClause = next; }
+  }
+  return orResult || andClause;
 }
 
 export function countActiveLeadFilters(filters: LeadFilterSet): number {
@@ -94,7 +103,7 @@ export function sanitizeLeadFilterSet(input: unknown): LeadFilterSet {
       if (!rawRule || typeof rawRule !== "object") return [];
       const rule = rawRule as Partial<LeadFilterRule>;
       if (typeof rule.id !== "string" || !validFields.includes(rule.field as LeadFilterField) || !validOperators.includes(String(rule.operator))) return [];
-      return [{ id: rule.id.slice(0, 80), field: rule.field as LeadFilterField, operator: String(rule.operator), value: typeof rule.value === "string" ? rule.value.slice(0, 500) : "" }];
+      return [{ id: rule.id.slice(0, 80), field: rule.field as LeadFilterField, operator: String(rule.operator), value: typeof rule.value === "string" ? rule.value.slice(0, 500) : "", logicToNext: rule.logicToNext === "OR" ? "OR" as const : rule.logicToNext === "AND" ? "AND" as const : undefined }];
     });
     if (typeof group.id !== "string") return [];
     return [{ id: group.id.slice(0, 80), logic: group.logic === "OR" ? "OR" as const : "AND" as const, rules }];
@@ -103,7 +112,7 @@ export function sanitizeLeadFilterSet(input: unknown): LeadFilterSet {
   return { groupsLogic: candidate.groupsLogic === "OR" ? "OR" : "AND", groups, expression };
 }
 
-function parseLeadFilterLogic(expression: string, values: boolean[], ruleCount: number): { result?: boolean; error?: string } {
+function parseLeadFilterLogic(expression: string, values: boolean[], ruleCount: number, completeRules?: boolean[]): { result?: boolean; error?: string } {
   const normalized = expression.trim().toUpperCase();
   if (!normalized) return { error: "Enter a filter expression." };
   const tokens = normalized.match(/\d+|AND|OR|[()]/g) || [];
@@ -120,6 +129,7 @@ function parseLeadFilterLogic(expression: string, values: boolean[], ruleCount: 
     if (!/^\d+$/.test(token)) throw new Error(`Expected a filter number near ${token}.`);
     const number = Number(token);
     if (number < 1 || number > ruleCount) throw new Error(`Filter ${number} does not exist.`);
+    if (completeRules && !completeRules[number - 1]) throw new Error(`Filter ${number} is incomplete. Finish it or remove it.`);
     return values[number - 1] ?? true;
   };
   const parseAnd = (): boolean => {
@@ -141,14 +151,14 @@ function parseLeadFilterLogic(expression: string, values: boolean[], ruleCount: 
   }
 }
 
-export function getLeadFilterLogicError(expression: string, ruleCount: number): string | null {
-  return parseLeadFilterLogic(expression, Array(ruleCount).fill(true), ruleCount).error || null;
+export function getLeadFilterLogicError(expression: string, ruleCount: number, completeRules?: boolean[]): string | null {
+  return parseLeadFilterLogic(expression, Array(ruleCount).fill(true), ruleCount, completeRules).error || null;
 }
 
 export function leadMatchesAdvancedFilters(lead: LeadLike, filters: LeadFilterSet): boolean {
   const allRules = filters.groups.flatMap((group) => group.rules);
   if (filters.expression?.trim()) {
-    const parsed = parseLeadFilterLogic(filters.expression, allRules.map((rule) => matches(lead, rule)), allRules.length);
+    const parsed = parseLeadFilterLogic(filters.expression, allRules.map((rule) => matches(lead, rule)), allRules.length, allRules.map(isCompleteFilterRule));
     return parsed.result ?? true;
   }
   const active = filters.groups.filter((group) => group.rules.some(isCompleteFilterRule));
