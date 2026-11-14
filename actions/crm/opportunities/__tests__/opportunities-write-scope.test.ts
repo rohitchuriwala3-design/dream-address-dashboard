@@ -82,6 +82,14 @@ describe("updateOpportunity", () => {
     expect(assertOpp).toHaveBeenCalledWith(OWNER, "o-1", { partnerEdit: true });
     expect(oUpdate).toHaveBeenCalled();
   });
+
+  it.each(["WON", "LOST", "INACTIVE"])("preserves closed status %s when details are edited", async (status) => {
+    oFind.mockResolvedValueOnce({ id: "o-1", sales_stage: null, approval_status: "NONE", status });
+    await updateOpportunity({ id: "o-1", name: "Updated description" } as any);
+    expect(oUpdate).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ status }),
+    }));
+  });
 });
 
 describe("deleteOpportunity", () => {

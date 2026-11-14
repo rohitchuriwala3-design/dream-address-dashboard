@@ -114,7 +114,9 @@ export const updateOpportunity = async (data: {
         name,
         next_step,
         sales_stage: sales_stage || undefined,
-        status: "ACTIVE",
+        // Editing an opportunity must never silently reopen a Won/Lost/Inactive
+        // record. Reopening, if productized later, must be an explicit audited action.
+        status: before?.status ?? "ACTIVE",
         type: type || undefined,
       },
     });
