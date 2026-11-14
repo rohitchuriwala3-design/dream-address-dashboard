@@ -34,10 +34,21 @@ import { getOpportunitiesCount } from "@/actions/dashboard/get-opportunities-cou
 import { getStudioFinanceSummary } from "@/actions/dashboard/get-studio-finance-summary";
 import { getStudioPipelineSummary } from "@/actions/dashboard/get-studio-pipeline-summary";
 import { Card, CardContent } from "@/components/ui/card";
+import { getUserPermissions } from "@/lib/authz";
+import { getInitialModulePath } from "@/lib/authz/navigation";
+import { redirect } from "next/navigation";
 
 const DashboardPage = async () => {
   const session = await getSession({ partner: true });
   if (!session) return null;
+
+  // Staff accounts without overview access should land in an allowed module.
+  // Avoid loading overview metrics from modules they are not permitted to see.
+  const permissions = session.user.role === "admin" || session.user.role === "partner"
+    ? []
+    : await getUserPermissions(session.user.id);
+  const modulePath = getInitialModulePath(session.user.role, permissions);
+  if (modulePath) redirect(modulePath);
 
   const userId = session.user.id;
   const counts = await Promise.all([

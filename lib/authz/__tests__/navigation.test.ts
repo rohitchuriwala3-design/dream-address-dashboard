@@ -1,4 +1,4 @@
-import { canSeeNavigationModule } from "../navigation";
+import { canSeeNavigationModule, getInitialModulePath } from "../navigation";
 
 describe("permission-based module navigation", () => {
   it("keeps CRM staff inside the CRM modules they were granted", () => {
@@ -6,6 +6,15 @@ describe("permission-based module navigation", () => {
     expect(canSeeNavigationModule("user", permissions, "crm")).toBe(true);
     expect(canSeeNavigationModule("user", permissions, "finance")).toBe(false);
     expect(canSeeNavigationModule("user", permissions, "reports")).toBe(false);
+  });
+
+  it("routes a CRM-only user to CRM instead of the all-module overview", () => {
+    expect(getInitialModulePath("user", ["crm.view"])).toBe("/crm");
+  });
+
+  it("routes finance-only staff to billing and leaves overview-enabled users on overview", () => {
+    expect(getInitialModulePath("user", ["finance.view"])).toBe("/invoices");
+    expect(getInitialModulePath("user", ["dashboard.view", "crm.view"])).toBeNull();
   });
 
   it("keeps finance-only staff out of CRM navigation", () => {

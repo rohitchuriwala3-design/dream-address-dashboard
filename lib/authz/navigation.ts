@@ -10,6 +10,19 @@ export type NavigationModule =
   | "emails"
   | "plugins";
 
+/** First useful destination for staff accounts that do not have the overview. */
+export function getInitialModulePath(
+  role: string | null | undefined,
+  permissions: readonly NexusPermission[],
+): string | null {
+  if (role === "admin" || canSeeNavigationModule(role, permissions, "dashboard")) return null;
+  if (canSeeNavigationModule(role, permissions, "crm")) return "/crm";
+  if (canSeeNavigationModule(role, permissions, "projects")) return "/studio-projects";
+  if (canSeeNavigationModule(role, permissions, "finance")) return "/invoices";
+  if (canSeeNavigationModule(role, permissions, "reports")) return "/reports";
+  return null;
+}
+
 const CRM_PERMISSIONS: readonly NexusPermission[] = ["crm.view", "crm.manage"];
 const PROJECT_PERMISSIONS: readonly NexusPermission[] = ["projects.view", "projects.manage"];
 
