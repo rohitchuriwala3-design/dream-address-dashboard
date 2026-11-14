@@ -68,13 +68,22 @@ const OpportunityView = async (
       description={"Description - " + opportunity.description}
     >
       <Tabs defaultValue="overview">
-        <TabsList>
+        <TabsList className="h-auto flex-wrap justify-start gap-1">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="commercial">Quote & scope ({serializedLineItems.length} items)</TabsTrigger>
+          <TabsTrigger value="activity">Activity</TabsTrigger>
+          <TabsTrigger value="related">Related records ({accounts.length + contacts.length})</TabsTrigger>
+          <TabsTrigger value="documents">Documents ({documents.length})</TabsTrigger>
           <TabsTrigger value="history">History</TabsTrigger>
         </TabsList>
         <TabsContent value="overview">
           <div className="space-y-5">
             <BasicView data={opportunity as any} />
+            <FindSimilarButton entityType="opportunity" recordId={opportunityId} />
+          </div>
+        </TabsContent>
+        <TabsContent value="commercial">
+          <div className="space-y-5">
             <LineItemsSection
               opportunityId={opportunityId}
               lineItems={serializedLineItems}
@@ -82,13 +91,20 @@ const OpportunityView = async (
               approvalStatus={(opportunity as any)?.approval_status || "NONE"}
               products={activeProducts}
             />
-            <ActivitiesSection opportunityId={opportunityId} />
             <QuoteRevisionHistory revisions={quoteRevisions} />
-            <FindSimilarButton entityType="opportunity" recordId={opportunityId} />
+          </div>
+        </TabsContent>
+        <TabsContent value="activity">
+          <ActivitiesSection opportunityId={opportunityId} />
+        </TabsContent>
+        <TabsContent value="related">
+          <div className="space-y-5">
             <AccountsView crmData={crmData} data={accounts} />
             <ContactsView crmData={crmData} data={contacts} />
-            <DocumentsView data={documents} />
           </div>
+        </TabsContent>
+        <TabsContent value="documents">
+            <DocumentsView data={documents} />
         </TabsContent>
         <TabsContent value="history">
           <HistoryTab opportunityId={opportunityId} />

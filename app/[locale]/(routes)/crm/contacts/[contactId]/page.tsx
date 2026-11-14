@@ -35,19 +35,31 @@ const ContactViewPage = async (props: any) => {
       description={"Everything you need to know about sales potential"}
     >
       <Tabs defaultValue="overview">
-        <TabsList>
+        <TabsList className="h-auto flex-wrap justify-start gap-1">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="accounts">Accounts ({accounts.length})</TabsTrigger>
+          <TabsTrigger value="opportunities">Opportunities ({opportunities.length})</TabsTrigger>
+          <TabsTrigger value="activity">Activity</TabsTrigger>
+          <TabsTrigger value="documents">Documents ({documents.length})</TabsTrigger>
           <TabsTrigger value="history">History</TabsTrigger>
         </TabsList>
         <TabsContent value="overview">
           <div className="space-y-5">
             <BasicView data={contact} />
-            <ActivitiesSection contactId={contact.id} />
             <FindSimilarButton entityType="contact" recordId={contactId} />
-            <AccountsView data={accounts} crmData={crmData} />
-            <OpportunitiesView data={opportunities} crmData={crmData} />
-            <DocumentsView data={documents} />
           </div>
+        </TabsContent>
+        <TabsContent value="accounts">
+            <AccountsView data={accounts} crmData={crmData} />
+        </TabsContent>
+        <TabsContent value="opportunities">
+            <OpportunitiesView data={opportunities} crmData={crmData} />
+        </TabsContent>
+        <TabsContent value="activity">
+          <ActivitiesSection contactId={contact.id} />
+        </TabsContent>
+        <TabsContent value="documents">
+            <DocumentsView data={documents} />
         </TabsContent>
         <TabsContent value="history">
           <HistoryTab contactId={contactId} />
