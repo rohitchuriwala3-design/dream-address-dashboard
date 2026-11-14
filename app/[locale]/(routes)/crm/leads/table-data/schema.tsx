@@ -11,6 +11,6 @@ export const leadSchema = z.object({
   updatedAt: z.date().nullable(),
   firstName: z.string().optional().nullable(),
   lastName: z.string(),
-});
+}).passthrough();
 
 export type Lead = z.infer<typeof leadSchema>;
