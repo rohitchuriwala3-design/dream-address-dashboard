@@ -13,7 +13,7 @@ Use INR and India-oriented fields in active V1 workflows. GST/tax calculations a
 - Admins should be able to tune operating vocabulary and process defaults (lead status/source/type, opportunity type/stage, stage order/probability, and later field visibility/requiredness) without a code deployment.
 - Project delivery should start from editable Admin-managed templates, then allow project-specific step/date/owner overrides without changing other projects. Template edits must not rewrite completed historical work.
 - Keep system identity, stable record links, authorization boundaries, issued-document snapshots, and accounting calculations protected. “Customizable” means safe operational choices, not arbitrary edits to foreign keys or financial formulas.
-- Current verified capability: Admin → CRM Settings can add/edit/delete CRM picklists and stage names/automation kinds. Stage probability/order controls and per-field form configuration are not exposed yet. Project step templates belong to Phase 3.
+- Current verified capability: Admin → CRM Settings manages CRM picklists and sales-stage names, automation kinds, board order and 0–100% forecast probability. Admin-managed field visibility/requiredness and arbitrary CRM custom fields remain open. Project step templates belong to Phase 3.
 
 ## Research patterns adapted for MARK IV
 

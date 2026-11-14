@@ -21,6 +21,8 @@ export function ConfigAddDialog({ configType, label }: Props) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [stageKind, setStageKind] = useState<string>(KIND_NONE);
+  const [stageOrder, setStageOrder] = useState("10");
+  const [probability, setProbability] = useState("0");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -32,11 +34,15 @@ export function ConfigAddDialog({ configType, label }: Props) {
         name,
         configType === "salesStage"
           ? (stageKind === KIND_NONE ? null : (stageKind as StageKind))
-          : undefined
+          : undefined,
+        configType === "salesStage" ? Number(stageOrder) : undefined,
+        configType === "salesStage" ? Number(probability) : undefined
       );
       toast.success(`${label} added`);
       setName("");
       setStageKind(KIND_NONE);
+      setStageOrder("10");
+      setProbability("0");
       setOpen(false);
     } catch (err: any) {
       toast.error(err.message ?? "Failed to add");
@@ -62,6 +68,17 @@ export function ConfigAddDialog({ configType, label }: Props) {
             <Input id="name" value={name} onChange={(e) => setName(e.target.value)} maxLength={100} required />
           </div>
           {configType === "salesStage" && (
+            <>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="space-y-1">
+                <Label htmlFor="new-stage-order">Board order</Label>
+                <Input id="new-stage-order" type="number" min={0} max={1000} step={1} value={stageOrder} onChange={(e) => setStageOrder(e.target.value)} required />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="new-stage-probability">Forecast probability (%)</Label>
+                <Input id="new-stage-probability" type="number" min={0} max={100} step={1} value={probability} onChange={(e) => setProbability(e.target.value)} required />
+              </div>
+            </div>
             <div className="space-y-1">
               <Label>Automation trigger</Label>
               <Select value={stageKind} onValueChange={setStageKind}>
@@ -76,6 +93,7 @@ export function ConfigAddDialog({ configType, label }: Props) {
                 </SelectContent>
               </Select>
             </div>
+            </>
           )}
           <Button type="submit" disabled={loading} className="w-full">
             {loading ? "Adding…" : "Add"}

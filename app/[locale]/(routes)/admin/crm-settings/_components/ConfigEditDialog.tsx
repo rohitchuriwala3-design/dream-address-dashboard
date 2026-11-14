@@ -16,13 +16,17 @@ interface Props {
   id: string;
   currentName: string;
   currentStageKind?: string | null;
+  currentStageOrder?: number | null;
+  currentProbability?: number | null;
   open: boolean;
   onOpenChange: (v: boolean) => void;
 }
 
-export function ConfigEditDialog({ configType, id, currentName, currentStageKind, open, onOpenChange }: Props) {
+export function ConfigEditDialog({ configType, id, currentName, currentStageKind, currentStageOrder, currentProbability, open, onOpenChange }: Props) {
   const [name, setName] = useState(currentName);
   const [stageKind, setStageKind] = useState<string>(currentStageKind ?? KIND_NONE);
+  const [stageOrder, setStageOrder] = useState(String(currentStageOrder ?? 0));
+  const [probability, setProbability] = useState(String(currentProbability ?? 0));
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -35,7 +39,9 @@ export function ConfigEditDialog({ configType, id, currentName, currentStageKind
         name,
         configType === "salesStage"
           ? (stageKind === KIND_NONE ? null : (stageKind as StageKind))
-          : undefined
+          : undefined,
+        configType === "salesStage" ? Number(stageOrder) : undefined,
+        configType === "salesStage" ? Number(probability) : undefined
       );
       toast.success("Updated");
       onOpenChange(false);
@@ -56,6 +62,17 @@ export function ConfigEditDialog({ configType, id, currentName, currentStageKind
             <Input id="edit-name" value={name} onChange={(e) => setName(e.target.value)} maxLength={100} required />
           </div>
           {configType === "salesStage" && (
+            <>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="space-y-1">
+                <Label htmlFor="edit-stage-order">Board order</Label>
+                <Input id="edit-stage-order" type="number" min={0} max={1000} step={1} value={stageOrder} onChange={(e) => setStageOrder(e.target.value)} required />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="edit-stage-probability">Forecast probability (%)</Label>
+                <Input id="edit-stage-probability" type="number" min={0} max={100} step={1} value={probability} onChange={(e) => setProbability(e.target.value)} required />
+              </div>
+            </div>
             <div className="space-y-1">
               <Label>Automation trigger</Label>
               <Select value={stageKind} onValueChange={setStageKind}>
@@ -70,6 +87,7 @@ export function ConfigEditDialog({ configType, id, currentName, currentStageKind
                 </SelectContent>
               </Select>
             </div>
+            </>
           )}
           <Button type="submit" disabled={loading} className="w-full">
             {loading ? "Saving…" : "Save"}

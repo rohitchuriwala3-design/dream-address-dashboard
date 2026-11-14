@@ -29,14 +29,20 @@ export function ConfigList({ configType, label, values }: Props) {
           <p className="px-4 py-3 text-sm text-muted-foreground">No values yet.</p>
         )}
         {values.map((item) => (
-          <div key={item.id} className="flex items-center justify-between px-4 py-3">
-            <div className="flex items-center gap-3">
+          <div key={item.id} className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
               <span className="text-sm font-medium">{item.name}</span>
               {item.usageCount > 0 && (
                 <Badge variant="secondary">{item.usageCount} in use</Badge>
               )}
               {item.stageKind && (
                 <Badge variant="outline">{item.stageKind}</Badge>
+              )}
+              {configType === "salesStage" && item.stageOrder != null && (
+                <Badge variant="secondary">Order {item.stageOrder}</Badge>
+              )}
+              {configType === "salesStage" && item.probability != null && (
+                <Badge variant="outline">{item.probability}% forecast</Badge>
               )}
             </div>
             <div className="flex gap-1">
@@ -62,6 +68,8 @@ export function ConfigList({ configType, label, values }: Props) {
           id={editItem.id}
           currentName={editItem.name}
           currentStageKind={editItem.stageKind ?? null}
+          currentStageOrder={editItem.stageOrder ?? ((values.findIndex((value) => value.id === editItem.id) + 1) * 10)}
+          currentProbability={editItem.probability}
           open={!!editItem}
           onOpenChange={(v) => { if (!v) setEditItem(null); }}
         />

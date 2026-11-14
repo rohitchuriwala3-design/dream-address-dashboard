@@ -32,10 +32,14 @@ export type ConfigValue = {
   usageCount: number;
   /** Automation trigger — populated for salesStage rows only. */
   stageKind?: string | null;
+  stageOrder?: number | null;
+  probability?: number | null;
 };
 
 const nameSchema = z.string().trim().min(1, "Name is required").max(100, "Max 100 characters");
 const stageKindSchema = z.enum(STAGE_KINDS).nullable().optional();
+const stageOrderSchema = z.number().int().min(0).max(1000);
+const probabilitySchema = z.number().int().min(0).max(100);
 
 const configMap = {
   industry:        { model: () => prisma.crm_Industry_Type,               countRelation: "accounts",                              updateMany: null },
@@ -63,20 +67,23 @@ export async function getConfigValues(configType: CrmConfigType): Promise<Config
   const { model, countRelation } = configMap[configType];
   const rows = await (model() as any).findMany({
     include: { _count: { select: { [countRelation]: true } } },
-    orderBy: { name: "asc" },
+    orderBy: configType === "salesStage" ? [{ order: "asc" }, { probability: "asc" }, { name: "asc" }] : { name: "asc" },
   });
   return rows.map((r: any) => ({
     id: r.id,
     name: r.name,
     usageCount: r._count[countRelation] ?? 0,
     ...(configType === "salesStage" ? { stageKind: r.stage_kind ?? null } : {}),
+    ...(configType === "salesStage" ? { stageOrder: r.order ?? null, probability: r.probability ?? null } : {}),
   }));
 }
 
 export async function createConfigValue(
   configType: CrmConfigType,
   name: string,
-  stageKind?: StageKind | null
+  stageKind?: StageKind | null,
+  stageOrder?: number,
+  probability?: number
 ): Promise<void> {
   const denied = await ensureAdmin();
   if (denied) throw new Error(denied.error);
@@ -86,6 +93,10 @@ export async function createConfigValue(
   if (configType === "salesStage" && stageKind !== undefined) {
     data.stage_kind = stageKindSchema.parse(stageKind) ?? null;
   }
+  if (configType === "salesStage") {
+    data.order = stageOrderSchema.parse(stageOrder ?? 10);
+    data.probability = probabilitySchema.parse(probability ?? 0);
+  }
   await (model() as any).create({ data });
   revalidatePath("/", "layout");
 }
@@ -94,7 +105,9 @@ export async function updateConfigValue(
   configType: CrmConfigType,
   id: string,
   name: string,
-  stageKind?: StageKind | null
+  stageKind?: StageKind | null,
+  stageOrder?: number,
+  probability?: number
 ): Promise<void> {
   const denied = await ensureAdmin();
   if (denied) throw new Error(denied.error);
@@ -103,6 +116,10 @@ export async function updateConfigValue(
   const data: Record<string, unknown> = { name: parsed };
   if (configType === "salesStage" && stageKind !== undefined) {
     data.stage_kind = stageKindSchema.parse(stageKind) ?? null;
+  }
+  if (configType === "salesStage") {
+    if (stageOrder !== undefined) data.order = stageOrderSchema.parse(stageOrder);
+    if (probability !== undefined) data.probability = probabilitySchema.parse(probability);
   }
   await (model() as any).update({ where: { id }, data });
   revalidatePath("/", "layout");
