@@ -26,14 +26,15 @@ export function DataTableViewOptions<TData>({
         <Button
           variant="outline"
           size="sm"
-          className="ml-auto hidden h-8 lg:flex"
+          aria-label="Customize columns"
+          className="ml-auto h-8 shrink-0"
         >
           <MixerHorizontalIcon className="mr-2 h-4 w-4" />
-          View
+          Columns
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[150px]">
-        <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
+      <DropdownMenuContent align="end" className="w-56 max-h-[min(70vh,28rem)] overflow-y-auto">
+        <DropdownMenuLabel>Customize columns</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {table
           .getAllColumns()
