@@ -32,6 +32,8 @@ import { createColumns } from "./columns";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import type { LeadFieldSettings } from "@/lib/crm/leads/field-settings-shared";
+import { type LeadFilterSet } from "./advanced-lead-filters";
+import { leadMatchesAdvancedFilters } from "./lead-filter-evaluator";
 
 const DEFAULT_HIDDEN_COLUMNS = ["jobTitle", "email", "phone", "lead_type_id", "refered_by", "campaign", "linkedAccount", "opportunityStage", "opportunityBudget", "expectedRevenue", "weightedForecast", "nextStep", "nextStepDue", "daysInPipeline"];
 const COLUMN_PREFS_KEY = "mark4.leads.table.v1";
@@ -73,6 +75,8 @@ export function LeadDataTable<TData, TValue>({
   );
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = React.useState("");
+  const [advancedFilters, setAdvancedFilters] = React.useState<LeadFilterSet>({ groupsLogic: "AND", groups: [] });
+  const filteredData = React.useMemo(() => data.filter((row) => leadMatchesAdvancedFilters(row as Record<string, any>, advancedFilters)), [data, advancedFilters]);
 
   const [hide, setHide] = React.useState(false);
 
@@ -97,7 +101,7 @@ export function LeadDataTable<TData, TValue>({
   }, [columnVisibility, columnOrder, preferencesLoaded]);
 
   const table = useReactTable({
-    data,
+    data: filteredData,
     columns,
     state: {
       sorting,
@@ -173,7 +177,7 @@ export function LeadDataTable<TData, TValue>({
         </div>
       ) : (
         <>
-          <DataTableToolbar table={table} leadStatuses={leadStatuses} leadSources={leadSources} leadTypes={leadTypes} />
+          <DataTableToolbar table={table} leadStatuses={leadStatuses} leadSources={leadSources} leadTypes={leadTypes} advancedFilters={advancedFilters} onAdvancedFiltersChange={setAdvancedFilters} />
           <div className="hidden overflow-x-auto rounded-xl border md:block">
             <Table data-testid="leads-table">
               <TableHeader>

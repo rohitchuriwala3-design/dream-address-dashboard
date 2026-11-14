@@ -9,6 +9,8 @@ import { DataTableViewOptions } from "./data-table-view-options";
 
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
 import { Search } from "lucide-react";
+import { AdvancedLeadFilters, type LeadFilterSet } from "./advanced-lead-filters";
+import { countActiveLeadFilters } from "./lead-filter-evaluator";
 
 type ConfigItem = { id: string; name: string };
 
@@ -17,6 +19,8 @@ interface DataTableToolbarProps<TData> {
   leadStatuses: ConfigItem[];
   leadSources: ConfigItem[];
   leadTypes: ConfigItem[];
+  advancedFilters: LeadFilterSet;
+  onAdvancedFiltersChange: (filters: LeadFilterSet) => void;
 }
 
 export function DataTableToolbar<TData>({
@@ -24,8 +28,11 @@ export function DataTableToolbar<TData>({
   leadStatuses,
   leadSources,
   leadTypes,
+  advancedFilters,
+  onAdvancedFiltersChange,
 }: DataTableToolbarProps<TData>) {
-  const isFiltered = table.getState().columnFilters.length > 0 || Boolean(table.getState().globalFilter);
+  const activeAdvancedFilters = countActiveLeadFilters(advancedFilters);
+  const isFiltered = table.getState().columnFilters.length > 0 || Boolean(table.getState().globalFilter) || activeAdvancedFilters > 0;
 
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -61,6 +68,16 @@ export function DataTableToolbar<TData>({
             options={leadTypes.map((item) => ({ label: item.name, value: item.id }))}
           />
         )}
+        <AdvancedLeadFilters
+          value={advancedFilters}
+          onChange={onAdvancedFiltersChange}
+          activeCount={activeAdvancedFilters}
+          choices={{
+            stage: leadStatuses.map((item) => ({ value: item.id, label: item.name })),
+            source: leadSources.map((item) => ({ value: item.id, label: item.name })),
+            type: leadTypes.map((item) => ({ value: item.id, label: item.name })),
+          }}
+        />
         {/*        {table.getColumn("priority") && (
           <DataTableFacetedFilter
             column={table.getColumn("priority")}
@@ -71,7 +88,7 @@ export function DataTableToolbar<TData>({
         {isFiltered && (
           <Button
             variant="ghost"
-            onClick={() => table.resetColumnFilters()}
+            onClick={() => { table.resetColumnFilters(); table.setGlobalFilter(""); onAdvancedFiltersChange({ groupsLogic: "AND", groups: [] }); }}
             className="h-8 px-2 lg:px-3"
           >
             Reset
