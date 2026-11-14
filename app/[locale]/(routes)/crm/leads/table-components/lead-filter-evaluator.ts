@@ -99,10 +99,58 @@ export function sanitizeLeadFilterSet(input: unknown): LeadFilterSet {
     if (typeof group.id !== "string") return [];
     return [{ id: group.id.slice(0, 80), logic: group.logic === "OR" ? "OR" as const : "AND" as const, rules }];
   });
-  return { groupsLogic: candidate.groupsLogic === "OR" ? "OR" : "AND", groups };
+  const expression = typeof candidate.expression === "string" ? candidate.expression.slice(0, 300) : undefined;
+  return { groupsLogic: candidate.groupsLogic === "OR" ? "OR" : "AND", groups, expression };
+}
+
+function parseLeadFilterLogic(expression: string, values: boolean[], ruleCount: number): { result?: boolean; error?: string } {
+  const normalized = expression.trim().toUpperCase();
+  if (!normalized) return { error: "Enter a filter expression." };
+  const tokens = normalized.match(/\d+|AND|OR|[()]/g) || [];
+  if (tokens.join("") !== normalized.replace(/\s/g, "")) return { error: "Use only filter numbers, AND, OR and parentheses." };
+  let index = 0;
+  const primary = (): boolean => {
+    const token = tokens[index++];
+    if (!token) throw new Error("Expected a filter number or opening bracket.");
+    if (token === "(") {
+      const nested = parseOr();
+      if (tokens[index++] !== ")") throw new Error("A closing parenthesis is missing.");
+      return nested;
+    }
+    if (!/^\d+$/.test(token)) throw new Error(`Expected a filter number near ${token}.`);
+    const number = Number(token);
+    if (number < 1 || number > ruleCount) throw new Error(`Filter ${number} does not exist.`);
+    return values[number - 1] ?? true;
+  };
+  const parseAnd = (): boolean => {
+    let result = primary();
+    while (tokens[index] === "AND") { index++; const next = primary(); result = result && next; }
+    return result;
+  };
+  const parseOr = (): boolean => {
+    let result = parseAnd();
+    while (tokens[index] === "OR") { index++; const next = parseAnd(); result = result || next; }
+    return result;
+  };
+  try {
+    const result = parseOr();
+    if (index !== tokens.length) throw new Error(`Unexpected ${tokens[index]}.`);
+    return { result };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Invalid filter expression." };
+  }
+}
+
+export function getLeadFilterLogicError(expression: string, ruleCount: number): string | null {
+  return parseLeadFilterLogic(expression, Array(ruleCount).fill(true), ruleCount).error || null;
 }
 
 export function leadMatchesAdvancedFilters(lead: LeadLike, filters: LeadFilterSet): boolean {
+  const allRules = filters.groups.flatMap((group) => group.rules);
+  if (filters.expression?.trim()) {
+    const parsed = parseLeadFilterLogic(filters.expression, allRules.map((rule) => matches(lead, rule)), allRules.length);
+    return parsed.result ?? true;
+  }
   const active = filters.groups.filter((group) => group.rules.some(isCompleteFilterRule));
   if (!active.length) return true;
   return filters.groupsLogic === "AND" ? active.every((group) => matchesGroup(lead, group)) : active.some((group) => matchesGroup(lead, group));
