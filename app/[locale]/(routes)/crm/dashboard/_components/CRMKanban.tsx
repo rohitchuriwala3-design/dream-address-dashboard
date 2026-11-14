@@ -2,8 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
-import { useRouter } from "next/navigation";
-import { ThumbsDown } from "lucide-react";
 import {
   DndContext,
   DragOverlay,
@@ -51,7 +49,6 @@ const formatINR = (value: unknown) => {
 };
 
 import { NewOpportunityForm } from "../../opportunities/components/NewOpportunityForm";
-import { setInactiveOpportunity } from "@/actions/crm/opportunity/dashboard/set-inactive";
 import { updateOpportunity } from "@/actions/crm/opportunities/update-opportunity";
 import {
   HoverCard,
@@ -82,7 +79,7 @@ function initColumns(
 }
 
 // Draggable Opportunity Card
-function OpportunityCard({ opportunity, router, onThumbsDown, stage, salesStages }: any) {
+function OpportunityCard({ opportunity }: any) {
   const {
     attributes,
     listeners,
@@ -115,12 +112,10 @@ function OpportunityCard({ opportunity, router, onThumbsDown, stage, salesStages
                 <DotsHorizontalIcon className="w-4 h-4 text-slate-600" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[160px]">
-                <DropdownMenuItem
-                  onClick={() =>
-                    router.push(`/crm/opportunities/${opportunity.id}`)
-                  }
-                >
-                  View
+                <DropdownMenuItem asChild>
+                  <a href={`/crm/opportunities/${opportunity.id}`} target="_blank" rel="noreferrer">
+                    Open details in new tab
+                  </a>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -153,17 +148,14 @@ function OpportunityCard({ opportunity, router, onThumbsDown, stage, salesStages
                   : ""
               }
             >
-              {format(
-                opportunity.close_date
-                  ? new Date(opportunity.close_date)
-                  : new Date(),
-                "dd/MM/yyyy"
-              )}
+              {opportunity.close_date
+                ? format(new Date(opportunity.close_date), "dd/MM/yyyy")
+                : "Not set"}
             </span>
           </div>
         </div>
       </CardContent>
-      <CardFooter className="flex justify-between">
+      <CardFooter className="flex justify-start">
         <div className="flex text-xs items-center gap-2">
           <Avatar className="w-6 h-6">
             <AvatarImage
@@ -175,17 +167,6 @@ function OpportunityCard({ opportunity, router, onThumbsDown, stage, salesStages
             />
           </Avatar>
           <span className="text-xs">{opportunity.assigned_to_user?.name}</span>
-        </div>
-        <div className="flex space-x-2">
-          {stage.probability !==
-            Math.max(
-              ...salesStages.map((s: any) => Number(s.probability || 0))
-            ) && (
-            <ThumbsDown
-              className="w-4 h-4 text-red-500"
-              onClick={() => onThumbsDown(opportunity.id)}
-            />
-          )}
         </div>
       </CardFooter>
     </Card>
@@ -207,8 +188,6 @@ const CRMKanban = ({
   opportunities: data,
   crmData,
 }: CRMKanbanProps) => {
-  const router = useRouter();
-
   const [selectedStage, setSelectedStage] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -226,7 +205,7 @@ const CRMKanban = ({
 
   const { accounts, contacts, saleTypes, saleStages, campaigns, currencies } = crmData;
 
-  // Sync from server (e.g. after onThumbsDown router.refresh()) — only when not dragging
+  // Sync refreshed server state only when a drag interaction is not underway.
   useEffect(() => {
     if (serverDataRef.current !== data && !isDraggingRef.current) {
       serverDataRef.current = data;
@@ -355,26 +334,17 @@ const CRMKanban = ({
     }
   };
 
-  const onThumbsDown = async (opportunityId: string) => {
-    try {
-      await setInactiveOpportunity(opportunityId);
-      toast.success("Opportunity has been set to inactive");
-    } catch (error) {
-      console.log(error);
-    } finally {
-      router.refresh();
-    }
-  };
-
-  // Lost opportunities come from server data (updated via router.refresh on thumbsDown)
+  // Explicit outcomes are different from legacy INACTIVE records.
   const lostOpportunities = data.filter(
-    (o: any) => o.status === "INACTIVE"
+    (o: any) => o.status === "LOST"
   );
+  const wonOpportunities = data.filter((o: any) => o.status === "WON");
+  const inactiveOpportunities = data.filter((o: any) => o.status === "INACTIVE");
 
   return (
     <>
       <Dialog open={isDialogOpen} onOpenChange={() => setIsDialogOpen(false)}>
-        <DialogContent className="min-w-[1000px] py-10 overflow-auto">
+        <DialogContent className="w-[calc(100vw-2rem)] max-w-5xl max-h-[90dvh] overflow-y-auto py-6 sm:py-10">
           <NewOpportunityForm
             accounts={accounts}
             contacts={contacts}
@@ -421,10 +391,6 @@ const CRMKanban = ({
                       <OpportunityCard
                         key={opportunity.id}
                         opportunity={opportunity}
-                        router={router}
-                        onThumbsDown={onThumbsDown}
-                        stage={col}
-                        salesStages={salesStages}
                       />
                     ))}
                   </DroppableStage>
@@ -433,48 +399,62 @@ const CRMKanban = ({
             </Card>
           ))}
 
-          {/* Lost Opportunities Column */}
+          {/* Closed wins remain visible and link to the lead conversion action. */}
           <Card className="mx-1 w-full min-w-[300px] overflow-hidden pb-10">
             <CardTitle className="flex gap-2 p-3 justify-between">
-              <span className="text-sm font-bold">Lost</span>
+              <span className="text-sm font-bold">Won</span>
+              <span className="text-xs text-muted-foreground">{wonOpportunities.length}</span>
             </CardTitle>
-            <CardContent className="w-full h-full overflow-y-scroll space-y-2">
-              {lostOpportunities.map((opportunity: any, index: number) => (
-                <Card key={index}>
-                  <CardTitle className="p-2 text-sm">
-                    <span className="font-bold">{opportunity?.name}</span>
+            <CardContent className="w-full h-full overflow-y-auto space-y-2">
+              {wonOpportunities.map((opportunity: any) => (
+                <Card key={opportunity.id}>
+                  <CardTitle className="p-3 text-sm">
+                    <a href={`/crm/opportunities/${opportunity.id}`} target="_blank" rel="noreferrer" className="font-semibold hover:underline">
+                      {opportunity.name || "Untitled opportunity"}
+                    </a>
                   </CardTitle>
                   <CardContent className="text-xs text-muted-foreground">
-                    <div className="flex flex-col space-y-1">
-                      <div>{opportunity.description?.substring(0, 200)}</div>
-                      <div className="space-x-1">
-                        <span>Amount:</span>
-                        <span>{opportunity.budget == null ? "—" : formatINR(opportunity.budget)}</span>
-                      </div>
-                      <div className="space-x-1">
-                        <span>Expected closing:</span>
-                        <span
-                          className={
-                            opportunity.close_date &&
-                            new Date(opportunity.close_date) < new Date()
-                              ? "text-red-500"
-                              : ""
-                          }
-                        >
-                          {format(
-                            opportunity.close_date
-                              ? new Date(opportunity.close_date)
-                              : new Date(),
-                            "dd/MM/yyyy"
-                          )}
-                        </span>
-                      </div>
-                    </div>
+                    <div>{opportunity.budget == null ? "—" : formatINR(opportunity.budget)}</div>
+                    {opportunity.sourceLeadId ? <p className="mt-1">Won lead · open details to complete account conversion</p> : null}
                   </CardContent>
                 </Card>
               ))}
+              {wonOpportunities.length === 0 ? <p className="py-4 text-xs text-muted-foreground">No won opportunities yet.</p> : null}
             </CardContent>
           </Card>
+
+          <Card className="mx-1 w-full min-w-[300px] overflow-hidden pb-10">
+            <CardTitle className="flex gap-2 p-3 justify-between">
+              <span className="text-sm font-bold">Lost</span>
+              <span className="text-xs text-muted-foreground">{lostOpportunities.length}</span>
+            </CardTitle>
+            <CardContent className="w-full h-full overflow-y-scroll space-y-2">
+              {lostOpportunities.map((opportunity: any) => (
+                <Card key={opportunity.id}>
+                  <CardTitle className="p-2 text-sm">
+                    <a href={`/crm/opportunities/${opportunity.id}`} target="_blank" rel="noreferrer" className="font-bold hover:underline">{opportunity?.name || "Untitled opportunity"}</a>
+                  </CardTitle>
+                  <CardContent className="text-xs text-muted-foreground">
+                    <div>Potential: {opportunity.budget == null ? "—" : formatINR(opportunity.budget)}</div>
+                    {opportunity.outcomeNote ? <div className="mt-1 line-clamp-3">Reason: {opportunity.outcomeNote}</div> : null}
+                  </CardContent>
+                </Card>
+              ))}
+              {lostOpportunities.length === 0 ? <p className="py-4 text-xs text-muted-foreground">No lost opportunities yet.</p> : null}
+            </CardContent>
+          </Card>
+
+          {inactiveOpportunities.length > 0 ? (
+            <Card className="mx-1 w-full min-w-[300px] overflow-hidden pb-10">
+              <CardTitle className="flex gap-2 p-3 justify-between"><span className="text-sm font-bold">Inactive</span><span className="text-xs text-muted-foreground">{inactiveOpportunities.length}</span></CardTitle>
+              <CardContent className="space-y-2">
+                {inactiveOpportunities.map((opportunity: any) => <Card key={opportunity.id}>
+                  <CardTitle className="p-3 text-sm"><a href={`/crm/opportunities/${opportunity.id}`} target="_blank" rel="noreferrer" className="font-semibold hover:underline">{opportunity.name || "Untitled opportunity"}</a></CardTitle>
+                  <CardContent className="text-xs text-muted-foreground">{opportunity.budget == null ? "—" : formatINR(opportunity.budget)}</CardContent>
+                </Card>)}
+              </CardContent>
+            </Card>
+          ) : null}
         </div>
 
         <DragOverlay>
