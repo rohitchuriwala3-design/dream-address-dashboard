@@ -16,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getLeads } from "@/actions/crm/get-leads";
 import { getOpportunitiesFull } from "@/actions/crm/get-opportunities-with-includes";
+import { CRMWorkspaceCustomizer, CRMWorkspaceWidget } from "./components/CRMWorkspaceCustomizer";
 
 const inr = new Intl.NumberFormat("en-IN", {
   style: "currency",
@@ -68,7 +69,7 @@ const CrmPage = async () => {
       title="CRM workbench"
       description="Your residential enquiry, follow-up and project handoff desk."
     >
-      <div className="space-y-6 pb-8">
+      <CRMWorkspaceCustomizer widgets={[{ id: "summary", label: "Summary metrics" }, { id: "followups", label: "Follow-up focus" }, { id: "pipeline", label: "Pipeline by stage" }, { id: "leads", label: "Latest enquiries" }]}>
         <section className="flex flex-col gap-4 rounded-2xl border bg-gradient-to-br from-primary/10 via-card to-card p-5 sm:flex-row sm:items-center sm:justify-between sm:p-7">
           <div className="max-w-2xl space-y-2">
             <Badge variant="secondary" className="rounded-full px-3 py-1">Studio sales desk</Badge>
@@ -87,14 +88,17 @@ const CrmPage = async () => {
           </div>
         </section>
 
+        <div className="grid gap-4 pb-8 xl:grid-cols-2">
+        <CRMWorkspaceWidget id="summary" className="xl:col-span-2">
         <section aria-label="CRM summary" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <SummaryCard label="Tracked leads" value={leads.length.toLocaleString("en-IN")} detail="Leads in your permitted view" icon={<CircleUserRound aria-hidden="true" />} href="/crm/leads" />
           <SummaryCard label="Active opportunities" value={openOpportunities.length.toLocaleString("en-IN")} detail="Potential residential projects" icon={<BriefcaseBusiness aria-hidden="true" />} href="/crm/opportunities" />
           <SummaryCard label="Open pipeline" value={inr.format(pipelineValue)} detail="Expected revenue, falling back to budget" icon={<TrendingUp aria-hidden="true" />} href="/crm/opportunities" />
           <SummaryCard label="Needs follow-up" value={followUpQueue.length.toLocaleString("en-IN")} detail="No next step or activity in 14 days" icon={<CalendarClock aria-hidden="true" />} href="/crm/opportunities" />
         </section>
+        </CRMWorkspaceWidget>
 
-        <section className="grid gap-4 xl:grid-cols-[minmax(0,1.55fr)_minmax(300px,0.85fr)]">
+        <CRMWorkspaceWidget id="followups">
           <Card className="overflow-hidden">
             <CardHeader className="flex flex-row items-center justify-between gap-3 border-b px-5 py-4 sm:px-6">
               <div>
@@ -138,7 +142,8 @@ const CrmPage = async () => {
               )}
             </CardContent>
           </Card>
-
+        </CRMWorkspaceWidget>
+        <CRMWorkspaceWidget id="pipeline">
           <Card>
             <CardHeader className="border-b px-5 py-4 sm:px-6">
               <CardTitle className="text-lg">Pipeline by stage</CardTitle>
@@ -163,8 +168,9 @@ const CrmPage = async () => {
               </div>
             </CardContent>
           </Card>
-        </section>
+        </CRMWorkspaceWidget>
 
+        <CRMWorkspaceWidget id="leads" className="xl:col-span-2">
         <section aria-label="Latest enquiries">
           <div className="mb-3 flex items-end justify-between gap-3">
             <div><h3 className="text-lg font-semibold">Latest enquiries</h3><p className="text-sm text-muted-foreground">New leads, referrals and qualification progress.</p></div>
@@ -187,7 +193,9 @@ const CrmPage = async () => {
             {leads.length === 0 && <Card className="flex min-h-40 items-center justify-center border-dashed p-6 text-center md:col-span-2 xl:col-span-3"><div><p className="font-medium">No enquiries yet</p><p className="mt-1 text-sm text-muted-foreground">Create the first enquiry and keep its next step visible.</p><Button asChild size="sm" className="mt-4"><Link href="/crm/leads?create=1"><Plus aria-hidden="true" /> Add enquiry</Link></Button></div></Card>}
           </div>
         </section>
-      </div>
+        </CRMWorkspaceWidget>
+        </div>
+      </CRMWorkspaceCustomizer>
     </Container>
   );
 };

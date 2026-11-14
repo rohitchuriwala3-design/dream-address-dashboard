@@ -40,6 +40,10 @@ import { toast } from "sonner";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Settings2 } from "lucide-react";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 const formatINR = (value: unknown) => {
   const amount = Number(value);
@@ -66,6 +70,9 @@ interface CRMKanbanProps {
 type Column = crm_Opportunities_Sales_Stages & {
   opportunities: crm_Opportunities[];
 };
+
+const BOARD_PREFS_KEY = "mark4.crm.opportunity-board.v1";
+const DEFAULT_VISIBLE_METRICS = ["open", "pipeline", "weighted", "missing", "overdue", "close"];
 
 function initColumns(
   opps: crm_Opportunities[],
@@ -201,6 +208,37 @@ const CRMKanban = ({
 }: CRMKanbanProps) => {
   const [selectedStage, setSelectedStage] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [customizeOpen, setCustomizeOpen] = useState(false);
+  const [visibleMetrics, setVisibleMetrics] = useState<string[]>(DEFAULT_VISIBLE_METRICS);
+  const [visibleStages, setVisibleStages] = useState<string[]>(salesStages.map((stage) => stage.id));
+  const [showWon, setShowWon] = useState(true);
+  const [showLost, setShowLost] = useState(true);
+  const [showInactive, setShowInactive] = useState(true);
+  const [preferencesLoaded, setPreferencesLoaded] = useState(false);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      try {
+        const saved = localStorage.getItem(BOARD_PREFS_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved) as { metrics?: unknown; stages?: unknown; won?: unknown; lost?: unknown; inactive?: unknown };
+          if (Array.isArray(parsed.metrics)) setVisibleMetrics(parsed.metrics.filter((value): value is string => typeof value === "string"));
+          if (Array.isArray(parsed.stages)) setVisibleStages(parsed.stages.filter((value): value is string => typeof value === "string"));
+          if (typeof parsed.won === "boolean") setShowWon(parsed.won);
+          if (typeof parsed.lost === "boolean") setShowLost(parsed.lost);
+          if (typeof parsed.inactive === "boolean") setShowInactive(parsed.inactive);
+        }
+      } catch { /* Ignore corrupt preference data and use defaults. */ }
+      setPreferencesLoaded(true);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!preferencesLoaded) return;
+    try { localStorage.setItem(BOARD_PREFS_KEY, JSON.stringify({ metrics: visibleMetrics, stages: visibleStages, won: showWon, lost: showLost, inactive: showInactive })); }
+    catch { /* The board remains usable if browser storage is unavailable. */ }
+  }, [preferencesLoaded, visibleMetrics, visibleStages, showWon, showLost, showInactive]);
 
   const serverDataRef = useRef(data);
   const [columns, setColumns] = useState<Column[]>(() =>
@@ -353,15 +391,33 @@ const CRMKanban = ({
   const inactiveOpportunities = data.filter((o: any) => o.status === "INACTIVE");
   const metrics = getPipelineMetrics(data, salesStages);
 
+  const metricCards = [
+    ["open", "Open opportunities", metrics.openCount],
+    ["pipeline", "Expected pipeline", formatINR(metrics.pipelineValue)],
+    ["weighted", "Probability weighted", formatINR(metrics.weightedValue)],
+    ["missing", "Missing next step", metrics.missingNextStep],
+    ["overdue", "Follow-up overdue", metrics.overdueFollowUps],
+    ["close", "Past expected close", metrics.overdueCloseDates],
+  ] as const;
+
   return (
     <>
+      <div className="mb-3 flex justify-end">
+        <Sheet open={customizeOpen} onOpenChange={setCustomizeOpen}>
+          <SheetTrigger asChild><Button variant="outline" size="sm"><Settings2 className="mr-2 h-4 w-4" />Customize board</Button></SheetTrigger>
+          <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
+            <SheetHeader><SheetTitle>Customize opportunity board</SheetTitle><SheetDescription>Choose which summary cards and pipeline lanes to show. Your choices are saved in this browser.</SheetDescription></SheetHeader>
+            <div className="mt-6 space-y-6">
+              <section className="space-y-3"><h3 className="text-sm font-semibold">Summary cards</h3>{metricCards.map(([id, label]) => <label key={id} className="flex items-center gap-3 text-sm"><Checkbox checked={visibleMetrics.includes(id)} onCheckedChange={(checked) => setVisibleMetrics((current) => checked ? current.includes(id) ? current : current.concat(id) : current.filter((item) => item !== id))} />{label}</label>)}</section>
+              <section className="space-y-3"><h3 className="text-sm font-semibold">Pipeline stages</h3>{salesStages.map((stage) => <label key={stage.id} className="flex items-center gap-3 text-sm"><Checkbox checked={visibleStages.includes(stage.id)} onCheckedChange={(checked) => setVisibleStages((current) => checked ? current.includes(stage.id) ? current : current.concat(stage.id) : current.filter((item) => item !== stage.id))} />{stage.name}</label>)}</section>
+              <section className="space-y-3"><h3 className="text-sm font-semibold">Closed lanes</h3>{[["won", "Won", showWon, setShowWon], ["lost", "Lost", showLost, setShowLost], ["inactive", "Inactive", showInactive, setShowInactive]].map(([id, label, checked, setChecked]) => <label key={String(id)} className="flex items-center gap-3 text-sm"><Checkbox checked={checked as boolean} onCheckedChange={(value) => (setChecked as (value: boolean) => void)(Boolean(value))} />{String(label)}</label>)}</section>
+              <Button variant="ghost" onClick={() => { setVisibleMetrics(DEFAULT_VISIBLE_METRICS); setVisibleStages(salesStages.map((stage) => stage.id)); setShowWon(true); setShowLost(true); setShowInactive(true); }}>Reset board layout</Button>
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
       <section aria-label="Opportunity pipeline summary" className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Open opportunities</p><p className="mt-1 text-2xl font-semibold">{metrics.openCount}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Expected pipeline</p><p className="mt-1 text-lg font-semibold">{formatINR(metrics.pipelineValue)}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Probability weighted</p><p className="mt-1 text-lg font-semibold">{formatINR(metrics.weightedValue)}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Missing next step</p><p className="mt-1 text-2xl font-semibold">{metrics.missingNextStep}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Follow-up overdue</p><p className="mt-1 text-2xl font-semibold">{metrics.overdueFollowUps}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Past expected close</p><p className="mt-1 text-2xl font-semibold">{metrics.overdueCloseDates}</p></CardContent></Card>
+        {metricCards.filter(([id]) => visibleMetrics.includes(id)).map(([id, label, value]) => <Card key={id}><CardContent className="p-4"><p className="text-xs text-muted-foreground">{label}</p><p className="mt-1 text-xl font-semibold">{value}</p></CardContent></Card>)}
       </section>
       <Dialog open={isDialogOpen} onOpenChange={() => setIsDialogOpen(false)}>
         <DialogContent className="w-[calc(100vw-2rem)] max-w-5xl max-h-[90dvh] overflow-y-auto py-6 sm:py-10">
@@ -386,7 +442,7 @@ const CRMKanban = ({
         onDragEnd={handleDragEnd}
       >
         <div className="flex w-full h-full overflow-x-auto">
-          {columns.map((col) => (
+          {columns.filter((col) => visibleStages.includes(col.id)).map((col) => (
             <Card
               key={col.id}
               className="mx-1 w-full min-w-[300px] overflow-hidden pb-10"
@@ -420,7 +476,7 @@ const CRMKanban = ({
           ))}
 
           {/* Closed wins remain visible and link to the lead conversion action. */}
-          <Card className="mx-1 w-full min-w-[300px] overflow-hidden pb-10">
+          {showWon && <Card className="mx-1 w-full min-w-[300px] overflow-hidden pb-10">
             <CardTitle className="flex gap-2 p-3 justify-between">
               <span className="text-sm font-bold">Won</span>
               <span className="text-xs text-muted-foreground">{wonOpportunities.length}</span>
@@ -441,9 +497,9 @@ const CRMKanban = ({
               ))}
               {wonOpportunities.length === 0 ? <p className="py-4 text-xs text-muted-foreground">No won opportunities yet.</p> : null}
             </CardContent>
-          </Card>
+          </Card>}
 
-          <Card className="mx-1 w-full min-w-[300px] overflow-hidden pb-10">
+          {showLost && <Card className="mx-1 w-full min-w-[300px] overflow-hidden pb-10">
             <CardTitle className="flex gap-2 p-3 justify-between">
               <span className="text-sm font-bold">Lost</span>
               <span className="text-xs text-muted-foreground">{lostOpportunities.length}</span>
@@ -462,9 +518,9 @@ const CRMKanban = ({
               ))}
               {lostOpportunities.length === 0 ? <p className="py-4 text-xs text-muted-foreground">No lost opportunities yet.</p> : null}
             </CardContent>
-          </Card>
+          </Card>}
 
-          {inactiveOpportunities.length > 0 ? (
+          {showInactive && inactiveOpportunities.length > 0 ? (
             <Card className="mx-1 w-full min-w-[300px] overflow-hidden pb-10">
               <CardTitle className="flex gap-2 p-3 justify-between"><span className="text-sm font-bold">Inactive</span><span className="text-xs text-muted-foreground">{inactiveOpportunities.length}</span></CardTitle>
               <CardContent className="space-y-2">

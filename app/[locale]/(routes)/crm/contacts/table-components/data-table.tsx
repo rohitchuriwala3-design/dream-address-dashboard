@@ -3,9 +3,6 @@
 import * as React from "react";
 import {
   ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
   flexRender,
   getCoreRowModel,
   getFacetedRowModel,
@@ -30,6 +27,7 @@ import { DataTableToolbar } from "./data-table-toolbar";
 import { PanelTopClose, PanelTopOpen, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BulkEnrichModal } from "../components/BulkEnrichModal";
+import { useCrmTableViewPreferences } from "@/lib/crm/table-view-preferences";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -41,12 +39,7 @@ export function ContactsDataTable<TData, TValue>({
   data,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const preferences = useCrmTableViewPreferences("contacts");
 
   const [hide, setHide] = React.useState(false);
   const [bulkEnrichOpen, setBulkEnrichOpen] = React.useState(false);
@@ -55,16 +48,16 @@ export function ContactsDataTable<TData, TValue>({
     data,
     columns,
     state: {
-      sorting,
-      columnVisibility,
+      sorting: preferences.state.sorting,
+      columnVisibility: preferences.state.columnVisibility,
       rowSelection,
-      columnFilters,
+      columnFilters: preferences.state.columnFilters,
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
+    onSortingChange: preferences.onSortingChange,
+    onColumnFiltersChange: preferences.onColumnFiltersChange,
+    onColumnVisibilityChange: preferences.onColumnVisibilityChange,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
