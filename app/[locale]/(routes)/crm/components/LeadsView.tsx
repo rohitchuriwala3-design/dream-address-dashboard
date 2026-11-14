@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -43,7 +44,7 @@ const LeadsView = ({ data, crmData, accountId, initialCreateOpen = false }: Lead
   return (
     <Card>
       <CardHeader className="pb-3">
-        <div className="flex justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle>
               <Link href="/crm/leads" className="hover:underline">
@@ -51,10 +52,13 @@ const LeadsView = ({ data, crmData, accountId, initialCreateOpen = false }: Lead
               </Link>
             </CardTitle>
           </div>
-          <div className="flex space-x-2">
+          <div className="flex flex-wrap gap-2">
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
-                <Button size="sm" aria-label={t("leads.addNew")} data-testid="add-lead-btn">+</Button>
+                <Button size="sm" aria-label={t("leads.addNew")} data-testid="add-lead-btn">
+                  <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
+                  {t("leads.addNew")}
+                </Button>
               </SheetTrigger>
               <SheetContent className="w-full md:max-w-[771px] overflow-y-auto">
                 <SheetHeader>
