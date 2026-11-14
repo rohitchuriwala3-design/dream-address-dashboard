@@ -65,6 +65,7 @@ export function LeadDataTable<TData, TValue>({
   leadFieldSettings,
 }: DataTableProps<TData, TValue>) {
   const columns = createColumns(leadSources, leadStatuses, leadTypes, leadFieldSettings) as ColumnDef<TData, TValue>[];
+  const columnLabels = { ...COLUMN_LABELS, ...Object.fromEntries(leadFieldSettings.customFields.map((field) => [`custom_${field.key}`, field.label])) };
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>(Object.fromEntries(DEFAULT_HIDDEN_COLUMNS.map((id) => [id, false])));
@@ -89,11 +90,11 @@ export function LeadDataTable<TData, TValue>({
           setColumnVisibility((current) => ({ ...current, ...parsed.columnVisibility }));
         }
         if (Array.isArray(parsed.columnOrder)) setColumnOrder(parsed.columnOrder.filter((id) => typeof id === "string"));
-        if (parsed.advancedFilters) setAdvancedFilters(sanitizeLeadFilterSet(parsed.advancedFilters));
+        if (parsed.advancedFilters) setAdvancedFilters(sanitizeLeadFilterSet(parsed.advancedFilters, leadFieldSettings.customFields.filter((field) => !field.hidden).map((field) => field.key)));
       }
     } catch { /* Ignore malformed or blocked browser storage and use defaults. */ }
     setPreferencesLoaded(true);
-  }, []);
+  }, [leadFieldSettings.customFields]);
 
   React.useEffect(() => {
     if (!preferencesLoaded) return;
@@ -145,6 +146,7 @@ export function LeadDataTable<TData, TValue>({
         lead.preClosureOpportunity?.status,
         lead.preClosureOpportunity?.assigned_sales_stage?.name,
         lead.assigned_accounts?.name,
+        ...Object.values(lead.customFields || {}),
       ];
       return values.some((value) => String(value || "").toLowerCase().includes(search));
     },
@@ -178,7 +180,7 @@ export function LeadDataTable<TData, TValue>({
         </div>
       ) : (
         <>
-          <DataTableToolbar table={table} leadStatuses={leadStatuses} leadSources={leadSources} leadTypes={leadTypes} advancedFilters={advancedFilters} onAdvancedFiltersChange={setAdvancedFilters} />
+          <DataTableToolbar table={table} leadStatuses={leadStatuses} leadSources={leadSources} leadTypes={leadTypes} advancedFilters={advancedFilters} onAdvancedFiltersChange={setAdvancedFilters} customFields={leadFieldSettings.customFields} columnLabels={columnLabels} />
           <div className="hidden overflow-x-auto rounded-xl border md:block">
             <Table data-testid="leads-table">
               <TableHeader>
@@ -252,7 +254,7 @@ export function LeadDataTable<TData, TValue>({
                   <div className="mt-3 grid gap-2 border-t pt-3 text-sm sm:grid-cols-2">
                     {visibleCells.filter((cell) => !["client", "actions", "lead_status_id", "lead_source_id", "company"].includes(cell.column.id)).map((cell) => (
                       <div key={cell.id} className="min-w-0 space-y-0.5">
-                        <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{COLUMN_LABELS[cell.column.id] || cell.column.id}</p>
+                        <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{columnLabels[cell.column.id] || cell.column.id}</p>
                         <div className="min-w-0 truncate">{flexRender(cell.column.columnDef.cell, cell.getContext())}</div>
                       </div>
                     ))}

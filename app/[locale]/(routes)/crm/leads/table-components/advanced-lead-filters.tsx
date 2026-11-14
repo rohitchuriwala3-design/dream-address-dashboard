@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { getLeadFilterLogicError, isCompleteFilterRule } from "./lead-filter-evaluator";
+import type { LeadCustomField } from "@/lib/crm/leads/field-settings-shared";
 
-export type LeadFilterField = "stage" | "source" | "type" | "owner" | "name" | "company" | "email" | "phone" | "campaign" | "opportunityStage" | "budget" | "expectedRevenue" | "weightedForecast" | "nextStep" | "nextStepDue" | "daysInPipeline";
+export type LeadFilterField = "stage" | "source" | "type" | "owner" | "name" | "company" | "email" | "phone" | "campaign" | "opportunityStage" | "budget" | "expectedRevenue" | "weightedForecast" | "nextStep" | "nextStepDue" | "daysInPipeline" | `custom_${string}`;
 export type LeadFilterRule = { id: string; field: LeadFilterField; operator: string; value: string; logicToNext?: "AND" | "OR" };
 export type LeadFilterGroup = { id: string; logic: "AND" | "OR"; rules: LeadFilterRule[] };
 export type LeadFilterSet = { groupsLogic: "AND" | "OR"; groups: LeadFilterGroup[]; expression?: string };
@@ -24,25 +25,25 @@ const FIELDS: { id: LeadFilterField; label: string; type: "text" | "number" | "c
   { id: "nextStepDue", label: "Next step due", type: "due" }, { id: "daysInPipeline", label: "Days in pipeline", type: "number" },
 ];
 
-const fieldType = (field: LeadFilterField) => FIELDS.find((item) => item.id === field)?.type || "text";
-const operators = (field: LeadFilterField) => {
-  const type = fieldType(field);
-  if (type === "number") return [["eq", "is equal to"], ["gt", "is greater than"], ["gte", "is at least"], ["lt", "is less than"], ["lte", "is at most"]];
-  if (type === "due") return [["overdue", "is overdue"], ["today", "is due today"], ["next7", "is due in the next 7 days"], ["later", "is due later"], ["noDate", "has no due date"]];
-  if (type === "choice") return [["eq", "is"], ["neq", "is not"], ["empty", "is empty"], ["notEmpty", "is not empty"]];
-  return [["contains", "contains"], ["eq", "is exactly"], ["neq", "is not"], ["empty", "is empty"], ["notEmpty", "is not empty"]];
-};
-
 const newRule = (): LeadFilterRule => ({ id: crypto.randomUUID(), field: "stage", operator: "eq", value: "" });
 const newGroup = (): LeadFilterGroup => ({ id: crypto.randomUUID(), logic: "AND", rules: [newRule()] });
 const flattenRules = (groups: LeadFilterGroup[]) => groups.flatMap((group) => group.rules);
 
-interface Props { value: LeadFilterSet; onChange: (value: LeadFilterSet) => void; activeCount: number; choices: Partial<Record<LeadFilterField, { value: string; label: string }[]>>; }
+interface Props { value: LeadFilterSet; onChange: (value: LeadFilterSet) => void; activeCount: number; choices: Partial<Record<LeadFilterField, { value: string; label: string }[]>>; customFields?: LeadCustomField[]; }
 
-export function AdvancedLeadFilters({ value, onChange, activeCount, choices }: Props) {
+export function AdvancedLeadFilters({ value, onChange, activeCount, choices, customFields = [] }: Props) {
   const [open, setOpen] = useState(false);
   const logicInput = useRef<HTMLInputElement>(null);
   const allRules = flattenRules(value.groups);
+  const fields = [...FIELDS, ...customFields.filter((field) => !field.hidden).map((field) => ({ id: `custom_${field.key}` as LeadFilterField, label: field.label, type: field.type === "number" ? "number" as const : field.type === "select" || field.type === "checkbox" ? "choice" as const : "text" as const }))];
+  const filterType = (field: LeadFilterField) => fields.find((item) => item.id === field)?.type || "text";
+  const fieldOperators = (field: LeadFilterField) => {
+    const type = filterType(field);
+    if (type === "number") return [["eq", "is equal to"], ["gt", "is greater than"], ["gte", "is at least"], ["lt", "is less than"], ["lte", "is at most"]];
+    if (type === "due") return [["overdue", "is overdue"], ["today", "is due today"], ["next7", "is due in the next 7 days"], ["later", "is due later"], ["noDate", "has no due date"]];
+    if (type === "choice") return [["eq", "is"], ["neq", "is not"], ["empty", "is empty"], ["notEmpty", "is not empty"]];
+    return [["contains", "contains"], ["eq", "is exactly"], ["neq", "is not"], ["empty", "is empty"], ["notEmpty", "is not empty"]];
+  };
   const updateGroup = (groupId: string, patch: Partial<LeadFilterGroup>) => onChange({ ...value, expression: undefined, groups: value.groups.map((group) => group.id === groupId ? { ...group, ...patch } : group) });
   const updateRule = (groupId: string, ruleId: string, patch: Partial<LeadFilterRule>) => onChange({ ...value, expression: undefined, groups: value.groups.map((group) => group.id === groupId ? { ...group, rules: group.rules.map((rule) => rule.id === ruleId ? { ...rule, ...patch } : rule) } : group) });
   const removeRule = (groupId: string, ruleId: string) => onChange({ ...value, expression: undefined, groups: value.groups.map((group) => group.id === groupId ? { ...group, rules: group.rules.filter((rule) => rule.id !== ruleId) } : group) });
@@ -87,13 +88,13 @@ export function AdvancedLeadFilters({ value, onChange, activeCount, choices }: P
           <div className="mb-3 flex items-center justify-between gap-2"><span className="rounded bg-muted px-2 py-1 font-mono text-xs font-semibold text-muted-foreground">( Bracket {groupIndex + 1} )</span><Button variant="ghost" size="sm" disabled={value.groups.length <= 1} onClick={() => onChange({ ...value, expression: undefined, groups: value.groups.filter((item) => item.id !== group.id) })}><Trash2 className="mr-2 h-4 w-4" />Remove bracket</Button></div>
           <div className="space-y-2">
             {group.rules.map((rule, ruleIndex) => {
-              const type = fieldType(rule.field);
-              const ops = operators(rule.field);
+              const type = filterType(rule.field);
+              const ops = fieldOperators(rule.field);
               const ruleNumber = ruleNumbers.get(rule.id);
               return <Fragment key={rule.id}>
                 <div className="grid gap-2 rounded-lg border bg-muted/10 p-2 sm:grid-cols-[2rem_minmax(0,1.15fr)_minmax(0,1fr)_minmax(0,1.2fr)_2.25rem] sm:items-center">
                   <span aria-label={`Filter ${ruleNumber}`} className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-xs font-semibold text-primary">{ruleNumber}</span>
-                  <Select value={rule.field} onValueChange={(field: LeadFilterField) => updateRule(group.id, rule.id, { field, operator: operators(field)[0][0], value: "" })}><SelectTrigger aria-label={`Filter ${ruleNumber} field`}><SelectValue placeholder="Select field" /></SelectTrigger><SelectContent>{FIELDS.map((field) => <SelectItem key={field.id} value={field.id}>{field.label}</SelectItem>)}</SelectContent></Select>
+                  <Select value={rule.field} onValueChange={(field: LeadFilterField) => updateRule(group.id, rule.id, { field, operator: fieldOperators(field)[0][0], value: "" })}><SelectTrigger aria-label={`Filter ${ruleNumber} field`}><SelectValue placeholder="Select field" /></SelectTrigger><SelectContent>{fields.map((field) => <SelectItem key={field.id} value={field.id}>{field.label}</SelectItem>)}</SelectContent></Select>
                   <Select value={rule.operator} onValueChange={(operator: string) => updateRule(group.id, rule.id, { operator, value: "" })}><SelectTrigger aria-label={`Filter ${ruleNumber} condition`}><SelectValue placeholder="Condition" /></SelectTrigger><SelectContent>{ops.map(([id, label]) => <SelectItem key={id} value={id}>{label}</SelectItem>)}</SelectContent></Select>
                   {type === "due" ? <div className="px-2 text-xs text-muted-foreground">Date range comes from the condition</div> : (rule.operator === "empty" || rule.operator === "notEmpty") ? <div className="px-2 text-xs text-muted-foreground">No value needed</div> : type === "choice" && choices[rule.field]?.length ? <Select value={rule.value} onValueChange={(filterValue: string) => updateRule(group.id, rule.id, { value: filterValue })}><SelectTrigger aria-label={`Filter ${ruleNumber} value`}><SelectValue placeholder="Select value" /></SelectTrigger><SelectContent>{choices[rule.field]!.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}</SelectContent></Select> : <Input aria-label={`Filter ${ruleNumber} value`} type={type === "number" ? "number" : "text"} value={rule.value} onChange={(event) => updateRule(group.id, rule.id, { value: event.target.value })} placeholder={type === "number" ? "Enter amount (₹)" : "Enter value"} />}
                   <Button variant="ghost" size="icon" aria-label={`Remove filter ${ruleNumber}`} disabled={allRules.length <= 1} onClick={() => removeRule(group.id, rule.id)}><X className="h-4 w-4" /></Button>

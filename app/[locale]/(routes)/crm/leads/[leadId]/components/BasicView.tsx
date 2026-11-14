@@ -19,6 +19,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { LeadDetailActions } from "./LeadDetailActions";
 import { getLeadFormOptions } from "@/actions/crm/get-lead-form-options";
+import type { Prisma } from "@prisma/client";
 
 interface LeadDetailData {
   id: string;
@@ -39,6 +40,7 @@ interface LeadDetailData {
   lead_type?: { id: string; name: string } | null;
   assigned_to_user?: { id: string; name: string | null } | null;
   assigned_accounts?: { id: string; name: string } | null;
+  customFields?: Prisma.JsonValue;
   preClosureOpportunity?: {
     id: string;
     name: string | null;
@@ -95,6 +97,9 @@ function formatINR(value: number) {
 
 export async function BasicView({ data }: Props) {
   const { leadSources, leadStatuses, leadTypes, leadFieldSettings } = await getLeadFormOptions();
+  const customValues = data.customFields && typeof data.customFields === "object" && !Array.isArray(data.customFields)
+    ? data.customFields as Record<string, string | number | boolean | null>
+    : {};
   const fullName = [data.firstName, data.lastName].filter(Boolean).join(" ");
   const website = data.website?.trim()
     ? /^https?:\/\//i.test(data.website.trim())
@@ -170,6 +175,7 @@ export async function BasicView({ data }: Props) {
           {data.campaign?.trim() ? (
             <p className="text-xs text-muted-foreground">Campaign: {data.campaign}</p>
           ) : null}
+          {leadFieldSettings.customFields.some((field) => !field.hidden && customValues[field.key] !== undefined) ? <section className="space-y-3 border-t pt-4" aria-labelledby="lead-custom-fields-heading"><h3 id="lead-custom-fields-heading" className="text-sm font-semibold">Additional details</h3><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{leadFieldSettings.customFields.filter((field) => !field.hidden && customValues[field.key] !== undefined).map((field) => { const value = customValues[field.key]; return <DetailItem key={field.key} icon={FileText} label={field.label} value={typeof value === "boolean" ? value ? "Yes" : "No" : value == null ? undefined : String(value)} />; })}</div></section> : null}
           <p className="border-t pt-3 text-xs text-muted-foreground">Record reference: {data.id}</p>
         </CardContent>
       </Card>

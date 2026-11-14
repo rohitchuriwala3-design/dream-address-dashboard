@@ -52,4 +52,15 @@ describe("lead filter evaluator", () => {
     expect(filters.groups[0].rules[0].logicToNext).toBe("OR");
     expect(countActiveLeadFilters(filters)).toBe(1);
   });
+
+  it("filters Leads by configured custom text and number fields only", () => {
+    const filters = sanitizeLeadFilterSet({ groupsLogic: "AND", groups: [{ id: "g", logic: "AND", rules: [
+      { id: "r1", field: "custom_locality", operator: "contains", value: "baner" },
+      { id: "r2", field: "custom_site_visits", operator: "gte", value: "2" },
+      { id: "r3", field: "custom_unconfigured", operator: "eq", value: "anything" },
+    ] }] }, ["locality", "site_visits"]);
+    expect(filters.groups[0].rules).toHaveLength(2);
+    expect(leadMatchesAdvancedFilters({ customFields: { locality: "Baner, Pune", site_visits: 3 } }, filters)).toBe(true);
+    expect(leadMatchesAdvancedFilters({ customFields: { locality: "Kothrud", site_visits: 3 } }, filters)).toBe(false);
+  });
 });

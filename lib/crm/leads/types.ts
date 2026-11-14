@@ -12,6 +12,7 @@ export interface LeadInput {
   lead_type_id?: string | null;
   refered_by?: string | null;
   campaign?: string | null;
+  customFields?: Record<string, string | number | boolean | null>;
   assigned_to?: string | null;
   accountsIDs?: string | null;
 }

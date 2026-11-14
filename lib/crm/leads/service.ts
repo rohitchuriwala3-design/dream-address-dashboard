@@ -89,7 +89,7 @@ export async function updateLead(user: AuthzUser, id: string, input: LeadInput) 
   const { accountsIDs } = input;
   if (accountsIDs && accountsIDs !== before?.accountsIDs) await guard(() => assertCanWriteAccount(user, accountsIDs, PARTNER_EDIT));
   const partner = user.role === "partner";
-  await validateRequiredLeadFields(input);
+  await validateRequiredLeadFields({ ...input, customFields: input.customFields ?? (before?.customFields as Record<string, string | number | boolean | null> | undefined) });
   const data = partner ? { ...input, assigned_to: undefined, accountsIDs: input.accountsIDs || undefined } : input;
   // Only a new assignee other than the caller is checked and mailed; re-saving the current one is neither.
   const { assigned_to } = data;

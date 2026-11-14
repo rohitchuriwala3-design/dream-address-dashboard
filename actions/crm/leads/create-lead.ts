@@ -17,6 +17,7 @@ export const createLead = async (data: {
   campaign?: string;
   assigned_to?: string;
   accountIDs?: string;
+  customFields?: Record<string, string | number | boolean | null>;
 }) => {
   const {
     first_name,
@@ -33,6 +34,7 @@ export const createLead = async (data: {
     campaign,
     assigned_to,
     accountIDs,
+    customFields,
   } = data;
 
   return runLeadAction({ verb: "create", auth: { partner: true } }, async (user) => {
@@ -52,6 +54,7 @@ export const createLead = async (data: {
       campaign: campaign || undefined,
       assigned_to: assigned_to || undefined,
       accountsIDs: accountIDs || undefined,
+      customFields,
     });
     return { data: lead };
   });

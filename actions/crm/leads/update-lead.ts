@@ -18,6 +18,7 @@ export const updateLead = async (data: {
   campaign?: string | null;
   assigned_to?: string;
   accountIDs?: string;
+  customFields?: Record<string, string | number | boolean | null>;
 }) => {
   const {
     id,
@@ -35,6 +36,7 @@ export const updateLead = async (data: {
     campaign,
     assigned_to,
     accountIDs,
+    customFields,
   } = data;
 
   if (!id) return { error: "id is required" };
@@ -57,6 +59,7 @@ export const updateLead = async (data: {
       campaign,
       assigned_to: assigned_to || user.id,
       accountsIDs: accountIDs,
+      customFields,
     });
     return { data: lead };
   });

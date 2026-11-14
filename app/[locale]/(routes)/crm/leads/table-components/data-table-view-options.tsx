@@ -19,9 +19,9 @@ const COLUMN_LABELS: Record<string, string> = {
   nextStep: "Next step", nextStepDue: "Next step due", daysInPipeline: "Days in pipeline",
 };
 
-interface DataTableViewOptionsProps<TData> { table: Table<TData>; }
+interface DataTableViewOptionsProps<TData> { table: Table<TData>; labels?: Record<string, string>; }
 
-export function DataTableViewOptions<TData>({ table }: DataTableViewOptionsProps<TData>) {
+export function DataTableViewOptions<TData>({ table, labels = {} }: DataTableViewOptionsProps<TData>) {
   const [open, setOpen] = useState(false);
   const pinned = new Set(["client", "actions"]);
   const columns = table.getAllLeafColumns().filter((column) => column.getCanHide() && !pinned.has(column.id));
@@ -65,11 +65,11 @@ export function DataTableViewOptions<TData>({ table }: DataTableViewOptionsProps
             return <div key={id} className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5">
               <label className="flex min-w-0 flex-1 items-center gap-3 text-sm font-medium">
                 <Checkbox checked={column.getIsVisible()} onCheckedChange={(value) => column.toggleVisibility(Boolean(value))} />
-                <span className="truncate">{COLUMN_LABELS[id] || id}</span>
+                <span className="truncate">{labels[id] || COLUMN_LABELS[id] || id}</span>
               </label>
               <div className="flex shrink-0 gap-1">
-                <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={`Move ${COLUMN_LABELS[id] || id} earlier`} disabled={index === 0} onClick={() => move(id, -1)}><ChevronUp className="h-4 w-4" /></Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={`Move ${COLUMN_LABELS[id] || id} later`} disabled={index === order.length - 1} onClick={() => move(id, 1)}><ChevronDown className="h-4 w-4" /></Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={`Move ${labels[id] || COLUMN_LABELS[id] || id} earlier`} disabled={index === 0} onClick={() => move(id, -1)}><ChevronUp className="h-4 w-4" /></Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={`Move ${labels[id] || COLUMN_LABELS[id] || id} later`} disabled={index === order.length - 1} onClick={() => move(id, 1)}><ChevronDown className="h-4 w-4" /></Button>
               </div>
             </div>;
           })}

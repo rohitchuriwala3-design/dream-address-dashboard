@@ -29,6 +29,7 @@ import { UserSearchCombobox } from "@/components/ui/user-search-combobox";
 import { AccountSearchCombobox } from "@/components/ui/account-search-combobox";
 import { updateLead } from "@/actions/crm/leads/update-lead";
 import type { LeadFieldSettings } from "@/lib/crm/leads/field-settings-shared";
+import { CustomLeadFieldsForm } from "./CustomLeadFieldsForm";
 
 //TODO: fix all the types
 type ConfigItem = { id: string; name: string };
@@ -63,6 +64,7 @@ export function UpdateLeadForm({ initialData, setOpen, leadSources, leadStatuses
     campaign: z.string().optional().nullable(),
     assigned_to: z.string().optional().nullable(),
     accountsIDs: z.string().optional().nullable(),
+    customFields: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional(),
   }).superRefine((values, context) => {
     for (const key of leadFieldSettings.required) {
       if (!String(values[key] ?? "").trim()) context.addIssue({ code: "custom", path: [key], message: "This field is required." });
@@ -80,6 +82,7 @@ export function UpdateLeadForm({ initialData, setOpen, leadSources, leadStatuses
       lead_source_id: initialData.lead_source_id ?? "",
       lead_status_id: initialData.lead_status_id ?? "",
       lead_type_id: initialData.lead_type_id ?? "",
+      customFields: initialData.customFields ?? {},
     },
   });
 
@@ -368,6 +371,7 @@ export function UpdateLeadForm({ initialData, setOpen, leadSources, leadStatuses
           </div>
         </div>
         <div className="grid gap-2 py-5">
+          <CustomLeadFieldsForm fields={leadFieldSettings.customFields} />
           {form.formState.errors.root?.serverError && (
             <p className="text-sm text-destructive" aria-live="polite">
               {form.formState.errors.root.serverError.message}

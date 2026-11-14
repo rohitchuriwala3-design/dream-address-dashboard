@@ -9,6 +9,7 @@ const daysInPipeline = (value: unknown) => {
 };
 
 function fieldValue(lead: LeadLike, field: LeadFilterField): unknown {
+  if (field.startsWith("custom_")) return lead.customFields?.[field.slice("custom_".length)];
   const opportunity = lead.preClosureOpportunity;
   switch (field) {
     case "stage": return lead.lead_status_id;
@@ -49,7 +50,7 @@ function matches(lead: LeadLike, rule: LeadFilterRule): boolean {
   const value = fieldValue(lead, rule.field);
   if (["empty", "notEmpty"].includes(rule.operator)) return rule.operator === "empty" ? !text(value) : Boolean(text(value));
   if (rule.field === "nextStepDue") return dueBucket(value) === rule.operator;
-  if (["budget", "expectedRevenue", "weightedForecast", "daysInPipeline"].includes(rule.field)) {
+  if (["budget", "expectedRevenue", "weightedForecast", "daysInPipeline"].includes(rule.field) || typeof value === "number") {
     if (value === null || value === undefined || value === "") return false;
     const actual = Number(value), expected = Number(rule.value);
     if (!Number.isFinite(actual) || !Number.isFinite(expected)) return false;
@@ -90,11 +91,12 @@ export function countActiveLeadFilters(filters: LeadFilterSet): number {
 const validFields: LeadFilterField[] = ["stage", "source", "type", "owner", "name", "company", "email", "phone", "campaign", "opportunityStage", "budget", "expectedRevenue", "weightedForecast", "nextStep", "nextStepDue", "daysInPipeline"];
 const validOperators = ["eq", "neq", "contains", "empty", "notEmpty", "gt", "gte", "lt", "lte", "overdue", "today", "next7", "later", "noDate"];
 
-export function sanitizeLeadFilterSet(input: unknown): LeadFilterSet {
+export function sanitizeLeadFilterSet(input: unknown, customFieldKeys: string[] = []): LeadFilterSet {
   const fallback: LeadFilterSet = { groupsLogic: "AND", groups: [] };
   if (!input || typeof input !== "object") return fallback;
   const candidate = input as Partial<LeadFilterSet>;
   if (!Array.isArray(candidate.groups)) return fallback;
+  const allowedFields = new Set<string>([...validFields, ...customFieldKeys.map((key) => `custom_${key}`)]);
   const groups = candidate.groups.slice(0, 8).flatMap((rawGroup) => {
     if (!rawGroup || typeof rawGroup !== "object") return [];
     const group = rawGroup as Partial<LeadFilterGroup>;
@@ -102,7 +104,7 @@ export function sanitizeLeadFilterSet(input: unknown): LeadFilterSet {
     const rules = group.rules.slice(0, 10).flatMap((rawRule) => {
       if (!rawRule || typeof rawRule !== "object") return [];
       const rule = rawRule as Partial<LeadFilterRule>;
-      if (typeof rule.id !== "string" || !validFields.includes(rule.field as LeadFilterField) || !validOperators.includes(String(rule.operator))) return [];
+      if (typeof rule.id !== "string" || typeof rule.field !== "string" || !allowedFields.has(rule.field) || !validOperators.includes(String(rule.operator))) return [];
       return [{ id: rule.id.slice(0, 80), field: rule.field as LeadFilterField, operator: String(rule.operator), value: typeof rule.value === "string" ? rule.value.slice(0, 500) : "", logicToNext: rule.logicToNext === "OR" ? "OR" as const : rule.logicToNext === "AND" ? "AND" as const : undefined }];
     });
     if (typeof group.id !== "string") return [];

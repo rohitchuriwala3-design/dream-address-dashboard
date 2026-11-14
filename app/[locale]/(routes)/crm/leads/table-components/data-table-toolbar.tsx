@@ -11,6 +11,7 @@ import { DataTableFacetedFilter } from "./data-table-faceted-filter";
 import { Search } from "lucide-react";
 import { AdvancedLeadFilters, type LeadFilterSet } from "./advanced-lead-filters";
 import { countActiveLeadFilters } from "./lead-filter-evaluator";
+import type { LeadCustomField } from "@/lib/crm/leads/field-settings-shared";
 
 type ConfigItem = { id: string; name: string };
 
@@ -21,6 +22,8 @@ interface DataTableToolbarProps<TData> {
   leadTypes: ConfigItem[];
   advancedFilters: LeadFilterSet;
   onAdvancedFiltersChange: (filters: LeadFilterSet) => void;
+  customFields: LeadCustomField[];
+  columnLabels: Record<string, string>;
 }
 
 export function DataTableToolbar<TData>({
@@ -30,6 +33,8 @@ export function DataTableToolbar<TData>({
   leadTypes,
   advancedFilters,
   onAdvancedFiltersChange,
+  customFields,
+  columnLabels,
 }: DataTableToolbarProps<TData>) {
   const activeAdvancedFilters = countActiveLeadFilters(advancedFilters);
   const isFiltered = table.getState().columnFilters.length > 0 || Boolean(table.getState().globalFilter) || activeAdvancedFilters > 0;
@@ -76,7 +81,12 @@ export function DataTableToolbar<TData>({
             stage: leadStatuses.map((item) => ({ value: item.id, label: item.name })),
             source: leadSources.map((item) => ({ value: item.id, label: item.name })),
             type: leadTypes.map((item) => ({ value: item.id, label: item.name })),
+            ...Object.fromEntries(customFields.filter((field) => field.type === "select" || field.type === "checkbox").map((field) => [
+              `custom_${field.key}`,
+              field.type === "checkbox" ? [{ value: "true", label: "Yes" }, { value: "false", label: "No" }] : (field.options || []).map((value) => ({ value, label: value })),
+            ])),
           }}
+          customFields={customFields}
         />
         {/*        {table.getColumn("priority") && (
           <DataTableFacetedFilter
@@ -96,7 +106,7 @@ export function DataTableToolbar<TData>({
           </Button>
         )}
       </div>
-      <div className="sm:ml-auto"><DataTableViewOptions table={table} /></div>
+      <div className="sm:ml-auto"><DataTableViewOptions table={table} labels={columnLabels} /></div>
     </div>
   );
 }

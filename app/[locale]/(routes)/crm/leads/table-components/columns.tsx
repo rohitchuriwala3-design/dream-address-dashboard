@@ -8,6 +8,7 @@ import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { Lead } from "../table-data/schema";
 import type { LeadFieldSettings } from "@/lib/crm/leads/field-settings-shared";
+import type { LeadCustomField } from "@/lib/crm/leads/field-settings-shared";
 
 type ConfigItem = { id: string; name: string };
 type LeadRow = Lead & {
@@ -54,7 +55,8 @@ export const createColumns = (
   leadStatuses: ConfigItem[],
   leadTypes: ConfigItem[],
   leadFieldSettings: LeadFieldSettings,
-): ColumnDef<Lead>[] => [
+): ColumnDef<Lead>[] => {
+  const columns: ColumnDef<Lead>[] = [
   {
     id: "client",
     accessorFn: (row) => [row.firstName, row.lastName].filter(Boolean).join(" "),
@@ -213,4 +215,15 @@ export const createColumns = (
     ),
     enableHiding: false,
   },
-];
+  ];
+  const customColumns: ColumnDef<Lead>[] = leadFieldSettings.customFields.filter((field) => !field.hidden).map((field: LeadCustomField) => ({
+    id: `custom_${field.key}`,
+    accessorFn: (row) => (row as LeadRow & { customFields?: Record<string, unknown> }).customFields?.[field.key] ?? "",
+    header: ({ column }) => <DataTableColumnHeader column={column} title={field.label} />,
+    cell: ({ row }) => {
+      const value = (row.original as LeadRow & { customFields?: Record<string, unknown> }).customFields?.[field.key];
+      return <span className="text-sm">{typeof value === "boolean" ? value ? "Yes" : "No" : value == null || value === "" ? "—" : String(value)}</span>;
+    },
+  }));
+  return [...columns.slice(0, -1), ...customColumns, columns[columns.length - 1]];
+};

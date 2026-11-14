@@ -17,6 +17,7 @@ jest.mock("@/lib/prisma", () => ({
     crm_Lead_Statuses: { findUnique: jest.fn() },
     crm_Lead_Sources: { findUnique: jest.fn() },
     crm_Lead_Types: { findUnique: jest.fn() },
+    crm_SystemSettings: { findUnique: jest.fn(), upsert: jest.fn() },
   },
 }));
 
@@ -38,6 +39,7 @@ const code = (p: Promise<unknown>) => p.then(() => "ok", (e) => (e instanceof Le
 
 beforeEach(() => {
   jest.clearAllMocks();
+  db.crm_SystemSettings.findUnique.mockResolvedValue(null);
   db.users.findFirst.mockResolvedValue({ email: "rep@example.com", userLanguage: "en" });
   db.crm_Leads.create.mockImplementation(async ({ data }) => ({ id: "L", firstName: null, ...data }));
   db.crm_Leads.update.mockImplementation(async ({ data }) => ({ id: "L", firstName: null, lastName: "X", ...data }));
@@ -77,6 +79,19 @@ describe("createLead", () => {
     expect(await code(svc.createLead(USER, { lastName: "X", lead_status_id: "s" }))).toBe("notFound");
     expect(db.crm_Leads.create).not.toHaveBeenCalled();
   });
+
+  it("validates configured custom fields and persists only configured typed values", async () => {
+    db.crm_SystemSettings.findUnique.mockResolvedValue({ value: JSON.stringify({ hidden: [], required: [], customFields: [
+      { key: "site_locality", label: "Site locality", type: "text", required: true },
+      { key: "rooms", label: "Rooms", type: "number", required: false },
+      { key: "work_type", label: "Work type", type: "select", options: ["Full home", "Kitchen"], required: false },
+    ] }) });
+    expect(await code(svc.createLead(USER, { lastName: "X", customFields: {} }))).toBe("invalidInput");
+    expect(await code(svc.createLead(USER, { lastName: "X", customFields: { rogue: "value" } }))).toBe("invalidInput");
+    expect(db.crm_Leads.create).not.toHaveBeenCalled();
+    await svc.createLead(USER, { lastName: "X", customFields: { site_locality: "Baner", rooms: "3", work_type: "Kitchen" } });
+    expect(db.crm_Leads.create.mock.calls[0][0].data.customFields).toEqual({ site_locality: "Baner", rooms: 3, work_type: "Kitchen" });
+  });
 });
 
 describe("updateLead", () => {
@@ -106,6 +121,13 @@ describe("updateLead", () => {
     await svc.updateLead(USER, "L", { lastName: "X", accountsIDs: "mine" });
     expect(assertCanWriteAccount).toHaveBeenCalledWith(USER, "mine", { partnerEdit: true });
     expect(db.crm_Leads.update.mock.calls[0][0].data.accountsIDs).toBe("mine");
+  });
+
+  it("preserves previously stored custom fields when an older caller omits them", async () => {
+    db.crm_SystemSettings.findUnique.mockResolvedValue({ value: JSON.stringify({ hidden: [], required: [], customFields: [{ key: "site_locality", label: "Site locality", type: "text" }] }) });
+    db.crm_Leads.findUnique.mockResolvedValue({ id: "L", assigned_to: "rep", customFields: { site_locality: "Baner" } });
+    await svc.updateLead(USER, "L", { lastName: "X" });
+    expect(db.crm_Leads.update.mock.calls[0][0].data.customFields).toBeUndefined();
   });
 
   it("re-saving the current account link is not re-checked", async () => {
@@ -155,7 +177,7 @@ describe("deleteLead and restoreLead", () => {
 
 it("createWebLead writes an audit row marked as the web form's, without a user, and sends crm/lead.saved", async () => {
   await svc.createWebLead({ lastName: "X", email: "x@example.com" });
-  expect(db.crm_Leads.create.mock.calls[0][0].data).toEqual({ v: 1, lastName: "X", email: "x@example.com" });
+  expect(db.crm_Leads.create.mock.calls[0][0].data).toEqual({ v: 1, lastName: "X", email: "x@example.com", customFields: {} });
   expect(writeAuditLog).toHaveBeenCalledWith(
     expect.objectContaining({ action: "created", userId: null, changes: [{ field: "web_form", old: null, new: "create-lead-from-web" }] }),
   );

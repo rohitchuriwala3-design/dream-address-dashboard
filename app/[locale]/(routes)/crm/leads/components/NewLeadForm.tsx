@@ -29,6 +29,7 @@ import { UserSearchCombobox } from "@/components/ui/user-search-combobox";
 import { createLead } from "@/actions/crm/leads/create-lead";
 import { useSession } from "@/lib/auth-client";
 import type { LeadFieldSettings } from "@/lib/crm/leads/field-settings-shared";
+import { CustomLeadFieldsForm } from "./CustomLeadFieldsForm";
 
 //TODO: fix all the types
 type ConfigItem = { id: string; name: string };
@@ -63,6 +64,7 @@ export function NewLeadForm({ accounts, leadSources, leadStatuses, leadTypes, le
     campaign: z.string().optional(),
     assigned_to: z.string().optional(),
     accountIDs: z.string().optional(),
+    customFields: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional(),
   }).superRefine((values, context) => {
     for (const key of leadFieldSettings.required) {
       if (!String(values[key] ?? "").trim()) context.addIssue({ code: "custom", path: [key], message: "This field is required." });
@@ -89,6 +91,7 @@ export function NewLeadForm({ accounts, leadSources, leadStatuses, leadTypes, le
       campaign: "",
       assigned_to: "",
       accountIDs: accountId ?? "",
+      customFields: {},
     },
   });
 
@@ -383,6 +386,7 @@ export function NewLeadForm({ accounts, leadSources, leadStatuses, leadTypes, le
           </div>
         </div>
         <div className="grid gap-2 py-5">
+          <CustomLeadFieldsForm fields={leadFieldSettings.customFields} />
           {form.formState.errors.root?.serverError && (
             <p className="text-sm text-destructive" aria-live="polite">
               {form.formState.errors.root.serverError.message}
