@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { format } from "date-fns";
 import {
   DndContext,
   DragOverlay,
@@ -50,6 +49,18 @@ const formatINR = (value: unknown) => {
   return Number.isFinite(amount)
     ? new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(amount)
     : "—";
+};
+
+const formatBoardDate = (value: Date | string | null | undefined) => {
+  if (!value) return "Not set";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Not set";
+  return new Intl.DateTimeFormat("en-IN", {
+    timeZone: "Asia/Kolkata",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(date);
 };
 
 import { NewOpportunityForm } from "../../opportunities/components/NewOpportunityForm";
@@ -166,9 +177,7 @@ function OpportunityCard({ opportunity, visibleFields }: { opportunity: any; vis
                   : ""
               }
             >
-              {opportunity.close_date
-                ? format(new Date(opportunity.close_date), "dd/MM/yyyy")
-                : "Not set"}
+              {formatBoardDate(opportunity.close_date)}
             </span>
           </div> : null}
           {visibleFields.includes("nextStep") && opportunity.next_step?.trim() ? (
@@ -177,9 +186,7 @@ function OpportunityCard({ opportunity, visibleFields }: { opportunity: any; vis
             </div>
           ) : null}
           {visibleFields.includes("nextStepDue") ? <div>
-            Follow-up due: {opportunity.next_step_due_at
-              ? format(new Date(opportunity.next_step_due_at), "dd/MM/yyyy")
-              : "Not set"}
+            Follow-up due: {formatBoardDate(opportunity.next_step_due_at)}
           </div> : null}
         </div>
       </CardContent>
