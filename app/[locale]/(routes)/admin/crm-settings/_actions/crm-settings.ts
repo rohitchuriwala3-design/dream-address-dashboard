@@ -5,6 +5,7 @@ import { prismadb as prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { requireRole, AuthenticationError, AuthorizationError } from "@/lib/authz";
 import { STAGE_KINDS, type StageKind } from "@/lib/crm/stage-kinds";
+import { withEffectiveStageOrder } from "@/lib/crm/stage-order";
 
 async function ensureAdmin(): Promise<{ error: string } | null> {
   try {
@@ -69,12 +70,13 @@ export async function getConfigValues(configType: CrmConfigType): Promise<Config
     include: { _count: { select: { [countRelation]: true } } },
     orderBy: configType === "salesStage" ? [{ order: "asc" }, { probability: "asc" }, { name: "asc" }] : { name: "asc" },
   });
-  return rows.map((r: any) => ({
+  const orderedRows: any[] = configType === "salesStage" ? withEffectiveStageOrder(rows) : rows;
+  return orderedRows.map((r: any) => ({
     id: r.id,
     name: r.name,
     usageCount: r._count[countRelation] ?? 0,
     ...(configType === "salesStage" ? { stageKind: r.stage_kind ?? null } : {}),
-    ...(configType === "salesStage" ? { stageOrder: r.order ?? null, probability: r.probability ?? null } : {}),
+    ...(configType === "salesStage" ? { stageOrder: r.order, probability: r.probability ?? null } : {}),
   }));
 }
 

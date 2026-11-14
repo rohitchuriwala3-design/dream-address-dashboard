@@ -15,13 +15,14 @@ const KIND_NONE = "__none__";
 interface Props {
   configType: CrmConfigType;
   label: string;
+  defaultStageOrder?: number;
 }
 
-export function ConfigAddDialog({ configType, label }: Props) {
+export function ConfigAddDialog({ configType, label, defaultStageOrder }: Props) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [stageKind, setStageKind] = useState<string>(KIND_NONE);
-  const [stageOrder, setStageOrder] = useState("10");
+  const [stageOrder, setStageOrder] = useState(String(defaultStageOrder ?? 10));
   const [probability, setProbability] = useState("0");
   const [loading, setLoading] = useState(false);
 
@@ -41,7 +42,7 @@ export function ConfigAddDialog({ configType, label }: Props) {
       toast.success(`${label} added`);
       setName("");
       setStageKind(KIND_NONE);
-      setStageOrder("10");
+      setStageOrder(String(defaultStageOrder ?? 10));
       setProbability("0");
       setOpen(false);
     } catch (err: any) {

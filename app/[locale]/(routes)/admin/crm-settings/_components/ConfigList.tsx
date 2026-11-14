@@ -22,7 +22,12 @@ export function ConfigList({ configType, label, values }: Props) {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <p className="text-sm text-muted-foreground">{values.length} value{values.length !== 1 ? "s" : ""}</p>
-        <ConfigAddDialog configType={configType} label={label} />
+        <ConfigAddDialog
+          key={`${configType}-${configType === "salesStage" ? Math.max(-10, ...values.map((value) => value.stageOrder ?? -10)) + 10 : "default"}`}
+          configType={configType}
+          label={label}
+          defaultStageOrder={configType === "salesStage" ? Math.max(-10, ...values.map((value) => value.stageOrder ?? -10)) + 10 : undefined}
+        />
       </div>
       <div className="divide-y rounded-md border">
         {values.length === 0 && (

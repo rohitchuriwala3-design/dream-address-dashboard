@@ -31,14 +31,21 @@ beforeEach(() => {
 });
 
 it("returns sales stages with their editable order and forecast probability", async () => {
-  stages.findMany.mockResolvedValue([{
-    id: "stage-1", name: "Survey", order: 20, probability: 35, stage_kind: "pre_sale",
-    _count: { assigned_opportunities_sales_stage: 2 },
-  }]);
+  stages.findMany.mockResolvedValue([
+    {
+      id: "stage-1", name: "Survey", order: 20, probability: 35, stage_kind: "pre_sale",
+      _count: { assigned_opportunities_sales_stage: 2 },
+    },
+    {
+      id: "stage-2", name: "Estimate", order: null, probability: 45, stage_kind: null,
+      _count: { assigned_opportunities_sales_stage: 0 },
+    },
+  ]);
 
-  await expect(getConfigValues("salesStage")).resolves.toEqual([{
-    id: "stage-1", name: "Survey", usageCount: 2, stageKind: "pre_sale", stageOrder: 20, probability: 35,
-  }]);
+  await expect(getConfigValues("salesStage")).resolves.toEqual([
+    { id: "stage-1", name: "Survey", usageCount: 2, stageKind: "pre_sale", stageOrder: 20, probability: 35 },
+    { id: "stage-2", name: "Estimate", usageCount: 0, stageKind: null, stageOrder: 30, probability: 45 },
+  ]);
   expect(stages.findMany).toHaveBeenCalledWith(expect.objectContaining({
     orderBy: [{ order: "asc" }, { probability: "asc" }, { name: "asc" }],
   }));
