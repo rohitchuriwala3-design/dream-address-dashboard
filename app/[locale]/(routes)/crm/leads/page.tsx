@@ -16,7 +16,6 @@ const LeadsPage = async ({ searchParams }: { searchParams: Promise<{ create?: st
   const crmData = await getAllCrmData();
   const leads = await getLeads();
 
-  console.log(leads[0], "leads");
   return (
     <Container
       title={t("leads.pageTitle")}
