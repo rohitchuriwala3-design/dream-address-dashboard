@@ -50,6 +50,7 @@ const formatINR = (value: unknown) => {
 
 import { NewOpportunityForm } from "../../opportunities/components/NewOpportunityForm";
 import { updateOpportunity } from "@/actions/crm/opportunities/update-opportunity";
+import { getPipelineMetrics } from "./pipeline-metrics";
 import {
   HoverCard,
   HoverCardContent,
@@ -340,9 +341,17 @@ const CRMKanban = ({
   );
   const wonOpportunities = data.filter((o: any) => o.status === "WON");
   const inactiveOpportunities = data.filter((o: any) => o.status === "INACTIVE");
+  const metrics = getPipelineMetrics(data, salesStages);
 
   return (
     <>
+      <section aria-label="Opportunity pipeline summary" className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Open opportunities</p><p className="mt-1 text-2xl font-semibold">{metrics.openCount}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Expected pipeline</p><p className="mt-1 text-lg font-semibold">{formatINR(metrics.pipelineValue)}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Probability weighted</p><p className="mt-1 text-lg font-semibold">{formatINR(metrics.weightedValue)}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Missing next step</p><p className="mt-1 text-2xl font-semibold">{metrics.missingNextStep}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Past expected close</p><p className="mt-1 text-2xl font-semibold">{metrics.overdueCloseDates}</p></CardContent></Card>
+      </section>
       <Dialog open={isDialogOpen} onOpenChange={() => setIsDialogOpen(false)}>
         <DialogContent className="w-[calc(100vw-2rem)] max-w-5xl max-h-[90dvh] overflow-y-auto py-6 sm:py-10">
           <NewOpportunityForm
