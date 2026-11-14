@@ -77,7 +77,7 @@ export function AdvancedLeadFilters({ value, onChange, activeCount, choices }: P
     <SheetTrigger asChild><Button variant="outline" size="sm" className="h-10"><SlidersHorizontal className="mr-2 h-4 w-4" />Filter{activeCount > 0 ? ` · ${activeCount}` : ""}</Button></SheetTrigger>
     <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-3xl">
       <SheetHeader><SheetTitle>Filter leads</SheetTitle><SheetDescription>Build rules field by field. Join rule rows with AND or OR, then use the logic box for grouped expressions like 1 AND (2 OR 3).</SheetDescription></SheetHeader>
-      <div className="mt-5 flex items-center justify-between gap-3 rounded-lg border bg-muted/20 p-3">
+      <div className="mt-5 flex flex-col items-start justify-between gap-3 rounded-lg border bg-muted/20 p-3 sm:flex-row sm:items-center">
         <div><p className="text-sm font-medium">Filter rules</p><p className="text-xs text-muted-foreground">Add a field, condition and value for each rule.</p></div>
         <div className="flex gap-2"><Button variant="outline" size="sm" onClick={() => onChange({ ...value, expression: undefined, groups: value.groups.length ? value.groups.map((group, index) => index === value.groups.length - 1 ? { ...group, rules: [...group.rules, newRule()] } : group) : [newGroup()] })}><Plus className="mr-2 h-4 w-4" />Add filter</Button><Button variant="ghost" size="sm" onClick={() => onChange({ ...value, expression: undefined, groups: [...value.groups, newGroup()] })}><Plus className="mr-2 h-4 w-4" />Add bracket</Button></div>
       </div>
