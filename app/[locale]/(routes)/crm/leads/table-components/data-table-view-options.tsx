@@ -23,10 +23,11 @@ interface DataTableViewOptionsProps<TData> { table: Table<TData>; }
 
 export function DataTableViewOptions<TData>({ table }: DataTableViewOptionsProps<TData>) {
   const [open, setOpen] = useState(false);
-  const columns = table.getAllLeafColumns().filter((column) => column.getCanHide());
-  const order = table.getState().columnOrder.length
-    ? [...table.getState().columnOrder, ...table.getAllLeafColumns().map((column) => column.id).filter((id) => !table.getState().columnOrder.includes(id))]
-    : table.getAllLeafColumns().map((column) => column.id);
+  const pinned = new Set(["client", "actions"]);
+  const columns = table.getAllLeafColumns().filter((column) => column.getCanHide() && !pinned.has(column.id));
+  const movableIds = columns.map((column) => column.id);
+  const savedOrder = table.getState().columnOrder.filter((id) => movableIds.includes(id));
+  const order = [...savedOrder, ...movableIds.filter((id) => !savedOrder.includes(id))];
 
   function move(id: string, direction: -1 | 1) {
     const index = order.indexOf(id);
@@ -34,7 +35,7 @@ export function DataTableViewOptions<TData>({ table }: DataTableViewOptionsProps
     if (index < 0 || target < 0 || target >= order.length) return;
     const next = [...order];
     [next[index], next[target]] = [next[target], next[index]];
-    table.setColumnOrder(next);
+    table.setColumnOrder(["client", ...next, "actions"]);
   }
 
   function reset() {

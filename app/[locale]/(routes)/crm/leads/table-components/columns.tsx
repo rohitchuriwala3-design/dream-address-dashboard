@@ -211,5 +211,6 @@ export const createColumns = (
         leadFieldSettings={leadFieldSettings}
       />
     ),
+    enableHiding: false,
   },
 ];
