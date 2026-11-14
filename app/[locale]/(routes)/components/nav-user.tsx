@@ -40,7 +40,7 @@ import { useAvatarContext } from "@/context/avatar-context"
  * - Avatar only display (when sidebar collapsed)
  * - Dropdown menu with user actions:
  *   - Todo Dashboard (navigation to /projects/dashboard)
- *   - Sales Dashboard (navigation to /crm/dashboard/{userId})
+ *   - CRM Overview (navigation to the current CRM workspace)
  *   - Profile Settings (navigation to /profile)
  *   - Logout (signOut action)
  * - Integrates with Zustand store for avatar state management
@@ -126,10 +126,10 @@ export function NavUser({ user, canAccessCrm = false, canAccessProjects = false 
               Todo Dashboard
             </DropdownMenuItem>}
             {canAccessCrm && <DropdownMenuItem
-              onClick={() => router.push(`/crm/dashboard/${user.id}`)}
+              onClick={() => router.push("/crm")}
             >
               <BadgeIndianRupee className="mr-2 h-4 w-4" />
-              Sales Dashboard
+              CRM Overview
             </DropdownMenuItem>}
             {(canAccessProjects || canAccessCrm) && <DropdownMenuSeparator />}
             <DropdownMenuItem onClick={() => router.push("/profile")}>

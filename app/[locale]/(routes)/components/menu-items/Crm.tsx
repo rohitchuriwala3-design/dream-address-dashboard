@@ -37,8 +37,8 @@ export const getCrmMenuItem = ({ localizations, role }: Props): NavItem => {
         url: "/crm/dashboard",
       },
       {
-        title: "My Dashboard",
-        url: "/crm/dashboard/user",
+        title: "My Leads",
+        url: "/crm/leads",
       },
       {
         title: "Overview",

@@ -22,7 +22,7 @@ type Props = {
   email: string;
 };
 
-const AvatarDropdown = ({ avatar, userId, name, email }: Props) => {
+const AvatarDropdown = ({ avatar, name, email }: Props) => {
   const router = useRouter();
   const { avatar: newAvatar } = useAvatarContext();
 
@@ -51,9 +51,9 @@ const AvatarDropdown = ({ avatar, userId, name, email }: Props) => {
           Todo dashboard
         </DropdownMenuItem>
         <DropdownMenuItem
-          onClick={() => router.push(`/crm/dashboard/${userId}`)}
+          onClick={() => router.push("/crm")}
         >
-          Sales dashboard
+          CRM overview
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => router.push("/profile")}>
