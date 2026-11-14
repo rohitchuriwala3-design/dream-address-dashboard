@@ -78,6 +78,30 @@ export function countActiveLeadFilters(filters: LeadFilterSet): number {
   return filters.groups.reduce((total, group) => total + group.rules.filter(isCompleteFilterRule).length, 0);
 }
 
+const validFields: LeadFilterField[] = ["stage", "source", "type", "owner", "name", "company", "email", "phone", "campaign", "opportunityStage", "budget", "expectedRevenue", "weightedForecast", "nextStep", "nextStepDue", "daysInPipeline"];
+const validOperators = ["eq", "neq", "contains", "empty", "notEmpty", "gt", "gte", "lt", "lte", "overdue", "today", "next7", "later", "noDate"];
+
+export function sanitizeLeadFilterSet(input: unknown): LeadFilterSet {
+  const fallback: LeadFilterSet = { groupsLogic: "AND", groups: [] };
+  if (!input || typeof input !== "object") return fallback;
+  const candidate = input as Partial<LeadFilterSet>;
+  if (!Array.isArray(candidate.groups)) return fallback;
+  const groups = candidate.groups.slice(0, 8).flatMap((rawGroup) => {
+    if (!rawGroup || typeof rawGroup !== "object") return [];
+    const group = rawGroup as Partial<LeadFilterGroup>;
+    if (!Array.isArray(group.rules)) return [];
+    const rules = group.rules.slice(0, 10).flatMap((rawRule) => {
+      if (!rawRule || typeof rawRule !== "object") return [];
+      const rule = rawRule as Partial<LeadFilterRule>;
+      if (typeof rule.id !== "string" || !validFields.includes(rule.field as LeadFilterField) || !validOperators.includes(String(rule.operator))) return [];
+      return [{ id: rule.id.slice(0, 80), field: rule.field as LeadFilterField, operator: String(rule.operator), value: typeof rule.value === "string" ? rule.value.slice(0, 500) : "" }];
+    });
+    if (typeof group.id !== "string") return [];
+    return [{ id: group.id.slice(0, 80), logic: group.logic === "OR" ? "OR" as const : "AND" as const, rules }];
+  });
+  return { groupsLogic: candidate.groupsLogic === "OR" ? "OR" : "AND", groups };
+}
+
 export function leadMatchesAdvancedFilters(lead: LeadLike, filters: LeadFilterSet): boolean {
   const active = filters.groups.filter((group) => group.rules.some(isCompleteFilterRule));
   if (!active.length) return true;

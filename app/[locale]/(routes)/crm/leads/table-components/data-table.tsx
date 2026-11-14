@@ -33,7 +33,7 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import type { LeadFieldSettings } from "@/lib/crm/leads/field-settings-shared";
 import { type LeadFilterSet } from "./advanced-lead-filters";
-import { leadMatchesAdvancedFilters } from "./lead-filter-evaluator";
+import { leadMatchesAdvancedFilters, sanitizeLeadFilterSet } from "./lead-filter-evaluator";
 
 const DEFAULT_HIDDEN_COLUMNS = ["jobTitle", "email", "phone", "lead_type_id", "refered_by", "campaign", "linkedAccount", "opportunityStage", "opportunityBudget", "expectedRevenue", "weightedForecast", "nextStep", "nextStepDue", "daysInPipeline"];
 const COLUMN_PREFS_KEY = "mark4.leads.table.v1";
@@ -84,11 +84,12 @@ export function LeadDataTable<TData, TValue>({
     try {
       const saved = localStorage.getItem(COLUMN_PREFS_KEY);
       if (saved) {
-        const parsed = JSON.parse(saved) as { columnVisibility?: VisibilityState; columnOrder?: string[] };
+        const parsed = JSON.parse(saved) as { columnVisibility?: VisibilityState; columnOrder?: string[]; advancedFilters?: unknown };
         if (parsed.columnVisibility && typeof parsed.columnVisibility === "object") {
           setColumnVisibility((current) => ({ ...current, ...parsed.columnVisibility }));
         }
         if (Array.isArray(parsed.columnOrder)) setColumnOrder(parsed.columnOrder.filter((id) => typeof id === "string"));
+        if (parsed.advancedFilters) setAdvancedFilters(sanitizeLeadFilterSet(parsed.advancedFilters));
       }
     } catch { /* Ignore malformed or blocked browser storage and use defaults. */ }
     setPreferencesLoaded(true);
@@ -96,9 +97,9 @@ export function LeadDataTable<TData, TValue>({
 
   React.useEffect(() => {
     if (!preferencesLoaded) return;
-    try { localStorage.setItem(COLUMN_PREFS_KEY, JSON.stringify({ columnVisibility, columnOrder })); }
+    try { localStorage.setItem(COLUMN_PREFS_KEY, JSON.stringify({ columnVisibility, columnOrder, advancedFilters })); }
     catch { /* The table remains usable if browser storage is unavailable. */ }
-  }, [columnVisibility, columnOrder, preferencesLoaded]);
+  }, [columnVisibility, columnOrder, advancedFilters, preferencesLoaded]);
 
   const table = useReactTable({
     data: filteredData,

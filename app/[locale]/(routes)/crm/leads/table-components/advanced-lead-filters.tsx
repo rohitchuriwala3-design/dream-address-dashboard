@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { Plus, SlidersHorizontal, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { isCompleteFilterRule } from "./lead-filter-evaluator";
 
 export type LeadFilterField = "stage" | "source" | "type" | "owner" | "name" | "company" | "email" | "phone" | "campaign" | "opportunityStage" | "budget" | "expectedRevenue" | "weightedForecast" | "nextStep" | "nextStepDue" | "daysInPipeline";
 export type LeadFilterRule = { id: string; field: LeadFilterField; operator: string; value: string };
@@ -42,36 +43,55 @@ export function AdvancedLeadFilters({ value, onChange, activeCount, choices }: P
   const updateGroup = (groupId: string, patch: Partial<LeadFilterGroup>) => onChange({ ...value, groups: value.groups.map((group) => group.id === groupId ? { ...group, ...patch } : group) });
   const updateRule = (groupId: string, ruleId: string, patch: Partial<LeadFilterRule>) => onChange({ ...value, groups: value.groups.map((group) => group.id === groupId ? { ...group, rules: group.rules.map((rule) => rule.id === ruleId ? { ...rule, ...patch } : rule) } : group) });
   const removeRule = (groupId: string, ruleId: string) => onChange({ ...value, groups: value.groups.map((group) => group.id === groupId ? { ...group, rules: group.rules.filter((rule) => rule.id !== ruleId) } : group) });
+  const fieldLabel = (field: LeadFilterField) => FIELDS.find((item) => item.id === field)?.label || field;
+  const expression = value.groups.flatMap((group) => {
+    const rules = group.rules.filter(isCompleteFilterRule);
+    if (!rules.length) return [];
+    const rendered = rules.map((rule) => {
+      const field = fieldLabel(rule.field);
+      const operator = operators(rule.field).find(([id]) => id === rule.operator)?.[1] || rule.operator;
+      const option = choices[rule.field]?.find((item) => item.value === rule.value)?.label;
+      const criterion = rule.operator === "empty" || rule.operator === "notEmpty" || ["overdue", "today", "next7", "later", "noDate"].includes(rule.operator)
+        ? operator
+        : `“${option || rule.value}”`;
+      return `${field} ${operator}${!["empty", "notEmpty", "overdue", "today", "next7", "later", "noDate"].includes(rule.operator) ? ` ${criterion}` : ""}`;
+    });
+    return [`(${rendered.join(` ${group.logic} `)})`];
+  });
 
   return <Sheet open={open} onOpenChange={setOpen}>
     <SheetTrigger asChild><Button variant="outline" size="sm" className="h-10"><SlidersHorizontal className="mr-2 h-4 w-4" />Filter{activeCount > 0 ? ` · ${activeCount}` : ""}</Button></SheetTrigger>
     <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-3xl">
       <SheetHeader><SheetTitle>Filter leads</SheetTitle><SheetDescription>Build bracketed rule groups. Choose ALL/ANY inside each group, then combine the groups with AND/OR logic.</SheetDescription></SheetHeader>
       <div className="mt-5 flex flex-wrap items-center gap-2 rounded-lg border bg-muted/20 p-3 text-sm">
-        <span>Match</span><Select value={value.groupsLogic} onValueChange={(logic: "AND" | "OR") => onChange({ ...value, groupsLogic: logic })}><SelectTrigger className="w-28"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="AND">ALL groups</SelectItem><SelectItem value="OR">ANY group</SelectItem></SelectContent></Select><span>of these groups</span>
+        <span>Between brackets use</span><Select value={value.groupsLogic} onValueChange={(logic: "AND" | "OR") => onChange({ ...value, groupsLogic: logic })}><SelectTrigger className="w-24"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="AND">AND</SelectItem><SelectItem value="OR">OR</SelectItem></SelectContent></Select><span>to join groups</span>
       </div>
+      <div className="mt-3 rounded-lg border border-primary/25 bg-primary/5 p-3 text-sm" aria-live="polite"><div className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Filter expression</div><code className="whitespace-normal break-words">{expression.length ? expression.join(` ${value.groupsLogic} `) : "Add a filter field to build your expression."}</code></div>
       <div className="mt-4 space-y-4">
-        {value.groups.map((group, groupIndex) => <section key={group.id} className="space-y-3 rounded-xl border p-3 sm:p-4">
+        {value.groups.map((group, groupIndex) => <section key={group.id} className="space-y-3 rounded-xl border border-l-4 border-l-primary/50 p-3 sm:p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex flex-wrap items-center gap-2 text-sm"><span className="font-semibold">( Group {groupIndex + 1} )</span><span>Match</span><Select value={group.logic} onValueChange={(logic: "AND" | "OR") => updateGroup(group.id, { logic })}><SelectTrigger className="w-32"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="AND">ALL rules</SelectItem><SelectItem value="OR">ANY rule</SelectItem></SelectContent></Select><span>in this bracket</span></div>
+            <div className="flex flex-wrap items-center gap-2 text-sm"><span className="rounded bg-muted px-2 py-1 font-mono font-semibold">( Bracket {groupIndex + 1} )</span><span>Join filters with</span><Select value={group.logic} onValueChange={(logic: "AND" | "OR") => updateGroup(group.id, { logic })}><SelectTrigger className="w-24"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="AND">AND</SelectItem><SelectItem value="OR">OR</SelectItem></SelectContent></Select></div>
             <Button variant="ghost" size="sm" disabled={value.groups.length <= 1} onClick={() => onChange({ ...value, groups: value.groups.filter((item) => item.id !== group.id) })}><Trash2 className="mr-2 h-4 w-4" />Remove group</Button>
           </div>
           <div className="space-y-2">
-          {group.rules.map((rule) => {
+          {group.rules.map((rule, ruleIndex) => {
             const type = fieldType(rule.field);
             const ops = operators(rule.field);
-            return <div key={rule.id} className="grid gap-2 rounded-lg bg-muted/20 p-2 sm:grid-cols-[1.15fr_1fr_1.2fr_auto] sm:items-center">
+            return <Fragment key={rule.id}><div className="grid gap-2 rounded-lg bg-muted/20 p-2 sm:grid-cols-[1.15fr_1fr_1.2fr_auto] sm:items-center">
               <Select value={rule.field} onValueChange={(field: LeadFilterField) => updateRule(group.id, rule.id, { field, operator: operators(field)[0][0], value: "" })}><SelectTrigger aria-label="Filter field"><SelectValue /></SelectTrigger><SelectContent>{FIELDS.map((field) => <SelectItem key={field.id} value={field.id}>{field.label}</SelectItem>)}</SelectContent></Select>
               <Select value={rule.operator} onValueChange={(operator: string) => updateRule(group.id, rule.id, { operator, value: "" })}><SelectTrigger aria-label="Filter condition"><SelectValue /></SelectTrigger><SelectContent>{ops.map(([id, label]) => <SelectItem key={id} value={id}>{label}</SelectItem>)}</SelectContent></Select>
               {type === "due" ? <div className="px-2 text-xs text-muted-foreground">Date range comes from the condition</div> : (rule.operator === "empty" || rule.operator === "notEmpty") ? <div className="text-xs text-muted-foreground">No value needed</div> : type === "choice" && choices[rule.field]?.length ? <Select value={rule.value} onValueChange={(value: string) => updateRule(group.id, rule.id, { value })}><SelectTrigger aria-label="Filter value"><SelectValue placeholder="Choose value" /></SelectTrigger><SelectContent>{choices[rule.field]!.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}</SelectContent></Select> : <Input aria-label="Filter value" type={type === "number" ? "number" : "text"} value={rule.value} onChange={(event) => updateRule(group.id, rule.id, { value: event.target.value })} placeholder={type === "number" ? "Enter amount (₹)" : "Enter value"} />}
               <Button variant="ghost" size="icon" aria-label="Remove rule" disabled={group.rules.length <= 1} onClick={() => removeRule(group.id, rule.id)}><X className="h-4 w-4" /></Button>
-            </div>;
+            </div>
+            {ruleIndex < group.rules.length - 1 && <div className="px-3 py-0.5 text-xs font-semibold text-primary">{group.logic}</div>}
+          </Fragment>;
           })}
           </div>
-          <Button variant="outline" size="sm" onClick={() => updateGroup(group.id, { rules: [...group.rules, newRule()] })}><Plus className="mr-2 h-4 w-4" />Add condition</Button>
-          {groupIndex < value.groups.length - 1 && <div className="py-1 text-center text-xs font-semibold text-muted-foreground">{value.groupsLogic}</div>}
+          <div className="text-right font-mono text-sm font-semibold text-muted-foreground">)</div>
+          <Button variant="outline" size="sm" onClick={() => updateGroup(group.id, { rules: [...group.rules, newRule()] })}><Plus className="mr-2 h-4 w-4" />Add filter</Button>
+          {groupIndex < value.groups.length - 1 && <div className="py-1 text-center text-xs font-bold text-primary">{value.groupsLogic}</div>}
         </section>)}
-        <div className="flex flex-wrap gap-2"><Button variant="outline" onClick={() => onChange({ ...value, groups: [...value.groups, newGroup()] })}><Plus className="mr-2 h-4 w-4" />Add filter group</Button><Button variant="ghost" onClick={() => onChange({ groupsLogic: "AND", groups: [] })}>Clear filters</Button><Button className="ml-auto" onClick={() => setOpen(false)}>Done</Button></div>
+        <div className="flex flex-wrap gap-2"><Button variant="outline" onClick={() => onChange({ ...value, groups: [...value.groups, newGroup()] })}><Plus className="mr-2 h-4 w-4" />Add bracket group</Button><Button variant="ghost" onClick={() => onChange({ groupsLogic: "AND", groups: [] })}>Clear filters</Button><Button className="ml-auto" onClick={() => setOpen(false)}>Done</Button></div>
       </div>
     </SheetContent>
   </Sheet>;
