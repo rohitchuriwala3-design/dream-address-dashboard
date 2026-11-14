@@ -74,6 +74,15 @@ type Column = crm_Opportunities_Sales_Stages & {
 
 const BOARD_PREFS_KEY = "mark4.crm.opportunity-board.v1";
 const DEFAULT_VISIBLE_METRICS = ["open", "pipeline", "weighted", "missing", "overdue", "close"];
+const CARD_FIELDS = [
+  ["description", "Description"],
+  ["amount", "Opportunity amount"],
+  ["closeDate", "Expected close date"],
+  ["nextStep", "Next step"],
+  ["nextStepDue", "Next step due date"],
+  ["owner", "Owner"],
+] as const;
+const DEFAULT_CARD_FIELDS = CARD_FIELDS.map(([id]) => id);
 
 function initColumns(
   opps: crm_Opportunities[],
@@ -88,7 +97,7 @@ function initColumns(
 }
 
 // Draggable Opportunity Card
-function OpportunityCard({ opportunity }: any) {
+function OpportunityCard({ opportunity, visibleFields }: { opportunity: any; visibleFields: string[] }) {
   const {
     attributes,
     listeners,
@@ -133,7 +142,7 @@ function OpportunityCard({ opportunity }: any) {
       </CardTitle>
       <CardContent className="text-xs text-muted-foreground">
         <div className="flex flex-col space-y-1">
-          <div className="overflow-hidden">
+          {visibleFields.includes("description") && opportunity.description ? <div className="overflow-hidden">
             <HoverCard>
               <HoverCardTrigger>
                 {opportunity.description?.substring(0, 200)}
@@ -142,12 +151,12 @@ function OpportunityCard({ opportunity }: any) {
                 {opportunity.description}
               </HoverCardContent>
             </HoverCard>
-          </div>
-          <div className="space-x-1">
+          </div> : null}
+          {visibleFields.includes("amount") ? <div className="space-x-1">
             <span>Amount:</span>
             <span>{opportunity.budget == null ? "—" : formatINR(opportunity.budget)}</span>
-          </div>
-          <div className="space-x-1">
+          </div> : null}
+          {visibleFields.includes("closeDate") ? <div className="space-x-1">
             <span>Expected closing:</span>
             <span
               className={
@@ -161,20 +170,20 @@ function OpportunityCard({ opportunity }: any) {
                 ? format(new Date(opportunity.close_date), "dd/MM/yyyy")
                 : "Not set"}
             </span>
-          </div>
-          {opportunity.next_step?.trim() ? (
+          </div> : null}
+          {visibleFields.includes("nextStep") && opportunity.next_step?.trim() ? (
             <div className="line-clamp-2">
               <span>Next:</span> {opportunity.next_step}
             </div>
           ) : null}
-          <div>
+          {visibleFields.includes("nextStepDue") ? <div>
             Follow-up due: {opportunity.next_step_due_at
               ? format(new Date(opportunity.next_step_due_at), "dd/MM/yyyy")
               : "Not set"}
-          </div>
+          </div> : null}
         </div>
       </CardContent>
-      <CardFooter className="flex justify-start">
+      {visibleFields.includes("owner") ? <CardFooter className="flex justify-start">
         <div className="flex text-xs items-center gap-2">
           <Avatar className="w-6 h-6">
             <AvatarImage
@@ -187,7 +196,7 @@ function OpportunityCard({ opportunity }: any) {
           </Avatar>
           <span className="text-xs">{opportunity.assigned_to_user?.name}</span>
         </div>
-      </CardFooter>
+      </CardFooter> : null}
     </Card>
   );
 }
@@ -212,6 +221,7 @@ const CRMKanban = ({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [customizeOpen, setCustomizeOpen] = useState(false);
   const [visibleMetrics, setVisibleMetrics] = useState<string[]>(DEFAULT_VISIBLE_METRICS);
+  const [visibleCardFields, setVisibleCardFields] = useState<string[]>(DEFAULT_CARD_FIELDS);
   const [visibleStages, setVisibleStages] = useState<string[]>(salesStages.map((stage) => stage.id));
   const [showWon, setShowWon] = useState(true);
   const [showLost, setShowLost] = useState(true);
@@ -224,9 +234,10 @@ const CRMKanban = ({
       try {
         const saved = localStorage.getItem(preferencesKey);
         if (saved) {
-          const parsed = JSON.parse(saved) as { metrics?: unknown; stages?: unknown; won?: unknown; lost?: unknown; inactive?: unknown };
+          const parsed = JSON.parse(saved) as { metrics?: unknown; stages?: unknown; cardFields?: unknown; won?: unknown; lost?: unknown; inactive?: unknown };
           if (Array.isArray(parsed.metrics)) setVisibleMetrics(parsed.metrics.filter((value): value is string => typeof value === "string"));
           if (Array.isArray(parsed.stages)) setVisibleStages(parsed.stages.filter((value): value is string => typeof value === "string"));
+          if (Array.isArray(parsed.cardFields)) setVisibleCardFields(parsed.cardFields.filter((value): value is string => CARD_FIELDS.some(([id]) => id === value)));
           if (typeof parsed.won === "boolean") setShowWon(parsed.won);
           if (typeof parsed.lost === "boolean") setShowLost(parsed.lost);
           if (typeof parsed.inactive === "boolean") setShowInactive(parsed.inactive);
@@ -239,9 +250,9 @@ const CRMKanban = ({
 
   useEffect(() => {
     if (!preferencesLoaded) return;
-    try { localStorage.setItem(preferencesKey, JSON.stringify({ metrics: visibleMetrics, stages: visibleStages, won: showWon, lost: showLost, inactive: showInactive })); }
+    try { localStorage.setItem(preferencesKey, JSON.stringify({ metrics: visibleMetrics, stages: visibleStages, cardFields: visibleCardFields, won: showWon, lost: showLost, inactive: showInactive })); }
     catch { /* The board remains usable if browser storage is unavailable. */ }
-  }, [preferencesLoaded, visibleMetrics, visibleStages, showWon, showLost, showInactive, preferencesKey]);
+  }, [preferencesLoaded, visibleMetrics, visibleStages, visibleCardFields, showWon, showLost, showInactive, preferencesKey]);
 
   const serverDataRef = useRef(data);
   const [columns, setColumns] = useState<Column[]>(() =>
@@ -413,8 +424,9 @@ const CRMKanban = ({
             <div className="mt-6 space-y-6">
               <section className="space-y-3"><h3 className="text-sm font-semibold">Summary cards</h3>{metricCards.map(([id, label]) => <label key={id} className="flex items-center gap-3 text-sm"><Checkbox checked={visibleMetrics.includes(id)} onCheckedChange={(checked) => setVisibleMetrics((current) => checked ? current.includes(id) ? current : current.concat(id) : current.filter((item) => item !== id))} />{label}</label>)}</section>
               <section className="space-y-3"><h3 className="text-sm font-semibold">Pipeline stages</h3>{salesStages.map((stage) => <label key={stage.id} className="flex items-center gap-3 text-sm"><Checkbox checked={visibleStages.includes(stage.id)} onCheckedChange={(checked) => setVisibleStages((current) => checked ? current.includes(stage.id) ? current : current.concat(stage.id) : current.filter((item) => item !== stage.id))} />{stage.name}</label>)}</section>
+              <section className="space-y-3"><h3 className="text-sm font-semibold">Active opportunity card details</h3><p className="text-xs text-muted-foreground">Choose which details appear on cards in each active stage. This layout is saved for your profile.</p>{CARD_FIELDS.map(([id, label]) => <label key={id} className="flex items-center gap-3 text-sm"><Checkbox checked={visibleCardFields.includes(id)} onCheckedChange={(checked) => setVisibleCardFields((current) => checked ? current.includes(id) ? current : current.concat(id) : current.filter((item) => item !== id))} />{label}</label>)}</section>
               <section className="space-y-3"><h3 className="text-sm font-semibold">Closed lanes</h3>{[["won", "Won", showWon, setShowWon], ["lost", "Lost", showLost, setShowLost], ["inactive", "Inactive", showInactive, setShowInactive]].map(([id, label, checked, setChecked]) => <label key={String(id)} className="flex items-center gap-3 text-sm"><Checkbox checked={checked as boolean} onCheckedChange={(value) => (setChecked as (value: boolean) => void)(Boolean(value))} />{String(label)}</label>)}</section>
-              <Button variant="ghost" onClick={() => { setVisibleMetrics(DEFAULT_VISIBLE_METRICS); setVisibleStages(salesStages.map((stage) => stage.id)); setShowWon(true); setShowLost(true); setShowInactive(true); }}>Reset board layout</Button>
+              <Button variant="ghost" onClick={() => { setVisibleMetrics(DEFAULT_VISIBLE_METRICS); setVisibleStages(salesStages.map((stage) => stage.id)); setVisibleCardFields(DEFAULT_CARD_FIELDS); setShowWon(true); setShowLost(true); setShowInactive(true); }}>Reset board layout</Button>
             </div>
           </SheetContent>
         </Sheet>
@@ -470,6 +482,7 @@ const CRMKanban = ({
                       <OpportunityCard
                         key={opportunity.id}
                         opportunity={opportunity}
+                        visibleFields={visibleCardFields}
                       />
                     ))}
                   </DroppableStage>
