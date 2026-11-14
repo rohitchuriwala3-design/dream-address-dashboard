@@ -90,7 +90,11 @@ export function LeadFieldRulesTab({ initial }: { initial: LeadFieldSettings }) {
           <Button type="button" variant="outline" onClick={addCustomField} disabled={settings.customFields.length >= 20}>Add field</Button>
         </div>
         {settings.customFields.length ? <div className="divide-y rounded-lg border">{settings.customFields.map((field) => <div key={field.key} className="flex flex-wrap items-center gap-3 p-3">
-          <div className="min-w-40 flex-1"><p className="font-medium">{field.label}</p><p className="text-xs text-muted-foreground">{field.type}{field.options ? ` · ${field.options.join(", ")}` : ""}</p></div>
+          <div className="grid min-w-48 flex-1 gap-2">
+            <Input aria-label={`Field label ${field.key}`} value={field.label} onChange={(event) => setSettings((current) => ({ ...current, customFields: current.customFields.map((item) => item.key === field.key ? { ...item, label: event.target.value } : item) }))} />
+            <span className="text-xs text-muted-foreground">{field.type} field · stored values remain attached to this field</span>
+            {field.type === "select" && <Input aria-label={`Choices for ${field.label}`} value={field.options?.join(", ") ?? ""} onChange={(event) => setSettings((current) => ({ ...current, customFields: current.customFields.map((item) => item.key === field.key ? { ...item, options: event.target.value.split(",").map((option) => option.trim()).filter(Boolean) } : item) }))} placeholder="Comma-separated choices" />}
+          </div>
           <label className="flex items-center gap-2 text-sm"><Checkbox checked={!field.hidden} onCheckedChange={(value) => setSettings((current) => ({ ...current, customFields: current.customFields.map((item) => item.key === field.key ? { ...item, hidden: !value } : item) }))} />Show</label>
           <label className="flex items-center gap-2 text-sm"><Checkbox checked={field.required} disabled={field.hidden} onCheckedChange={(value) => setSettings((current) => ({ ...current, customFields: current.customFields.map((item) => item.key === field.key ? { ...item, required: Boolean(value) } : item) }))} />Required</label>
           <Button type="button" variant="ghost" size="sm" disabled={field.hidden} onClick={() => setSettings((current) => ({ ...current, customFields: current.customFields.map((item) => item.key === field.key ? { ...item, hidden: true, required: false } : item) }))}>Archive</Button>

@@ -76,6 +76,11 @@ export const getLead = async (leadId: string) => {
           sales_stage: true,
           assigned_sales_stage: { select: { name: true } },
           _count: { select: { quoteRevisions: true } },
+          quoteRevisions: {
+            orderBy: { revisionNo: "desc" },
+            take: 5,
+            select: { id: true, revisionNo: true, status: true, snapshot: true, submittedAt: true, reviewNote: true, reopenReason: true },
+          },
         },
       },
     },

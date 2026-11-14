@@ -85,12 +85,14 @@ describe("createLead", () => {
       { key: "site_locality", label: "Site locality", type: "text", required: true },
       { key: "rooms", label: "Rooms", type: "number", required: false },
       { key: "work_type", label: "Work type", type: "select", options: ["Full home", "Kitchen"], required: false },
+      { key: "site_visit_done", label: "Site visit done", type: "checkbox", required: true },
     ] }) });
     expect(await code(svc.createLead(USER, { lastName: "X", customFields: {} }))).toBe("invalidInput");
+    expect(await code(svc.createLead(USER, { lastName: "X", customFields: { site_locality: "Baner" } }))).toBe("invalidInput");
     expect(await code(svc.createLead(USER, { lastName: "X", customFields: { rogue: "value" } }))).toBe("invalidInput");
     expect(db.crm_Leads.create).not.toHaveBeenCalled();
-    await svc.createLead(USER, { lastName: "X", customFields: { site_locality: "Baner", rooms: "3", work_type: "Kitchen" } });
-    expect(db.crm_Leads.create.mock.calls[0][0].data.customFields).toEqual({ site_locality: "Baner", rooms: 3, work_type: "Kitchen" });
+    await svc.createLead(USER, { lastName: "X", customFields: { site_locality: "Baner", rooms: "3", work_type: "Kitchen", site_visit_done: false } });
+    expect(db.crm_Leads.create.mock.calls[0][0].data.customFields).toEqual({ site_locality: "Baner", rooms: 3, work_type: "Kitchen", site_visit_done: false });
   });
 });
 

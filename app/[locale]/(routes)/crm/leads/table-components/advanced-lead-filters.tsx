@@ -9,7 +9,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { getLeadFilterLogicError, isCompleteFilterRule } from "./lead-filter-evaluator";
 import type { LeadCustomField } from "@/lib/crm/leads/field-settings-shared";
 
-export type LeadFilterField = "stage" | "source" | "type" | "owner" | "name" | "company" | "email" | "phone" | "campaign" | "opportunityStage" | "budget" | "expectedRevenue" | "weightedForecast" | "nextStep" | "nextStepDue" | "daysInPipeline" | `custom_${string}`;
+export type LeadFilterField = "stage" | "source" | "type" | "owner" | "name" | "company" | "email" | "phone" | "campaign" | "opportunityStage" | "budget" | "expectedRevenue" | "weightedForecast" | "nextStep" | "nextStepDue" | "followUpTitle" | "followUpDue" | "followUpStatus" | "daysInPipeline" | `custom_${string}`;
 export type LeadFilterRule = { id: string; field: LeadFilterField; operator: string; value: string; logicToNext?: "AND" | "OR" };
 export type LeadFilterGroup = { id: string; logic: "AND" | "OR"; rules: LeadFilterRule[] };
 export type LeadFilterSet = { groupsLogic: "AND" | "OR"; groups: LeadFilterGroup[]; expression?: string };
@@ -22,7 +22,9 @@ const FIELDS: { id: LeadFilterField; label: string; type: "text" | "number" | "c
   { id: "campaign", label: "Campaign", type: "text" }, { id: "opportunityStage", label: "Opportunity stage", type: "text" },
   { id: "budget", label: "Opportunity budget (₹)", type: "number" }, { id: "expectedRevenue", label: "Expected revenue (₹)", type: "number" },
   { id: "weightedForecast", label: "Weighted forecast (₹)", type: "number" }, { id: "nextStep", label: "Next step", type: "text" },
-  { id: "nextStepDue", label: "Next step due", type: "due" }, { id: "daysInPipeline", label: "Days in pipeline", type: "number" },
+  { id: "nextStepDue", label: "Opportunity next step due", type: "due" }, { id: "followUpTitle", label: "Follow-up", type: "text" },
+  { id: "followUpDue", label: "Follow-up date & time", type: "due" }, { id: "followUpStatus", label: "Follow-up status", type: "choice" },
+  { id: "daysInPipeline", label: "Days in pipeline", type: "number" },
 ];
 
 const newRule = (): LeadFilterRule => ({ id: crypto.randomUUID(), field: "stage", operator: "eq", value: "" });

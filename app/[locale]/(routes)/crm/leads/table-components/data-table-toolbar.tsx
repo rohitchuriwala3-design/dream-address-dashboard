@@ -81,6 +81,7 @@ export function DataTableToolbar<TData>({
             stage: leadStatuses.map((item) => ({ value: item.id, label: item.name })),
             source: leadSources.map((item) => ({ value: item.id, label: item.name })),
             type: leadTypes.map((item) => ({ value: item.id, label: item.name })),
+            followUpStatus: [{ value: "overdue", label: "Overdue" }, { value: "upcoming", label: "Upcoming" }, { value: "none", label: "No follow-up" }],
             ...Object.fromEntries(customFields.filter((field) => field.type === "select" || field.type === "checkbox").map((field) => [
               `custom_${field.key}`,
               field.type === "checkbox" ? [{ value: "true", label: "Yes" }, { value: "false", label: "No" }] : (field.options || []).map((value) => ({ value, label: value })),

@@ -69,6 +69,10 @@ export function UpdateLeadForm({ initialData, setOpen, leadSources, leadStatuses
     for (const key of leadFieldSettings.required) {
       if (!String(values[key] ?? "").trim()) context.addIssue({ code: "custom", path: [key], message: "This field is required." });
     }
+    for (const field of leadFieldSettings.customFields.filter((item) => !item.hidden && item.required)) {
+      const value = values.customFields?.[field.key];
+      if (value == null || value === "") context.addIssue({ code: "custom", path: ["customFields", field.key], message: `${field.label} is required.` });
+    }
   });
 
   type NewLeadFormValues = z.infer<typeof formSchema>;

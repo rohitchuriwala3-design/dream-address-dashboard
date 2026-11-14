@@ -56,5 +56,46 @@ export const getLeads = cache(async () => {
       createdAt: "desc",
     },
   });
-  return data;
+  const emptySummary = data.map((lead) => ({ ...lead, nextFollowUp: null, followUpOverdueCount: 0, followUpUpcomingCount: 0 }));
+  if (!data.length) return data;
+
+  try {
+    const links = await (prismadb as any).crm_ActivityLinks.findMany({
+      where: { entityType: "lead", entityId: { in: data.map((lead) => lead.id) } },
+      select: { entityId: true, activityId: true },
+    }) as Array<{ entityId: string; activityId: string }>;
+    const activityIds = Array.from(new Set(links.map((link) => link.activityId)));
+    if (!activityIds.length) return emptySummary;
+
+    const activities = await (prismadb as any).crm_Activities.findMany({
+      where: { id: { in: activityIds }, status: "scheduled", deletedAt: null },
+      select: { id: true, title: true, date: true, status: true },
+      orderBy: { date: "asc" },
+    }) as Array<{ id: string; title: string; date: Date; status: "scheduled" }>;
+    const activityById = new Map(activities.map((activity) => [activity.id, activity]));
+    const linksByLead = new Map<string, Array<{ id: string; title: string; date: Date; status: "scheduled" }>>();
+    for (const link of links) {
+      const activity = activityById.get(link.activityId);
+      if (!activity) continue;
+      const current = linksByLead.get(link.entityId) ?? [];
+      current.push(activity);
+      linksByLead.set(link.entityId, current);
+    }
+
+    const now = Date.now();
+    return data.map((lead) => {
+      const scheduled = linksByLead.get(lead.id) ?? [];
+      const overdue = scheduled.filter((activity) => new Date(activity.date).getTime() < now).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      const upcoming = scheduled.filter((activity) => new Date(activity.date).getTime() >= now).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      return {
+        ...lead,
+        nextFollowUp: overdue[0] ?? upcoming[0] ?? null,
+        followUpOverdueCount: overdue.length,
+        followUpUpcomingCount: upcoming.length,
+      };
+    });
+  } catch (error) {
+    console.error("getLeads follow-up summary error:", error);
+    return emptySummary;
+  }
 });

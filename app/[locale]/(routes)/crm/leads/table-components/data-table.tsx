@@ -43,7 +43,8 @@ const COLUMN_LABELS: Record<string, string> = {
   refered_by: "Referred by", campaign: "Campaign", assigned_to_user: "Owner", createdAt: "Added",
   linkedAccount: "Linked account", opportunityStage: "Opportunity stage", opportunityBudget: "Opportunity budget",
   expectedRevenue: "Expected revenue", weightedForecast: "Weighted forecast", nextStep: "Next step",
-  nextStepDue: "Next step due", daysInPipeline: "Days in pipeline",
+  nextStepDue: "Opportunity next step due", followUpTitle: "Follow-up", followUpDue: "Follow-up date & time",
+  followUpStatus: "Follow-up status", daysInPipeline: "Days in pipeline",
 };
 
 type ConfigItem = { id: string; name: string };
@@ -145,6 +146,7 @@ export function LeadDataTable<TData, TValue>({
         lead.preClosureOpportunity?.next_step,
         lead.preClosureOpportunity?.status,
         lead.preClosureOpportunity?.assigned_sales_stage?.name,
+        lead.nextFollowUp?.title,
         lead.assigned_accounts?.name,
         ...Object.values(lead.customFields || {}),
       ];
@@ -157,7 +159,7 @@ export function LeadDataTable<TData, TValue>({
       <div className="flex flex-col gap-3 rounded-xl border bg-muted/20 p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
         <div>
           <p className="text-sm font-medium">Lead workspace</p>
-          <p className="text-xs text-muted-foreground">Search clients, filter by stage or source, and open a record to continue the conversation.</p>
+          <p className="text-xs text-muted-foreground">Track lead ownership, opportunities, dated follow-ups and client context in one workspace.</p>
         </div>
         <div className="flex justify-end space-x-2">
           {hide ? (

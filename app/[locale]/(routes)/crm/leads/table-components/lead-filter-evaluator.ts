@@ -27,6 +27,9 @@ function fieldValue(lead: LeadLike, field: LeadFilterField): unknown {
     case "weightedForecast": return opportunity ? Number(opportunity.expected_revenue ?? 0) * Number(opportunity.assigned_sales_stage?.probability ?? 0) / 100 : null;
     case "nextStep": return opportunity?.next_step;
     case "nextStepDue": return opportunity?.next_step_due_at;
+    case "followUpTitle": return lead.nextFollowUp?.title;
+    case "followUpDue": return lead.nextFollowUp?.date;
+    case "followUpStatus": return lead.followUpOverdueCount || (lead.nextFollowUp?.date && new Date(lead.nextFollowUp.date).getTime() < Date.now()) ? "overdue" : lead.nextFollowUp ? "upcoming" : "none";
     case "daysInPipeline": return daysInPipeline(lead.createdAt);
   }
 }
@@ -35,9 +38,11 @@ function dueBucket(value: unknown): string {
   if (!value) return "noDate";
   const date = new Date(value as string | number | Date);
   if (!Number.isFinite(date.getTime())) return "noDate";
-  date.setHours(0, 0, 0, 0);
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  const days = Math.floor((date.getTime() - today.getTime()) / 86_400_000);
+  const dateKey = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata", year: "numeric", month: "2-digit", day: "2-digit" }).format(date);
+  const todayKey = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+  const dateTime = Date.parse(`${dateKey}T00:00:00Z`);
+  const todayTime = Date.parse(`${todayKey}T00:00:00Z`);
+  const days = Math.floor((dateTime - todayTime) / 86_400_000);
   return days < 0 ? "overdue" : days === 0 ? "today" : days <= 7 ? "next7" : "later";
 }
 
@@ -49,7 +54,7 @@ function matches(lead: LeadLike, rule: LeadFilterRule): boolean {
   if (!isCompleteFilterRule(rule)) return true;
   const value = fieldValue(lead, rule.field);
   if (["empty", "notEmpty"].includes(rule.operator)) return rule.operator === "empty" ? !text(value) : Boolean(text(value));
-  if (rule.field === "nextStepDue") return dueBucket(value) === rule.operator;
+  if (["nextStepDue", "followUpDue"].includes(rule.field)) return dueBucket(value) === rule.operator;
   if (["budget", "expectedRevenue", "weightedForecast", "daysInPipeline"].includes(rule.field) || typeof value === "number") {
     if (value === null || value === undefined || value === "") return false;
     const actual = Number(value), expected = Number(rule.value);
@@ -88,7 +93,7 @@ export function countActiveLeadFilters(filters: LeadFilterSet): number {
   return filters.groups.reduce((total, group) => total + group.rules.filter(isCompleteFilterRule).length, 0);
 }
 
-const validFields: LeadFilterField[] = ["stage", "source", "type", "owner", "name", "company", "email", "phone", "campaign", "opportunityStage", "budget", "expectedRevenue", "weightedForecast", "nextStep", "nextStepDue", "daysInPipeline"];
+const validFields: LeadFilterField[] = ["stage", "source", "type", "owner", "name", "company", "email", "phone", "campaign", "opportunityStage", "budget", "expectedRevenue", "weightedForecast", "nextStep", "nextStepDue", "followUpTitle", "followUpDue", "followUpStatus", "daysInPipeline"];
 const validOperators = ["eq", "neq", "contains", "empty", "notEmpty", "gt", "gte", "lt", "lte", "overdue", "today", "next7", "later", "noDate"];
 
 export function sanitizeLeadFilterSet(input: unknown, customFieldKeys: string[] = []): LeadFilterSet {

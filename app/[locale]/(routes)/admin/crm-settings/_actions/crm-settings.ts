@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { requireRole, AuthenticationError, AuthorizationError } from "@/lib/authz";
 import { STAGE_KINDS, type StageKind } from "@/lib/crm/stage-kinds";
 import { withEffectiveStageOrder } from "@/lib/crm/stage-order";
-import { getLeadFieldSettings, saveLeadFieldSettings, type LeadFieldSettings } from "@/lib/crm/leads/field-settings";
+import { getLeadFieldSettings, saveLeadFieldSettings, sanitizeLeadFieldSettings, type LeadFieldSettings } from "@/lib/crm/leads/field-settings";
 
 async function ensureAdmin(): Promise<{ error: string } | null> {
   try {
@@ -47,7 +47,26 @@ export async function getAdminLeadFieldSettings(): Promise<LeadFieldSettings> {
 export async function updateAdminLeadFieldSettings(input: unknown): Promise<void> {
   const denied = await ensureAdmin();
   if (denied) throw new Error(denied.error);
-  await saveLeadFieldSettings(input);
+  const next = sanitizeLeadFieldSettings(input);
+  const rawCustomFields = input && typeof input === "object" && Array.isArray((input as { customFields?: unknown }).customFields)
+    ? (input as { customFields: unknown[] }).customFields
+    : [];
+  if (next.customFields.length !== rawCustomFields.length) throw new Error("Every custom lead field must have a unique name and a valid type and value.");
+
+  const current = await getLeadFieldSettings();
+  for (const oldField of current.customFields.filter((field) => field.type === "select")) {
+    const newField = next.customFields.find((field) => field.key === oldField.key);
+    const removedOptions = (oldField.options ?? []).filter((option) => !newField?.options?.includes(option));
+    for (const option of removedOptions) {
+      const inUse = await (prisma.crm_Leads as any).findFirst({
+        where: { deletedAt: null, customFields: { path: [oldField.key], equals: option } },
+        select: { id: true },
+      });
+      if (inUse) throw new Error(`Cannot remove “${option}” from ${oldField.label}: existing lead records still use this choice.`);
+    }
+  }
+
+  await saveLeadFieldSettings(next);
   revalidatePath("/", "layout");
 }
 

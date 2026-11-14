@@ -27,8 +27,8 @@ const LeadDetailPage = async (props: LeadDetailPageProps) => {
 
   return (
     <Container
-      title={`Lead: ${lead?.firstName} ${lead?.lastName}`}
-      description={"Everything you need to know about sales potential"}
+      title={[lead.firstName, lead.lastName].filter(Boolean).join(" ")}
+      description={`${lead.company || "Residential enquiry"} · ${lead.convertedAt ? "Client account" : "Pre-closure lead"}`}
     >
       <Tabs defaultValue="overview">
         <TabsList>
@@ -36,11 +36,15 @@ const LeadDetailPage = async (props: LeadDetailPageProps) => {
           <TabsTrigger value="history">History</TabsTrigger>
         </TabsList>
         <TabsContent value="overview">
-          <div className="space-y-5">
-            <BasicView data={lead} />
-            <DocumentsView data={documents} leadId={leadId} />
-            <ActivitiesSection leadId={lead.id} />
-            <FindSimilarButton entityType="lead" recordId={leadId} />
+          <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,1fr)]">
+            <div className="min-w-0 space-y-4">
+              <BasicView data={lead} />
+              <FindSimilarButton entityType="lead" recordId={leadId} />
+            </div>
+            <aside className="min-w-0 space-y-4" aria-label="Follow-ups and files">
+              <ActivitiesSection leadId={lead.id} />
+              <DocumentsView data={documents} leadId={leadId} />
+            </aside>
           </div>
         </TabsContent>
         <TabsContent value="history">

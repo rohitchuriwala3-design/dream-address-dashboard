@@ -1,19 +1,13 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { MoreHorizontal, UserRoundCheck } from "lucide-react";
+import { Pencil, UserRoundCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { convertLead } from "@/actions/crm/leads/convert-lead";
 import { createLeadOpportunity } from "@/actions/crm/leads/create-lead-opportunity";
 import Link from "next/link";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Sheet,
   SheetContent,
@@ -106,23 +100,9 @@ export function LeadDetailActions({
         </SheetContent>
       </Sheet>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
-            data-testid="lead-detail-actions-btn"
-          >
-            <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
-            <span className="sr-only">Open menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-[160px]">
-          <DropdownMenuItem onClick={() => setUpdateOpen(true)}>
-            Update
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <Button variant="outline" size="sm" onClick={() => setUpdateOpen(true)} data-testid="lead-detail-actions-btn">
+        <Pencil className="mr-2 h-4 w-4" aria-hidden="true" />Edit lead
+      </Button>
     </>
   );
 }

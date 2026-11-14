@@ -9,15 +9,11 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { LeadDetailActions } from "./LeadDetailActions";
+import { LeadDetailCard } from "./LeadDetailCard";
+import { LeadCommercialPanel } from "./LeadCommercialPanel";
 import { getLeadFormOptions } from "@/actions/crm/get-lead-form-options";
 import type { Prisma } from "@prisma/client";
 
@@ -51,6 +47,7 @@ interface LeadDetailData {
     next_step_due_at: Date | string | null;
     assigned_sales_stage?: { name: string } | null;
     _count: { quoteRevisions: number };
+    quoteRevisions: Array<{ id: string; revisionNo: number; status: string; snapshot: unknown; submittedAt: Date | string; reviewNote: string | null; reopenReason: string | null }>;
   } | null;
   [key: string]: unknown;
 }
@@ -91,10 +88,6 @@ function formatDate(value?: Date | string | null) {
   }).format(date);
 }
 
-function formatINR(value: number) {
-  return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: value % 1 === 0 ? 0 : 2 }).format(value);
-}
-
 export async function BasicView({ data }: Props) {
   const { leadSources, leadStatuses, leadTypes, leadFieldSettings } = await getLeadFormOptions();
   const customValues = data.customFields && typeof data.customFields === "object" && !Array.isArray(data.customFields)
@@ -109,30 +102,26 @@ export async function BasicView({ data }: Props) {
 
   return (
     <div className="space-y-4">
-      <Card>
-        <CardHeader className="gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0 space-y-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <CardTitle className="text-xl sm:text-2xl">{fullName}</CardTitle>
+      <LeadDetailCard title={data.company || "Lead details"} action={
+        <LeadDetailActions
+          lead={data}
+          leadSources={leadSources}
+          leadStatuses={leadStatuses}
+          leadTypes={leadTypes}
+          leadFieldSettings={leadFieldSettings}
+        />
+      } description={
+        <div className="space-y-2">
+          <p className="break-words">{fullName}{data.jobTitle ? ` · ${data.jobTitle}` : ""}</p>
+          <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="outline">{data.convertedAt ? "Converted to account" : "Pre-closure lead"}</Badge>
               {data.lead_status?.name ? <Badge variant="secondary">{data.lead_status.name}</Badge> : null}
-            </div>
-            <CardDescription className="break-words">
-              {data.company || data.jobTitle || "Residential enquiry"}
-              {data.company && data.jobTitle ? ` · ${data.jobTitle}` : ""}
-            </CardDescription>
           </div>
-          <div className="w-full sm:w-auto sm:shrink-0">
-            <LeadDetailActions
-              lead={data}
-              leadSources={leadSources}
-              leadStatuses={leadStatuses}
-              leadTypes={leadTypes}
-              leadFieldSettings={leadFieldSettings}
-            />
-          </div>
-        </CardHeader>
+          {data.assigned_accounts?.id && <Link className="inline-block text-sm font-medium text-primary underline-offset-4 hover:underline" href={`/crm/accounts/${data.assigned_accounts.id}`}>Client account · {data.assigned_accounts.name} →</Link>}
+        </div>
+      }>
         <CardContent className="space-y-5">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 2xl:grid-cols-3">
             <DetailItem icon={UserRound} label="Lead contact" value={fullName} />
             <DetailItem icon={Landmark} label="Company / client" value={data.company} />
             <DetailItem icon={Phone} label="Phone" value={data.phone} />
@@ -176,33 +165,9 @@ export async function BasicView({ data }: Props) {
             <p className="text-xs text-muted-foreground">Campaign: {data.campaign}</p>
           ) : null}
           {leadFieldSettings.customFields.some((field) => !field.hidden && customValues[field.key] !== undefined) ? <section className="space-y-3 border-t pt-4" aria-labelledby="lead-custom-fields-heading"><h3 id="lead-custom-fields-heading" className="text-sm font-semibold">Additional details</h3><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{leadFieldSettings.customFields.filter((field) => !field.hidden && customValues[field.key] !== undefined).map((field) => { const value = customValues[field.key]; return <DetailItem key={field.key} icon={FileText} label={field.label} value={typeof value === "boolean" ? value ? "Yes" : "No" : value == null ? undefined : String(value)} />; })}</div></section> : null}
-          <p className="border-t pt-3 text-xs text-muted-foreground">Record reference: {data.id}</p>
         </CardContent>
-      </Card>
-      {data.preClosureOpportunity && (
-        <Card>
-          <CardHeader className="gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="min-w-0"><CardTitle className="text-base">Current job discussion</CardTitle><CardDescription>Each Opportunity represents one possible interiors job; quote revisions stay with that job.</CardDescription></div>
-            <Link className="inline-flex h-9 shrink-0 items-center justify-center rounded-md border px-3 text-sm font-medium hover:bg-accent" href={`/crm/opportunities/${data.preClosureOpportunity.id}`}>Open opportunity →</Link>
-          </CardHeader>
-          <CardContent className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <DetailItem icon={Landmark} label="Opportunity" value={data.preClosureOpportunity.name} />
-            <DetailItem icon={FileText} label="Pipeline stage" value={data.preClosureOpportunity.status === "WON" ? "Won · client confirmed" : data.preClosureOpportunity.status === "LOST" ? "Lost" : data.preClosureOpportunity.assigned_sales_stage?.name || "Qualification"} />
-            <DetailItem icon={Landmark} label="Expected job value" value={formatINR(Number(data.preClosureOpportunity.expected_revenue) || Number(data.preClosureOpportunity.budget) || 0)} />
-            <DetailItem icon={FileText} label="Quote revisions" value={String(data.preClosureOpportunity._count.quoteRevisions)} />
-            <DetailItem icon={CalendarDays} label="Next step" value={data.preClosureOpportunity.next_step} />
-            <DetailItem icon={CalendarDays} label="Next step due" value={formatDate(data.preClosureOpportunity.next_step_due_at)} />
-          </CardContent>
-        </Card>
-      )}
-      {data.assigned_accounts?.id && (
-        <Card>
-          <CardContent className="flex flex-wrap items-center justify-between gap-3 py-4">
-            <div><p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Client account</p><p className="mt-1 font-semibold">{data.assigned_accounts.name}</p></div>
-            <Link className="text-sm font-medium text-primary underline-offset-4 hover:underline" href={`/crm/accounts/${data.assigned_accounts.id}`}>Open client portfolio →</Link>
-          </CardContent>
-        </Card>
-      )}
+      </LeadDetailCard>
+      <LeadCommercialPanel opportunity={data.preClosureOpportunity ?? null} account={data.assigned_accounts?.id ? { id: data.assigned_accounts.id, name: data.assigned_accounts.name } : null} />
     </div>
   );
 }

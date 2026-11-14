@@ -21,6 +21,7 @@ import {
 import { createActivity } from "@/actions/crm/activities/create-activity";
 import { updateActivity } from "@/actions/crm/activities/update-activity";
 import type { ActivityWithLinks } from "@/actions/crm/activities/get-activities-by-entity";
+import { formatIndiaDateTimeLocalInput, parseIndiaDateTimeLocalInput } from "@/lib/india-time";
 
 type ActivityType = "call" | "meeting" | "note" | "email" | "visit";
 type ActivityStatus = "scheduled" | "completed" | "cancelled";
@@ -49,7 +50,7 @@ export function ActivityForm({ open, onOpenChange, entityType, entityId, activit
   const [title, setTitle] = useState(activity?.title ?? "");
   const [description, setDescription] = useState(activity?.description ?? "");
   const [date, setDate] = useState(
-    activity ? new Date(activity.date).toISOString().slice(0, 16) : ""
+    activity ? formatIndiaDateTimeLocalInput(activity.date) : ""
   );
   const [status, setStatus] = useState<ActivityStatus>(activity?.status ?? "scheduled");
   const [duration, setDuration] = useState(activity?.duration?.toString() ?? "");
@@ -91,7 +92,7 @@ export function ActivityForm({ open, onOpenChange, entityType, entityId, activit
       type,
       title: title.trim(),
       description: description.trim() || undefined,
-      date: new Date(date),
+      date: parseIndiaDateTimeLocalInput(date),
       duration: showDuration && duration ? parseInt(duration, 10) : undefined,
       outcome: showOutcome && outcome.trim() ? outcome.trim() : undefined,
       status,
@@ -153,7 +154,7 @@ export function ActivityForm({ open, onOpenChange, entityType, entityId, activit
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="activity-date">Date & Time *</Label>
+            <Label htmlFor="activity-date">Date & Time (IST) *</Label>
             <Input
               id="activity-date"
               type="datetime-local"
@@ -161,6 +162,7 @@ export function ActivityForm({ open, onOpenChange, entityType, entityId, activit
               onChange={(e) => setDate(e.target.value)}
               required
             />
+            <p className="text-xs text-muted-foreground">Scheduled activities show as overdue after this time until completed, cancelled, or rescheduled.</p>
           </div>
 
           <div className="space-y-1">

@@ -9,6 +9,7 @@ import { DataTableRowActions } from "./data-table-row-actions";
 import { Lead } from "../table-data/schema";
 import type { LeadFieldSettings } from "@/lib/crm/leads/field-settings-shared";
 import type { LeadCustomField } from "@/lib/crm/leads/field-settings-shared";
+import { formatIndiaDateTime } from "@/lib/india-time";
 
 type ConfigItem = { id: string; name: string };
 type LeadRow = Lead & {
@@ -25,6 +26,9 @@ type LeadRow = Lead & {
   refered_by?: string | null;
   assigned_to_user?: { name: string | null } | null;
   assigned_accounts?: { name: string } | null;
+  nextFollowUp?: { id: string; title: string; date: Date | string; status: "scheduled" } | null;
+  followUpOverdueCount?: number;
+  followUpUpcomingCount?: number;
   preClosureOpportunity?: {
     status?: string | null;
     budget?: number | string | null;
@@ -157,6 +161,33 @@ export const createColumns = (
     accessorFn: (row) => (row as LeadRow).preClosureOpportunity?.next_step_due_at ? new Date((row as LeadRow).preClosureOpportunity!.next_step_due_at!).getTime() : 0,
     header: ({ column }) => <DataTableColumnHeader column={column} title="Next step due" />,
     cell: ({ row }) => <span className="whitespace-nowrap text-sm">{dateLabel((row.original as LeadRow).preClosureOpportunity?.next_step_due_at)}</span>,
+  },
+  {
+    id: "followUpTitle",
+    accessorFn: (row) => (row as LeadRow).nextFollowUp?.title || "",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Follow-up" />,
+    cell: ({ row }) => <span className="max-w-56 truncate text-sm">{(row.original as LeadRow).nextFollowUp?.title || "No scheduled follow-up"}</span>,
+  },
+  {
+    id: "followUpDue",
+    accessorFn: (row) => (row as LeadRow).nextFollowUp ? new Date((row as LeadRow).nextFollowUp!.date).getTime() : 0,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Follow-up date & time" />,
+    cell: ({ row }) => {
+      const lead = row.original as LeadRow;
+      if (!lead.nextFollowUp) return <span className="text-sm text-muted-foreground">—</span>;
+      const isOverdue = new Date(lead.nextFollowUp.date).getTime() < Date.now();
+      return <div className="space-y-1 whitespace-nowrap text-sm"><p>{formatIndiaDateTime(lead.nextFollowUp.date)}</p>{isOverdue && <Badge variant="destructive">Overdue · {lead.followUpOverdueCount || 1}</Badge>}</div>;
+    },
+  },
+  {
+    id: "followUpStatus",
+    accessorFn: (row) => (row as LeadRow).followUpOverdueCount ? "overdue" : (row as LeadRow).nextFollowUp ? "upcoming" : "none",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Follow-up status" />,
+    cell: ({ row }) => {
+      const lead = row.original as LeadRow;
+      if (lead.followUpOverdueCount) return <Badge variant="destructive">Overdue · {lead.followUpOverdueCount}</Badge>;
+      return <Badge variant={lead.nextFollowUp ? "outline" : "secondary"}>{lead.nextFollowUp ? "Upcoming" : "No follow-up"}</Badge>;
+    },
   },
   {
     id: "daysInPipeline",

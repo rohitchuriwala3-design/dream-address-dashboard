@@ -63,4 +63,15 @@ describe("lead filter evaluator", () => {
     expect(leadMatchesAdvancedFilters({ customFields: { locality: "Baner, Pune", site_visits: 3 } }, filters)).toBe(true);
     expect(leadMatchesAdvancedFilters({ customFields: { locality: "Kothrud", site_visits: 3 } }, filters)).toBe(false);
   });
+
+  it("filters leads by dated activity follow-ups and overdue state", () => {
+    const filters: LeadFilterSet = { groupsLogic: "AND", groups: [{ id: "g", logic: "AND", rules: [
+      { id: "r1", field: "followUpStatus", operator: "eq", value: "overdue" },
+      { id: "r2", field: "followUpTitle", operator: "contains", value: "call" },
+      { id: "r3", field: "followUpDue", operator: "overdue", value: "" },
+    ] }] };
+    const lead = { followUpOverdueCount: 1, nextFollowUp: { title: "Call client back", date: "2020-01-01T12:00:00.000Z" } };
+    expect(leadMatchesAdvancedFilters(lead, filters)).toBe(true);
+    expect(leadMatchesAdvancedFilters({ followUpOverdueCount: 0, nextFollowUp: { title: "Call client back", date: "2099-01-01T12:00:00.000Z" } }, filters)).toBe(false);
+  });
 });

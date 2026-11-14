@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { formatIndiaDateTime } from "@/lib/india-time";
 import { Phone, Users, FileText, Mail, MapPin, Pencil, Trash2 } from "lucide-react";
@@ -59,8 +59,17 @@ interface Props {
 export function ActivityEntry({ activity, onDeleted, onUpdated, entityType, entityId }: Props) {
   const [editOpen, setEditOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [now, setNow] = useState<number | null>(null);
+
+  useEffect(() => {
+    const updateNow = () => setNow(Date.now());
+    updateNow();
+    const interval = window.setInterval(updateNow, 60_000);
+    return () => window.clearInterval(interval);
+  }, []);
 
   const Icon = TYPE_ICONS[activity.type];
+  const isOverdue = now !== null && activity.status === "scheduled" && new Date(activity.date).getTime() < now;
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -90,17 +99,18 @@ export function ActivityEntry({ activity, onDeleted, onUpdated, entityType, enti
               <Badge variant={STATUS_VARIANTS[activity.status]} className="text-xs">
                 {activity.status}
               </Badge>
+              {isOverdue && <Badge variant="destructive" className="text-xs">Overdue follow-up</Badge>}
             </div>
           </div>
           <div className="flex items-center gap-1 flex-shrink-0">
             <Tooltip>
               <TooltipTrigger asChild>
-                <span className="text-xs text-muted-foreground cursor-default">
-                  {formatDistanceToNow(new Date(activity.date), { addSuffix: true })}
+                <span className={`cursor-default text-xs ${isOverdue ? "font-medium text-destructive" : "text-muted-foreground"}`}>
+                  {formatIndiaDateTime(activity.date)}
                 </span>
               </TooltipTrigger>
               <TooltipContent>
-                {formatIndiaDateTime(activity.date)}
+                {formatDistanceToNow(new Date(activity.date), { addSuffix: true })}
               </TooltipContent>
             </Tooltip>
             <Button
@@ -134,7 +144,7 @@ export function ActivityEntry({ activity, onDeleted, onUpdated, entityType, enti
           </div>
         </div>
         {activity.description && (
-          <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+          <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-5 text-muted-foreground">
             {activity.description}
           </p>
         )}

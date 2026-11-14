@@ -45,7 +45,7 @@ export async function validateRequiredLeadFields(input: object) {
   const missingCustom: string[] = [];
   for (const field of fields) {
     const value = custom[field.key];
-    if (field.required && (value == null || value === "" || (field.type === "checkbox" && value !== true))) missingCustom.push(field.label);
+    if (field.required && (value == null || value === "")) missingCustom.push(field.label);
     if (value == null || value === "") continue;
     if (field.type === "checkbox") {
       if (typeof value !== "boolean") throw new LeadError("invalidInput", `${field.label} must be checked or unchecked.`);
