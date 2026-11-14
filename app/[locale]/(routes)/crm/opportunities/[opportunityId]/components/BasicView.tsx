@@ -54,9 +54,9 @@ export async function BasicView({ data }: OppsViewProps) {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <div className="flex w-full justify-between">
-          <div>
-            <CardTitle className="flex items-center gap-2">
+        <div className="flex w-full min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <CardTitle className="flex min-w-0 flex-wrap items-center gap-2 break-words">
               {data.name}
               {data.approval_status === "PENDING" && (
                 <Badge variant="secondary">Approval pending</Badge>
@@ -69,9 +69,9 @@ export async function BasicView({ data }: OppsViewProps) {
                 </Badge>
               )}
             </CardTitle>
-            <CardDescription>ID:{data.id}</CardDescription>
+            <CardDescription className="break-all">ID: {data.id}</CardDescription>
           </div>
-          <div className="flex items-start gap-2">
+          <div className="flex w-full min-w-0 flex-wrap items-start gap-2 sm:w-auto sm:justify-end">
           {(data.approval_status === "NONE" ||
             data.approval_status === "REJECTED" || data.approval_status === "REOPENED") && (
             <RequestApprovalButton opportunityId={data.id} />
@@ -97,8 +97,8 @@ export async function BasicView({ data }: OppsViewProps) {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="grid grid-cols-2 gap-1">
-        <div>
+      <CardContent className="grid grid-cols-1 gap-1 md:grid-cols-2">
+        <div className="min-w-0">
           <div className="-mx-2 flex items-start space-x-4 rounded-md p-2 transition-all hover:bg-accent hover:text-accent-foreground">
             <CoinsIcon className="mt-px h-5 w-5" />
             <div className="space-y-1">
@@ -157,7 +157,7 @@ export async function BasicView({ data }: OppsViewProps) {
             </div>
           </div>
         </div>
-        <div>
+        <div className="min-w-0">
           <div className="-mx-2 flex items-start space-x-4 rounded-md p-2 transition-all hover:bg-accent hover:text-accent-foreground">
             <Landmark className="mt-px h-5 w-5" />
             <div className="space-y-1">
@@ -176,7 +176,7 @@ export async function BasicView({ data }: OppsViewProps) {
                 Expected close date
               </p>
               <p className="text-sm text-muted-foreground">
-                {moment(data.close_date).format("MMM DD YYYY")}
+                {data.close_date ? moment(data.close_date).format("MMM DD YYYY") : "Not set"}
               </p>
             </div>
           </div>
