@@ -33,6 +33,17 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import type { LeadFieldSettings } from "@/lib/crm/leads/field-settings-shared";
 
+const DEFAULT_HIDDEN_COLUMNS = ["jobTitle", "email", "phone", "lead_type_id", "refered_by", "campaign", "linkedAccount", "opportunityStage", "opportunityBudget", "expectedRevenue", "weightedForecast", "nextStep", "nextStepDue", "daysInPipeline"];
+const COLUMN_PREFS_KEY = "mark4.leads.table.v1";
+const COLUMN_LABELS: Record<string, string> = {
+  lead_status_id: "Stage", lead_source_id: "Source", lead_type_id: "Lead type", client: "Client",
+  contact: "Contact", company: "Company / client", jobTitle: "Job title", email: "Email", phone: "Phone",
+  refered_by: "Referred by", campaign: "Campaign", assigned_to_user: "Owner", createdAt: "Added",
+  linkedAccount: "Linked account", opportunityStage: "Opportunity stage", opportunityBudget: "Opportunity budget",
+  expectedRevenue: "Expected revenue", weightedForecast: "Weighted forecast", nextStep: "Next step",
+  nextStepDue: "Next step due", daysInPipeline: "Days in pipeline",
+};
+
 type ConfigItem = { id: string; name: string };
 
 interface DataTableProps<TData, TValue> {
@@ -54,7 +65,9 @@ export function LeadDataTable<TData, TValue>({
   const columns = createColumns(leadSources, leadStatuses, leadTypes, leadFieldSettings) as ColumnDef<TData, TValue>[];
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+    React.useState<VisibilityState>(Object.fromEntries(DEFAULT_HIDDEN_COLUMNS.map((id) => [id, false])));
+  const [columnOrder, setColumnOrder] = React.useState<string[]>([]);
+  const [preferencesLoaded, setPreferencesLoaded] = React.useState(false);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
@@ -63,12 +76,33 @@ export function LeadDataTable<TData, TValue>({
 
   const [hide, setHide] = React.useState(false);
 
+  React.useEffect(() => {
+    try {
+      const saved = localStorage.getItem(COLUMN_PREFS_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved) as { columnVisibility?: VisibilityState; columnOrder?: string[] };
+        if (parsed.columnVisibility && typeof parsed.columnVisibility === "object") {
+          setColumnVisibility((current) => ({ ...current, ...parsed.columnVisibility }));
+        }
+        if (Array.isArray(parsed.columnOrder)) setColumnOrder(parsed.columnOrder.filter((id) => typeof id === "string"));
+      }
+    } catch { /* Ignore malformed or blocked browser storage and use defaults. */ }
+    setPreferencesLoaded(true);
+  }, []);
+
+  React.useEffect(() => {
+    if (!preferencesLoaded) return;
+    try { localStorage.setItem(COLUMN_PREFS_KEY, JSON.stringify({ columnVisibility, columnOrder })); }
+    catch { /* The table remains usable if browser storage is unavailable. */ }
+  }, [columnVisibility, columnOrder, preferencesLoaded]);
+
   const table = useReactTable({
     data,
     columns,
     state: {
       sorting,
       columnVisibility,
+      columnOrder,
       rowSelection,
       columnFilters,
       globalFilter,
@@ -79,6 +113,7 @@ export function LeadDataTable<TData, TValue>({
     onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,
     onColumnVisibilityChange: setColumnVisibility,
+    onColumnOrderChange: setColumnOrder,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -99,6 +134,12 @@ export function LeadDataTable<TData, TValue>({
         lead.lead_status?.name,
         lead.lead_source?.name,
         lead.assigned_to_user?.name,
+        lead.campaign,
+        lead.refered_by,
+        lead.preClosureOpportunity?.next_step,
+        lead.preClosureOpportunity?.status,
+        lead.preClosureOpportunity?.assigned_sales_stage?.name,
+        lead.assigned_accounts?.name,
       ];
       return values.some((value) => String(value || "").toLowerCase().includes(search));
     },
@@ -132,7 +173,7 @@ export function LeadDataTable<TData, TValue>({
         </div>
       ) : (
         <>
-          <DataTableToolbar table={table} leadStatuses={leadStatuses} leadSources={leadSources} />
+          <DataTableToolbar table={table} leadStatuses={leadStatuses} leadSources={leadSources} leadTypes={leadTypes} />
           <div className="hidden overflow-x-auto rounded-xl border md:block">
             <Table data-testid="leads-table">
               <TableHeader>
@@ -173,7 +214,7 @@ export function LeadDataTable<TData, TValue>({
                 ) : (
                   <TableRow>
                       <TableCell
-                      colSpan={columns.length}
+                      colSpan={table.getVisibleLeafColumns().length}
                       className="h-24 text-center"
                     >
                       No leads match these filters.
@@ -188,25 +229,28 @@ export function LeadDataTable<TData, TValue>({
               const lead = row.original as any;
               const stage = leadStatuses.find((item) => item.id === lead.lead_status_id)?.name;
               const source = lead.refered_by ? `Referral · ${lead.refered_by}` : leadSources.find((item) => item.id === lead.lead_source_id)?.name;
-              const actions = row.getVisibleCells().find((cell) => cell.column.id === "actions");
+              const visibleCells = row.getVisibleCells();
+              const actions = visibleCells.find((cell) => cell.column.id === "actions");
               return (
                 <article key={row.id} className="rounded-xl border bg-card p-4 shadow-sm">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <Link href={`/crm/leads/${lead.id}`} target="_blank" rel="noreferrer" className="block truncate font-semibold hover:text-primary hover:underline">{[lead.firstName, lead.lastName].filter(Boolean).join(" ") || "New enquiry"}</Link>
-                      <p className="mt-1 truncate text-sm text-muted-foreground">{lead.company || lead.assigned_accounts?.name || "Residential client"}</p>
+                      <p className="mt-1 truncate text-sm text-muted-foreground">{table.getColumn("company")?.getIsVisible() ? lead.company || "Residential client" : lead.assigned_accounts?.name || "Lead record"}</p>
                     </div>
                     {actions ? flexRender(actions.column.columnDef.cell, actions.getContext()) : null}
                   </div>
                   <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <Badge variant={stage ? "secondary" : "outline"}>{stage || "Stage not set"}</Badge>
-                    {source ? <Badge variant="outline">{source}</Badge> : null}
+                    {table.getColumn("lead_status_id")?.getIsVisible() && <Badge variant={stage ? "secondary" : "outline"}>{stage || "Stage not set"}</Badge>}
+                    {table.getColumn("lead_source_id")?.getIsVisible() && source ? <Badge variant="outline">{source}</Badge> : null}
                   </div>
-                  <div className="mt-3 grid gap-1 border-t pt-3 text-sm sm:grid-cols-2">
-                    <span>{lead.phone || "No phone"}</span>
-                    <span className="truncate text-muted-foreground">{lead.email || "No email"}</span>
-                    <span className="text-muted-foreground">Owner: {lead.assigned_to_user?.name || "Unassigned"}</span>
-                    <span className="text-muted-foreground">Added: {lead.createdAt ? new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", timeZone: "Asia/Kolkata" }).format(new Date(lead.createdAt)) : "—"}</span>
+                  <div className="mt-3 grid gap-2 border-t pt-3 text-sm sm:grid-cols-2">
+                    {visibleCells.filter((cell) => !["client", "actions", "lead_status_id", "lead_source_id", "company"].includes(cell.column.id)).map((cell) => (
+                      <div key={cell.id} className="min-w-0 space-y-0.5">
+                        <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{COLUMN_LABELS[cell.column.id] || cell.column.id}</p>
+                        <div className="min-w-0 truncate">{flexRender(cell.column.columnDef.cell, cell.getContext())}</div>
+                      </div>
+                    ))}
                   </div>
                 </article>
               );

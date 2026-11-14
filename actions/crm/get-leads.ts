@@ -30,6 +30,16 @@ export const getLeads = cache(async () => {
       },
       // Include assigned accounts
       assigned_accounts: true,
+      preClosureOpportunity: {
+        select: {
+          status: true,
+          budget: true,
+          expected_revenue: true,
+          next_step: true,
+          next_step_due_at: true,
+          assigned_sales_stage: { select: { name: true, probability: true } },
+        },
+      },
       // Include documents through DocumentsToLeads junction table
       documents: {
         include: {

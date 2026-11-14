@@ -16,12 +16,14 @@ interface DataTableToolbarProps<TData> {
   table: Table<TData>;
   leadStatuses: ConfigItem[];
   leadSources: ConfigItem[];
+  leadTypes: ConfigItem[];
 }
 
 export function DataTableToolbar<TData>({
   table,
   leadStatuses,
   leadSources,
+  leadTypes,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0 || Boolean(table.getState().globalFilter);
 
@@ -50,6 +52,13 @@ export function DataTableToolbar<TData>({
             column={table.getColumn("lead_source_id")}
             title="Source"
             options={leadSources.map((item) => ({ label: item.name, value: item.id }))}
+          />
+        )}
+        {table.getColumn("lead_type_id") && leadTypes.length > 0 && (
+          <DataTableFacetedFilter
+            column={table.getColumn("lead_type_id")}
+            title="Lead type"
+            options={leadTypes.map((item) => ({ label: item.name, value: item.id }))}
           />
         )}
         {/*        {table.getColumn("priority") && (
