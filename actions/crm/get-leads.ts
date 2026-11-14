@@ -20,6 +20,8 @@ export const getLeads = cache(async () => {
   const data = await prismadb.crm_Leads.findMany({
     where: { ...leadReadScopeWhere(user) },
     include: {
+      lead_status: { select: { name: true } },
+      lead_source: { select: { name: true } },
       // Include assigned user (uses "LeadAssignedTo" relation)
       assigned_to_user: {
         select: {
