@@ -35,16 +35,9 @@ type TargetWhere = NonNullable<
 >["where"];
 
 function contactScopedWhere(user: AuthzUser, contactId: string): ContactWhere {
-  if (isManagerOrAdmin(user)) {
-    return { id: contactId };
-  }
-  // user role: own contact (assigned or creator).
   return {
     id: contactId,
-    OR: [
-      { assigned_to: user.id },
-      { createdBy: user.id },
-    ],
+    ...contactReadScopeWhere(user),
   };
 }
 
@@ -85,20 +78,8 @@ export async function tryScopedUpdateTarget(
 // Read path now uses contactReadScopeWhere (D2) which adds linked-account scope.
 async function findContactInScope(user: AuthzUser, contactId: string) {
   if (isUnhandledRole(user)) return null;
-  if (isManagerOrAdmin(user)) {
-    return prismadb.crm_Contacts.findFirst({
-      where: { id: contactId },
-      select: { id: true },
-    });
-  }
   return prismadb.crm_Contacts.findFirst({
-    where: {
-      id: contactId,
-      OR: [
-        { assigned_to: user.id },
-        { createdBy: user.id },
-      ],
-    },
+    where: { id: contactId, ...contactReadScopeWhere(user) },
     select: { id: true },
   });
 }
@@ -273,20 +254,34 @@ export function accountUserScopeOR(userId: string) {
   ];
 }
 
+function internalOwnerScopeOR(user: AuthzUser, opts?: { watchers?: boolean }) {
+  const scope = user.crmRecordScope ?? (isManagerOrAdmin(user) ? "COMPANY" : "ASSIGNED");
+  if (scope === "COMPANY") return null;
+  const ownerIds = scope === "REPORTING_TREE" || scope === "TEAM"
+    ? [user.id, ...(user.reportingTreeIds ?? [])]
+    : [user.id];
+  return scope === "OWN"
+    ? ownerIds.map((id) => ({ createdBy: id }))
+    : ownerIds.flatMap((id) => [
+        { assigned_to: id },
+        { createdBy: id },
+        ...(opts?.watchers ? [{ watchers: { some: { user_id: id } } }] : []),
+      ]);
+}
+
 // Build a Prisma where for "this user can read this account".
 // Manager/admin: { deletedAt: null }
 // User:           { deletedAt: null, OR: accountUserScopeOR(user.id) }
 export function accountReadScopeWhere(user: AuthzUser) {
-  if (isManagerOrAdmin(user)) {
-    return { deletedAt: null };
-  }
   if (user.role === "partner") {
     return { deletedAt: null, OR: partnerVisibleAccountWhere(user.id).OR };
   }
   if (isUnhandledRole(user)) return { deletedAt: null, ...NO_ROWS };
+  const scope = internalOwnerScopeOR(user, { watchers: true });
+  if (!scope) return { deletedAt: null };
   return {
     deletedAt: null,
-    OR: accountUserScopeOR(user.id),
+    OR: scope,
   };
 }
 
@@ -313,13 +308,7 @@ export async function assertCanWriteAccount(
     );
   }
   assertHandledRole(user);
-  const where =
-    isManagerOrAdmin(user)
-      ? { id: accountId }
-      : {
-          id: accountId,
-          OR: accountUserScopeOR(user.id),
-        };
+  const where = { id: accountId, ...accountReadScopeWhere(user) };
   const row = await prismadb.crm_Accounts.findFirst({
     where,
     select: { id: true },
@@ -334,78 +323,64 @@ export async function assertCanWriteAccount(
 
 // crm_Leads → crm_Accounts via `assigned_accounts` (FK accountsIDs).
 export function leadReadScopeWhere(user: AuthzUser) {
-  if (isManagerOrAdmin(user)) {
-    return { deletedAt: null };
-  }
   if (user.role === "partner") {
     return { deletedAt: null, assigned_accounts: partnerAccountWhere(user.id) };
   }
   if (isUnhandledRole(user)) return { deletedAt: null, ...NO_ROWS };
+
+  // Lead visibility follows the configurable reporting hierarchy. A module
+  // grant alone never broadens an associate's record scope. `crmRecordScope`
+  // is loaded with the authenticated profile; the fallback preserves legacy
+  // behavior for callers/tests that have not yet loaded the new access level.
+  const scope = user.crmRecordScope ?? (isManagerOrAdmin(user) ? "COMPANY" : "ASSIGNED");
+  if (scope === "COMPANY") return { deletedAt: null };
+
+  const visibleOwners =
+    scope === "REPORTING_TREE" || scope === "TEAM"
+      ? [user.id, ...(user.reportingTreeIds ?? [])]
+      : [user.id];
+  const ownerConditions =
+    scope === "OWN"
+      ? [{ createdBy: user.id }]
+      : visibleOwners.flatMap((ownerId) => [
+          { assigned_to: ownerId },
+          { createdBy: ownerId },
+        ]);
+
   return {
     deletedAt: null,
-    OR: [
-      { assigned_to: user.id },
-      { createdBy: user.id },
-      { assigned_accounts: { OR: accountUserScopeOR(user.id) } },
-    ],
+    OR: ownerConditions,
   };
 }
 
 // crm_Contacts → crm_Accounts via `assigned_accounts` (FK accountsIDs).
 export function contactReadScopeWhere(user: AuthzUser) {
-  if (isManagerOrAdmin(user)) {
-    return { deletedAt: null };
-  }
   if (user.role === "partner") {
     return { deletedAt: null, assigned_accounts: partnerVisibleAccountWhere(user.id) };
   }
   if (isUnhandledRole(user)) return { deletedAt: null, ...NO_ROWS };
-  return {
-    deletedAt: null,
-    OR: [
-      { assigned_to: user.id },
-      { createdBy: user.id },
-      { assigned_accounts: { OR: accountUserScopeOR(user.id) } },
-    ],
-  };
+  const scope = internalOwnerScopeOR(user);
+  return { deletedAt: null, ...(scope ? { OR: scope } : {}) };
 }
 
 // crm_Opportunities → crm_Accounts via `assigned_account` (FK account).
 export function opportunityReadScopeWhere(user: AuthzUser) {
-  if (isManagerOrAdmin(user)) {
-    return { deletedAt: null };
-  }
   if (user.role === "partner") {
     return { deletedAt: null, assigned_account: partnerAccountWhere(user.id) };
   }
   if (isUnhandledRole(user)) return { deletedAt: null, ...NO_ROWS };
-  return {
-    deletedAt: null,
-    OR: [
-      { assigned_to: user.id },
-      { createdBy: user.id },
-      { assigned_account: { OR: accountUserScopeOR(user.id) } },
-    ],
-  };
+  const scope = internalOwnerScopeOR(user);
+  return { deletedAt: null, ...(scope ? { OR: scope } : {}) };
 }
 
 // crm_Contracts → crm_Accounts via `assigned_account` (FK account).
 export function contractReadScopeWhere(user: AuthzUser) {
-  if (isManagerOrAdmin(user)) {
-    return { deletedAt: null };
-  }
   if (user.role === "partner") {
     return { deletedAt: null, assigned_account: partnerAccountWhere(user.id) };
   }
   if (isUnhandledRole(user)) return { deletedAt: null, ...NO_ROWS };
-  return {
-    deletedAt: null,
-    OR: [
-      { assigned_to: user.id },
-      { createdBy: user.id },
-      { assigned_account: { OR: accountUserScopeOR(user.id) } },
-    ],
-  };
+  const scope = internalOwnerScopeOR(user);
+  return { deletedAt: null, ...(scope ? { OR: scope } : {}) };
 }
 
 export async function assertCanReadLead(
@@ -488,10 +463,7 @@ export async function assertCanWriteLead(
     );
   }
   assertHandledRole(user);
-  const where =
-    isManagerOrAdmin(user)
-      ? { id: leadId, deletedAt: null }
-      : { id: leadId, deletedAt: null, OR: [{ assigned_to: user.id }, { createdBy: user.id }] };
+  const where = { id: leadId, ...leadReadScopeWhere(user) };
   const row = await prismadb.crm_Leads.findFirst({ where, select: { id: true } });
   if (!row) throw new AuthorizationError();
 }
@@ -510,10 +482,7 @@ export async function assertCanWriteOpportunity(
     );
   }
   assertHandledRole(user);
-  const where =
-    isManagerOrAdmin(user)
-      ? { id: opportunityId, deletedAt: null }
-      : { id: opportunityId, deletedAt: null, OR: [{ assigned_to: user.id }, { createdBy: user.id }] };
+  const where = { id: opportunityId, ...opportunityReadScopeWhere(user) };
   const row = await prismadb.crm_Opportunities.findFirst({ where, select: { id: true } });
   if (!row) throw new AuthorizationError();
 }
@@ -523,10 +492,7 @@ export async function assertCanWriteContract(
   contractId: string,
 ): Promise<void> {
   assertHandledRole(user);
-  const where =
-    isManagerOrAdmin(user)
-      ? { id: contractId, deletedAt: null }
-      : { id: contractId, deletedAt: null, OR: [{ assigned_to: user.id }, { createdBy: user.id }] };
+  const where = { id: contractId, ...contractReadScopeWhere(user) };
   const row = await prismadb.crm_Contracts.findFirst({ where, select: { id: true } });
   if (!row) throw new AuthorizationError();
 }

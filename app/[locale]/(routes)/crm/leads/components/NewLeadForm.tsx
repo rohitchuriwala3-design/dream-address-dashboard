@@ -108,6 +108,9 @@ export function NewLeadForm({ accounts, leadSources, leadStatuses, leadTypes, le
     const result = await createLead(data);
     if (result?.error) {
       form.setError("root.serverError", { message: result.error });
+      if (result.error.toLowerCase().includes("already exists")) {
+        toast.error(result.error, { description: "Your entries are still here. Correct the email or phone number and submit again." });
+      }
     } else {
       toast.success(t("createSuccess"));
       form.reset();

@@ -7,13 +7,13 @@ import { Separator } from "@/components/ui/separator";
 import { getSession } from "@/lib/auth-server";
 import { AdminUserDataTable } from "./table-components/data-table";
 import { columns } from "./table-components/columns";
-import { Users } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import SendMailToAll from "./components/send-mail-to-all";
 import { getTranslations } from "next-intl/server";
+import { prismadb } from "@/lib/prisma";
+import { OrganizationalAssignments } from "./components/organizational-assignments";
 
 const AdminUsersPage = async () => {
-  const users: Users[] = await getUsers();
   const t = await getTranslations("AdminPage");
 
   const session = await getSession();
@@ -31,6 +31,11 @@ const AdminUsersPage = async () => {
     );
   }
 
+  const [users, accessLevels] = await Promise.all([
+    getUsers(),
+    prismadb.nexusAccessLevel.findMany({ where: { isActive: true }, orderBy: { rank: "asc" }, select: { id: true, name: true, slug: true, rank: true } }),
+  ]);
+
   return (
     <Container
       title={t("users.title")}
@@ -42,6 +47,8 @@ const AdminUsersPage = async () => {
         </h4>
         <InviteForm />
       </section>
+      <Separator className="my-6" />
+      <OrganizationalAssignments users={users} levels={accessLevels} />
       <Separator className="my-6" />
       <div>
         <SendMailToAll />

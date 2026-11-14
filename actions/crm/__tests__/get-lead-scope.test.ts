@@ -4,6 +4,8 @@ jest.mock("@/lib/prisma", () => ({
     nexusUserPermission: { findMany: jest.fn().mockResolvedValue([{ key: "crm.manage" }]) },
     users: { findUnique: jest.fn() },
     crm_Leads: { findFirst: jest.fn() },
+    crm_Accounts: { findFirst: jest.fn() },
+    crm_Opportunities: { findFirst: jest.fn() },
   },
 }));
 
@@ -41,18 +43,33 @@ describe("getLead scope", () => {
       .mockResolvedValueOnce({ id: "l1" })
       .mockResolvedValueOnce({ id: "l1", firstName: "Alice" });
     const res = await getLead("l1");
-    expect(res).toEqual({ id: "l1", firstName: "Alice" });
+    expect(res).toEqual({ id: "l1", firstName: "Alice", assigned_accounts: null, preClosureOpportunity: null });
     expect(prismadb.crm_Leads.findFirst).toHaveBeenCalledTimes(2);
   });
 
-  it("manager returns lead detail (no OR in assert where)", async () => {
+  it("manager returns lead detail scoped to self and configured reporting tree", async () => {
     mockUser("manager", "m1");
     (prismadb.crm_Leads.findFirst as jest.Mock)
       .mockResolvedValueOnce({ id: "l1" })
       .mockResolvedValueOnce({ id: "l1", firstName: "Alice" });
     const res = await getLead("l1");
-    expect(res).toEqual({ id: "l1", firstName: "Alice" });
+    expect(res).toEqual({ id: "l1", firstName: "Alice", assigned_accounts: null, preClosureOpportunity: null });
     const assertCall = (prismadb.crm_Leads.findFirst as jest.Mock).mock.calls[0][0];
-    expect(assertCall.where.OR).toBeUndefined();
+    expect(assertCall.where.OR).toEqual([{ assigned_to: "m1" }, { createdBy: "m1" }]);
+  });
+
+  it("does not reveal an out-of-scope linked account or opportunity on an otherwise visible lead", async () => {
+    mockUser("user", "u1");
+    (prismadb.crm_Leads.findFirst as jest.Mock)
+      .mockResolvedValueOnce({ id: "l1" })
+      .mockResolvedValueOnce({
+        id: "l1",
+        assigned_accounts: { id: "a-peer", name: "Peer private account" },
+        preClosureOpportunity: { id: "o-peer", name: "Peer private opportunity", budget: 0, expected_revenue: 0 },
+      });
+    (prismadb.crm_Accounts.findFirst as jest.Mock).mockResolvedValue(null);
+    (prismadb.crm_Opportunities.findFirst as jest.Mock).mockResolvedValue(null);
+    const result = await getLead("l1");
+    expect(result).toMatchObject({ id: "l1", assigned_accounts: null, preClosureOpportunity: null });
   });
 });

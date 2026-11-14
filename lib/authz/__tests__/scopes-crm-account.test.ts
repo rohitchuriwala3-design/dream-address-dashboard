@@ -16,20 +16,20 @@ const find = prismadb.crm_Accounts.findFirst as jest.MockedFunction<
 beforeEach(() => jest.clearAllMocks());
 
 describe("assertCanWriteAccount", () => {
-  it("admin: bare where", async () => {
+  it("admin: active account scope", async () => {
     find.mockResolvedValue({ id: "a1" } as any);
     await assertCanWriteAccount({ id: "u", role: "admin" }, "a1");
     expect(find).toHaveBeenCalledWith({
-      where: { id: "a1" },
+      where: { id: "a1", deletedAt: null },
       select: { id: true },
     });
   });
 
-  it("manager: bare where", async () => {
+  it("legacy manager: company-wide active account scope", async () => {
     find.mockResolvedValue({ id: "a1" } as any);
     await assertCanWriteAccount({ id: "u", role: "manager" }, "a1");
     expect(find).toHaveBeenCalledWith({
-      where: { id: "a1" },
+      where: { id: "a1", deletedAt: null },
       select: { id: true },
     });
   });

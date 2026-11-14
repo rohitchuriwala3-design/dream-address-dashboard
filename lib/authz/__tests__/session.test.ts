@@ -2,7 +2,7 @@ import { AuthenticationError, AuthorizationError } from "../errors";
 
 jest.mock("@/lib/auth-server", () => ({ getSession: jest.fn() }));
 jest.mock("@/lib/prisma", () => ({
-  prismadb: { users: { findUnique: jest.fn() } },
+  prismadb: { users: { findUnique: jest.fn() }, $queryRaw: jest.fn().mockResolvedValue([]) },
 }));
 
 import { getSession } from "@/lib/auth-server";
@@ -38,13 +38,26 @@ describe("requireAuthenticated", () => {
   it("returns AuthzUser from DB role", async () => {
     mockedGetSession.mockResolvedValue({ user: { id: "u1" } } as any);
     mockedFindUnique.mockResolvedValue({ id: "u1", role: "manager" } as any);
-    await expect(requireAuthenticated()).resolves.toEqual({ id: "u1", role: "manager" });
+    await expect(requireAuthenticated()).resolves.toMatchObject({ id: "u1", role: "manager", crmRecordScope: "REPORTING_TREE", reportingTreeIds: [] });
   });
 
   it("falls back to user when DB role is unrecognized", async () => {
     mockedGetSession.mockResolvedValue({ user: { id: "u1" } } as any);
     mockedFindUnique.mockResolvedValue({ id: "u1", role: "garbage" } as any);
-    await expect(requireAuthenticated()).resolves.toEqual({ id: "u1", role: "user" });
+    await expect(requireAuthenticated()).resolves.toMatchObject({ id: "u1", role: "user", crmRecordScope: "ASSIGNED" });
+  });
+
+  it("manager designation keeps reporting-tree scope even when a direct module grant has the default ASSIGNED scope", async () => {
+    mockedGetSession.mockResolvedValue({ user: { id: "m1" } } as any);
+    mockedFindUnique.mockResolvedValue({
+      id: "m1", role: "manager", accessLevelId: "level-manager", reportsToId: null,
+      accessLevel: { slug: "manager", permissions: [] },
+      permissions: [{ key: "crm.view", scope: "ASSIGNED" }],
+    } as any);
+    (prismadb.$queryRaw as jest.Mock).mockResolvedValue([{ id: "a1" }, { id: "sa1" }]);
+    await expect(requireAuthenticated()).resolves.toMatchObject({
+      id: "m1", crmRecordScope: "REPORTING_TREE", reportingTreeIds: ["a1", "sa1"],
+    });
   });
 });
 
@@ -54,7 +67,7 @@ describe("requireRole", () => {
     mockedFindUnique.mockResolvedValue({ id: "p1", role: "partner" } as any);
     // Refused before the role check: partners are signed out unless opted in.
     await expect(requireAuthenticated()).rejects.toBeInstanceOf(AuthenticationError);
-    await expect(requireAuthenticated({ partner: true })).resolves.toEqual({ id: "p1", role: "partner" });
+    await expect(requireAuthenticated({ partner: true })).resolves.toMatchObject({ id: "p1", role: "partner" });
     await expect(requireRole(["admin"])).rejects.toBeInstanceOf(AuthenticationError);
     await expect(requireRole(["user", "manager", "admin"])).rejects.toBeInstanceOf(
       AuthenticationError,
@@ -70,13 +83,13 @@ describe("requireRole", () => {
   it("returns the user when role is allowed", async () => {
     mockedGetSession.mockResolvedValue({ user: { id: "u1" } } as any);
     mockedFindUnique.mockResolvedValue({ id: "u1", role: "admin" } as any);
-    await expect(requireRole(["admin"])).resolves.toEqual({ id: "u1", role: "admin" });
+    await expect(requireRole(["admin"])).resolves.toMatchObject({ id: "u1", role: "admin", crmRecordScope: "COMPANY" });
   });
 
   it("admin satisfies any allowed list (when explicitly listed)", async () => {
     mockedGetSession.mockResolvedValue({ user: { id: "u1" } } as any);
     mockedFindUnique.mockResolvedValue({ id: "u1", role: "admin" } as any);
-    await expect(requireRole(["manager", "admin"])).resolves.toEqual({ id: "u1", role: "admin" });
+    await expect(requireRole(["manager", "admin"])).resolves.toMatchObject({ id: "u1", role: "admin", crmRecordScope: "COMPANY" });
   });
 });
 

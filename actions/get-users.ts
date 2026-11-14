@@ -9,7 +9,21 @@ export const getUsers = async () => {
     orderBy: {
       created_on: "desc",
     },
-    include: { permissions: { select: { key: true } } },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      avatar: true,
+      role: true,
+      userStatus: true,
+      userLanguage: true,
+      created_on: true,
+      lastLoginAt: true,
+      partnerAccountId: true,
+      accessLevelId: true,
+      reportsToId: true,
+      permissions: { select: { key: true } },
+    },
   });
   return data.map(({ permissions, ...user }) => ({ ...user, permissionKeys: permissions.map(({ key }) => key) }));
 };

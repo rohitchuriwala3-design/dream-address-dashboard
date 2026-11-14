@@ -53,12 +53,11 @@ describe("getOpportunities scope", () => {
     expect(res).toEqual(rows);
   });
 
-  it("manager: where = { deletedAt: null } (no OR)", async () => {
+  it("manager: own records plus configured reporting-tree records", async () => {
     mockUser("manager", "m1");
     (prismadb.crm_Opportunities.findMany as jest.Mock).mockResolvedValue([]);
     await getOpportunities();
     const call = (prismadb.crm_Opportunities.findMany as jest.Mock).mock.calls[0][0];
-    expect(call.where).toEqual({ deletedAt: null, AND: [{ currency: "INR" }] });
-    expect(call.where.OR).toBeUndefined();
+    expect(call.where).toEqual({ deletedAt: null, OR: [{ assigned_to: "m1" }, { createdBy: "m1" }], AND: [{ currency: "INR" }] });
   });
 });

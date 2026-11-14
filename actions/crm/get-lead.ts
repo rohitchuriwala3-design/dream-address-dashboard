@@ -2,8 +2,10 @@ import { prismadb } from "@/lib/prisma";
 import {
   requirePermission,
   assertCanReadLead,
-  AuthenticationError,
+  assertCanReadAccount,
+  assertCanReadOpportunity,
   AuthorizationError,
+  AuthenticationError,
 } from "@/lib/authz";
 
 export const getLead = async (leadId: string) => {
@@ -85,10 +87,21 @@ export const getLead = async (leadId: string) => {
       },
     },
   });
+  if (!data) return null;
+
+  const canReadLinkedRecord = async (check: () => Promise<void>) => {
+    try { await check(); return true; }
+    catch (error) { if (error instanceof AuthorizationError) return false; throw error; }
+  };
+  const [accountVisible, opportunityVisible] = await Promise.all([
+    data.assigned_accounts ? canReadLinkedRecord(() => assertCanReadAccount(user, data.assigned_accounts!.id)) : Promise.resolve(false),
+    data.preClosureOpportunity ? canReadLinkedRecord(() => assertCanReadOpportunity(user, data.preClosureOpportunity!.id)) : Promise.resolve(false),
+  ]);
   return data
     ? {
         ...data,
-        preClosureOpportunity: data.preClosureOpportunity
+        assigned_accounts: accountVisible ? data.assigned_accounts : null,
+        preClosureOpportunity: opportunityVisible && data.preClosureOpportunity
           ? {
               ...data.preClosureOpportunity,
               budget: data.preClosureOpportunity.budget.toString(),

@@ -8,6 +8,27 @@ import { AuthenticationError, AuthorizationError } from "./errors";
 export interface AuthzUser {
   id: string;
   role: AppRole;
+  accessLevelId?: string | null;
+  accessLevelSlug?: string | null;
+  reportsToId?: string | null;
+  crmRecordScope?: "OWN" | "ASSIGNED" | "REPORTING_TREE" | "TEAM" | "COMPANY";
+  reportingTreeIds?: string[];
+}
+
+async function getReportingTreeIds(userId: string): Promise<string[]> {
+  // Some isolated unit tests mock only model delegates and omit raw SQL.
+  if (typeof prismadb.$queryRaw !== "function") return [];
+  const rows = await prismadb.$queryRaw<Array<{ id: string }>>`
+    WITH RECURSIVE reporting_tree("id") AS (
+      SELECT "id" FROM "Users" WHERE "reportsToId" = ${userId}::uuid
+      UNION
+      SELECT child."id"
+      FROM "Users" child
+      INNER JOIN reporting_tree parent ON child."reportsToId" = parent."id"
+    )
+    SELECT "id"::text AS "id" FROM reporting_tree WHERE "id" <> ${userId}::uuid
+  `;
+  return rows.map(({ id }) => id);
 }
 
 /**
@@ -21,12 +42,54 @@ export async function requireAuthenticated(opts?: { partner?: boolean }): Promis
 
   const dbUser = await prismadb.users.findUnique({
     where: { id: userId },
-    select: { id: true, role: true },
+    select: {
+      id: true,
+      role: true,
+      accessLevelId: true,
+      reportsToId: true,
+      accessLevel: {
+        select: {
+          slug: true,
+          permissions: {
+            where: { key: { in: ["crm.view", "crm.manage"] } },
+            select: { key: true, scope: true },
+          },
+        },
+      },
+      permissions: {
+        where: { key: { in: ["crm.view", "crm.manage"] } },
+        select: { key: true, scope: true },
+      },
+    },
   });
   if (!dbUser) throw new AuthenticationError();
   if (dbUser.role === "partner" && !opts?.partner) throw new AuthenticationError();
 
-  return { id: dbUser.id, role: mapLegacyRole(dbUser.role) };
+  const levelSlug = dbUser.accessLevel?.slug ?? null;
+  const levelCrmScope = dbUser.accessLevel?.permissions?.find(({ key }) => key === "crm.view" || key === "crm.manage")?.scope;
+  const companyWide = levelSlug === "founder" || levelSlug === "administrator" || dbUser.role === "admin";
+  const fallbackScope =
+    levelSlug === "manager" || levelSlug === "senior-manager" || (!levelSlug && dbUser.role === "manager")
+      ? "REPORTING_TREE"
+      : "ASSIGNED";
+  // Module grants decide whether CRM is available; designation/reporting decides
+  // record visibility. Per-user grant rows currently default to ASSIGNED and
+  // must not accidentally override a Manager's reporting-tree access.
+  const crmRecordScope = (companyWide ? "COMPANY" : levelCrmScope ?? fallbackScope) as AuthzUser["crmRecordScope"];
+  const reportingTreeIds =
+    crmRecordScope === "REPORTING_TREE" || crmRecordScope === "TEAM"
+      ? await getReportingTreeIds(dbUser.id)
+      : [];
+
+  return {
+    id: dbUser.id,
+    role: mapLegacyRole(dbUser.role),
+    accessLevelId: dbUser.accessLevelId,
+    accessLevelSlug: levelSlug,
+    reportsToId: dbUser.reportsToId,
+    crmRecordScope,
+    reportingTreeIds,
+  };
 }
 
 export async function requireRole(

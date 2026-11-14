@@ -13,8 +13,8 @@ jest.mock("@/lib/authz/scopes/crm", () => ({
   assertCanWriteLead: jest.fn(),
   assertCanWriteAccount: jest.fn(),
 }));
-jest.mock("@/lib/prisma", () => ({
-  prismadb: {
+jest.mock("@/lib/prisma", () => {
+  const prismadb = {
     crm_Leads: {
       create: jest.fn().mockResolvedValue({ id: "l-1" }),
       update: jest.fn().mockResolvedValue({ id: "l-1" }),
@@ -22,8 +22,17 @@ jest.mock("@/lib/prisma", () => ({
     },
     users: { findFirst: jest.fn().mockResolvedValue(null) },
     crm_Lead_Statuses: { findUnique: jest.fn().mockResolvedValue(null) },
-  },
-}));
+  };
+  return {
+    prismadb: {
+      ...prismadb,
+      $transaction: jest.fn(async (callback: (tx: unknown) => unknown) => callback({
+        $queryRaw: jest.fn().mockResolvedValue([{ email_match: false, phone_match: false }]),
+        crm_Leads: prismadb.crm_Leads,
+      })),
+    },
+  };
+});
 jest.mock("next/cache", () => ({ revalidatePath: jest.fn() }));
 jest.mock("@/lib/audit-log", () => ({ writeAuditLog: jest.fn(), diffObjects: jest.fn(() => null) }));
 jest.mock("@/inngest/client", () => ({ inngest: { send: jest.fn() } }));

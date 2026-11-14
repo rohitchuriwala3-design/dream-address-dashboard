@@ -30,25 +30,13 @@ describe("getContacts scope", () => {
     expect(prismadb.crm_Contacts.findMany).not.toHaveBeenCalled();
   });
 
-  it("user role: where includes deletedAt:null and OR with assigned/created/legacy/linked-account", async () => {
+  it("associate: where includes deletedAt:null and only own/assigned contacts", async () => {
     mockUser("user", "u1");
     (prismadb.crm_Contacts.findMany as jest.Mock).mockResolvedValue([]);
     await getContacts();
     const call = (prismadb.crm_Contacts.findMany as jest.Mock).mock.calls[0][0];
     expect(call.where.deletedAt).toBeNull();
-    expect(call.where.OR).toEqual([
-      { assigned_to: "u1" },
-      { createdBy: "u1" },
-      {
-        assigned_accounts: {
-          OR: [
-            { assigned_to: "u1" },
-            { createdBy: "u1" },
-            { watchers: { some: { user_id: "u1" } } },
-          ],
-        },
-      },
-    ]);
+    expect(call.where.OR).toEqual([{ assigned_to: "u1" }, { createdBy: "u1" }]);
   });
 
   it("user role: returns contact rows from findMany", async () => {
@@ -59,12 +47,11 @@ describe("getContacts scope", () => {
     expect(res).toEqual(rows);
   });
 
-  it("manager: where = { deletedAt: null } (no OR)", async () => {
+  it("manager: own records plus configured reporting-tree records", async () => {
     mockUser("manager", "m1");
     (prismadb.crm_Contacts.findMany as jest.Mock).mockResolvedValue([]);
     await getContacts();
     const call = (prismadb.crm_Contacts.findMany as jest.Mock).mock.calls[0][0];
-    expect(call.where).toEqual({ deletedAt: null });
-    expect(call.where.OR).toBeUndefined();
+    expect(call.where).toEqual({ deletedAt: null, OR: [{ assigned_to: "m1" }, { createdBy: "m1" }] });
   });
 });

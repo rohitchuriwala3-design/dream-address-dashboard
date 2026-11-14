@@ -8,6 +8,7 @@ jest.mock("@/lib/prisma", () => ({
     nexusUserPermission: { findMany: jest.fn().mockResolvedValue([{ key: "crm.manage" }]) },
     users: { findUnique: jest.fn() },
     crm_Leads: { findMany: jest.fn() },
+    crm_Activities: { findMany: jest.fn().mockResolvedValue([]) },
   },
 }));
 
@@ -30,25 +31,13 @@ describe("getLeads scope", () => {
     expect(prismadb.crm_Leads.findMany).not.toHaveBeenCalled();
   });
 
-  it("user role: where includes deletedAt:null and OR with assigned/created/linked-account", async () => {
+  it("associate: where includes deletedAt:null and only own/assigned leads", async () => {
     mockUser("user", "u1");
     (prismadb.crm_Leads.findMany as jest.Mock).mockResolvedValue([]);
     await getLeads();
     const call = (prismadb.crm_Leads.findMany as jest.Mock).mock.calls[0][0];
     expect(call.where.deletedAt).toBeNull();
-    expect(call.where.OR).toEqual([
-      { assigned_to: "u1" },
-      { createdBy: "u1" },
-      {
-        assigned_accounts: {
-          OR: [
-            { assigned_to: "u1" },
-            { createdBy: "u1" },
-            { watchers: { some: { user_id: "u1" } } },
-          ],
-        },
-      },
-    ]);
+    expect(call.where.OR).toEqual([{ assigned_to: "u1" }, { createdBy: "u1" }]);
   });
 
   it("user role: returns lead rows from findMany", async () => {
@@ -56,15 +45,14 @@ describe("getLeads scope", () => {
     const rows = [{ id: "l1" }];
     (prismadb.crm_Leads.findMany as jest.Mock).mockResolvedValue(rows);
     const res = await getLeads();
-    expect(res).toEqual(rows);
+    expect(res).toEqual([{ ...rows[0], nextFollowUp: null, followUpOverdueCount: 0, followUpUpcomingCount: 0 }]);
   });
 
-  it("manager: where = { deletedAt: null } (no OR)", async () => {
+  it("manager: own records plus configured reporting-tree records", async () => {
     mockUser("manager", "m1");
     (prismadb.crm_Leads.findMany as jest.Mock).mockResolvedValue([]);
     await getLeads();
     const call = (prismadb.crm_Leads.findMany as jest.Mock).mock.calls[0][0];
-    expect(call.where).toEqual({ deletedAt: null });
-    expect(call.where.OR).toBeUndefined();
+    expect(call.where).toEqual({ deletedAt: null, OR: [{ assigned_to: "m1" }, { createdBy: "m1" }] });
   });
 });

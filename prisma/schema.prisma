@@ -982,6 +982,19 @@ enum ActiveStatus {
   PENDING
 }
 
+enum NexusPermissionEffect {
+  ALLOW
+  DENY
+}
+
+enum NexusRecordScope {
+  OWN
+  ASSIGNED
+  REPORTING_TREE
+  TEAM
+  COMPANY
+}
+
 enum AppRole {
   user
   manager
@@ -999,6 +1012,11 @@ model Users {
   image            String?
   role             AppRole               @default(user)
   permissions      NexusUserPermission[]
+  accessLevelId    String?               @db.Uuid
+  accessLevel      NexusAccessLevel?     @relation(fields: [accessLevelId], references: [id], onDelete: SetNull)
+  reportsToId      String?               @db.Uuid
+  reportsTo        Users?                @relation("UserReportingLine", fields: [reportsToId], references: [id], onDelete: SetNull)
+  directReports    Users[]               @relation("UserReportingLine")
   created_on       DateTime              @default(now())
   updated_at       DateTime?             @updatedAt
   lastLoginAt      DateTime?
@@ -2242,15 +2260,56 @@ model NexusSheetSyncRun {
 /// Existing roles remain the broad legacy gate; these grants enable additive
 /// fine-grained controls as each module adopts requirePermission.
 model NexusUserPermission {
-  id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @db.Uuid
-  key       String   @db.VarChar(80)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      Users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String                @id @default(uuid()) @db.Uuid
+  userId    String                @db.Uuid
+  key       String                @db.VarChar(80)
+  effect    NexusPermissionEffect @default(ALLOW)
+  scope     NexusRecordScope      @default(ASSIGNED)
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+  user      Users                 @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, key])
   @@index([key, userId])
+}
+
+/// Configurable designation tiers. Hierarchy here represents internal seniority;
+/// it is deliberately separate from module grants and record scope.
+model NexusAccessLevel {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @db.VarChar(80)
+  slug      String   @unique @db.VarChar(80)
+  rank      Int      @default(0)
+  parentId  String?  @db.Uuid
+  isSystem  Boolean  @default(false)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  parent      NexusAccessLevel?            @relation("AccessLevelHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children    NexusAccessLevel[]           @relation("AccessLevelHierarchy")
+  users       Users[]
+  permissions NexusAccessLevelPermission[]
+
+  @@index([parentId, rank])
+  @@index([isActive, rank])
+}
+
+/// Baseline permissions for an access level. Inheritance is opt-in per grant.
+model NexusAccessLevelPermission {
+  id                String                @id @default(uuid()) @db.Uuid
+  accessLevelId     String                @db.Uuid
+  key               String                @db.VarChar(100)
+  effect            NexusPermissionEffect @default(ALLOW)
+  scope             NexusRecordScope      @default(ASSIGNED)
+  inheritToChildren Boolean               @default(false)
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+
+  accessLevel NexusAccessLevel @relation(fields: [accessLevelId], references: [id], onDelete: Cascade)
+
+  @@unique([accessLevelId, key])
+  @@index([key, accessLevelId])
 }
 
 model NexusSheetCrosswalk {

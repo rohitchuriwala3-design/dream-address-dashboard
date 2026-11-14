@@ -11,14 +11,23 @@ jest.mock("@/lib/authz/scopes/crm", () => ({
 }));
 jest.mock("@/lib/authz/assignable-user", () => ({ assertAssignableUser: jest.fn() }));
 jest.mock("@/lib/prisma", () => ({
-  prismadb: {
+  prismadb: (() => {
+    const prisma = {
     users: { findFirst: jest.fn() },
     crm_Leads: { create: jest.fn(), update: jest.fn(), findUnique: jest.fn() },
     crm_Lead_Statuses: { findUnique: jest.fn() },
     crm_Lead_Sources: { findUnique: jest.fn() },
     crm_Lead_Types: { findUnique: jest.fn() },
     crm_SystemSettings: { findUnique: jest.fn(), upsert: jest.fn() },
-  },
+    };
+    return {
+      ...prisma,
+      $transaction: jest.fn(async (callback: (tx: unknown) => unknown) => callback({
+        $queryRaw: jest.fn().mockResolvedValue([{ email_match: false, phone_match: false }]),
+        crm_Leads: prisma.crm_Leads,
+      })),
+    };
+  })(),
 }));
 
 import { prismadb } from "@/lib/prisma";
@@ -66,6 +75,15 @@ describe("createLead", () => {
     await svc.createLead(USER, { lastName: "X", assigned_to: "rep" });
     expect(assertAssignableUser).toHaveBeenCalledWith(USER, "rep");
     expect(sendEmail).toHaveBeenCalledWith(expect.objectContaining({ to: "rep@example.com" }));
+  });
+
+  it("blocks a duplicate email and does not write a lead", async () => {
+    ((db as any).$transaction as jest.Mock).mockImplementationOnce(async (callback: (tx: unknown) => unknown) => callback({
+      $queryRaw: jest.fn().mockResolvedValue([{ email_match: true, phone_match: false }]),
+      crm_Leads: db.crm_Leads,
+    }));
+    await expect(svc.createLead(USER, { lastName: "X", email: "SAME@example.com" })).rejects.toMatchObject({ code: "duplicate" });
+    expect(db.crm_Leads.create).not.toHaveBeenCalled();
   });
 
   it("refuses an inactive assignee", async () => {

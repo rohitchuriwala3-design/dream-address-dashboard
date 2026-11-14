@@ -49,16 +49,23 @@ describe("leadReadScopeWhere", () => {
       deletedAt: null,
     });
   });
-  it("user → deletedAt + OR ownership + linked-account scope", () => {
+  it("associate → deletedAt + own created/assigned leads only", () => {
     const w = leadReadScopeWhere({ id: "u1", role: "user" }) as any;
     expect(w.deletedAt).toBeNull();
-    expect(w.OR).toEqual(
-      expect.arrayContaining([
-        { assigned_to: "u1" },
-        { createdBy: "u1" },
-        { assigned_accounts: linkedAccountOR("u1") },
-      ]),
-    );
+    expect(w.OR).toEqual([{ assigned_to: "u1" }, { createdBy: "u1" }]);
+  });
+  it("manager → own and configured reporting tree", () => {
+    expect(leadReadScopeWhere({ id: "m1", role: "manager", crmRecordScope: "REPORTING_TREE", reportingTreeIds: ["a1", "sa1"] })).toEqual({
+      deletedAt: null,
+      OR: [
+        { assigned_to: "m1" }, { createdBy: "m1" },
+        { assigned_to: "a1" }, { createdBy: "a1" },
+        { assigned_to: "sa1" }, { createdBy: "sa1" },
+      ],
+    });
+  });
+  it("founder → company-wide", () => {
+    expect(leadReadScopeWhere({ id: "f1", role: "user", crmRecordScope: "COMPANY" })).toEqual({ deletedAt: null });
   });
 });
 
@@ -71,16 +78,10 @@ describe("contactReadScopeWhere", () => {
       deletedAt: null,
     });
   });
-  it("user → deletedAt + creator OR + linked-account scope", () => {
+  it("associate → only own or assigned contacts", () => {
     const w = contactReadScopeWhere({ id: "u1", role: "user" }) as any;
     expect(w.deletedAt).toBeNull();
-    expect(w.OR).toEqual(
-      expect.arrayContaining([
-        { assigned_to: "u1" },
-        { createdBy: "u1" },
-        { assigned_accounts: linkedAccountOR("u1") },
-      ]),
-    );
+    expect(w.OR).toEqual([{ assigned_to: "u1" }, { createdBy: "u1" }]);
   });
 });
 
@@ -93,16 +94,10 @@ describe("opportunityReadScopeWhere", () => {
       deletedAt: null,
     });
   });
-  it("user → deletedAt + creator OR + assigned_account linked scope", () => {
+  it("associate → only own or assigned opportunities", () => {
     const w = opportunityReadScopeWhere({ id: "u1", role: "user" }) as any;
     expect(w.deletedAt).toBeNull();
-    expect(w.OR).toEqual(
-      expect.arrayContaining([
-        { assigned_to: "u1" },
-        { createdBy: "u1" },
-        { assigned_account: linkedAccountOR("u1") },
-      ]),
-    );
+    expect(w.OR).toEqual([{ assigned_to: "u1" }, { createdBy: "u1" }]);
   });
 });
 
@@ -115,16 +110,10 @@ describe("contractReadScopeWhere", () => {
       deletedAt: null,
     });
   });
-  it("user → deletedAt + OR ownership + assigned_account linked scope", () => {
+  it("associate → only own or assigned contracts", () => {
     const w = contractReadScopeWhere({ id: "u1", role: "user" }) as any;
     expect(w.deletedAt).toBeNull();
-    expect(w.OR).toEqual(
-      expect.arrayContaining([
-        { assigned_to: "u1" },
-        { createdBy: "u1" },
-        { assigned_account: linkedAccountOR("u1") },
-      ]),
-    );
+    expect(w.OR).toEqual([{ assigned_to: "u1" }, { createdBy: "u1" }]);
   });
 });
 
@@ -142,13 +131,7 @@ describe("assertCanReadLead", () => {
     await assertCanReadLead({ id: "u1", role: "user" }, "l1");
     const arg = findLead.mock.calls[0][0]!;
     expect(arg.where).toMatchObject({ id: "l1", deletedAt: null });
-    expect((arg.where as any).OR).toEqual(
-      expect.arrayContaining([
-        { assigned_to: "u1" },
-        { createdBy: "u1" },
-        { assigned_accounts: linkedAccountOR("u1") },
-      ]),
-    );
+    expect((arg.where as any).OR).toEqual([{ assigned_to: "u1" }, { createdBy: "u1" }]);
   });
   it("throws AuthorizationError on miss (404)", async () => {
     findLead.mockResolvedValue(null);
@@ -172,13 +155,7 @@ describe("assertCanReadOpportunity", () => {
     await assertCanReadOpportunity({ id: "u1", role: "user" }, "o1");
     const arg = findOpp.mock.calls[0][0]!;
     expect(arg.where).toMatchObject({ id: "o1", deletedAt: null });
-    expect((arg.where as any).OR).toEqual(
-      expect.arrayContaining([
-        { assigned_to: "u1" },
-        { createdBy: "u1" },
-        { assigned_account: linkedAccountOR("u1") },
-      ]),
-    );
+    expect((arg.where as any).OR).toEqual([{ assigned_to: "u1" }, { createdBy: "u1" }]);
   });
   it("throws AuthorizationError on miss (404)", async () => {
     findOpp.mockResolvedValue(null);
@@ -202,13 +179,7 @@ describe("assertCanReadContract", () => {
     await assertCanReadContract({ id: "u1", role: "user" }, "k1");
     const arg = findContract.mock.calls[0][0]!;
     expect(arg.where).toMatchObject({ id: "k1", deletedAt: null });
-    expect((arg.where as any).OR).toEqual(
-      expect.arrayContaining([
-        { assigned_to: "u1" },
-        { createdBy: "u1" },
-        { assigned_account: linkedAccountOR("u1") },
-      ]),
-    );
+    expect((arg.where as any).OR).toEqual([{ assigned_to: "u1" }, { createdBy: "u1" }]);
   });
   it("throws AuthorizationError on miss (404)", async () => {
     findContract.mockResolvedValue(null);

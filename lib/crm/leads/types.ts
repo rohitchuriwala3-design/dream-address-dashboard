@@ -19,7 +19,7 @@ export interface LeadInput {
 
 export type LeadCreateInput = LeadInput & { lastName: string };
 
-export const LEAD_ERROR_CODES = ["notFound", "forbidden", "invalidInput"] as const;
+export const LEAD_ERROR_CODES = ["notFound", "forbidden", "invalidInput", "duplicate"] as const;
 export type LeadErrorCode = (typeof LEAD_ERROR_CODES)[number];
 
 /** Domain error; each caller maps the code to its own response. */
@@ -34,5 +34,6 @@ export class LeadError extends Error {
 export function leadErrorMessage(e: LeadError): string {
   if (e.code === "notFound") return `${e.message} not found`;
   if (e.code === "invalidInput") return e.message;
+  if (e.code === "duplicate") return e.message;
   return "Forbidden";
 }

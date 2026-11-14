@@ -27,15 +27,6 @@ const mockUser = (role: "user" | "manager" | "admin", id = "u1") => {
 const userOR = (uid: string) => [
   { assigned_to: uid },
   { createdBy: uid },
-  {
-    assigned_account: {
-      OR: [
-        { assigned_to: uid },
-        { createdBy: uid },
-        { watchers: { some: { user_id: uid } } },
-      ],
-    },
-  },
 ];
 
 describe("getContractsWithIncludes scope (list-all)", () => {
@@ -57,13 +48,12 @@ describe("getContractsWithIncludes scope (list-all)", () => {
     expect(call.where.OR).toEqual(userOR("u1"));
   });
 
-  it("manager: where = { deletedAt:null } (no OR)", async () => {
+  it("manager: own records plus configured reporting-tree records", async () => {
     mockUser("manager", "m1");
     (prismadb.crm_Contracts.findMany as jest.Mock).mockResolvedValue([]);
     await getContractsWithIncludes();
     const call = (prismadb.crm_Contracts.findMany as jest.Mock).mock.calls[0][0];
-    expect(call.where).toEqual({ deletedAt: null, AND: [{ currency: "INR" }] });
-    expect(call.where.OR).toBeUndefined();
+    expect(call.where).toEqual({ deletedAt: null, OR: userOR("m1"), AND: [{ currency: "INR" }] });
   });
 });
 
@@ -99,13 +89,12 @@ describe("getContractsByAccountId scope (list-by-account)", () => {
     expect(call.where.OR).toEqual(userOR("u1"));
   });
 
-  it("manager: where = { account, deletedAt:null } (no OR)", async () => {
+  it("manager: account query remains constrained to accessible reporting scope", async () => {
     mockUser("manager", "m1");
     (prismadb.crm_Accounts.findFirst as jest.Mock).mockResolvedValue({ id: "a1" });
     (prismadb.crm_Contracts.findMany as jest.Mock).mockResolvedValue([]);
     await getContractsByAccountId("a1");
     const call = (prismadb.crm_Contracts.findMany as jest.Mock).mock.calls[0][0];
-    expect(call.where).toEqual({ account: "a1", deletedAt: null, AND: [{ currency: "INR" }] });
-    expect(call.where.OR).toBeUndefined();
+    expect(call.where).toEqual({ account: "a1", deletedAt: null, OR: userOR("m1"), AND: [{ currency: "INR" }] });
   });
 });
