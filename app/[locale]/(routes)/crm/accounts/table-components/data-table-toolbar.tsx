@@ -22,8 +22,8 @@ export function DataTableToolbar<TData>({
   const t = useTranslations("CrmPage");
 
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex flex-1 items-center space-x-2">
+    <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
         <Input
           placeholder={t("accounts.filterPlaceholder")}
           value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
