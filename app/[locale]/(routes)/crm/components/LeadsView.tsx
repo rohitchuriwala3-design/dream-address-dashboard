@@ -34,9 +34,10 @@ interface LeadsViewProps {
   crmData: CrmData;
   accountId?: string;
   initialCreateOpen?: boolean;
+  preferencesScope?: string;
 }
 
-const LeadsView = ({ data, crmData, accountId, initialCreateOpen = false }: LeadsViewProps) => {
+const LeadsView = ({ data, crmData, accountId, initialCreateOpen = false, preferencesScope = "shared" }: LeadsViewProps) => {
   const { accounts, leadSources, leadStatuses, leadTypes, leadFieldSettings } = crmData;
   const [open, setOpen] = useState(initialCreateOpen);
   const t = useTranslations("CrmPage");
@@ -88,12 +89,14 @@ const LeadsView = ({ data, crmData, accountId, initialCreateOpen = false }: Lead
             t("leads.empty")
           ) : (
             <LeadDataTable
+              key={preferencesScope}
               data={data}
               columns={[]}
               leadSources={leadSources}
               leadStatuses={leadStatuses}
               leadTypes={leadTypes}
               leadFieldSettings={leadFieldSettings}
+              preferencesScope={preferencesScope}
             />
           ))}
       </CardContent>

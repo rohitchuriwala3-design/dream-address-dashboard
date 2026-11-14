@@ -65,6 +65,7 @@ interface CRMKanbanProps {
   salesStages: crm_Opportunities_Sales_Stages[];
   opportunities: crm_Opportunities[];
   crmData: any;
+  userId: string;
 }
 
 type Column = crm_Opportunities_Sales_Stages & {
@@ -205,6 +206,7 @@ const CRMKanban = ({
   salesStages,
   opportunities: data,
   crmData,
+  userId,
 }: CRMKanbanProps) => {
   const [selectedStage, setSelectedStage] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -215,11 +217,12 @@ const CRMKanban = ({
   const [showLost, setShowLost] = useState(true);
   const [showInactive, setShowInactive] = useState(true);
   const [preferencesLoaded, setPreferencesLoaded] = useState(false);
+  const preferencesKey = `${BOARD_PREFS_KEY}:${userId}`;
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
       try {
-        const saved = localStorage.getItem(BOARD_PREFS_KEY);
+        const saved = localStorage.getItem(preferencesKey);
         if (saved) {
           const parsed = JSON.parse(saved) as { metrics?: unknown; stages?: unknown; won?: unknown; lost?: unknown; inactive?: unknown };
           if (Array.isArray(parsed.metrics)) setVisibleMetrics(parsed.metrics.filter((value): value is string => typeof value === "string"));
@@ -232,13 +235,13 @@ const CRMKanban = ({
       setPreferencesLoaded(true);
     }, 0);
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [preferencesKey]);
 
   useEffect(() => {
     if (!preferencesLoaded) return;
-    try { localStorage.setItem(BOARD_PREFS_KEY, JSON.stringify({ metrics: visibleMetrics, stages: visibleStages, won: showWon, lost: showLost, inactive: showInactive })); }
+    try { localStorage.setItem(preferencesKey, JSON.stringify({ metrics: visibleMetrics, stages: visibleStages, won: showWon, lost: showLost, inactive: showInactive })); }
     catch { /* The board remains usable if browser storage is unavailable. */ }
-  }, [preferencesLoaded, visibleMetrics, visibleStages, showWon, showLost, showInactive]);
+  }, [preferencesLoaded, visibleMetrics, visibleStages, showWon, showLost, showInactive, preferencesKey]);
 
   const serverDataRef = useRef(data);
   const [columns, setColumns] = useState<Column[]>(() =>
@@ -406,7 +409,7 @@ const CRMKanban = ({
         <Sheet open={customizeOpen} onOpenChange={setCustomizeOpen}>
           <SheetTrigger asChild><Button variant="outline" size="sm"><Settings2 className="mr-2 h-4 w-4" />Customize board</Button></SheetTrigger>
           <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
-            <SheetHeader><SheetTitle>Customize opportunity board</SheetTitle><SheetDescription>Choose which summary cards and pipeline lanes to show. Your choices are saved in this browser.</SheetDescription></SheetHeader>
+            <SheetHeader><SheetTitle>Customize opportunity board</SheetTitle><SheetDescription>Choose which summary cards and pipeline lanes to show. Your layout is saved for your profile in this browser.</SheetDescription></SheetHeader>
             <div className="mt-6 space-y-6">
               <section className="space-y-3"><h3 className="text-sm font-semibold">Summary cards</h3>{metricCards.map(([id, label]) => <label key={id} className="flex items-center gap-3 text-sm"><Checkbox checked={visibleMetrics.includes(id)} onCheckedChange={(checked) => setVisibleMetrics((current) => checked ? current.includes(id) ? current : current.concat(id) : current.filter((item) => item !== id))} />{label}</label>)}</section>
               <section className="space-y-3"><h3 className="text-sm font-semibold">Pipeline stages</h3>{salesStages.map((stage) => <label key={stage.id} className="flex items-center gap-3 text-sm"><Checkbox checked={visibleStages.includes(stage.id)} onCheckedChange={(checked) => setVisibleStages((current) => checked ? current.includes(stage.id) ? current : current.concat(stage.id) : current.filter((item) => item !== stage.id))} />{stage.name}</label>)}</section>

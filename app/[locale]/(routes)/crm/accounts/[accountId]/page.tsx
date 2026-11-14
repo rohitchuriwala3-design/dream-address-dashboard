@@ -182,7 +182,7 @@ const AccountDetailPage = async (props: AccountDetailPageProps) => {
               crmData={crmData}
               accountId={accountId}
             />
-            <LeadsView data={leads} crmData={crmData} accountId={accountId} />
+            <LeadsView data={leads} crmData={crmData} accountId={accountId} preferencesScope={actorUser.id} />
           </div>
         </TabsContent>
         {studioProjects !== null && <TabsContent value="projects">

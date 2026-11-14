@@ -11,7 +11,8 @@ type Widget = { id: string; label: string };
 type LayoutContextValue = { visible: string[]; order: string[] };
 const LayoutContext = createContext<LayoutContextValue>({ visible: [], order: [] });
 
-export function CRMWorkspaceCustomizer({ widgets, children }: { widgets: Widget[]; children: ReactNode }) {
+export function CRMWorkspaceCustomizer({ widgets, userId, children }: { widgets: Widget[]; userId: string; children: ReactNode }) {
+  const preferencesKey = `${PREFS_KEY}:${userId}`;
   const ids = useMemo(() => widgets.map((widget) => widget.id), [widgets]);
   const [visible, setVisible] = useState(ids);
   const [order, setOrder] = useState(ids);
@@ -21,7 +22,7 @@ export function CRMWorkspaceCustomizer({ widgets, children }: { widgets: Widget[
   useEffect(() => {
     const timer = window.setTimeout(() => {
       try {
-        const saved = localStorage.getItem(PREFS_KEY);
+        const saved = localStorage.getItem(preferencesKey);
         if (saved) {
           const parsed = JSON.parse(saved) as { visible?: unknown; order?: unknown };
           if (Array.isArray(parsed.visible)) setVisible(parsed.visible.filter((id): id is string => typeof id === "string" && ids.includes(id)));
@@ -34,13 +35,13 @@ export function CRMWorkspaceCustomizer({ widgets, children }: { widgets: Widget[
       setLoaded(true);
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [ids]);
+  }, [ids, preferencesKey]);
 
   useEffect(() => {
     if (!loaded) return;
-    try { localStorage.setItem(PREFS_KEY, JSON.stringify({ visible, order })); }
+    try { localStorage.setItem(preferencesKey, JSON.stringify({ visible, order })); }
     catch { /* Workspace continues to work if browser storage is unavailable. */ }
-  }, [visible, order, loaded]);
+  }, [visible, order, loaded, preferencesKey]);
 
   function move(id: string, step: -1 | 1) {
     setOrder((current) => {
@@ -58,7 +59,7 @@ export function CRMWorkspaceCustomizer({ widgets, children }: { widgets: Widget[
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild><Button variant="outline" size="sm"><Settings2 className="mr-2 h-4 w-4" />Customize dashboard</Button></SheetTrigger>
         <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
-          <SheetHeader><SheetTitle>Customize CRM workbench</SheetTitle><SheetDescription>Show, hide, and arrange dashboard sections. This layout is saved in this browser.</SheetDescription></SheetHeader>
+          <SheetHeader><SheetTitle>Customize CRM workbench</SheetTitle><SheetDescription>Show, hide, and arrange dashboard sections. This layout is saved for your profile in this browser.</SheetDescription></SheetHeader>
           <div className="mt-6 space-y-2">{order.map((id, index) => {
             const widget = widgets.find((item) => item.id === id);
             if (!widget) return null;

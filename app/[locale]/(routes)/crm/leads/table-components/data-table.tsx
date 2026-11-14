@@ -56,6 +56,7 @@ interface DataTableProps<TData, TValue> {
   leadStatuses?: ConfigItem[];
   leadTypes?: ConfigItem[];
   leadFieldSettings: LeadFieldSettings;
+  preferencesScope: string;
 }
 
 export function LeadDataTable<TData, TValue>({
@@ -64,7 +65,9 @@ export function LeadDataTable<TData, TValue>({
   leadStatuses = [],
   leadTypes = [],
   leadFieldSettings,
+  preferencesScope,
 }: DataTableProps<TData, TValue>) {
+  const preferencesKey = `${COLUMN_PREFS_KEY}:${preferencesScope}`;
   const columns = createColumns(leadSources, leadStatuses, leadTypes, leadFieldSettings) as ColumnDef<TData, TValue>[];
   const columnLabels = { ...COLUMN_LABELS, ...Object.fromEntries(leadFieldSettings.customFields.map((field) => [`custom_${field.key}`, field.label])) };
   const [rowSelection, setRowSelection] = React.useState({});
@@ -84,7 +87,7 @@ export function LeadDataTable<TData, TValue>({
 
   React.useEffect(() => {
     try {
-      const saved = localStorage.getItem(COLUMN_PREFS_KEY);
+      const saved = localStorage.getItem(preferencesKey);
       if (saved) {
         const parsed = JSON.parse(saved) as { columnVisibility?: VisibilityState; columnOrder?: string[]; advancedFilters?: unknown };
         if (parsed.columnVisibility && typeof parsed.columnVisibility === "object") {
@@ -95,13 +98,13 @@ export function LeadDataTable<TData, TValue>({
       }
     } catch { /* Ignore malformed or blocked browser storage and use defaults. */ }
     setPreferencesLoaded(true);
-  }, [leadFieldSettings.customFields]);
+  }, [leadFieldSettings.customFields, preferencesKey]);
 
   React.useEffect(() => {
     if (!preferencesLoaded) return;
-    try { localStorage.setItem(COLUMN_PREFS_KEY, JSON.stringify({ columnVisibility, columnOrder, advancedFilters })); }
+    try { localStorage.setItem(preferencesKey, JSON.stringify({ columnVisibility, columnOrder, advancedFilters })); }
     catch { /* The table remains usable if browser storage is unavailable. */ }
-  }, [columnVisibility, columnOrder, advancedFilters, preferencesLoaded]);
+  }, [columnVisibility, columnOrder, advancedFilters, preferencesLoaded, preferencesKey]);
 
   const table = useReactTable({
     data: filteredData,

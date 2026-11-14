@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { getLeads } from "@/actions/crm/get-leads";
 import { getOpportunitiesFull } from "@/actions/crm/get-opportunities-with-includes";
 import { CRMWorkspaceCustomizer, CRMWorkspaceWidget } from "./components/CRMWorkspaceCustomizer";
+import { getSession } from "@/lib/auth-server";
 
 const inr = new Intl.NumberFormat("en-IN", {
   style: "currency",
@@ -34,7 +35,8 @@ const shortDate = (date: Date | string | null | undefined) =>
     : "No date set";
 
 const CrmPage = async () => {
-  const [leads, opportunities] = await Promise.all([
+  const [session, leads, opportunities] = await Promise.all([
+    getSession({ partner: true }),
     getLeads(),
     getOpportunitiesFull(),
   ]);
@@ -69,7 +71,7 @@ const CrmPage = async () => {
       title="CRM workbench"
       description="Your residential enquiry, follow-up and project handoff desk."
     >
-      <CRMWorkspaceCustomizer widgets={[{ id: "summary", label: "Summary metrics" }, { id: "followups", label: "Follow-up focus" }, { id: "pipeline", label: "Pipeline by stage" }, { id: "leads", label: "Latest enquiries" }]}>
+      <CRMWorkspaceCustomizer key={session?.user.id ?? "anonymous"} userId={session?.user.id ?? "anonymous"} widgets={[{ id: "summary", label: "Summary metrics" }, { id: "followups", label: "Follow-up focus" }, { id: "pipeline", label: "Pipeline by stage" }, { id: "leads", label: "Latest enquiries" }]}>
         <section className="flex flex-col gap-4 rounded-2xl border bg-gradient-to-br from-primary/10 via-card to-card p-5 sm:flex-row sm:items-center sm:justify-between sm:p-7">
           <div className="max-w-2xl space-y-2">
             <Badge variant="secondary" className="rounded-full px-3 py-1">Studio sales desk</Badge>

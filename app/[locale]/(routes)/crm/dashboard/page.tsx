@@ -5,11 +5,15 @@ import CRMKanban from "./_components/CRMKanban";
 import { getOpportunities } from "@/actions/crm/get-opportunities";
 import { getAllCrmData } from "@/actions/crm/get-crm-data";
 import { serializeDecimalsList } from "@/lib/serialize-decimals";
+import { getSession } from "@/lib/auth-server";
 
 const CrmDashboardPage = async () => {
-  const salesStages = await getSaleStages();
-  const opportunities = serializeDecimalsList(await getOpportunities());
-  const crmData = await getAllCrmData();
+  const [session, salesStages, opportunities, crmData] = await Promise.all([
+    getSession({ partner: true }),
+    getSaleStages(),
+    getOpportunities().then(serializeDecimalsList),
+    getAllCrmData(),
+  ]);
 
   return (
     <Container
@@ -18,6 +22,8 @@ const CrmDashboardPage = async () => {
     >
       <div className="w-full h-full  overflow-hidden">
         <CRMKanban
+          key={session?.user.id ?? "anonymous"}
+          userId={session?.user.id ?? "anonymous"}
           salesStages={salesStages}
           opportunities={opportunities}
           crmData={crmData}
