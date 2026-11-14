@@ -22,6 +22,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { UpdateLeadForm } from "../../components/UpdateLeadForm";
+import type { LeadFieldSettings } from "@/lib/crm/leads/field-settings-shared";
 
 type ConfigItem = { id: string; name: string };
 
@@ -30,6 +31,7 @@ interface LeadDetailActionsProps {
   leadSources: ConfigItem[];
   leadStatuses: ConfigItem[];
   leadTypes: ConfigItem[];
+  leadFieldSettings: LeadFieldSettings;
 }
 
 export function LeadDetailActions({
@@ -37,6 +39,7 @@ export function LeadDetailActions({
   leadSources,
   leadStatuses,
   leadTypes,
+  leadFieldSettings,
 }: LeadDetailActionsProps) {
   const [updateOpen, setUpdateOpen] = useState(false);
   const [converting, startConversion] = useTransition();
@@ -97,6 +100,7 @@ export function LeadDetailActions({
               leadSources={leadSources}
               leadStatuses={leadStatuses}
               leadTypes={leadTypes}
+              leadFieldSettings={leadFieldSettings}
             />
           </div>
         </SheetContent>

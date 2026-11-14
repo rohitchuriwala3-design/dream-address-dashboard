@@ -1,4 +1,4 @@
-import { getConfigValues } from "./_actions/crm-settings";
+import { getAdminLeadFieldSettings, getConfigValues } from "./_actions/crm-settings";
 import { CrmSettingsTabs } from "./_components/CrmSettingsTabs";
 
 export default async function CrmSettingsPage() {
@@ -10,6 +10,7 @@ export default async function CrmSettingsPage() {
     leadTypes,
     opportunityTypes,
     salesStages,
+    leadFieldSettings,
   ] = await Promise.all([
     getConfigValues("industry"),
     getConfigValues("contactType"),
@@ -18,6 +19,7 @@ export default async function CrmSettingsPage() {
     getConfigValues("leadType"),
     getConfigValues("opportunityType"),
     getConfigValues("salesStage"),
+    getAdminLeadFieldSettings(),
   ]);
 
   const tabs = [
@@ -38,7 +40,7 @@ export default async function CrmSettingsPage() {
           Manage default values used across CRM modules.
         </p>
       </div>
-      <CrmSettingsTabs tabs={tabs} />
+      <CrmSettingsTabs tabs={tabs} leadFieldSettings={leadFieldSettings} />
     </div>
   );
 }

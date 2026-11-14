@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { Lead } from "../table-data/schema";
+import type { LeadFieldSettings } from "@/lib/crm/leads/field-settings-shared";
 
 type ConfigItem = { id: string; name: string };
 type LeadRow = Lead & {
@@ -28,6 +29,7 @@ export const createColumns = (
   leadSources: ConfigItem[],
   leadStatuses: ConfigItem[],
   leadTypes: ConfigItem[],
+  leadFieldSettings: LeadFieldSettings,
 ): ColumnDef<Lead>[] => [
   {
     id: "client",
@@ -91,6 +93,7 @@ export const createColumns = (
         leadSources={leadSources}
         leadStatuses={leadStatuses}
         leadTypes={leadTypes}
+        leadFieldSettings={leadFieldSettings}
       />
     ),
   },

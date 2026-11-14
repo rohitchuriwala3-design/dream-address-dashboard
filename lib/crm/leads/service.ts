@@ -7,6 +7,7 @@ import { writeAuditLog, diffObjects } from "@/lib/audit-log";
 import { inngest } from "@/inngest/client";
 import sendEmail from "@/lib/sendmail";
 import { LeadError, type LeadCreateInput, type LeadInput } from "./types";
+import { validateRequiredLeadFields } from "./field-settings";
 
 // Lead writes for every caller: server actions, MCP tools and the web-form route.
 // Permission checks, the audit log, crm/lead.saved and the assignee email live
@@ -56,6 +57,7 @@ export async function createLead(user: AuthzUser, input: LeadCreateInput) {
   if (input.accountsIDs) await guard(() => assertCanWriteAccount(user, input.accountsIDs!, PARTNER_EDIT));
   const assignee = user.role === "partner" ? user.id : input.assigned_to || user.id;
   if (assignee !== user.id) await guard(() => assertAssignableUser(user, assignee));
+  await validateRequiredLeadFields(input);
   await assertLeadOptions(input);
   const lead = await prismadb.crm_Leads.create({
     data: { v: 1, ...input, assigned_to: assignee, createdBy: user.id, updatedBy: user.id },
@@ -68,6 +70,7 @@ export async function createLead(user: AuthzUser, input: LeadCreateInput) {
 
 /** Leads from the public web form (NEXTCRM_TOKEN): no signed-in user, so no scope check and no assignee. */
 export async function createWebLead(input: LeadCreateInput) {
+  await validateRequiredLeadFields(input);
   const lead = await prismadb.crm_Leads.create({ data: { v: 1, ...input } });
   // Marks the row as the web form's, as plugin writes record their plugin id.
   await writeAuditLog({ entityType: "lead", entityId: lead.id, action: "created", changes: [{ field: "web_form", old: null, new: "create-lead-from-web" }] as never, userId: null });
@@ -86,6 +89,7 @@ export async function updateLead(user: AuthzUser, id: string, input: LeadInput) 
   const { accountsIDs } = input;
   if (accountsIDs && accountsIDs !== before?.accountsIDs) await guard(() => assertCanWriteAccount(user, accountsIDs, PARTNER_EDIT));
   const partner = user.role === "partner";
+  await validateRequiredLeadFields(input);
   const data = partner ? { ...input, assigned_to: undefined, accountsIDs: input.accountsIDs || undefined } : input;
   // Only a new assignee other than the caller is checked and mailed; re-saving the current one is neither.
   const { assigned_to } = data;

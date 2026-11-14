@@ -37,7 +37,7 @@ interface LeadsViewProps {
 }
 
 const LeadsView = ({ data, crmData, accountId, initialCreateOpen = false }: LeadsViewProps) => {
-  const { accounts, leadSources, leadStatuses, leadTypes } = crmData;
+  const { accounts, leadSources, leadStatuses, leadTypes, leadFieldSettings } = crmData;
   const [open, setOpen] = useState(initialCreateOpen);
   const t = useTranslations("CrmPage");
 
@@ -71,6 +71,7 @@ const LeadsView = ({ data, crmData, accountId, initialCreateOpen = false }: Lead
                     leadSources={leadSources}
                     leadStatuses={leadStatuses}
                     leadTypes={leadTypes}
+                    leadFieldSettings={leadFieldSettings}
                     accountId={accountId}
                     onFinish={() => setOpen(false)}
                   />
@@ -92,6 +93,7 @@ const LeadsView = ({ data, crmData, accountId, initialCreateOpen = false }: Lead
               leadSources={leadSources}
               leadStatuses={leadStatuses}
               leadTypes={leadTypes}
+              leadFieldSettings={leadFieldSettings}
             />
           ))}
       </CardContent>

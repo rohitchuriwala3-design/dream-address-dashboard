@@ -31,6 +31,7 @@ import { PanelTopClose, PanelTopOpen } from "lucide-react";
 import { createColumns } from "./columns";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import type { LeadFieldSettings } from "@/lib/crm/leads/field-settings-shared";
 
 type ConfigItem = { id: string; name: string };
 
@@ -40,6 +41,7 @@ interface DataTableProps<TData, TValue> {
   leadSources?: ConfigItem[];
   leadStatuses?: ConfigItem[];
   leadTypes?: ConfigItem[];
+  leadFieldSettings: LeadFieldSettings;
 }
 
 export function LeadDataTable<TData, TValue>({
@@ -47,8 +49,9 @@ export function LeadDataTable<TData, TValue>({
   leadSources = [],
   leadStatuses = [],
   leadTypes = [],
+  leadFieldSettings,
 }: DataTableProps<TData, TValue>) {
-  const columns = createColumns(leadSources, leadStatuses, leadTypes) as ColumnDef<TData, TValue>[];
+  const columns = createColumns(leadSources, leadStatuses, leadTypes, leadFieldSettings) as ColumnDef<TData, TValue>[];
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});

@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { requireRole, AuthenticationError, AuthorizationError } from "@/lib/authz";
 import { STAGE_KINDS, type StageKind } from "@/lib/crm/stage-kinds";
 import { withEffectiveStageOrder } from "@/lib/crm/stage-order";
+import { getLeadFieldSettings, saveLeadFieldSettings, type LeadFieldSettings } from "@/lib/crm/leads/field-settings";
 
 async function ensureAdmin(): Promise<{ error: string } | null> {
   try {
@@ -36,6 +37,19 @@ export type ConfigValue = {
   stageOrder?: number | null;
   probability?: number | null;
 };
+
+export async function getAdminLeadFieldSettings(): Promise<LeadFieldSettings> {
+  const denied = await ensureAdmin();
+  if (denied) throw new Error(denied.error);
+  return getLeadFieldSettings();
+}
+
+export async function updateAdminLeadFieldSettings(input: unknown): Promise<void> {
+  const denied = await ensureAdmin();
+  if (denied) throw new Error(denied.error);
+  await saveLeadFieldSettings(input);
+  revalidatePath("/", "layout");
+}
 
 const nameSchema = z.string().trim().min(1, "Name is required").max(100, "Max 100 characters");
 const stageKindSchema = z.enum(STAGE_KINDS).nullable().optional();

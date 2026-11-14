@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { prismadb } from "@/lib/prisma";
 import { serializeDecimalsList } from "@/lib/serialize-decimals";
+import { getLeadFieldSettings } from "@/lib/crm/leads/field-settings";
 import {
   requirePermission,
   accountReadScopeWhere,
@@ -31,6 +32,7 @@ export const getAllCrmData = cache(async () => {
     leadTypes,
     currencies,
     productCategories,
+    leadFieldSettings,
   ] = await Promise.all([
     prismadb.crm_Accounts.findMany({ where: accountReadScopeWhere(user) }),
     prismadb.crm_Opportunities.findMany({ where: { ...opportunityReadScopeWhere(user), AND: [{ currency: "INR" }] } }),
@@ -50,6 +52,7 @@ export const getAllCrmData = cache(async () => {
       where: { isActive: true },
       orderBy: { order: "asc" },
     }),
+    getLeadFieldSettings(),
   ]);
 
   const data = {
@@ -68,6 +71,7 @@ export const getAllCrmData = cache(async () => {
     leadTypes,
     currencies,
     productCategories,
+    leadFieldSettings,
   };
 
   return data;

@@ -94,7 +94,7 @@ function formatINR(value: number) {
 }
 
 export async function BasicView({ data }: Props) {
-  const { leadSources, leadStatuses, leadTypes } = await getLeadFormOptions();
+  const { leadSources, leadStatuses, leadTypes, leadFieldSettings } = await getLeadFormOptions();
   const fullName = [data.firstName, data.lastName].filter(Boolean).join(" ");
   const website = data.website?.trim()
     ? /^https?:\/\//i.test(data.website.trim())
@@ -122,6 +122,7 @@ export async function BasicView({ data }: Props) {
               leadSources={leadSources}
               leadStatuses={leadStatuses}
               leadTypes={leadTypes}
+              leadFieldSettings={leadFieldSettings}
             />
           </div>
         </CardHeader>

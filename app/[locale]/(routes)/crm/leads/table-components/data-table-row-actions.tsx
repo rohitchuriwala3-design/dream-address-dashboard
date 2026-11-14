@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/sheet";
 import { deleteLead } from "@/actions/crm/leads/delete-lead";
 import Link from "next/link";
+import type { LeadFieldSettings } from "@/lib/crm/leads/field-settings-shared";
 
 type ConfigItem = { id: string; name: string };
 
@@ -42,6 +43,7 @@ interface DataTableRowActionsProps<TData> {
   leadSources: ConfigItem[];
   leadStatuses: ConfigItem[];
   leadTypes: ConfigItem[];
+  leadFieldSettings: LeadFieldSettings;
 }
 
 export function DataTableRowActions<TData>({
@@ -49,6 +51,7 @@ export function DataTableRowActions<TData>({
   leadSources,
   leadStatuses,
   leadTypes,
+  leadFieldSettings,
 }: DataTableRowActionsProps<TData>) {
   const router = useRouter();
   const t = useTranslations("CrmPage");
@@ -99,6 +102,7 @@ export function DataTableRowActions<TData>({
               leadSources={leadSources}
               leadStatuses={leadStatuses}
               leadTypes={leadTypes}
+              leadFieldSettings={leadFieldSettings}
             />
           </div>
         </SheetContent>

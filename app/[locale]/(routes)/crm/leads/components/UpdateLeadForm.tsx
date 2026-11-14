@@ -28,6 +28,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { UserSearchCombobox } from "@/components/ui/user-search-combobox";
 import { AccountSearchCombobox } from "@/components/ui/account-search-combobox";
 import { updateLead } from "@/actions/crm/leads/update-lead";
+import type { LeadFieldSettings } from "@/lib/crm/leads/field-settings-shared";
 
 //TODO: fix all the types
 type ConfigItem = { id: string; name: string };
@@ -38,9 +39,10 @@ type NewTaskFormProps = {
   leadSources: ConfigItem[];
   leadStatuses: ConfigItem[];
   leadTypes: ConfigItem[];
+  leadFieldSettings: LeadFieldSettings;
 };
 
-export function UpdateLeadForm({ initialData, setOpen, leadSources, leadStatuses, leadTypes }: NewTaskFormProps) {
+export function UpdateLeadForm({ initialData, setOpen, leadSources, leadStatuses, leadTypes, leadFieldSettings }: NewTaskFormProps) {
   const t = useTranslations("CrmLeadForm");
   const c = useTranslations("Common");
 
@@ -61,6 +63,10 @@ export function UpdateLeadForm({ initialData, setOpen, leadSources, leadStatuses
     campaign: z.string().optional().nullable(),
     assigned_to: z.string().optional().nullable(),
     accountsIDs: z.string().optional().nullable(),
+  }).superRefine((values, context) => {
+    for (const key of leadFieldSettings.required) {
+      if (!String(values[key] ?? "").trim()) context.addIssue({ code: "custom", path: [key], message: "This field is required." });
+    }
   });
 
   type NewLeadFormValues = z.infer<typeof formSchema>;
@@ -143,8 +149,8 @@ export function UpdateLeadForm({ initialData, setOpen, leadSources, leadStatuses
                 control={form.control}
                 name="company"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("company")}</FormLabel>
+                  <FormItem className={leadFieldSettings.hidden.includes("company") ? "hidden" : undefined}>
+                    <FormLabel>{t("company")}{leadFieldSettings.required.includes("company") && <span className="text-destructive" aria-hidden="true"> *</span>}</FormLabel>
                     <FormControl>
                       <Input
                         disabled={form.formState.isSubmitting}
@@ -160,8 +166,8 @@ export function UpdateLeadForm({ initialData, setOpen, leadSources, leadStatuses
                 control={form.control}
                 name="jobTitle"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("jobTitle")}</FormLabel>
+                  <FormItem className={leadFieldSettings.hidden.includes("jobTitle") ? "hidden" : undefined}>
+                    <FormLabel>{t("jobTitle")}{leadFieldSettings.required.includes("jobTitle") && <span className="text-destructive" aria-hidden="true"> *</span>}</FormLabel>
                     <FormControl>
                       <Input disabled={form.formState.isSubmitting} placeholder="CTO" {...field} />
                     </FormControl>
@@ -175,8 +181,8 @@ export function UpdateLeadForm({ initialData, setOpen, leadSources, leadStatuses
                 control={form.control}
                 name="email"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("email")}</FormLabel>
+                  <FormItem className={leadFieldSettings.hidden.includes("email") ? "hidden" : undefined}>
+                    <FormLabel>{t("email")}{leadFieldSettings.required.includes("email") && <span className="text-destructive" aria-hidden="true"> *</span>}</FormLabel>
                     <FormControl>
                       <Input
                         disabled={form.formState.isSubmitting}
@@ -192,8 +198,8 @@ export function UpdateLeadForm({ initialData, setOpen, leadSources, leadStatuses
                 control={form.control}
                 name="phone"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("phone")}</FormLabel>
+                  <FormItem className={leadFieldSettings.hidden.includes("phone") ? "hidden" : undefined}>
+                    <FormLabel>{t("phone")}{leadFieldSettings.required.includes("phone") && <span className="text-destructive" aria-hidden="true"> *</span>}</FormLabel>
                     <FormControl>
                       <Input
                         disabled={form.formState.isSubmitting}
@@ -210,8 +216,8 @@ export function UpdateLeadForm({ initialData, setOpen, leadSources, leadStatuses
               control={form.control}
               name="description"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{c("description")}</FormLabel>
+                <FormItem className={leadFieldSettings.hidden.includes("description") ? "hidden" : undefined}>
+                  <FormLabel>{c("description")}{leadFieldSettings.required.includes("description") && <span className="text-destructive" aria-hidden="true"> *</span>}</FormLabel>
                   <FormControl>
                     <Textarea
                       disabled={form.formState.isSubmitting}
@@ -228,8 +234,8 @@ export function UpdateLeadForm({ initialData, setOpen, leadSources, leadStatuses
                 control={form.control}
                 name="lead_source_id"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("leadSource")}</FormLabel>
+                  <FormItem className={leadFieldSettings.hidden.includes("lead_source_id") ? "hidden" : undefined}>
+                    <FormLabel>{t("leadSource")}{leadFieldSettings.required.includes("lead_source_id") && <span className="text-destructive" aria-hidden="true"> *</span>}</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value ?? ""}>
                       <FormControl>
                         <SelectTrigger><SelectValue placeholder="Select source…" /></SelectTrigger>
@@ -248,8 +254,8 @@ export function UpdateLeadForm({ initialData, setOpen, leadSources, leadStatuses
                 control={form.control}
                 name="refered_by"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("referredBy")}</FormLabel>
+                  <FormItem className={leadFieldSettings.hidden.includes("refered_by") ? "hidden" : undefined}>
+                    <FormLabel>{t("referredBy")}{leadFieldSettings.required.includes("refered_by") && <span className="text-destructive" aria-hidden="true"> *</span>}</FormLabel>
                     <FormControl>
                       <Input
                         disabled={form.formState.isSubmitting}
@@ -267,8 +273,8 @@ export function UpdateLeadForm({ initialData, setOpen, leadSources, leadStatuses
                 control={form.control}
                 name="campaign"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("campaign")}</FormLabel>
+                  <FormItem className={leadFieldSettings.hidden.includes("campaign") ? "hidden" : undefined}>
+                    <FormLabel>{t("campaign")}{leadFieldSettings.required.includes("campaign") && <span className="text-destructive" aria-hidden="true"> *</span>}</FormLabel>
                     <FormControl>
                       <Input
                         disabled={form.formState.isSubmitting}
@@ -284,8 +290,8 @@ export function UpdateLeadForm({ initialData, setOpen, leadSources, leadStatuses
                 control={form.control}
                 name="lead_type_id"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Lead Type</FormLabel>
+                  <FormItem className={leadFieldSettings.hidden.includes("lead_type_id") ? "hidden" : undefined}>
+                    <FormLabel>Lead Type{leadFieldSettings.required.includes("lead_type_id") && <span className="text-destructive" aria-hidden="true"> *</span>}</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value ?? ""}>
                       <FormControl>
                         <SelectTrigger><SelectValue placeholder="Select type…" /></SelectTrigger>
@@ -324,8 +330,8 @@ export function UpdateLeadForm({ initialData, setOpen, leadSources, leadStatuses
                 control={form.control}
                 name="lead_status_id"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Lead Status</FormLabel>
+                  <FormItem className={leadFieldSettings.hidden.includes("lead_status_id") ? "hidden" : undefined}>
+                    <FormLabel>Lead Status{leadFieldSettings.required.includes("lead_status_id") && <span className="text-destructive" aria-hidden="true"> *</span>}</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value ?? ""}>
                       <FormControl>
                         <SelectTrigger><SelectValue placeholder="Select status…" /></SelectTrigger>
