@@ -11,7 +11,6 @@ import {
   PARTNER_EDIT,
 } from "@/lib/authz";
 import { writeAuditLog } from "@/lib/audit-log";
-import { handleStageTransition } from "@/lib/crm/stage-transition";
 
 type ConversionResult = {
   accountId: string;
@@ -20,7 +19,7 @@ type ConversionResult = {
   alreadyConverted: boolean;
 };
 
-/** Convert a CRM lead once, atomically, into a client, contact, and opportunity. */
+/** Convert a lead only after its linked pre-closure opportunity is confirmed Won. */
 export async function convertLead(leadId: string): Promise<ConversionResult | { error: string }> {
   let user;
   try {
@@ -59,6 +58,10 @@ export async function convertLead(leadId: string): Promise<ConversionResult | { 
           convertedAccountId: true,
           convertedContactId: true,
           convertedOpportunityId: true,
+          preClosureOpportunity: {
+            select: { id: true, status: true, account: true },
+          },
+          documents: { select: { document_id: true } },
         },
       });
       if (!lead) throw new Error("Lead not found");
@@ -70,6 +73,11 @@ export async function convertLead(leadId: string): Promise<ConversionResult | { 
           opportunityId: lead.convertedOpportunityId,
           alreadyConverted: true,
         };
+      }
+
+      const opportunity = lead.preClosureOpportunity;
+      if (!opportunity || opportunity.status !== "WON") {
+        throw new Error("Start an opportunity and mark it Won after the client confirms before converting this lead to an account");
       }
 
       const contactName = [lead.firstName, lead.lastName].filter(Boolean).join(" ").trim();
@@ -107,27 +115,43 @@ export async function convertLead(leadId: string): Promise<ConversionResult | { 
         },
       });
 
-      const entryStage = await tx.crm_Opportunities_Sales_Stages.findFirst({
-        orderBy: { order: "asc" },
-        select: { id: true },
+      await tx.crm_Opportunities.update({
+        where: { id: opportunity.id },
+        data: { account: account.id, contact: contact.id, updatedBy: user.id },
       });
-      const opportunity = await tx.crm_Opportunities.create({
-        data: {
-          name: `${lead.company?.trim() || contactName} — design opportunity`,
-          description: lead.description ?? undefined,
-          account: account.id,
-          contact: contact.id,
-          assigned_to: lead.assigned_to || user.id,
-          createdBy: user.id,
-          updatedBy: user.id,
-          last_activity_by: user.id,
-          last_activity: new Date(),
-          currency: "INR",
-          sales_stage: entryStage?.id,
-          stage_entered_at: new Date(),
-          status: "ACTIVE",
-        },
+
+      const documentIds = lead.documents.map((item) => item.document_id);
+      if (documentIds.length) {
+        await tx.documentsToAccounts.createMany({
+          data: documentIds.map((document_id) => ({ document_id, account_id: account.id })),
+          skipDuplicates: true,
+        });
+        await tx.documentsToContacts.createMany({
+          data: documentIds.map((document_id) => ({ document_id, contact_id: contact.id })),
+          skipDuplicates: true,
+        });
+        await tx.documentsToOpportunities.createMany({
+          data: documentIds.map((document_id) => ({ document_id, opportunity_id: opportunity.id })),
+          skipDuplicates: true,
+        });
+      }
+      const leadActivityLinks = await tx.crm_ActivityLinks.findMany({
+        where: { entityType: "lead", entityId: lead.id },
+        select: { activityId: true },
       });
+      const activityIds = Array.from(new Set(leadActivityLinks.map(({ activityId }) => activityId)));
+      if (activityIds.length) {
+        await tx.crm_ActivityLinks.createMany({
+          data: [account.id, contact.id, opportunity.id].flatMap((entityId, index) =>
+            activityIds.map((activityId) => ({
+              activityId,
+              entityType: ["account", "contact", "opportunity"][index],
+              entityId,
+            })),
+          ),
+          skipDuplicates: true,
+        });
+      }
 
       await tx.crm_Leads.update({
         where: { id: lead.id },
@@ -151,21 +175,6 @@ export async function convertLead(leadId: string): Promise<ConversionResult | { 
 
     if (!result.alreadyConverted) {
       try {
-        const opportunity = await prismadb.crm_Opportunities.findUnique({
-          where: { id: result.opportunityId },
-          select: { sales_stage: true },
-        });
-        await handleStageTransition({
-          opportunityId: result.opportunityId,
-          fromStage: null,
-          toStage: opportunity?.sales_stage ?? null,
-        });
-      } catch (error) {
-        // Conversion already committed. Do not tell the user it failed and
-        // encourage another conversion because a downstream automation failed.
-        console.error("[convertLead] Stage automation failed after conversion", error);
-      }
-      try {
         await writeAuditLog({
           entityType: "lead",
           entityId: leadId,
@@ -183,9 +192,12 @@ export async function convertLead(leadId: string): Promise<ConversionResult | { 
     }
 
     revalidatePath("/[locale]/(routes)/crm/leads", "page");
+    revalidatePath("/[locale]/(routes)/crm/leads/[leadId]", "page");
     revalidatePath("/[locale]/(routes)/crm/accounts", "page");
+    revalidatePath("/[locale]/(routes)/crm/accounts/[accountId]", "page");
     revalidatePath("/[locale]/(routes)/crm/contacts", "page");
     revalidatePath("/[locale]/(routes)/crm/opportunities", "page");
+    revalidatePath("/[locale]/(routes)/crm/opportunities/[opportunityId]", "page");
     return result;
   } catch (error) {
     if (error instanceof AuthorizationError) return { error: "Forbidden" };

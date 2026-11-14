@@ -17,9 +17,10 @@ import { useRouter } from "next/navigation";
 interface DocumentsViewProps {
   data: any;
   accountId?: string;
+  leadId?: string;
 }
 
-const DocumentsView = ({ data, accountId }: DocumentsViewProps) => {
+const DocumentsView = ({ data, accountId, leadId }: DocumentsViewProps) => {
   const router = useRouter();
 
   return (
@@ -36,7 +37,7 @@ const DocumentsView = ({ data, accountId }: DocumentsViewProps) => {
             <CardDescription></CardDescription>
           </div>
           <div className="flex space-x-2">
-            {accountId && <BulkUploadModal accountId={accountId} />}
+            {(accountId || leadId) && <BulkUploadModal accountId={accountId} leadId={leadId} />}
           </div>
         </div>
         <Separator />

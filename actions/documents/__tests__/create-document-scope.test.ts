@@ -4,6 +4,7 @@ jest.mock("@/lib/prisma", () => ({
     users: { findUnique: jest.fn() },
     documents: { create: jest.fn(), findFirst: jest.fn(), count: jest.fn() },
     crm_Accounts: { findFirst: jest.fn() },
+    crm_Leads: { findFirst: jest.fn() },
   },
 }));
 jest.mock("@/lib/minio", () => ({
@@ -68,6 +69,20 @@ describe("createDocument auth", () => {
     expect(where.id).toBe("a1");
     expect(where.OR).toBeUndefined();
     expect(prismadb.documents.create).toHaveBeenCalled();
+  });
+
+  it("links a new uploaded file to an authorized CRM lead", async () => {
+    mockUser("user", "u1");
+    (prismadb.crm_Leads.findFirst as jest.Mock).mockResolvedValue({ id: "lead-1" });
+    (prismadb.documents.count as jest.Mock).mockResolvedValue(0);
+    (prismadb.documents.create as jest.Mock).mockResolvedValue({ id: "d1" });
+
+    await createDocument({ ...baseInput, leadId: "lead-1" });
+
+    expect(prismadb.crm_Leads.findFirst).toHaveBeenCalledWith(expect.objectContaining({
+      where: expect.objectContaining({ id: "lead-1" }),
+    }));
+    expect((prismadb.documents.create as jest.Mock).mock.calls[0][0].data.leads).toEqual({ create: { lead_id: "lead-1" } });
   });
 
   it("does not upload or create a document without CRM/project manage access", async () => {

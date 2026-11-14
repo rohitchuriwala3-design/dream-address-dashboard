@@ -47,9 +47,10 @@ async function computeHash(file: File): Promise<string> {
 
 interface BulkUploadModalProps {
   accountId?: string;
+  leadId?: string;
 }
 
-export function BulkUploadModal({ accountId }: BulkUploadModalProps) {
+export function BulkUploadModal({ accountId, leadId }: BulkUploadModalProps) {
   const [open, setOpen] = useState(false);
   const [queue, setQueue] = useState<QueuedFile[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -112,6 +113,7 @@ export function BulkUploadModal({ accountId }: BulkUploadModalProps) {
         mimeType: item.file.type,
         contentHash: item.hash,
         accountId,
+        leadId,
       });
 
       updateFile(index, { status: "uploaded", progress: 100 });
@@ -174,12 +176,12 @@ export function BulkUploadModal({ accountId }: BulkUploadModalProps) {
       <DialogTrigger asChild>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
-          Upload Documents
+          {leadId ? "Upload lead files" : "Upload Documents"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Upload Documents</DialogTitle>
+          <DialogTitle>{leadId ? "Upload lead files and photos" : "Upload Documents"}</DialogTitle>
         </DialogHeader>
 
         <div

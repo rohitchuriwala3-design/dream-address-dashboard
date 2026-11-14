@@ -33,6 +33,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { deleteLead } from "@/actions/crm/leads/delete-lead";
+import Link from "next/link";
 
 type ConfigItem = { id: string; name: string };
 
@@ -113,10 +114,10 @@ export function DataTableRowActions<TData>({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[160px]">
-          <DropdownMenuItem
-            onClick={() => router.push(`/crm/leads/${lead?.id}`)}
-          >
-            View
+          <DropdownMenuItem asChild>
+            <Link href={`/crm/leads/${lead?.id}`} target="_blank" rel="noreferrer">
+              View lead
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setUpdateOpen(true)}>
             Update

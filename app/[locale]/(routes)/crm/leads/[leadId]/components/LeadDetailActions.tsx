@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { convertLead } from "@/actions/crm/leads/convert-lead";
+import { createLeadOpportunity } from "@/actions/crm/leads/create-lead-opportunity";
+import Link from "next/link";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,6 +40,7 @@ export function LeadDetailActions({
 }: LeadDetailActionsProps) {
   const [updateOpen, setUpdateOpen] = useState(false);
   const [converting, startConversion] = useTransition();
+  const [startingOpportunity, startOpportunity] = useTransition();
   const router = useRouter();
 
   const onConvert = () => startConversion(async () => {
@@ -51,12 +54,32 @@ export function LeadDetailActions({
     router.push(`/crm/opportunities/${result.opportunityId}`);
   });
 
+  const onStartOpportunity = () => startOpportunity(async () => {
+    const result = await createLeadOpportunity(lead.id);
+    if ("error" in result) {
+      toast.error(result.error);
+      return;
+    }
+    toast.success(result.created ? "Opportunity started; the lead remains pre-closure" : "Opportunity already exists");
+    router.push(`/crm/opportunities/${result.opportunity.id}`);
+  });
+
   return (
     <>
-      {!lead?.convertedOpportunityId && (
+      {!lead?.convertedOpportunityId && !lead?.preClosureOpportunity && (
+        <Button size="sm" variant="secondary" onClick={onStartOpportunity} disabled={startingOpportunity}>
+          {startingOpportunity ? "Starting…" : "Start opportunity"}
+        </Button>
+      )}
+      {lead?.preClosureOpportunity && !lead?.convertedOpportunityId && (
+        <Link href={`/crm/opportunities/${lead.preClosureOpportunity.id}`} className="inline-flex h-9 items-center rounded-md border px-3 text-sm font-medium hover:bg-accent">
+          Opportunity · {lead.preClosureOpportunity.status === "WON" ? "Won" : lead.preClosureOpportunity.assigned_sales_stage?.name || lead.preClosureOpportunity.status || "Open"}
+        </Link>
+      )}
+      {lead?.preClosureOpportunity?.status === "WON" && !lead?.convertedOpportunityId && (
         <Button size="sm" onClick={onConvert} disabled={converting}>
           <UserRoundCheck className="mr-2 h-4 w-4" />
-          {converting ? "Converting…" : "Convert to client"}
+          {converting ? "Converting…" : "Convert won lead to account"}
         </Button>
       )}
       <Sheet open={updateOpen} onOpenChange={setUpdateOpen}>

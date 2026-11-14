@@ -64,7 +64,31 @@ export const getLead = async (leadId: string) => {
           },
         },
       },
+      preClosureOpportunity: {
+        select: {
+          id: true,
+          name: true,
+          status: true,
+          budget: true,
+          expected_revenue: true,
+          next_step: true,
+          sales_stage: true,
+          assigned_sales_stage: { select: { name: true } },
+          _count: { select: { quoteRevisions: true } },
+        },
+      },
     },
   });
-  return data;
+  return data
+    ? {
+        ...data,
+        preClosureOpportunity: data.preClosureOpportunity
+          ? {
+              ...data.preClosureOpportunity,
+              budget: data.preClosureOpportunity.budget.toString(),
+              expected_revenue: data.preClosureOpportunity.expected_revenue.toString(),
+            }
+          : null,
+      }
+    : null;
 };

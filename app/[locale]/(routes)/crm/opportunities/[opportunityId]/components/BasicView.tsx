@@ -31,6 +31,7 @@ import ReopenQuoteButton from "./ReopenQuoteButton";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
+import { OpportunityOutcomeActions } from "./OpportunityOutcomeActions";
 
 interface OppsViewProps {
   data: {
@@ -81,6 +82,11 @@ export async function BasicView({ data }: OppsViewProps) {
               <Link href={`/api/opportunities/${data.id}/quote`}><Download className="mr-2 h-4 w-4" />Download approved quote</Link>
             </Button>
           )}
+          <OpportunityOutcomeActions
+            opportunityId={data.id}
+            status={data.status}
+            sourceLead={(data as any).sourceLead ?? null}
+          />
           <OpportunityDetailActions
             opportunity={serializeDecimals(data)}
             saleTypes={saleTypes}

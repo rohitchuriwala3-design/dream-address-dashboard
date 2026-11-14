@@ -38,7 +38,7 @@ export const createColumns = (
       const fullName = [lead.firstName, lead.lastName].filter(Boolean).join(" ") || "New enquiry";
       return (
         <div className="min-w-40">
-          <Link href={`/crm/leads/${lead.id}`} className="font-medium text-foreground hover:text-primary hover:underline" data-testid="lead-row-name">{fullName}</Link>
+          <Link href={`/crm/leads/${lead.id}`} target="_blank" rel="noreferrer" className="font-medium text-foreground hover:text-primary hover:underline" data-testid="lead-row-name">{fullName}</Link>
           <p className="mt-1 max-w-56 truncate text-xs text-muted-foreground">{lead.company || "Residential client"}</p>
         </div>
       );

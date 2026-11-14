@@ -3,6 +3,7 @@ import { prismadb } from "@/lib/prisma";
 import { serializeDecimals, serializeDecimalsList } from "@/lib/serialize-decimals";
 import {
   accountReadScopeWhere,
+  assertCanReadAccount,
   assertCanWriteAccount,
   assertCanWriteOpportunity,
   requireRole,
@@ -49,6 +50,39 @@ export async function countStudioProjects() {
   return prismadb.studioProject.count({ where: { deletedAt: null, currency: "INR", account: { is: accountReadScopeWhere(user) } } });
 }
 
+/** List the account's distinct studio jobs while preserving project-module and account scopes. */
+export async function listStudioProjectsByAccount(accountId: string) {
+  const user = await currentUser("projects.view");
+  try {
+    await assertCanReadAccount(user, accountId);
+  } catch (error) {
+    if (error instanceof AuthorizationError) throw new StudioProjectServiceError("Project access is not available for this account", "FORBIDDEN");
+    throw error;
+  }
+  const projects = await prismadb.studioProject.findMany({
+    where: {
+      accountId,
+      deletedAt: null,
+      currency: "INR",
+      account: { is: accountReadScopeWhere(user) },
+    },
+    select: {
+      id: true,
+      code: true,
+      name: true,
+      status: true,
+      currency: true,
+      contractValue: true,
+      startDate: true,
+      targetHandoverDate: true,
+      actualHandoverDate: true,
+      opportunity: { select: { id: true, name: true } },
+    },
+    orderBy: [{ targetHandoverDate: "asc" }, { updatedAt: "desc" }],
+  });
+  return serializeDecimalsList(projects);
+}
+
 export async function listInvoiceProjectOptions() {
   const user = await currentUser();
   return prismadb.studioProject.findMany({
@@ -90,7 +124,7 @@ export async function getStudioProject(projectId: string) {
 export async function getStudioProjectOpportunities() {
   const user = await currentUser();
   const opportunities = await prismadb.crm_Opportunities.findMany({
-    where: { ...opportunityReadScopeWhere(user), status: "ACTIVE", currency: "INR", account: { not: null } },
+    where: { ...opportunityReadScopeWhere(user), status: { in: ["ACTIVE", "WON"] }, currency: "INR", account: { not: null } },
     select: {
       id: true, name: true, expected_revenue: true, currency: true, account: true,
       assigned_account: { select: { id: true, name: true } },
@@ -123,10 +157,10 @@ export async function createStudioProject(input: {
   }
 
   const opportunity = await prismadb.crm_Opportunities.findFirst({
-    where: { id: opportunityId, deletedAt: null, status: "ACTIVE", account: { not: null } },
+    where: { id: opportunityId, deletedAt: null, status: { in: ["ACTIVE", "WON"] }, account: { not: null } },
     select: { id: true, account: true, assigned_to: true, name: true, currency: true },
   });
-  if (!opportunity?.account) throw new StudioProjectServiceError("An active opportunity linked to a client is required", "INVALID");
+  if (!opportunity?.account) throw new StudioProjectServiceError("A qualified or Won opportunity linked to a client is required", "INVALID");
   if (opportunity.currency !== "INR") throw new StudioProjectServiceError("Set a verified INR forecast before creating a project", "INVALID");
   try { await assertCanWriteAccount(user, opportunity.account, PARTNER_EDIT); }
   catch (error) {

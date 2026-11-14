@@ -35,6 +35,9 @@ export const getOpportunity = async (opportunityId: string) => {
           name: true,
         },
       },
+      sourceLead: {
+        select: { id: true, firstName: true, lastName: true },
+      },
       // Include sales stage
       assigned_sales_stage: {
         select: {

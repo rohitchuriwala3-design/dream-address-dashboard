@@ -2,9 +2,37 @@
 
 Updated: 2026-11-14 (Asia/Kolkata)
 
-## Latest continuation — Phase 1 local regression complete — 2026-11-14
+## Continuation update — 2026-11-14
 
-- Continue Phase 1 only. Checklist is 18/25 (72%), health 81/100. Official brand/business identity is excluded from the exit gate; staging commit `c76c6ab` is live with the fictional editable issuer enabled only on staging.
+- **Phase 1 is complete:** 24/24 in-scope checks; health estimate 96/100 (weighted). The visual CRM rebuild remains explicitly Phase 1B, broad future-workflow mobile acceptance belongs to each later phase, and Google Sheets two-way business-record sync remains Phase 4 at 22%.
+- Staging branch `nexus360-rebuild-staging`, commit `4f6b77b`, Render deploy `dep-dbrq6pm8bjmc73dqnq3g` reports `live`. Staging `/api/health` returned HTTP 200 with `database: ok`; startup reports 73 migrations and no pending migrations. Production remains unchanged.
+- Final Phase 1 change adds privacy-safe audit entries for authorized single and bulk document deletions. Targeted regression: 2 suites / 9 tests passed. Earlier closeout groups passed: authz/file 36 suites / 570 tests, profile/business-profile/INR/invoice/order 28 suites / 142 tests (overlapping sets, do not add). TypeScript, targeted ESLint and optimized Next production build passed.
+- At 390px, authenticated staging Admin → Users invite, filters/cards/role actions, Business Profile, Currencies and Invoice Settings were reviewed. No clipping or horizontal overflow on these Phase 1 screens. A short dummy password showed minimum-eight-character/low-strength feedback with submit disabled. Disposable profile role change persisted User → Partner → User and was left inactive. No real user, credential, finance record or workbook row was changed.
+- Active application source review found no active foreign currency codes/defaults; staging reports INR enabled. Tax settings are absent from new V1 invoice settings; new invoice/order paths remain tax-free. Historical records are preserved. Direct staging database SQL inspection remains unavailable because the database external IP allowlist is empty; the UI/migration evidence is recorded instead.
+- The repository-wide Jest run is not clean due known unrelated Odoo timezone and Windows E2B fixture failures/async teardown. Do not claim a full-repository test pass. The Phase 1 focused checks passed. Sheet integration status is log/connectivity only, not two-way record sync.
+- Do not stage or commit the unrelated Phase 4 Sheet work. Continue with Phase 1B. Run the prior-Phase 1 acceptance regression once at Phase 1B exit, or earlier only if a Phase 1 surface is materially changed.
+
+## Work-efficiency rule and current Phase 1B checkpoint — 2026-11-14
+
+- **Avoid phase repetition:** During ordinary work batches, check only changed files and directly affected behavior. At a coherent milestone/deploy, run the focused integration/migration/build checks and one staging smoke. Run the full current-phase acceptance plus prior-phase regression once at that phase's exit; recheck earlier work sooner only when its code/security/data paths changed or a focused check exposes a regression.
+- **Keep evidence single-sourced:** The top of this checkpoint plus `V1_WORKFLOW_CHECKLIST.md` are current; older dated sections below are historical evidence, not instructions to repeat. Do not rerun Salesforce/CRM research already captured in the relationship blueprint. Keep overlapping test groups separate and don't sum them.
+- **Current phase remains 1B:** Phase 1 stays closed at 96/100; no full Phase 1 rerun is due during each Phase 1B work batch. Its exit regression is still required once before closing Phase 1B.
+- Dashboard updated locally: Phase 1B appears as the top health card with its current evidence breakdown; Phase 1 health moved to a collapsed bottom record. Bottom navigation opens the styled `PROJECT_GUIDE.html` sections for plan, structure, relationships, verified facts, assumptions, workflow and boundaries. Refresh the local HTML tab to see it; it is not a live event feed.
+- **Uncommitted Phase 1B implementation:** responsive Lead detail with INR opportunity/quote revision summary; scoped upload of lead files/photos; pre-closure Lead → Opportunity; explicit Won/Lost outcome recording; Won-only idempotent Lead → Account/Contact conversion with document/activity carry-forward; Account project portfolio; and Active/Won project handoff compatibility. The additive migration applied successfully to the isolated local PostgreSQL test database; no staging/production database was touched.
+- **Current incremental evidence:** Prisma schema validates; 5 focused suites / 21 tests pass (create opportunity, won conversion/idempotency, Won/Lost outcome, project handoff, lead-document authorization); `tsc --noEmit`, targeted ESLint and `git diff --check` pass. A local production build passed once using localhost-only Better Auth/Inngest values; the newest Lead summary component was added after that build, so run the build again before staging. No relationship batch has been deployed yet.
+- Keep all unrelated uncommitted Phase 4 Sheet files out of Phase 1B commits. Sheets two-way business-record sync remains paused at 22%.
+
+## Historical closeout state — 2026-11-14 (superseded by the Phase 1 completion at the top)
+
+- Authenticated Chrome admin session remains on `/en/admin/users`. At 390px the invite fields stack cleanly and labels are not clipped. The navigation/settings strip scrolls horizontally; do not claim complete mobile usability until the user list/cards and other Phase 1 workflows are checked. A disposable QA role was previously changed User → Partner → User and left deactivated.
+- Active app-source review found no USD/EUR/CZK symbols/codes or Czech/Russian defaults in app paths previously scanned; staging visibly uses INR. Runtime database currency rows were not independently inspected.
+- Phase 1 health is **83/100** and remains below the required 95 gate. Phase 4 remains paused at 22%; Sheet business-record two-way sync is not Phase 1 work.
+- Keep uncommitted Phase 4 Sheet implementation separate; do not stage or commit its files while closing Phase 1.
+
+## Historical continuation — Phase 1 local regression checkpoint — 2026-11-14 (superseded by the Phase 1 completion at the top)
+
+- Continue Phase 1 only. Checklist is 18/25 (72%), health 81/100. Official brand/business identity is excluded from the exit gate; staging commit `5ad13b5` is live with the fictional editable issuer enabled only on staging.
+- Latest Render deploy `dep-dbro5rqjnfac73b0pdgg` is live. `/api/health` returns 200/database `ok`; anonymous user and invoice settings routes redirect to sign-in; protected report/PDF APIs return 401. Admin → Users spacing fix is deployed.
 - Docker Desktop now runs the isolated local PostgreSQL 17/pgvector test DB on loopback port 5433. All 72 migrations were applied locally. Set `DATABASE_URL=postgresql://nextcrm:nextcrm@127.0.0.1:5433/nextcrm`, plus `INNGEST_ID=mark4-jest` and `INNGEST_APP_NAME=MARK IV tests`, for Jest. The previous DB host `base` error was missing test-process config; never target staging for local tests.
 - Latest full Jest: 422/426 suites, 3,163/3,168 tests pass. Five known failures remain in deferred Odoo timezone tests (3) and E2B enrichment shell-path test (1). Jest `--forceExit` is needed due to async handles left by unrelated enrichment tests. Phase 1 focused regressions pass; details and commands are recorded in `V1_WORKFLOW_CHECKLIST.md` and `BUILD_STATUS.md`.
 - After the full run, targeted suites passed for semantic search, campaign concurrency, CRM price-list and plugin data fixtures, upload-signature validation with dummy local MinIO variables, CRM import, generated docs, and the authz/report/user gates. Do not add overlapping targeted totals.
@@ -128,6 +156,15 @@ Follow `V1_WORKFLOW_CHECKLIST.md` in order and use its cumulative regression gat
 - This is a completion-triggered follow-up, not part of MARK IV V1 scope. Bring it up when the V1 completion review begins.
 
 ## Sheets recheck — 2026-11-13 13:42 IST
+
+## Phase 1 authenticated recheck — 2026-11-14
+
+- Owner signed into the existing staging Chrome tab; do not request or use their password. Admin Users UI, password minimum validation, role choices, INR setting, Business Profile test values, optional IFSC payment fields, masked Resend key storage and Sheets sync limitations were inspected read-only.
+- Latest live deploy is from commit `6409bed` (Partner module navigation scope correction); confirm Render deploy status before claiming that exact build is live. Previous `cbfd9e2` deploy with IFSC migration was confirmed live and migrated successfully.
+- Admin users UI: six users listed; Change access role offers Admin/Manager/User/Partner. Password reset dialog showed `Password strength: Low — use at least 8 characters` for unsaved dummy `abc`; no role/password was saved.
+- Google Sheets page clearly says Sync Log connectivity test only, no CRM/project/invoice/finance business-record sync. No crosswalk mappings. Historical last successful log write/read was 13 Nov; read-only audit saw 11 tabs, 286 populated rows and 219 structural findings. New read-only audit was started but remained on `Scanning workbook…` during this review. No Sheet cells edited.
+- `pnpm exec jest --runInBand --forceExit` with local isolated Postgres and required test env failed for unrelated/deferred Odoo tests (timezone fixtures plus totals order), E2B Windows temp-path test, Inngest env in one first attempt, and noisy enrichment async teardown. Focused access regression passed 6 suites / 46 tests, including invite, role, reset, activation/deactivation, delete and partner write boundaries. Previous documented full run: 422/426 suites and 3163/3168 tests.
+- Phase 1 is not complete: health estimated **84/100**. Remaining: stable complete Phase 1 regression run, saved role/role-boundary check on disposable account, authorized private-file check, phone-sized end-to-end workflow check, and fresh Sheets audit reliable completion. Do not modify business records, user role, password, Sheet, or production. Full CRM visual redesign stays outside Phase 1; dual business sync is Phase 4 and remains parked at 22%.
 
 - The confirmed active workbook is `Dream Address Studio — Management` (`1oJP7fqIGl48cUPq76XOogPQ-B5IfHHESt0JCTVpIW5o`) with 25 tabs. The staging app's admin page reports Google credentials configured. Its latest completed authenticated audit scanned 11 required source tabs and 286 populated rows, reporting 219 structural findings. No NexusSheetCrosswalk mappings are saved.
 - The workbook has populated rows despite being described as a fresh sheet. Many invoice/quotation/transaction/expense rows have missing IDs and quotation-line composite keys repeat. Do not import, overwrite, clear, or auto-match these rows based on labels or amounts; classify rows and IDs first.

@@ -1,7 +1,10 @@
 "use server";
 import {
   requireAnyPermission,
+  requirePermission,
   assertCanWriteAccount,
+  assertCanWriteLead,
+  PARTNER_EDIT,
   AuthenticationError,
   AuthorizationError,
 } from "@/lib/authz";
@@ -17,16 +20,30 @@ interface CreateDocumentInput {
   mimeType: string;
   contentHash?: string;
   accountId?: string;
+  leadId?: string;
 }
 
 export async function createDocument(input: CreateDocumentInput) {
   let user;
   try {
-    user = await requireAnyPermission(["crm.manage", "projects.manage"]);
+    user = input.leadId
+      ? await requirePermission("crm.manage", { partner: true })
+      : await requireAnyPermission(["crm.manage", "projects.manage"]);
   } catch (e) {
     if (e instanceof AuthenticationError) throw new Error("Unauthorized");
     if (e instanceof AuthorizationError) throw new Error("Forbidden");
     throw e;
+  }
+
+  if (input.leadId && input.accountId) throw new Error("Choose either a lead or an account for this document");
+
+  if (input.leadId) {
+    try {
+      await assertCanWriteLead(user, input.leadId, PARTNER_EDIT);
+    } catch (e) {
+      if (e instanceof AuthorizationError) throw new Error("Forbidden");
+      throw e;
+    }
   }
 
   if (input.accountId) {
@@ -55,6 +72,9 @@ export async function createDocument(input: CreateDocumentInput) {
       ...(input.accountId
         ? { accounts: { create: { account_id: input.accountId } } }
         : {}),
+      ...(input.leadId
+        ? { leads: { create: { lead_id: input.leadId } } }
+        : {}),
     },
   });
 
@@ -64,5 +84,6 @@ export async function createDocument(input: CreateDocumentInput) {
   });
 
   revalidatePath("/[locale]/(routes)/documents");
+  if (input.leadId) revalidatePath("/[locale]/(routes)/crm/leads/[leadId]", "page");
   return document;
 }

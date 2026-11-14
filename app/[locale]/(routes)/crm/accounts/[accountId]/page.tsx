@@ -5,7 +5,7 @@ import CaseStudyCard from "./components/CaseStudyCard";
 import AccountPartnerCard from "./components/AccountPartnerCard";
 import { getPartnerUsers } from "@/actions/crm/accounts/get-partner-users";
 import { getSession } from "@/lib/auth-server";
-import { requireAuthenticated, isManagerOrAdmin } from "@/lib/authz";
+import { requireAuthenticated, isManagerOrAdmin, AuthorizationError } from "@/lib/authz";
 import { getAccountTabs, getAccountPanels } from "@/lib/plugins/slots";
 import { PluginSlot } from "@/lib/plugins/ui/PluginSlot";
 import { FindSimilarButton } from "@/components/crm/find-similar-button";
@@ -47,6 +47,8 @@ import { ActivitiesSection } from "./components/ActivitiesSection";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HistoryTab } from "./components/HistoryTab";
 import { AccountOrdersTab } from "./components/AccountOrdersTab";
+import { listStudioProjectsByAccount, StudioProjectServiceError } from "@/actions/studio-projects/service";
+import { StudioProjectPortfolio } from "./components/StudioProjectPortfolio";
 
 interface AccountDetailPageProps {
   params: Promise<{
@@ -63,6 +65,12 @@ const AccountDetailPage = async (props: AccountDetailPageProps) => {
   const actor = { type: "user" as const, userId: actorUser.id, role: actorUser.role };
   const [pluginTabs, pluginPanels] = await Promise.all([getAccountTabs(actorUser.role), getAccountPanels(actorUser.role)]);
   const account: crm_Accounts | null = await getAccount(accountId);
+  let studioProjects: Awaited<ReturnType<typeof listStudioProjectsByAccount>> | null = null;
+  try {
+    studioProjects = await listStudioProjectsByAccount(accountId);
+  } catch (error) {
+    if (!(error instanceof AuthorizationError) && !(error instanceof StudioProjectServiceError && error.code === "FORBIDDEN")) throw error;
+  }
   const opportunities: crm_Opportunities[] = serializeDecimalsList(
     await getOpportunitiesFullByAccountId(accountId)
   );
@@ -149,6 +157,7 @@ const AccountDetailPage = async (props: AccountDetailPageProps) => {
             )}
             <ActivitiesSection accountId={account.id} />
             <FindSimilarButton entityType="account" recordId={accountId} />
+            {studioProjects !== null && <StudioProjectPortfolio projects={studioProjects} />}
             <AccountsTasksView data={tasks} account={account} />
             <OpportunitiesView
               data={opportunities}

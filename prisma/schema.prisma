@@ -114,6 +114,7 @@ model crm_Leads {
   convertedAccountId     String?               @db.Uuid
   convertedContactId     String?               @db.Uuid
   convertedOpportunityId String?               @unique @db.Uuid
+  preClosureOpportunity  crm_Opportunities?    @relation("LeadOpportunity")
   documents              DocumentsToLeads[]
   embedding              crm_Embeddings_Leads?
   deletedAt              DateTime?
@@ -223,6 +224,10 @@ model crm_Opportunities {
   id                    String                  @id @default(uuid()) @db.Uuid
   v                     Int                     @default(0) @map("__v")
   account               String?                 @db.Uuid
+  sourceLeadId          String?                 @unique @db.Uuid
+  closedAt              DateTime?
+  closedBy              String?                 @db.Uuid
+  outcomeNote           String?                 @db.Text
   assigned_to           String?                 @db.Uuid
   budget                Decimal                 @default(0) @db.Decimal(18, 2)
   campaign              String?                 @db.Uuid
@@ -259,6 +264,7 @@ model crm_Opportunities {
   assigned_to_user     Users?                          @relation("assigned_to_user_relation", fields: [assigned_to], references: [id])
   created_by_user      Users?                          @relation("created_by_user_relation", fields: [createdBy], references: [id])
   assigned_account     crm_Accounts?                   @relation(fields: [account], references: [id])
+  sourceLead           crm_Leads?                      @relation("LeadOpportunity", fields: [sourceLeadId], references: [id], onDelete: SetNull)
   assigned_campaings   crm_campaigns?                  @relation(fields: [campaign], references: [id])
   assigned_currency    Currency?                       @relation(fields: [currency], references: [code])
   documents            DocumentsToOpportunities[]
@@ -298,6 +304,8 @@ enum crm_Opportunity_Status {
   INACTIVE
   PENDING
   CLOSED
+  WON
+  LOST
 }
 
 enum crm_Product_Type {

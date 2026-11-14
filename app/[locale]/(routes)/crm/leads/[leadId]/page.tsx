@@ -1,4 +1,5 @@
 import { getLead } from "@/actions/crm/get-lead";
+import { getDocumentsByLeadId } from "@/actions/documents/get-documents-by-leadId";
 import Container from "@/app/[locale]/(routes)/components/ui/Container";
 import React from "react";
 import { BasicView } from "./components/BasicView";
@@ -17,7 +18,10 @@ interface LeadDetailPageProps {
 const LeadDetailPage = async (props: LeadDetailPageProps) => {
   const params = await props.params;
   const { leadId } = params;
-  const lead: any = await getLead(leadId);
+  const [lead, documents] = await Promise.all([
+    getLead(leadId),
+    getDocumentsByLeadId(leadId),
+  ]);
 
   if (!lead) return <div>Lead not found</div>;
 
@@ -34,9 +38,9 @@ const LeadDetailPage = async (props: LeadDetailPageProps) => {
         <TabsContent value="overview">
           <div className="space-y-5">
             <BasicView data={lead} />
+            <DocumentsView data={documents} leadId={leadId} />
             <ActivitiesSection leadId={lead.id} />
             <FindSimilarButton entityType="lead" recordId={leadId} />
-            {/*         <DocumentsView data={lead?.documents} /> */}
           </div>
         </TabsContent>
         <TabsContent value="history">

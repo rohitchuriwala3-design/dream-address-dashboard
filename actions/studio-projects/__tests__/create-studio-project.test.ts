@@ -53,6 +53,7 @@ describe("createStudioProject", () => {
 
     expect(result).toEqual({ projectId: "project-1", alreadyExists: false });
     expect(tx.$queryRaw).toHaveBeenCalledTimes(1);
+    expect((prismadb.crm_Opportunities.findFirst as jest.Mock).mock.calls[0][0].where.status).toEqual({ in: ["ACTIVE", "WON"] });
     const data = tx.studioProject.create.mock.calls[0][0].data;
     expect(data).toMatchObject({
       name: "Sharma Residence", accountId: "account-1", opportunityId: "opp-1",
@@ -73,7 +74,7 @@ describe("createStudioProject", () => {
   it("rejects opportunities without a linked client account", async () => {
     (prismadb.crm_Opportunities.findFirst as jest.Mock).mockResolvedValue({ id: "opp-1", account: null });
     await expect(createStudioProject({ opportunityId: "opp-1", name: "No client" })).rejects.toThrow(
-      "An active opportunity linked to a client is required",
+      "A qualified or Won opportunity linked to a client is required",
     );
     expect(prismadb.$transaction).not.toHaveBeenCalled();
   });
