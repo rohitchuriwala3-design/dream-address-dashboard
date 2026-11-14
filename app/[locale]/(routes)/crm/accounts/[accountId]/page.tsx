@@ -136,6 +136,7 @@ const AccountDetailPage = async (props: AccountDetailPageProps) => {
           <TabsTrigger value="pipeline">Pipeline ({opportunities.length + leads.length + contracts.length})</TabsTrigger>
           {studioProjects !== null && <TabsTrigger value="projects">Projects ({studioProjects.length})</TabsTrigger>}
           <TabsTrigger value="people">People ({contacts.length})</TabsTrigger>
+          <TabsTrigger value="products">Products ({accountProducts.length})</TabsTrigger>
           <TabsTrigger value="documents">Documents ({documents.length})</TabsTrigger>
           {canViewFinance && <TabsTrigger value="finance">Finance ({invoices.length})</TabsTrigger>}
           <TabsTrigger value="activity">Activity & history</TabsTrigger>
@@ -191,13 +192,15 @@ const AccountDetailPage = async (props: AccountDetailPageProps) => {
           <div className="space-y-5">
             <ContactsView data={contacts} crmData={crmData} accountId={accountId} />
             <AccountsTasksView data={tasks} account={account} />
-            <AccountProductsView
-              data={accountProducts}
-              accountId={accountId}
-              crmData={crmData}
-              activeProducts={activeProducts}
-            />
           </div>
+        </TabsContent>
+        <TabsContent value="products">
+          <AccountProductsView
+            data={accountProducts}
+            accountId={accountId}
+            crmData={crmData}
+            activeProducts={activeProducts}
+          />
         </TabsContent>
         <TabsContent value="documents">
           <DocumentsView data={documents} accountId={accountId} />
